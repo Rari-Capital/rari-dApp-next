@@ -662,7 +662,7 @@
 
         return history
           .filter((event) => {
-            return event.args.action === 1;
+            return event.args.action === 0;
           })
           .slice(-40)
           .reverse()
