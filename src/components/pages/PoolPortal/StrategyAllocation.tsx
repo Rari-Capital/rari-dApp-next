@@ -70,7 +70,7 @@ const StrategyAllocation = () => {
         md: "flex-start",
         base: "center",
       }}
-      expand={true}
+      expand
     >
       <Heading lineHeight={1} size="sm" mb={1}>
         {t("Strategy Allocation")}
