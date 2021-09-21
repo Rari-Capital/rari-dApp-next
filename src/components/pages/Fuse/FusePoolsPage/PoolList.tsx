@@ -16,6 +16,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
 
   const isMobile = useIsMobile();
 
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -68,7 +69,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
             return (
               <PoolRow
                 key={pool.id}
-                poolNumber={pool.id}
+                poolNumber={parseInt(pool.id.toString())}
                 name={filterPoolName(pool.pool.name)}
                 tvl={pool.suppliedUSD}
                 borrowed={pool.borrowedUSD}
