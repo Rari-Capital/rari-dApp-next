@@ -166,9 +166,7 @@ const GovernanceStats = () => {
   const { data: rgtSupply } = useQuery("rgtSupply", async () => {
     const rawSupply =
       //@ts-ignore
-      await rari.governance.contracts.RariGovernanceToken.methods
-        .totalSupply()
-        .call();
+      await rari.governance.contracts.RariGovernanceToken.totalSupply()
 
     return smallStringUsdFormatter((parseFloat(rawSupply) / 1e18).toFixed(0))
       .replace("$", "")
@@ -410,8 +408,8 @@ const PoolDetailCard = ({ pool }: { pool: Pool }) => {
           <Image src={poolLogo} />
         </Box>
 
-        <Row mainAxisAlignment="flex-start" crossAxisAlignment="center" mt={2}>
-          <Heading fontSize="xl" lineHeight="2.5rem" ml="12px">
+        <Row mainAxisAlignment="center" crossAxisAlignment="center" mt={2}>
+          <Heading fontSize="xl" lineHeight="2.3rem">
             {poolName}
           </Heading>
 
