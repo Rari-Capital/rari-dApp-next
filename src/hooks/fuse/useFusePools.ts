@@ -84,16 +84,13 @@ export const fetchPools = async ({
     ethPrice,
   ] = await Promise.all([
     isMyPools
-      ? fuse.contracts.FusePoolLens.methods
+      ? fuse.contracts.FusePoolLens.callStatic
           .getPoolsBySupplierWithData(address)
-          .call({ gas: 1e18 }, _blockNum)
       : isCreatedPools
-      ? fuse.contracts.FusePoolLens.methods
+      ? fuse.contracts.FusePoolLens.callStatic
           .getPoolsByAccountWithData(address)
-          .call({ gas: 1e18 }, _blockNum)
-      : fuse.contracts.FusePoolLens.methods
-          .getPublicPoolsWithData()
-          .call({ gas: 1e18 }, _blockNum),
+      : fuse.contracts.FusePoolLens.callStatic
+          .getPublicPoolsWithData(),
     fetchETHPrice,
   ]);
 
