@@ -1,26 +1,34 @@
+// Node
 import Vibrant from "node-vibrant";
 import { Palette } from "node-vibrant/lib/color";
 import fetch from "node-fetch";
-import Web3 from "web3";
-import ERC20ABI from "lib/rari-sdk/abi/ERC20.json";
 
+// Utils
 import { providerURL } from "utils/web3Providers";
+
+// Next
 import { NextApiRequest, NextApiResponse } from "next";
 
-const web3 = new Web3(providerURL);
+// Ethers
+import { utils, Contract } from 'ethers'
+import { JsonRpcProvider } from "@ethersproject/providers"
+
+// Rari
+import ERC20ABI from '../../esm/Vaults/abi/ERC20.json'
+
+const web3 = new JsonRpcProvider(providerURL);
 
 export default async (request: NextApiRequest, response: NextApiResponse) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Cache-Control", "max-age=3600, s-maxage=3600");
 
-  const address = web3.utils.toChecksumAddress(request.query.address as string);
+  const address = utils.getAddress(request.query.address as string);
 
-  const tokenContract = new web3.eth.Contract(ERC20ABI as any, address);
+  const tokenContract = new Contract(ERC20ABI as any, address);
 
   const [decimals, rawData] = await Promise.all([
-    tokenContract.methods
+    tokenContract
       .decimals()
-      .call()
       .then((res: any) => parseFloat(res)),
 
     fetch(
@@ -33,16 +41,16 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   let logoURL: string | undefined;
 
   if (rawData.error) {
-    name = await tokenContract.methods.name().call();
-    symbol = await tokenContract.methods.symbol().call();
+    name = await tokenContract.name();
+    symbol = await tokenContract.symbol();
 
     //////////////////
     // Edge cases: //
     /////////////////
 
     if (
-      web3.utils.toChecksumAddress(address) ===
-      web3.utils.toChecksumAddress("0xFD4D8a17df4C27c1dD245d153ccf4499e806C87D")
+      utils.getAddress(address) ===
+      utils.getAddress("0xFD4D8a17df4C27c1dD245d153ccf4499e806C87D")
     ) {
       name = "linkCRV Gauge Deposit";
       symbol = "[G]linkCRV";
@@ -51,8 +59,8 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     }
 
     if (
-      web3.utils.toChecksumAddress(address) ===
-      web3.utils.toChecksumAddress("0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0")
+      utils.getAddress(address) ===
+      utils.getAddress("0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0")
     ) {
       name = "Wrapped Staked Ether";
       logoURL =
@@ -60,8 +68,8 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     }
 
     if (
-      web3.utils.toChecksumAddress(address) ===
-      web3.utils.toChecksumAddress("0x04f2694c8fcee23e8fd0dfea1d4f5bb8c352111f")
+      utils.getAddress(address) ===
+      utils.getAddress("0x04f2694c8fcee23e8fd0dfea1d4f5bb8c352111f")
     ) {
       logoURL =
         "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/token_sOHM_2.png";
@@ -98,7 +106,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   if (
     address ===
-    web3.utils.toChecksumAddress("0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9")
+    utils.getAddress("0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9")
   ) {
     // FTX swapped the name and symbol so we will correct for that.
     symbol = "FTT";
@@ -107,7 +115,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   if (
     address ===
-    web3.utils.toChecksumAddress("0x8fcb1783bf4b71a51f702af0c266729c4592204a")
+    utils.getAddress("0x8fcb1783bf4b71a51f702af0c266729c4592204a")
   ) {
     // OT token names are too long.
     symbol = "OT-aUSDC22";
@@ -116,7 +124,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   if (
     address ===
-    web3.utils.toChecksumAddress("0x3d4e7f52efafb9e0c70179b688fc3965a75bcfea")
+    utils.getAddress("0x3d4e7f52efafb9e0c70179b688fc3965a75bcfea")
   ) {
     // OT token names are too long.
     symbol = "OT-cDAI22";

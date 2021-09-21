@@ -69,7 +69,6 @@ import { tokens } from "utils/tokenUtils";
 import { fetchRGTAPR } from "utils/fetchPoolAPY";
 import { formatBalanceBN } from "utils/format";
 import { HeaderHeightWithTopPadding } from "components/shared/Header2/NewHeader2";
-import { toBN } from "utils/ethersUtils";
 
 const millisecondsPerDay = 86400000;
 const blocksPerDay = 6500;
@@ -399,7 +398,7 @@ const APYStats = () => {
     isLoading: areAPYsLoading,
     isError,
   } = useQuery(pool + " monthly and weekly apys", async () => {
-    const [monthRaw, weekRaw, rgtAPR]: [BN, BN, string] = await Promise.all([
+    const [monthRaw, weekRaw, rgtAPR]: [BigNumber, BigNumber, string] = await Promise.all([
       getSDKPool({
         rari,
         pool,
@@ -654,7 +653,7 @@ const RecentTrades = () => {
   const { data: allocationHistory } = useQuery(
     poolType + " allocationHistory",
     async () => {
-      const currentBlock = await rari.web3.eth.getBlockNumber();
+      const currentBlock = await rari.provider.getBlockNumber();
 
       const history: any[] = await getSDKPool({
         rari,

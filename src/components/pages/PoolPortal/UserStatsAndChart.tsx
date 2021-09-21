@@ -98,7 +98,7 @@ const UserStatsAndChart = ({
         return [];
       }
 
-      const latestBlock = await rari.web3.eth.getBlockNumber();
+      const latestBlock = await rari.provider.getBlockNumber();
 
       const blockStart =
         timeRange === "month"

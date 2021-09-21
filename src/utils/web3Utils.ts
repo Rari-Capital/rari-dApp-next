@@ -1,11 +1,11 @@
-import Web3 from "web3";
+import { JsonRpcProvider } from "@ethersproject/providers"
 
 // Converts block Number to Unix Timestamp
 export const blockNumberToTimeStamp = async (
-  web3: Web3,
+  provider: JsonRpcProvider,
   blockNumber?: number
 ): Promise<number> => {
   if (!blockNumber) return new Date().getTime();
-  const { timestamp } = await web3.eth.getBlock(blockNumber);
+  const { timestamp } = await provider.getBlock(blockNumber);
   return timestamp as number;
 };

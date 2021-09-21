@@ -12,6 +12,9 @@ import { MarketInfo } from "../types";
 // Util/Misc
 import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
+// Ethers
+import { Contract } from 'ethers'
+
 type CTokenData = {
   cTokenAddress: string; // address of underlying token
   marketInfo: MarketInfo;
@@ -57,7 +60,7 @@ export default function useCompoundMarkets() {
       const marketData: CTokenData[] = [];
       await Promise.all(
         CTOKEN_LIST.map(async (cTokenAddress) => {
-          const cToken = new rari.web3.eth.Contract(CErc20.abi, cTokenAddress);
+          const cToken = new Contract(cTokenAddress, CErc20.abi, rari.provider.getSigner());
 
           const symbol: string = await cToken.methods.symbol().call();
           const supplyRate: number = await cToken.methods
@@ -106,7 +109,7 @@ export default function useCompoundMarkets() {
     return () => {
       window.clearInterval(refreshInterval.current || -1);
     };
-  }, [rari.web3]);
+  }, [rari]);
 
   return markets;
 }

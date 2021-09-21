@@ -1,7 +1,6 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import Rari from "lib/rari-sdk/index";
-import Fuse from "lib/fuse-sdk";
+import { Vaults, Fuse } from '../../esm/index';
 import { fromWei } from "utils/ethersUtils";
 
 export const fetchPool2Balance = async ({
@@ -9,7 +8,7 @@ export const fetchPool2Balance = async ({
   fuse,
   address,
 }: {
-  rari: Rari;
+  rari: Vaults;
   fuse: Fuse;
   address: string;
 }) => {

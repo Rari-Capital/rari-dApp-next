@@ -1,21 +1,27 @@
+// Chakra and UI
+import { RowOrColumn, Column, Center } from "lib/chakraUtils";
+import { Heading } from "@chakra-ui/react";
+import CaptionedStat from "components/shared/CaptionedStat";
+import DashboardBox from "components/shared/DashboardBox";
+
+// React
 import { ReactNode } from "react";
 
 // Hooks
 import { useTranslation } from 'next-i18next'
-import { useRari } from "context/RariContext";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { useFuseTVL, fetchFuseNumberTVL } from "hooks/fuse/useFuseTVL";
 import { useFuseTotalBorrowAndSupply } from "hooks/fuse/useFuseTotalBorrowAndSupply";
 
+// Rari
+import { useRari } from "context/RariContext";
+
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
-import { RowOrColumn, Column, Center } from "lib/chakraUtils";
 
 // Components
-import { Heading } from "@chakra-ui/react";
-import CaptionedStat from "components/shared/CaptionedStat";
-import DashboardBox from "components/shared/DashboardBox";
 import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
+
 
 const FuseStatsBar = () => {
   const isMobile = useIsSmallScreen();

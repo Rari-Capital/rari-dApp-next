@@ -3,7 +3,7 @@ import { fetchTokenBalance } from "hooks/useTokenBalance";
 
 // Types
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import Fuse from "lib/fuse-sdk";
+import { Fuse } from "../esm/index"
 import {
   AmountSelectMode,
   AmountSelectUserAction,
@@ -11,7 +11,6 @@ import {
 
 // Utils
 import { createComptroller } from "utils/createComptroller";
-import BigNumber from "bignumber.js";
 import {
   checkHasApprovedEnough,
   createERC20Contract,
@@ -19,12 +18,15 @@ import {
   MAX_APPROVAL_AMOUNT,
 } from "./tokenUtils";
 import { createCTokenContract } from "./fuseUtils";
-import { bigNumberToBN, BN } from "./bigUtils";
 import {
   fetchGasForCall,
   testForCTokenErrorAndSend,
 } from "components/pages/Fuse/Modals/PoolModal/AmountSelect";
 import { handleGenericError } from "./errorHandling";
+
+
+// Ethers
+import { BigNumber, utils, constants } from 'ethers'
 
 // Gets the max amount based on the input mode, asset, and balances
 export const fetchMaxAmount = async (
@@ -37,7 +39,7 @@ export const fetchMaxAmount = async (
   if (mode === AmountSelectMode.LEND) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
-      fuse.web3,
+      fuse,
       address
     );
 
@@ -47,10 +49,10 @@ export const fetchMaxAmount = async (
   if (mode === AmountSelectMode.REPAY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
-      fuse.web3,
+      fuse,
       address
     );
-    const debt = fuse.web3.utils.toBN(asset.borrowBalance);
+    const debt = BigNumber.from(asset.borrowBalance);
 
     if (balance.gt(debt)) {
       return debt;
@@ -62,14 +64,10 @@ export const fetchMaxAmount = async (
   if (mode === AmountSelectMode.BORROW) {
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
-    const { 0: err, 1: maxBorrow } = await comptroller.methods
-      .getMaxBorrow(address, asset.cToken)
-      .call();
+    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(address, asset.cToken)
 
     if (err !== 0) {
-      return fuse.web3.utils.toBN(
-        new BigNumber(maxBorrow).multipliedBy(0.75).toFixed(0)
-      );
+      return maxBorrow.mul(utils.parseUnits("0.75"))
     } else {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
@@ -83,7 +81,7 @@ export const fetchMaxAmount = async (
       .call();
 
     if (err !== 0) {
-      return fuse.web3.utils.toBN(maxRedeem);
+      return BigNumber.from(maxRedeem);
     } else {
       throw new Error("Could not fetch your max withdraw amount! Code: " + err);
     }
@@ -120,7 +118,7 @@ export const onLendBorrowConfirm = async ({
     const cToken = createCTokenContract({ asset, fuse });
 
     // If a user specified they want to lend
-    if (lendAmount?.isGreaterThan(0)) {
+    if (lendAmount?.gt(constants.Zero)) {
       // If asset is ERC20, check for approval and/or approve.
       if (!isETH) {
         const token = createERC20Contract({
@@ -165,19 +163,15 @@ export const onLendBorrowConfirm = async ({
       if (isETH) {
         const call = cToken.methods.mint(); //
 
-        const _lendAmount = bigNumberToBN({
-          bigNumber: lendAmount,
-          web3: fuse.web3,
-        });
 
         // If they are supplying their whole balance, we have to subtract an estimate of the gas cost.
         if (
-          lendAmount.toString() === (await fuse.web3.eth.getBalance(address))
+          lendAmount === (await fuse.provider.getBalance(address))
         ) {
           // Get the estimated gas for this call
           const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
             call,
-            _lendAmount,
+            lendAmount,
             fuse,
             address
           );
@@ -185,7 +179,7 @@ export const onLendBorrowConfirm = async ({
           // Send the call with fullAmount - estimatedGas
           await call.send({
             from: address,
-            value: _lendAmount.sub(gasWEI),
+            value: lendAmount.sub(gasWEI),
             gasPrice,
             gas: estimatedGas,
           });
@@ -207,7 +201,7 @@ export const onLendBorrowConfirm = async ({
     }
 
     // If we specified a borrow
-    if (!borrowAmount?.isZero() && !borrowAmount?.isNaN() && borrowedAsset) {
+    if (!borrowAmount?.isZero() && borrowedAsset) {
       const borrowedCToken = createCTokenContract({
         asset: borrowedAsset,
         fuse,

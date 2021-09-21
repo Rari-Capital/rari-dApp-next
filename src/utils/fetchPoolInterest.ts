@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { Vaults } from "rari-sdk-sharad-v2";
+import { Vaults } from "../esm/index"
 import { stringUsdFormatter } from "utils/bigUtils";
 import { fromWei, toBN } from "./ethersUtils";
 

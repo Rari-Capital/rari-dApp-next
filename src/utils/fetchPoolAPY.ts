@@ -1,4 +1,4 @@
-import { Vaults } from "rari-sdk-sharad-v2";
+import { Vaults } from "../esm/index"
 import { fromWei, toBN } from "./ethersUtils";
 
 import { getSDKPool, Pool } from "./poolUtils";
@@ -38,7 +38,7 @@ export const fetchPoolAPY = async (
 };
 
 // TODO: Don't hardcode this.
-export const fetchDAIPoolAPY = async (rari: Rari) => {
+export const fetchDAIPoolAPY = async (rari: Vaults) => {
   const poolRawAPY = await rari.pools.dai.apy.getCurrentRawApy();
 
   const poolAPY = parseFloat(fromWei(poolRawAPY.mul(toBN(100)))).toFixed(2);

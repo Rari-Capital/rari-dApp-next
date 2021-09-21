@@ -1,9 +1,19 @@
-import { fetchPools } from "hooks/fuse/useFusePools";
-import Rari from "lib/rari-sdk";
+// Hooks
+import { fetchPools } from "../../../../hooks/fuse/useFusePools"
+
+// Rari
+import { Vaults } from "../../../../esm/index"
+
+// Next JS
 import { NextApiRequest, NextApiResponse } from "next";
+
+// Utils
 import { fetchFusePoolData, FusePoolData } from "utils/fetchFusePoolData";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
-import Web3 from "web3";
+
+// Ethers
+import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils } from 'ethers'
 
 interface APIAccountsFuseBalancesResponse {
   userAddress: string;
@@ -33,15 +43,15 @@ export default async function handler(
         return res.status(400).json({ error: "No Address provided." });
 
       try {
-        userAddress = Web3.utils.toChecksumAddress(address);
+        userAddress = utils.getAddress(address);
       } catch (err) {
         return res.status(400).json({ error: "Invalid address provided." });
       }
 
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
       // Get all fuse pools this user is active in
       const pools = await fetchPools({

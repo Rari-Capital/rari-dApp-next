@@ -132,7 +132,7 @@ export const RGTPrice = () => {
       queryKey="rgtPrice"
       interval={5000}
       fetch={() => {
-        return rari.governance.rgt.getExchangeRate().then((data) => {
+        return rari.governance.rgt.getExchangeRate().then((data: any) => {
           return stringUsdFormatter(fromWei(data));
         });
       }}

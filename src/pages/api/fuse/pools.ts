@@ -1,10 +1,20 @@
+// Rari
 import { EmptyAddress } from "context/RariContext";
+import { Vaults } from "../../../esm/index"
+
+// Hooks
 import { fetchPools } from "hooks/fuse/useFusePools";
-import Rari from "lib/rari-sdk";
+
+// Next JS
 import { NextApiRequest, NextApiResponse } from "next";
+
+// Utils
 import { fetchFusePoolData } from "utils/fetchFusePoolData";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
-import Web3 from "web3";
+
+// Ethers
+import { utils } from 'ethers'
+import { JsonRpcProvider } from "@ethersproject/providers"
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,15 +31,15 @@ export default async function handler(
       const address = (req.body.address as string) ?? EmptyAddress; // optional
 
       try {
-        userAddress = Web3.utils.toChecksumAddress(address);
+        userAddress = utils.getAddress(address);
       } catch (err) {
         return res.status(400).json({ error: "Invalid address provided." });
       }
 
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
       // If we specified poolIndices, use those, else fetch all pools
       if (poolIndices?.length) {
@@ -68,15 +78,15 @@ export default async function handler(
       const address = (req.body.address as string) ?? EmptyAddress; // optional
 
       try {
-        userAddress = Web3.utils.toChecksumAddress(address);
+        userAddress = utils.getAddress(address);
       } catch (err) {
         return res.status(400).json({ error: "Invalid address provided." });
       }
 
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
       const fusePools = await fetchPools({
         rari,

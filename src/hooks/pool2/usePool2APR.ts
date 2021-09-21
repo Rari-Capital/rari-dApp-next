@@ -5,7 +5,7 @@ export const usePool2APR = () => {
   const { rari } = useRari();
 
   const { data: earned } = useQuery("pool2APR", async () => {
-    const blockNumber = await rari.web3.eth.getBlockNumber();
+    const blockNumber = await rari.provider.getBlockNumber();
     const tvl = await rari.governance.rgt.sushiSwapDistributions.totalStakedUsd();
     return (
       parseInt(

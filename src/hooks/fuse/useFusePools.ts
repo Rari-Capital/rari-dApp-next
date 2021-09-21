@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import Rari from "lib/rari-sdk/index";
-import Fuse from "lib/fuse-sdk";
+import { Vaults, Fuse } from "../../esm/index"
 import FuseJs from "fuse.js";
 
 import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
@@ -48,7 +47,7 @@ export const fetchPools = async ({
   filter,
   blockNum,
 }: {
-  rari: Rari;
+  rari: Vaults;
   fuse: Fuse;
   address: string;
   filter: string | null;
@@ -58,12 +57,12 @@ export const fetchPools = async ({
   const isCreatedPools = filter === "created-pools";
 
   // We need the latest blockNumber
-  const latestBlockNumber = await fuse.web3.eth.getBlockNumber();
+  const latestBlockNumber = await fuse.provider.getBlockNumber();
   const _blockNum = blockNum ? blockNum : latestBlockNumber;
 
   // Get the unix timestamp of the blockNumber
   const startBlockTimestamp = await blockNumberToTimeStamp(
-    fuse.web3,
+    fuse.provider,
     _blockNum
   );
 

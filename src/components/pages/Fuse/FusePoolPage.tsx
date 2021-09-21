@@ -1,7 +1,7 @@
-import { memo, useEffect } from "react";
+// Chakra and UI
 import {
-  Avatar,
   Box,
+  Avatar,
   Heading,
   Progress,
   Spinner,
@@ -17,11 +17,21 @@ import {
   RowOrColumn,
   useIsMobile,
 } from "lib/chakraUtils";
+import DashboardBox from "components/shared/DashboardBox";
+import { ModalDivider } from "components/shared/Modal";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { SwitchCSS } from "components/shared/SwitchCSS";
+
+// React
+import { memo, useEffect } from "react";
+import { useRouter } from "next/router";
+
+// Rari
+import { useRari } from "context/RariContext";
 
 // Hooks
 import { useTranslation } from 'next-i18next';
 import { useQueryClient } from "react-query";
-import { useRari } from "context/RariContext";
 import { useBorrowLimit } from "hooks/useBorrowLimit";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
@@ -35,17 +45,12 @@ import { createComptroller } from "utils/createComptroller";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
 // Components
-import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import { SwitchCSS } from "components/shared/SwitchCSS";
-
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
 import PoolModal, { Mode } from "./Modals/PoolModal";
 
+// LogRocket
 import LogRocket from "logrocket";
-import { useRouter } from "next/router";
 
 const FusePoolPage = memo(() => {
   const { isAuthed } = useRari();
@@ -343,13 +348,16 @@ const AssetSupplyRow = ({
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
     let call;
+    let callArgs
     if (asset.membership) {
-      call = comptroller.methods.exitMarket(asset.cToken);
+      call = comptroller.callStatic.exitMarket;      
+      callArgs = asset.cToken
     } else {
-      call = comptroller.methods.enterMarkets([asset.cToken]);
+      call = comptroller.callStatic.enterMarkets;
+      callArgs = [asset.cToken]
     }
 
-    let response = await call.call({ from: address });
+    let response = await call(callArgs, { from: address });
     // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
     if (response[0] !== "0") {
       if (asset.membership) {
@@ -377,7 +385,15 @@ const AssetSupplyRow = ({
       return;
     }
 
-    await call.send({ from: address });
+    if (asset.membership) {
+      call = comptroller.exitMarket;      
+      callArgs = asset.cToken
+    } else {
+      call = comptroller.enterMarkets;
+      callArgs = [asset.cToken]
+    }
+
+    await call(callArgs, { from: address });
 
     LogRocket.track("Fuse-ToggleCollateral");
 

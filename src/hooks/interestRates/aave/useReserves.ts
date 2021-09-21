@@ -12,6 +12,10 @@ import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
 // Types
 import { MarketInfo, InterestRatesType } from "../types";
+import { Vaults } from "../../../esm/index"
+
+// Ethers
+import { Contract } from "@ethersproject/contracts";
 
 // address for WETH
 const WETH_TOKEN_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -26,9 +30,10 @@ export default function useReserves() {
   const refreshInterval = useRef<number | null>(null);
 
   useEffect(() => {
-    const contract = new rari.web3.eth.Contract(
+    const contract = new Contract(
+      LendingPool.address,
       LendingPool.abi,
-      LendingPool.address
+      rari.provider.getSigner()
     );
 
     // fetch list of token addresses
@@ -44,7 +49,7 @@ export default function useReserves() {
         tokenList.map(async (address) => {
           reservesData.push({
             tokenAddress: address,
-            rates: await fetchReserveData(address, rari.web3),
+            rates: await fetchReserveData(address, rari),
           });
         })
       );
@@ -78,22 +83,20 @@ export default function useReserves() {
     return () => {
       window.clearInterval(refreshInterval.current || -1);
     };
-  }, [rari.web3, setReserves]);
+  }, [rari, setReserves]);
 
   return reserves;
 }
 
 async function fetchReserveData(
   assetAddress: string,
-  web3: Web3
+  rari: Vaults  
 ): Promise<InterestRatesType> {
   // init LendingPool
-  const contract = new web3.eth.Contract(LendingPool.abi, LendingPool.address);
+  const contract = new Contract(LendingPool.address, LendingPool.abi, rari.provider.getSigner());
 
   // get reserve data from LendingPool
-  const reserveData = await contract.methods
-    .getReserveData(assetAddress)
-    .call();
+  const reserveData = await contract.getReserveData(assetAddress)
 
   // get lending and borrowing rates (converting from ray [1e27])
   const lendingRate = reserveData.currentLiquidityRate / 1e27;

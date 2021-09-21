@@ -1,12 +1,18 @@
+// Next JS
 import { NextApiRequest, NextApiResponse } from "next";
 
 // GQL
 import { TokensDataMap } from "types/tokens";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
-import Web3 from "web3";
-import Rari from "lib/rari-sdk";
-import { fetchPools } from "hooks/fuse/useFusePools";
+
+// Rari
+import { Vaults } from "../../../esm/index"
 import { EmptyAddress } from "context/RariContext";
+
+// Hooks
+import { fetchPools } from "hooks/fuse/useFusePools";
+
+// Utils
 import {
   fetchFusePoolData,
   FusePoolData,
@@ -14,6 +20,10 @@ import {
 } from "utils/fetchFusePoolData";
 import { fetchTokensAPIDataAsMap } from "utils/services";
 import redis from "utils/redis";
+
+// Ethers
+import { utils } from 'ethers'
+import { JsonRpcProvider } from "@ethersproject/providers"
 
 // Types
 export interface ExploreAsset extends USDPricedFuseAsset {
@@ -63,9 +73,9 @@ export default async function handler(
 
       // Get Underlying Assets from subgraph
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
       const fusePools = await fetchPools({
         rari,

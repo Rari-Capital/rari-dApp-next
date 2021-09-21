@@ -1,5 +1,4 @@
-import dynamic from "next/dynamic";
-
+// Chakra and UI 
 import {
   Heading,
   Modal,
@@ -15,39 +14,50 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Column, Center } from "lib/chakraUtils";
-import { useEffect, useState } from "react";
-import { useTranslation } from 'next-i18next';
-
 import DashboardBox, {
   DASHBOARD_BOX_PROPS,
 } from "../../../../shared/DashboardBox";
 import { ModalDivider, MODAL_PROPS } from "../../../../shared/Modal";
+import { SliderWithLabel } from "../../../../shared/SliderWithLabel";
+import { QuestionIcon } from "@chakra-ui/icons";
+import { SimpleTooltip } from "../../../../shared/SimpleTooltip";
 
+// React and NextJs
+import { useTranslation } from 'next-i18next';
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import dynamic from "next/dynamic";
+
+// Hooks
 import {
   ETH_TOKEN_DATA,
   TokenData,
   useTokenData,
 } from "../../../../../hooks/useTokenData";
-import { useRari } from "../../../../../context/RariContext";
-import { FuseIRMDemoChartOptions } from "../../../../../utils/chartOptions";
-import { SliderWithLabel } from "../../../../shared/SliderWithLabel";
-import { convertIRMtoCurve } from "../../FusePoolInfoPage";
 
-import Fuse from "lib/fuse-sdk/src";
+// Rari
+import { useRari } from "../../../../../context/RariContext";
+import { Fuse } from "../../../../../esm/index"
+
+// Utils
+import { FuseIRMDemoChartOptions } from "../../../../../utils/chartOptions";
+import { handleGenericError } from "../../../../../utils/errorHandling";
+import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
+import { createComptroller } from "../../../../../utils/createComptroller";
+
+// Components
+import { convertIRMtoCurve } from "../../FusePoolInfoPage";
 import {
   ConfigRow,
   SaveButton,
   testForComptrollerErrorAndSend,
 } from "../../FusePoolEditPage";
-import { useQuery, useQueryClient } from "react-query";
-import { QuestionIcon } from "@chakra-ui/icons";
-import { SimpleTooltip } from "../../../../shared/SimpleTooltip";
-import BigNumber from "bignumber.js";
-import { createComptroller } from "../../../../../utils/createComptroller";
 import { testForCTokenErrorAndSend } from "../PoolModal/AmountSelect";
 
-import { handleGenericError } from "../../../../../utils/errorHandling";
-import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
+// Ethers
+import { Contract, utils, constants } from 'ethers'
+
+//LogRocket
 import LogRocket from "logrocket";
 
 const AddAssetChart = dynamic(() => import("./AddAssetChart"), {
@@ -57,11 +67,10 @@ const AddAssetChart = dynamic(() => import("./AddAssetChart"), {
 const formatPercentage = (value: number) => value.toFixed(0) + "%";
 
 export const createCToken = (fuse: Fuse, cTokenAddress: string) => {
-  const cErc20Delegate = new fuse.web3.eth.Contract(
-    JSON.parse(
-      fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi
-    ),
-    cTokenAddress
+  const cErc20Delegate = new Contract(
+    cTokenAddress,
+    JSON.parse( fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi ),
+    fuse.provider.getSigner()
   );
 
   return cErc20Delegate;
@@ -149,7 +158,7 @@ export const AssetSettings = ({
   };
 
   const [interestRateModel, setInterestRateModel] = useState(
-    Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES.JumpRateModel_DAI
+    Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES.JumpRateModel_ALCX
   );
 
   const { data: curves } = useQuery(
@@ -162,7 +171,7 @@ export const AssetSettings = ({
       }
 
       await IRM._init(
-        fuse.web3,
+        fuse.provider,
         interestRateModel,
         // reserve factor
         reserveFactor * 1e16,
@@ -198,28 +207,19 @@ export const AssetSettings = ({
     setIsDeploying(true);
 
     // 50% -> 0.5 * 1e18
-    const bigCollateralFacotr = new BigNumber(collateralFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigCollateralFacotr =  utils.parseUnits((collateralFactor / 100).toString())
 
     // 10% -> 0.1 * 1e18
-    const bigReserveFactor = new BigNumber(reserveFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigReserveFactor =  utils.parseUnits((reserveFactor / 100).toString())
 
     // 5% -> 0.05 * 1e18
-    const bigAdminFee = new BigNumber(adminFee)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigAdminFee = utils.parseUnits((adminFee / 100).toString())
 
     const conf: any = {
       underlying: tokenData.address,
       comptroller: comptrollerAddress,
       interestRateModel,
-      initialExchangeRateMantissa: fuse.web3.utils.toBN(1e18),
+      initialExchangeRateMantissa: constants.WeiPerEther,
 
       // Ex: BOGGED USDC
       name: poolName + " " + tokenData.name,
@@ -277,11 +277,7 @@ export const AssetSettings = ({
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
     // 70% -> 0.7 * 1e18
-    const bigCollateralFactor = new BigNumber(collateralFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
-
+    const bigCollateralFactor = utils.parseUnits((collateralFactor / 100).toString())
     try {
       await testForComptrollerErrorAndSend(
         comptroller.methods._setCollateralFactor(
@@ -304,10 +300,8 @@ export const AssetSettings = ({
     const cToken = createCToken(fuse, cTokenAddress!);
 
     // 10% -> 0.1 * 1e18
-    const bigReserveFactor = new BigNumber(reserveFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString())
+
     try {
       await testForCTokenErrorAndSend(
         cToken.methods._setReserveFactor(bigReserveFactor),
@@ -327,10 +321,7 @@ export const AssetSettings = ({
     const cToken = createCToken(fuse, cTokenAddress!);
 
     // 5% -> 0.05 * 1e18
-    const bigAdminFee = new BigNumber(adminFee)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigAdminFee =  utils.parseUnits((adminFee / 100).toString())
 
     try {
       await testForCTokenErrorAndSend(
@@ -480,17 +471,17 @@ export const AssetSettings = ({
             className="black-bg-option"
             value={
               Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-                .JumpRateModel_DAI
+                .JumpRateModel_ALCX
             }
           >
-            DAI JumpRateModel
+            ALCX JumpRateModel
           </option>
 
           <option
             className="black-bg-option"
             value={
               Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-                .WhitePaperInterestRateModel_ETH
+                .WhitePaperInterestRateModel_Compound_ETH
             }
           >
             ETH WhitePaperRateModel

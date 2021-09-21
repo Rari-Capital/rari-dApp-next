@@ -1,11 +1,20 @@
+// React
 import { useQuery } from "react-query";
+
+// Rari
 import { usePoolType } from "../context/PoolContext";
 import { Pool } from "../utils/poolUtils";
 import { useRari } from "../context/RariContext";
-import Rari from "lib/rari-sdk/index";
-import { BN } from "../utils/bigUtils";
+import { Vaults } from "../esm/index"
+
+// utils
 import { getSDKPool } from "../utils/poolUtils";
+
+// Hooks
 import { fetchPoolBalance } from "./usePoolBalance";
+
+// Ethers
+import { BigNumber } from "@ethersproject/bignumber";
 
 export const fetchMaxWithdraw = async ({
   rari,
@@ -13,11 +22,11 @@ export const fetchMaxWithdraw = async ({
   poolType,
   symbol,
 }: {
-  rari: Rari;
+  rari: Vaults;
   address: string;
   symbol: string;
   poolType: Pool;
-}) => {
+}): Promise<BigNumber> => {
   const bigBalance = await fetchPoolBalance({
     pool: poolType,
     rari,
@@ -29,7 +38,7 @@ export const fetchMaxWithdraw = async ({
     pool: poolType,
   }).withdrawals.getMaxWithdrawalAmount(symbol, bigBalance);
 
-  return amount as BN;
+  return amount;
 };
 
 export const useMaxWithdraw = (symbol: string) => {

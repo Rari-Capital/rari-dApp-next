@@ -1,30 +1,39 @@
 /* eslint-disable no-loop-func */
-import { memo, useState } from "react";
 
-// Components
+// Chakra and UI
+import { Center, Column, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
 import { AvatarGroup, Box, Spinner, Switch, Text } from "@chakra-ui/react";
-
 import DashboardBox from "components/shared/DashboardBox";
 import { ModalDivider } from "components/shared/Modal";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
+
+// @ts-ignore
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+
+// Components
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
 import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
 import AppLink from "components/shared/AppLink";
 
+// React
+import { memo, useState } from "react";
+import { useQuery } from "react-query";
+
+// Rari
+import { useRari } from "context/RariContext";
+
 // Hooks
 import { useTranslation } from "next-i18next";
-import { useRari } from "context/RariContext";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { useQuery } from "react-query";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
 import { filterOnlyObjectProperties, FuseAsset } from "utils/fetchFusePoolData";
-import { Center, Column, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
-// @ts-ignore
-import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+
+// Ethers
 import { fromWei } from "utils/ethersUtils";
+import { constants, utils } from "ethers";
 
 const FuseLiquidationsPage = memo(() => {
   const { isAuthed } = useRari();
@@ -115,7 +124,7 @@ const LiquidatablePositionsList = () => {
       const [response, ethPriceBN] = await Promise.all([
         fuse.contracts.FusePoolLens.methods
           .getPublicPoolUsersWithData(
-            fuse.web3.utils.toBN(showAtRiskPositions ? 1.1e18 : 1e18)
+            showAtRiskPositions ? utils.parseUnits((1.1).toString()) : constants.WeiPerEther
           )
           .call(),
         rari.getEthUsdPriceBN(),

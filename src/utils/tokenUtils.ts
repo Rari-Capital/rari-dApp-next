@@ -3,19 +3,16 @@ import {
   USDPricedFuseAsset,
   USDPricedFuseAssetWithTokenData,
 } from "utils/fetchFusePoolData";
-import Fuse from "lib/fuse-sdk";
+import { Fuse } from "../esm/index"
 
 // Hooks
 import { ETH_TOKEN_DATA, TokenData } from "hooks/useTokenData";
 
-// Types
-import { Contract } from "web3-eth-contract";
-
-// Utils
-import BigNumber from "bignumber.js";
+// Ethers
+import { Contract, BigNumber } from 'ethers'
 
 import Tokens from "../static/compiled/tokens.json";
-import { bigNumberToBN } from "./bigUtils";
+
 export const tokens = Tokens as AllTokens;
 
 export interface AssetHash {
@@ -90,11 +87,12 @@ export const createERC20Contract = ({
   fuse: Fuse;
   tokenAddress: string;
 }): Contract => {
-  return new fuse.web3.eth.Contract(
+  return new Contract(
+    tokenAddress,
     JSON.parse(
       fuse.compoundContracts["contracts/EIP20Interface.sol:EIP20Interface"].abi
     ),
-    tokenAddress
+    fuse.provider.getSigner()
   );
 };
 
@@ -112,12 +110,10 @@ export const checkHasApprovedEnough = async ({
   approveForAddress: string;
   approvedForAmount: BigNumber;
 }) => {
-  return fuse.web3.utils
-    .toBN(await token.methods.allowance(userAddress, approveForAddress).call())
-    .gte(bigNumberToBN({ bigNumber: approvedForAmount, web3: fuse.web3 }));
+  return (await token.allowance(userAddress, approveForAddress))
+    .gte(approvedForAmount);
 };
 
-export const MAX_APPROVAL_AMOUNT = new BigNumber(2)
+export const MAX_APPROVAL_AMOUNT = BigNumber.from(2)
   .pow(256)
-  .minus(1)
-  .toFixed(0); // big fucking #
+  .sub(1); // big fucking #

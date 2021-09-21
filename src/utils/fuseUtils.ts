@@ -1,9 +1,8 @@
-import Fuse from "lib/fuse-sdk";
+import { Fuse } from "../esm/index"
 import { USDPricedFuseAsset } from "./fetchFusePoolData";
 import { isAssetETH } from "./tokenUtils";
 
-// Types
-import { Contract } from "web3-eth-contract";
+import { Contract } from 'ethers'
 
 // Creates a CToken Contract
 // Todo - refactor this into a `contractUtils.ts` file.
@@ -15,9 +14,10 @@ export const createCTokenContract = ({
   asset: USDPricedFuseAsset;
 }) => {
   const isETH = isAssetETH(asset.underlyingToken);
-
+  
   // Create the cTokenContract
-  const cToken = new fuse.web3.eth.Contract(
+  const cToken = new Contract(
+    asset.cToken,
     isETH
       ? JSON.parse(
           fuse.compoundContracts["contracts/CEtherDelegate.sol:CEtherDelegate"]
@@ -27,7 +27,7 @@ export const createCTokenContract = ({
           fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"]
             .abi
         ),
-    asset.cToken
+      fuse.provider.getSigner()
   );
 
   return cToken;

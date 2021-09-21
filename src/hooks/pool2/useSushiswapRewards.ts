@@ -7,7 +7,7 @@ export const useHasSushiswapRewardsStarted = () => {
   const { data: hasStarted } = useQuery(
     "hasSushiswapRewardsStarted",
     async () => {
-      const block = await rari.web3.eth.getBlockNumber();
+      const block = await rari.provider.getBlockNumber();
 
       const startingBlock =
         rari.governance.rgt.sushiSwapDistributions.DISTRIBUTION_START_BLOCK;

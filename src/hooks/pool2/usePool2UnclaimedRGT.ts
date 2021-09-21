@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 import { fromWei } from "utils/ethersUtils";
-import { Vaults } from "rari-sdk-sharad-v2";
+import { Vaults } from "../../esm/index"
 
 export const fetchPool2UnclaimedRGT = async ({
   rari,

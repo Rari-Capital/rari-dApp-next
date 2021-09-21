@@ -4,11 +4,12 @@ import { useQuery, UseQueryResult } from "react-query";
 import { useMemo } from "react";
 
 // Utils / types
-import BigNumber from "bignumber.js";
 import { Mode } from "components/pages/Fuse/Modals/PoolModal";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 import { AmountSelectMode } from "components/shared/AmountSelectNew/AmountSelectNew";
-import { fromWei } from "utils/ethersUtils";
+
+import { constants, BigNumber, utils } from 'ethers'
+
 
 const useUpdatedUserAssets = ({
   mode,
@@ -29,7 +30,7 @@ const useUpdatedUserAssets = ({
       async () => {
         if (!assets || !assets.length) return [];
 
-        const ethPrice: number = fromWei(await rari.getEthUsdPriceBN()) as any;
+        const ethPrice: number = parseInt(utils.formatEther(await rari.getEthUsdPriceBN()));
 
         const assetToBeUpdated = assets[index];
 
@@ -60,15 +61,12 @@ const useUpdatedUserAssets = ({
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
-              fuse.web3.utils.toBN(
                 totalSupply > 0
-                  ? new BigNumber(assetToBeUpdated.totalBorrow)
-                      .dividedBy(totalSupply.toString())
-                      .multipliedBy(1e18)
-                      .toFixed(0)
-                  : 0
+                  ? BigNumber.from(assetToBeUpdated.totalBorrow)
+                      .div(utils.parseUnits(totalSupply.toString()))
+                      .mul(constants.WeiPerEther)
+                  : constants.Zero
               )
-            ),
           };
 
           console.log("LEND", { updatedAsset });
@@ -89,15 +87,12 @@ const useUpdatedUserAssets = ({
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
-              fuse.web3.utils.toBN(
                 totalSupply > 0
-                  ? new BigNumber(assetToBeUpdated.totalBorrow)
-                      .dividedBy(totalSupply.toString())
-                      .multipliedBy(1e18)
-                      .toFixed(0)
+                  ? BigNumber.from(assetToBeUpdated.totalBorrow)
+                      .div(utils.parseUnits(totalSupply.toString()))
+                      .mul(1e18)
                   : 0
               )
-            ),
           };
         } else if (mode === Mode.BORROW || mode === AmountSelectMode.BORROW) {
           const borrowBalance =
@@ -116,15 +111,12 @@ const useUpdatedUserAssets = ({
 
             totalBorrow,
             borrowRatePerBlock: interestRateModel.getBorrowRate(
-              fuse.web3.utils.toBN(
                 assetToBeUpdated.totalSupply > 0
-                  ? new BigNumber(totalBorrow.toString())
-                      .dividedBy(assetToBeUpdated.totalSupply)
-                      .multipliedBy(1e18)
-                      .toFixed(0)
+                  ? utils.parseUnits(totalBorrow.toString())
+                      .div(utils.parseUnits(assetToBeUpdated.totalSupply.toString()))
+                      .mul(constants.WeiPerEther)
                   : 0
               )
-            ),
           };
         } else if (mode === Mode.REPAY) {
           const borrowBalance =
@@ -134,15 +126,12 @@ const useUpdatedUserAssets = ({
             parseInt(assetToBeUpdated.totalBorrow as any) - amount;
 
           const borrowRatePerBlock = interestRateModel.getBorrowRate(
-            fuse.web3.utils.toBN(
               assetToBeUpdated.totalSupply > 0
-                ? new BigNumber(totalBorrow.toString())
-                    .dividedBy(assetToBeUpdated.totalSupply.toString())
-                    .multipliedBy(1e18)
-                    .toFixed(0)
+                ? utils.parseUnits(totalBorrow.toString())
+                    .div(utils.parseUnits(assetToBeUpdated.totalSupply.toString()))
+                    .mul(constants.WeiPerEther)
                 : 0
             )
-          );
 
           //   console.log({ borrowRatePerBlock });
 

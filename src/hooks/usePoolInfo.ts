@@ -1,18 +1,28 @@
+// React
 import { useMemo } from "react";
 import { useTranslation } from "next-i18next";
-import { usePoolType } from "context/PoolContext";
-import { Pool, getPoolName, getPoolCaption } from "utils/poolUtils";
-import { formatBalanceBN } from "utils/format";
 
 // Constants
 import { pools, PoolInterface } from "constants/pools";
+
+// Hooks
 import { usePoolsAPY } from "./usePoolAPY";
 import { usePoolBalances, useTotalPoolsBalance } from "./usePoolBalance";
 import { usePoolInterestEarned } from "./usePoolInterest";
+
+// Rari
 import { useRari } from "context/RariContext";
-import { BN, shortUsdFormatter } from "utils/bigUtils";
+import { usePoolType } from "context/PoolContext";
+
+// Utils
+import { formatBalanceBN } from "utils/format";
+import { shortUsdFormatter } from "utils/bigUtils";
 import { PoolInterestEarned } from "utils/fetchPoolInterest";
 import { getPoolLogo } from "utils/poolIconUtils";
+import { Pool, getPoolName, getPoolCaption } from "utils/poolUtils";
+
+// Ethers
+import { BigNumber, constants } from 'ethers'
 
 export const usePoolInfo = (poolType: Pool) => {
   const { t } = useTranslation();
@@ -49,9 +59,9 @@ export const usePoolInfos = (): PoolInterface[] => {
 export type AggregatePoolInfo = {
   poolInfo: PoolInterface;
   poolAPY: number | null;
-  poolBalance: BN | null;
+  poolBalance: BigNumber | null;
   formattedPoolBalance: string | null;
-  poolInterestEarned: BN | null;
+  poolInterestEarned: BigNumber | null;
   formattedPoolInterestEarned: string | null;
   poolGrowth: number;
   formattedPoolGrowth: string | null;
@@ -72,11 +82,6 @@ export type AggregatePoolsInfoReturn = {
 
 export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
   const { rari } = useRari();
-  const {
-    web3: {
-      utils: { toBN },
-    },
-  } = rari;
   const poolInfos = usePoolInfos();
   const poolAPYs = usePoolsAPY(poolInfos);
   const poolBalances = usePoolBalances(poolInfos);
@@ -91,7 +96,7 @@ export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
       poolInfos.map((poolInfo: PoolInterface, index: number) => {
         // @ts-ignore
         const poolAPY: number | null = poolAPYs[index] ?? null;
-        const poolBalance: BN = poolBalances[index]?.data ?? toBN(0);
+        const poolBalance: BigNumber = poolBalances[index]?.data ?? constants.Zero;
 
         const formattedPoolBalance: string | null = formatBalanceBN(
           rari,
@@ -123,14 +128,14 @@ export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
         );
 
         // Growth for a pool = % increase between balance & (balance - interest earned)
-        const poolGrowth: BN =
+        const poolGrowth: BigNumber =
           poolBalance && poolInterestEarned
             ? !poolBalance.isZero()
-              ? toBN(1).sub(
+              ? constants.One.sub(
                   poolBalance.sub(poolInterestEarned).div(poolBalance)
                 )
-              : toBN(0)
-            : toBN(0);
+              : constants.Zero
+            : constants.Zero;
 
         const formattedPoolGrowth = poolGrowth
           ? (parseFloat(poolGrowth.toString()) / 1e18).toFixed(2)
@@ -147,7 +152,7 @@ export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
           formattedPoolGrowth,
         };
       }),
-    [rari, poolInfos, poolAPYs, poolBalances, poolsInterestEarned, toBN]
+    [rari, poolInfos, poolAPYs, poolBalances, poolsInterestEarned]
   );
 
   const totals = useMemo(

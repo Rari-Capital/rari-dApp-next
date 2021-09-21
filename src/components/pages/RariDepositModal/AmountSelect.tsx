@@ -1,6 +1,5 @@
-import { useState } from "react";
+// Chakra and UI 
 import { Row, Column, Center } from "lib/chakraUtils";
-
 import { ChevronDownIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Heading,
@@ -13,40 +12,48 @@ import {
   Link,
   useToast,
 } from "@chakra-ui/react";
+import { ModalDivider } from "../../shared/Modal";
 import DashboardBox from "../../shared/DashboardBox";
-import { tokens } from "../../../utils/tokenUtils";
+import { HashLoader } from "react-spinners";
 
+// Rari
+import { useRari } from "../../../context/RariContext";
+import { usePoolType } from "../../../context/PoolContext";
+
+
+// React
+import { useState } from "react";
+import { useQueryClient } from "react-query";
+import { useTranslation } from "next-i18next";
+import { AttentionSeeker } from "react-awesome-reveal";
+
+// Hooks
 import {
   useTokenBalance,
   fetchTokenBalance,
 } from "../../../hooks/useTokenBalance";
+import {
+  fetchMaxWithdraw,
+  useMaxWithdraw,
+} from "../../../hooks/useMaxWithdraw";
 
-import { Mode } from ".";
 
-import { useTranslation } from "next-i18next";
-import { ModalDivider } from "../../shared/Modal";
-import { useRari } from "../../../context/RariContext";
-import { usePoolType } from "../../../context/PoolContext";
+// Utils
+import { tokens } from "../../../utils/tokenUtils";
 import { BN, smallStringUsdFormatter } from "../../../utils/bigUtils";
-
-import BigNumber from "bignumber.js";
-
-import { useQueryClient } from "react-query";
-
+import { Mode } from ".";
 import {
   getSDKPool,
   Pool,
   poolHasDivergenceRisk,
 } from "../../../utils/poolUtils";
-import {
-  fetchMaxWithdraw,
-  useMaxWithdraw,
-} from "../../../hooks/useMaxWithdraw";
-import { AttentionSeeker } from "react-awesome-reveal";
-
-import { HashLoader } from "react-spinners";
 import { handleGenericError } from "../../../utils/errorHandling";
-import { fromWei } from "utils/ethersUtils";
+
+
+// Ethers
+import { BigNumber, constants, utils } from 'ethers';
+
+
 
 interface Props {
   selectedToken: string;
@@ -87,9 +94,7 @@ const AmountSelect = ({
 
   const [userEnteredAmount, _setUserEnteredAmount] = useState("");
 
-  const [amount, _setAmount] = useState<BigNumber | null>(
-    () => new BigNumber(0)
-  );
+  const [amount, _setAmount] = useState<BigNumber | null>(constants.Zero);
 
   const updateAmount = (newAmount: string) => {
     if (newAmount.startsWith("-")) {
@@ -98,10 +103,10 @@ const AmountSelect = ({
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = new BigNumber(newAmount);
-    bigAmount.isNaN()
+    const bigAmount = utils.parseUnits(newAmount)
+    bigAmount.lt(constants.Zero)
       ? _setAmount(null)
-      : _setAmount(bigAmount.multipliedBy(10 ** token.decimals));
+      : _setAmount(bigAmount.mul(token.decimals < 18 ? 10 ** token.decimals : constants.WeiPerEther));
 
     setUserAction(UserAction.NO_ACTION);
   };
@@ -214,7 +219,7 @@ const AmountSelect = ({
               amountBN,
               address,
               true
-            )) as BN[];
+            )) as BigNumber[];
 
           quote = amountToBeRemoved;
           slippage = _slippage;
@@ -426,7 +431,7 @@ const TokenNameAndMaxButton = ({
 }) => {
   const token = tokens[selectedToken];
 
-  const { rari, address } = useRari();
+  const { rari, fuse, address } = useRari();
 
   const poolType = usePoolType();
 
@@ -434,12 +439,12 @@ const TokenNameAndMaxButton = ({
 
   const setToMax = async () => {
     setIsMaxLoading(true);
-    let maxBN: BN;
+    let maxBN: BigNumber;
 
     if (mode === Mode.DEPOSIT) {
       const balance = await fetchTokenBalance(
         token.address,
-        rari.web3,
+        fuse,
         address
       );
 
@@ -451,12 +456,12 @@ const TokenNameAndMaxButton = ({
           (res) => res.json()
         );
 
-        const gasPrice = rari.web3.utils.toBN(
+        const gasPrice = BigNumber.from(
           // @ts-ignore For some reason it's returning a string not a BN
           rari.web3.utils.toWei(standard.toString(), "gwei")
         );
 
-        const gasWEI = rari.web3.utils.toBN(500000).mul(gasPrice);
+        const gasWEI = BigNumber.from(500000).mul(gasPrice);
 
         // Subtract the ETH that is needed for gas.
         maxBN = balance.sub(gasWEI);
@@ -474,19 +479,19 @@ const TokenNameAndMaxButton = ({
       maxBN = max;
     }
 
-    if (maxBN.isNeg() || maxBN.isZero()) {
+    if (maxBN.lt(constants.Zero) || maxBN.isZero()) {
       updateAmount("");
     } else {
-      const str = new BigNumber(maxBN.toString())
-        .div(10 ** token.decimals)
-        .toFixed(18)
-        // Remove trailing zeroes
-        .replace(/\.?0+$/, "");
+      const str = BigNumber.from(maxBN.toString())
+        .div(token.decimals > 18 ? constants.WeiPerEther : 10 ** token.decimals)
+        // .toFixed(18)
+        // // Remove trailing zeroes
+        // .replace(/\.?0+$/, "");
 
-      if (str.startsWith("0.000000")) {
+      if (str.lte(constants.Zero)) {
         updateAmount("");
       } else {
-        updateAmount(str);
+        updateAmount(str.toString());
       }
     }
 
@@ -582,7 +587,7 @@ const ApprovalNotch = ({
   const { rari } = useRari();
 
   const formattedAmount = (() => {
-    const usdFormatted = smallStringUsdFormatter(fromWei(amount));
+    const usdFormatted = smallStringUsdFormatter(utils.formatEther(amount));
 
     return poolType === Pool.ETH
       ? usdFormatted.replace("$", "") + " ETH"

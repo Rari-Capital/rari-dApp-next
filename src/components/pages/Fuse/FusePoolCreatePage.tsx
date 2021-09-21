@@ -1,3 +1,4 @@
+// Chakra and UI Related
 import {
   Heading,
   Select,
@@ -9,27 +10,37 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Column, Center, Row } from "lib/chakraUtils";
-import { memo, ReactNode, useState } from "react";
-import { useTranslation } from 'next-i18next';
-
-import { useRari } from "../../../context/RariContext";
-import { useIsSemiSmallScreen } from "../../../hooks/useIsSemiSmallScreen";
-
 import DashboardBox from "../../shared/DashboardBox";
 import { ModalDivider } from "../../shared/Modal";
-
-import FuseStatsBar from "./FuseStatsBar";
-import FuseTabBar from "./FuseTabBar";
 import { SliderWithLabel } from "../../shared/SliderWithLabel";
-
-import BigNumber from "bignumber.js";
-import Fuse from "lib/fuse-sdk";
 import { AddIcon, QuestionIcon } from "@chakra-ui/icons";
 import { SimpleTooltip } from "../../shared/SimpleTooltip";
 
-import { handleGenericError } from "../../../utils/errorHandling";
-import LogRocket from "logrocket";
+// React
+import { memo, ReactNode, useState } from "react";
+import { useTranslation } from 'next-i18next';
 import { useRouter } from "next/router";
+
+// Rari
+import { Fuse } from "../../../esm/index"
+import { useRari } from "../../../context/RariContext";
+
+// Hooks
+import { useIsSemiSmallScreen } from "../../../hooks/useIsSemiSmallScreen";
+
+// Utils
+import { handleGenericError } from "../../../utils/errorHandling";
+
+// Components
+import FuseStatsBar from "./FuseStatsBar";
+import FuseTabBar from "./FuseTabBar";
+
+// LogRocket
+import LogRocket from "logrocket";
+import { BigNumber } from "@ethersproject/bignumber";
+import { utils } from "ethers";
+
+
 
 const formatPercentage = (value: number) => value.toFixed(0) + "%";
 
@@ -107,18 +118,11 @@ const PoolConfiguration = () => {
 
     const maxAssets = "20";
 
-    // 50% -> 0.5 * 1e18
-    const bigCloseFactor = new BigNumber(closeFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    // 50% -> 0.5 * 1e18 
+    const bigCloseFactor = utils.parseUnits((closeFactor / 100).toString())
 
     // 8% -> 1.08 * 1e8
-    const bigLiquidationIncentive = new BigNumber(liquidationIncentive)
-      .dividedBy(100)
-      .plus(1)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigLiquidationIncentive =  utils.parseUnits(((liquidationIncentive / 100) + 1).toString())
 
     let reporter = null;
 
@@ -144,12 +148,11 @@ const PoolConfiguration = () => {
         position: "top-right",
       });
 
-      const event = (
+      const event = 
         await fuse.contracts.FusePoolDirectory.getPastEvents("PoolRegistered", {
-          fromBlock: (await fuse.web3.eth.getBlockNumber()) - 10,
+          fromBlock: await fuse.provider.getBlockNumber() - 10,
           toBlock: "latest",
-        })
-      ).filter(
+        }).filter(
         (event: any) =>
           event.returnValues.pool.comptroller.toLowerCase() ===
           poolAddress.toLowerCase()
@@ -374,7 +377,7 @@ export const WhitelistInfo = ({
           backgroundColor="transparent"
           onClick={() => {
             if (
-              fuse.web3.utils.isAddress(_whitelistInput) &&
+              utils.isAddress(_whitelistInput) &&
               !whitelist.includes(_whitelistInput)
             ) {
               addToWhitelist(_whitelistInput);

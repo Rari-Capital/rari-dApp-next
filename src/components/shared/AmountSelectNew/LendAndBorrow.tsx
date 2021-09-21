@@ -24,7 +24,6 @@ import {
   abbreviateAmount,
 } from "utils/bigUtils";
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
-import BigNumber from "bignumber.js";
 import { onLendBorrowConfirm } from "utils/inputUtils";
 
 // Types
@@ -38,7 +37,9 @@ import { AmountSelectUserAction, AmountSelectMode } from "./AmountSelectNew";
 import { SimpleTooltip } from "../SimpleTooltip";
 import { useBestFusePoolForAsset } from "hooks/opportunities/useBestFusePoolForAsset";
 
-//
+// Ethers
+import { BigNumber, constants, utils } from 'ethers'
+
 const LendAndBorrow = ({
   token,
   setUserAction,
@@ -69,14 +70,10 @@ const LendAndBorrow = ({
 
   // State
   const [lendInput, setLendInput] = useState<string>("");
-  const [lendAmountBN, setLendAmountBN] = useState<BigNumber | undefined>(
-    () => new BigNumber(0)
-  );
+  const [lendAmountBN, setLendAmountBN] = useState<BigNumber | undefined>(constants.Zero);
 
   const [borrowInput, setBorrowInput] = useState<string>("");
-  const [borrowAmountBN, setBorrowAmountBN] = useState<BigNumber | undefined>(
-    () => new BigNumber(0)
-  );
+  const [borrowAmountBN, setBorrowAmountBN] = useState<BigNumber | undefined>(constants.Zero);
 
   // Bubbled up from StatsColumn
   const [error, setError] = useState<string | null>(null);
@@ -90,11 +87,10 @@ const LendAndBorrow = ({
       setLendInput(newAmount);
 
       // Try to set the amount to BigNumber(newAmount):
-      const bigAmount = new BigNumber(newAmount);
-      bigAmount.isNaN()
-        ? setLendAmountBN(undefined)
-        : setLendAmountBN(
-            bigAmount.multipliedBy(10 ** lendAsset.underlyingDecimals)
+      const bigAmount = utils.parseUnits(newAmount);
+
+      setLendAmountBN(
+            bigAmount.mul(lendAsset.underlyingDecimals === 18 ? constants.WeiPerEther : 10 ** lendAsset.underlyingDecimals)
           );
     },
     [lendAsset]
@@ -106,11 +102,9 @@ const LendAndBorrow = ({
       setBorrowInput(newAmount);
 
       // Try to set the amount to BigNumber(newAmount):
-      const bigAmount = new BigNumber(newAmount);
-      bigAmount.isNaN()
-        ? setBorrowAmountBN(undefined)
-        : setBorrowAmountBN(
-            bigAmount.multipliedBy(10 ** borrowAsset.underlyingDecimals)
+      const bigAmount = utils.parseUnits(newAmount);
+      setBorrowAmountBN(
+            bigAmount.mul(borrowAsset.underlyingDecimals === 18 ? constants.WeiPerEther : 10 ** borrowAsset.underlyingDecimals)
           );
     },
     [borrowAsset]
@@ -221,9 +215,9 @@ const LendAndBorrow = ({
       >
         {error
           ? error
-          : !bigNumberIsZero(lendAmountBN) && !bigNumberIsZero(borrowAmountBN)
+          : lendAmountBN?.gt(constants.Zero) && borrowAmountBN?.gt(constants.Zero)
           ? "Lend & Borrow"
-          : !bigNumberIsZero(lendAmountBN)
+          : lendAmountBN?.gt(constants.Zero)
           ? "Lend"
           : "Borrow"}
       </Button>
@@ -349,7 +343,7 @@ const StatsColumn = ({
       try {
         const balance = await fetchTokenBalance(
           asset.underlyingToken,
-          fuse.web3,
+          fuse,
           address
         );
 

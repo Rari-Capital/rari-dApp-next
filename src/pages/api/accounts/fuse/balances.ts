@@ -1,11 +1,21 @@
+// Hooks
 import { fetchPools } from "hooks/fuse/useFusePools";
-import Rari from "lib/rari-sdk";
+
+// RAri
+import { Vaults } from "../../../../esm/index"
+
+// Next JS
 import { NextApiRequest, NextApiResponse } from "next";
+
+// Utils
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
 import { fetchFusePoolData, FusePoolData } from "utils/fetchFusePoolData";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
-import Web3 from "web3";
+
+// Ethers
+import { utils } from 'ethers'
+import { JsonRpcProvider } from "@ethersproject/providers"
 
 interface APIAccountsFuseBalancesResponse {
   userAddress: string;
@@ -39,17 +49,17 @@ export default async function handler(
         return res.status(400).json({ error: "No Address provided." });
 
       try {
-        userAddress = Web3.utils.toChecksumAddress(address);
+        userAddress = utils.getAddress(address);
       } catch (err) {
         return res.status(400).json({ error: "Invalid address provided." });
       }
 
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
-      const latestBlockNumber = await web3.eth.getBlockNumber();
+      const latestBlockNumber = await rari.provider.getBlockNumber();
 
       // We will always have a startBlockTimestamp
       const blockTimestamp = blockNum

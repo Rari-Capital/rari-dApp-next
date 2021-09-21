@@ -1,13 +1,10 @@
+// Next JS
 import { NextApiRequest, NextApiResponse } from "next";
-import { fetchFuseTVLBorrowsAndSupply } from "utils/fetchTVL";
-import { initFuseWithProviders, providerURL } from "utils/web3Providers";
-import Web3 from "web3";
-import Rari from "lib/rari-sdk";
-
 import { APIError } from "../accounts/fuse/balances";
 
-// Cors
-import Cors from "cors";
+// Utils
+import { fetchFuseTVLBorrowsAndSupply } from "utils/fetchTVL";
+import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
@@ -17,6 +14,16 @@ import {
   getTVLsByDateRange,
   setupDB,
 } from "utils/api/db";
+
+// Cors
+import Cors from "cors";
+
+// Ethers
+import { utils } from 'ethers'
+import { JsonRpcProvider } from "@ethersproject/providers"
+
+// Rari 
+import { Vaults } from "../../../esm/index"
 
 // Initializing the cors middleware
 const cors = Cors({
@@ -66,15 +73,15 @@ export default async function handler(
       await setupDB();
 
       // Set up SDKs
-      const web3 = new Web3(providerURL);
-      const rari = new Rari(web3);
-      const fuse = initFuseWithProviders(providerURL);
+      const web3 = new JsonRpcProvider(providerURL);
+      const rari = new Vaults(web3);
+      const fuse = initFuseWithProviders(web3);
 
       // Query params
       // startDate and endDate is in DD-MM-YYY format
       const { startDate, endDate, startBlock, endBlock, useContract } =
         parseQueryParams(req);
-      const latestBlockNumber = await web3.eth.getBlockNumber();
+      const latestBlockNumber = await rari.provider.getBlockNumber();
       const currentDate = formatDateToDDMMYY(new Date());
 
       let fetchETHUSDPrice: Promise<any>;

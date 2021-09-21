@@ -9,10 +9,11 @@ import TokenSearch from "./TokenSearch";
 import InterestRatesTable from "./InterestRatesTable";
 
 // Hooks
-import { TokenData, fetchTokenData } from "hooks/useTokenData";
+import { TokenData } from "hooks/useTokenData";
 import useReserves from "hooks/interestRates/aave/useReserves";
 import useCompoundMarkets from "hooks/interestRates/compound/useCompoundMarkets";
 import useFuseMarkets from "hooks/interestRates/fuse/useFuseMarkets";
+import { fetchTokenDataWithCache } from 'utils/services';
 
 // Types
 import { MarketInfo } from "hooks/interestRates/types";

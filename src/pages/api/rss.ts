@@ -405,9 +405,8 @@ export default async (request: NowRequest, response: NowResponse) => {
 
       // Ex: 8
       const liquidationIncentive =
-        (await comptrollerContract.methods
-          .liquidationIncentiveMantissa()
-          .call()) /
+        (parseInt((await comptrollerContract
+          .liquidationIncentiveMantissa()).toString())) /
           1e16 -
         100;
 

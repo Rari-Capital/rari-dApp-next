@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { Row, Column, Center, useIsMobile } from "lib/chakraUtils";
-
-import LogRocket from "logrocket";
+// Chakra and UI stuff
 import {
   Heading,
   Box,
@@ -16,43 +13,49 @@ import {
   Tabs,
   Spinner,
 } from "@chakra-ui/react";
-
-import BigNumber from "bignumber.js";
-
-import { useQuery, useQueryClient } from "react-query";
-
-import { HashLoader } from "react-spinners";
-
-import { useTranslation } from "next-i18next";
-import { useRari } from "../../../../../context/RariContext";
-import { fetchTokenBalance } from "../../../../../hooks/useTokenBalance";
-import { BN, smallUsdFormatter } from "../../../../../utils/bigUtils";
-
+import { Row, Column, Center, useIsMobile } from "lib/chakraUtils";
 import DashboardBox from "../../../../shared/DashboardBox";
 import { ModalDivider } from "../../../../shared/Modal";
+import { SwitchCSS } from "../../../../shared/SwitchCSS";
 
-import { Mode } from ".";
+// React
+import { useState } from "react";
+import { HashLoader } from "react-spinners";
+import { useQuery, useQueryClient } from "react-query";
 
+// LogRocket
+import LogRocket from "logrocket";
+
+// Rari
+import { useRari } from "../../../../../context/RariContext";
+import { Fuse } from "../../../../../esm/index";
+
+// Hooks
+import { useTranslation } from "next-i18next";
+import { fetchTokenBalance } from "../../../../../hooks/useTokenBalance";
 import {
   ETH_TOKEN_DATA,
   useTokenData,
 } from "../../../../../hooks/useTokenData";
 import { useBorrowLimit } from "../../../../../hooks/useBorrowLimit";
+import useUpdatedUserAssets from "hooks/fuse/useUpdatedUserAssets";
 
-import Fuse from "lib/fuse-sdk";
-
+// Utils
+import { BN, smallUsdFormatter } from "../../../../../utils/bigUtils";
+import { Mode } from ".";
 import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
 import { createComptroller } from "../../../../../utils/createComptroller";
 import { handleGenericError } from "../../../../../utils/errorHandling";
 import { ComptrollerErrorCodes } from "../../FusePoolEditPage";
-import { SwitchCSS } from "../../../../shared/SwitchCSS";
-
 import {
   convertMantissaToAPR,
   convertMantissaToAPY,
 } from "../../../../../utils/apyUtils";
-import useUpdatedUserAssets from "hooks/fuse/useUpdatedUserAssets";
 import { createContract, toBN } from "utils/ethersUtils";
+
+import { Contract } from 'ethers';
+import BigNumber from 'bignumber.js';
+import { BigNumber as EthersBigNumber, utils, constants} from 'ethers'
 
 enum UserAction {
   NO_ACTION,
@@ -223,9 +226,9 @@ const AmountSelect = ({
       const max = new BigNumber(2).pow(256).minus(1).toFixed(0); //big fucking #
 
       // todo - do we need this?
-      const amountBN = toBN(amount!.toFixed(0));
+      const amountBN = EthersBigNumber.from(amount);
 
-      const cToken = createContract(
+      const cToken = new Contract(
         asset.cToken,
         isETH
           ? JSON.parse(
@@ -237,31 +240,25 @@ const AmountSelect = ({
               fuse.compoundContracts[
                 "contracts/CErc20Delegate.sol:CErc20Delegate"
               ].abi
-            )
+            ),
+          fuse.provider.getSigner()
       );
 
       if (mode === Mode.SUPPLY || mode === Mode.REPAY) {
         // if not eth check if amounti is approved for thsi token
         if (!isETH) {
-          const token = createContract(
+          const token = new Contract(
             asset.underlyingToken,
-            JSON.parse(
-              fuse.compoundContracts[
-                "contracts/EIP20Interface.sol:EIP20Interface"
-              ].abi
-            )
+            JSON.parse( fuse.compoundContracts[ "contracts/EIP20Interface.sol:EIP20Interface"].abi ),
+            fuse.provider.getSigner()
           );
 
-          const hasApprovedEnough = toBN(
-            await token.methods
-              .allowance(address, cToken.options.address)
-              .call()
+          const hasApprovedEnough = (
+            await token.callStatic.allowance(address, cToken.options.address)
           ).gte(amountBN);
 
           if (!hasApprovedEnough) {
-            await token.methods
-              .approve(cToken.options.address, max)
-              .send({ from: address });
+            await token.approve(cToken.options.address, max)
           }
 
           LogRocket.track("Fuse-Approve");
@@ -273,9 +270,7 @@ const AmountSelect = ({
           if (enableAsCollateral) {
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            comptroller.methods
-              .enterMarkets([asset.cToken])
-              .send({ from: address });
+            comptroller.enterMarkets([asset.cToken])
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
@@ -285,7 +280,7 @@ const AmountSelect = ({
 
             if (
               // If they are supplying their whole balance:
-              amountBN.toString() === (await fuse.web3.eth.getBalance(address))
+              amountBN === (await fuse.provider.getBalance(address))
             ) {
               // full balance of ETH
 
@@ -333,7 +328,7 @@ const AmountSelect = ({
 
             if (
               // If they are repaying their whole balance:
-              amountBN.toString() === (await fuse.web3.eth.getBalance(address))
+              amountBN === (await fuse.provider.getBalance(address))
             ) {
               // Subtract gas for max ETH
 
@@ -859,7 +854,7 @@ const TokenNameAndMaxButton = ({
         comptrollerAddress
       );
 
-      if (maxBN!.isNeg() || maxBN!.isZero()) {
+      if (maxBN!.lt(constants.Zero) || maxBN!.isZero()) {
         updateAmount("");
       } else {
         const str = new BigNumber(maxBN!.toString())
@@ -989,16 +984,16 @@ export async function testForCTokenErrorAndSend(
 
 export const fetchGasForCall = async (
   call: any,
-  amountBN: BN,
+  amountBN: EthersBigNumber,
   fuse: Fuse,
   address: string
 ) => {
-  const estimatedGas = fuse.web3.utils.toBN(
+  const estimatedGas = EthersBigNumber.from(
     (
       (await call.estimateGas({
         from: address,
         // Cut amountBN in half in case it screws up the gas estimation by causing a fail in the event that it accounts for gasPrice > 0 which means there will not be enough ETH (after paying gas)
-        value: amountBN.div(fuse.web3.utils.toBN(2)),
+        value: amountBN.div(EthersBigNumber.from(2)),
       })) *
       // 50% more gas for limit:
       1.5
@@ -1010,11 +1005,7 @@ export const fetchGasForCall = async (
     res.json()
   );
 
-  const gasPrice = fuse.web3.utils.toBN(
-    // @ts-ignore For some reason it's returning a string not a BN
-    fuse.web3.utils.toWei(standard.toString(), "gwei")
-  );
-
+  const gasPrice = utils.parseUnits(standard.toString(), "gwei")
   const gasWEI = estimatedGas.mul(gasPrice);
 
   return { gasWEI, gasPrice, estimatedGas };
@@ -1030,7 +1021,7 @@ async function fetchMaxAmount(
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
-      fuse.web3,
+      fuse,
       address
     );
 
@@ -1040,10 +1031,10 @@ async function fetchMaxAmount(
   if (mode === Mode.REPAY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
-      fuse.web3,
+      fuse,
       address
     );
-    const debt = fuse.web3.utils.toBN(asset.borrowBalance);
+    const debt = EthersBigNumber.from(asset.borrowBalance);
 
     if (balance.gt(debt)) {
       return debt;
@@ -1060,7 +1051,7 @@ async function fetchMaxAmount(
       .call();
 
     if (err !== 0) {
-      return fuse.web3.utils.toBN(
+      return EthersBigNumber.from(
         new BigNumber(maxBorrow).multipliedBy(0.75).toFixed(0)
       );
     } else {
@@ -1071,12 +1062,10 @@ async function fetchMaxAmount(
   if (mode === Mode.WITHDRAW) {
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
-    const { 0: err, 1: maxRedeem } = await comptroller.methods
-      .getMaxRedeem(address, asset.cToken)
-      .call();
+    const { 0: err, 1: maxRedeem } = await comptroller.callStatic.getMaxRedeem(address, asset.cToken)
 
     if (err !== 0) {
-      return fuse.web3.utils.toBN(maxRedeem);
+      return EthersBigNumber.from(maxRedeem);
     } else {
       throw new Error("Could not fetch your max withdraw amount! Code: " + err);
     }

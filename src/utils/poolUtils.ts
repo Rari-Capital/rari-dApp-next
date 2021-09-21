@@ -1,8 +1,8 @@
-import EthereumPool from "lib/rari-sdk/pools/ethereum";
-import StablePool from "lib/rari-sdk/pools/stable";
-import DAIPool from "lib/rari-sdk/pools/dai";
-import YieldPool from "lib/rari-sdk/pools/yield";
-import { Vaults } from "rari-sdk-sharad-v2";
+import EthereumPool from '../esm/Vaults/pools/ethereum'
+import StablePool from '../esm/Vaults/pools/stable'
+import DAIPool from '../esm/Vaults/pools/dai'
+import YieldPool from '../esm/Vaults/pools/yield'
+import { Vaults } from "../esm/index"
 
 export enum Pool {
   STABLE = "stable",

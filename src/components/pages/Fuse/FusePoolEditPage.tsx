@@ -1,3 +1,4 @@
+// Chakra and UI
 import {
   AvatarGroup,
   Box,
@@ -8,25 +9,32 @@ import {
   Spinner,
   useToast,
 } from "@chakra-ui/react";
+import { ModalDivider } from "components/shared/Modal";
+import DashboardBox from "components/shared/DashboardBox";
+import { Column, RowOrColumn, Center, Row } from "lib/chakraUtils";
+import { SliderWithLabel } from "components/shared/SliderWithLabel";
+import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
+
+
+// React
+import { useQueryClient, useQuery } from "react-query";
 import { memo, ReactNode, useEffect, useState } from "react";
 
 // Components
-import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
-import { SliderWithLabel } from "components/shared/SliderWithLabel";
+import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
+import { WhitelistInfo } from "./FusePoolCreatePage";
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
-import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
-import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
+
+// Rari
+import { useRari } from "context/RariContext";
 
 // Hooks
-import { useQueryClient, useQuery } from "react-query";
 import { useTokenData } from "hooks/useTokenData";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useTranslation } from 'next-i18next';
-import { useRari } from "context/RariContext";
 import { useRouter } from "next/router";
 import { useExtraPoolInfo } from "./FusePoolInfoPage";
 
@@ -34,11 +42,12 @@ import { useExtraPoolInfo } from "./FusePoolInfoPage";
 import { createComptroller } from "utils/createComptroller";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 import { handleGenericError } from "utils/errorHandling";
-import { Column, RowOrColumn, Center, Row } from "lib/chakraUtils";
 
-import { WhitelistInfo } from "./FusePoolCreatePage";
+// LogRocket
 import LogRocket from "logrocket";
-import BigNumber from "bignumber.js";
+
+// Ethers
+import { Contract, utils, BigNumber } from "ethers";
 
 
 const activeStyle = { bg: "#FFF", color: "#000" };
@@ -301,11 +310,10 @@ const PoolConfiguration = ({
   };
 
   const renounceOwnership = async () => {
-    const unitroller = new fuse.web3.eth.Contract(
-      JSON.parse(
-        fuse.compoundContracts["contracts/Unitroller.sol:Unitroller"].abi
-      ),
-      comptrollerAddress
+    const unitroller = new Contract(
+      comptrollerAddress,
+      JSON.parse( fuse.compoundContracts["contracts/Unitroller.sol:Unitroller"].abi ),
+      fuse.provider.getSigner()
     );
 
     try {
@@ -347,10 +355,7 @@ const PoolConfiguration = ({
 
   const updateCloseFactor = async () => {
     // 50% -> 0.5 * 1e18
-    const bigCloseFactor = new BigNumber(closeFactor)
-      .dividedBy(100)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigCloseFactor: BigNumber = utils.parseUnits((closeFactor / 100).toString())
 
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
@@ -371,11 +376,7 @@ const PoolConfiguration = ({
 
   const updateLiquidationIncentive = async () => {
     // 8% -> 1.08 * 1e8
-    const bigLiquidationIncentive = new BigNumber(liquidationIncentive)
-      .dividedBy(100)
-      .plus(1)
-      .multipliedBy(1e18)
-      .toFixed(0);
+    const bigLiquidationIncentive: BigNumber = utils.parseUnits(((liquidationIncentive / 100) + 1).toString())
 
     const comptroller = createComptroller(comptrollerAddress, fuse);
 

@@ -1,10 +1,20 @@
+// React Query
 import { useQuery } from "react-query";
+
+// Rari
 import { useRari } from "context/RariContext";
+
+// Saffron Hooks
 import { useSaffronContracts } from "components/pages/Tranches/SaffronContext";
 
+// Utils
 import { smallUsdFormatter, smallStringUsdFormatter } from "utils/bigUtils";
-import ERC20ABI from "lib/rari-sdk/abi/ERC20.json";
-import { createContract, fromWei, toBN } from "utils/ethersUtils";
+
+// Abi
+import ERC20ABI from "../../esm/Vaults/abi/ERC20.json"
+
+// Ethers 
+import { Contract, utils } from 'ethers'
 
 export enum TranchePool {
   DAI = "DAI",
@@ -110,14 +120,15 @@ export const usePrincipal = (
 
       const currentEpoch = await fetchCurrentEpoch();
 
-      const tranchePToken = new rari.web3.eth.Contract(
-        ERC20ABI as any,
+      const tranchePToken = new Contract(
         await saffronPool.methods
-          .principal_token_addresses(
-            currentEpoch,
-            trancheRatingIndex(trancheRating)
+        .principal_token_addresses(
+          currentEpoch,
+          trancheRatingIndex(trancheRating)
           )
-          .call()
+          .call(),
+        ERC20ABI,
+        rari.provider.getSigner()
       );
 
       return smallUsdFormatter(
@@ -138,25 +149,24 @@ export const usePrincipalBalance = () => {
     async () => {
       const currentEpoch = await fetchCurrentEpoch();
 
-      const sTranchePToken = createContract(
+      const sTranchePToken = new Contract(
         await saffronPool.methods
           .principal_token_addresses(currentEpoch, 0)
           .call(),
-        ERC20ABI as any
+        ERC20ABI as any,
+        rari.provider.getSigner()
       );
 
-      const aTranchePToken = createContract(
+      const aTranchePToken = new Contract(
         await saffronPool.methods
           .principal_token_addresses(currentEpoch, 2)
           .call(),
-        ERC20ABI as any
+        ERC20ABI as any,
+        rari.provider.getSigner()
       );
 
       return smallStringUsdFormatter(
-        fromWei(
-          toBN(await sTranchePToken.methods.balanceOf(address).call()).add(
-            toBN(await aTranchePToken.methods.balanceOf(address).call())
-          )
+        utils.formatEther( await sTranchePToken.methods.balanceOf(address).call().add( await aTranchePToken.methods.balanceOf(address).call() )
         )
       );
     }
@@ -201,14 +211,15 @@ export const useEstimatedSFI = (): UseEstimatedSFIReturn | undefined => {
 
       const currentEpoch = await fetchCurrentEpoch();
 
-      const dsecSToken = new rari.web3.eth.Contract(
-        ERC20ABI as any,
+      const dsecSToken = new Contract(
         await saffronPool.methods
-          .principal_token_addresses(
-            currentEpoch,
-            trancheRatingIndex(TrancheRating.S)
+        .principal_token_addresses(
+          currentEpoch,
+          trancheRatingIndex(TrancheRating.S)
           )
-          .call()
+          .call(),
+        ERC20ABI as any,
+        rari.provider.getSigner()
       );
 
       // TODO ADD AA POOL
@@ -216,21 +227,22 @@ export const useEstimatedSFI = (): UseEstimatedSFIReturn | undefined => {
       const dsecSSupply = await dsecSToken.methods.totalSupply().call();
 
       const sPoolSFIEarned =
-        DAI_SFI_REWARDS *
+      DAI_SFI_REWARDS *
         (SFI_multipliers[trancheRatingIndex(TrancheRating.S)] / 100000) *
         // If supply is zero we will get NaN for dividing by zero
         (dsecSSupply === "0"
           ? 0
           : (await dsecSToken.methods.balanceOf(address).call()) / dsecSSupply);
 
-      const dsecAToken = new rari.web3.eth.Contract(
-        ERC20ABI as any,
+      const dsecAToken = new Contract(
         await saffronPool.methods
-          .principal_token_addresses(
-            currentEpoch,
-            trancheRatingIndex(TrancheRating.A)
+        .principal_token_addresses(
+          currentEpoch,
+          trancheRatingIndex(TrancheRating.A)
           )
-          .call()
+          .call(),
+        ERC20ABI as any,
+        rari.provider.getSigner()
       );
 
       const dsecASupply = await dsecAToken.methods.totalSupply().call();

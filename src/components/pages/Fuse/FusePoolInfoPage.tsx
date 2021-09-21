@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 
+// Chakra and UI
 import {
   AvatarGroup,
   Box,
@@ -11,42 +12,41 @@ import {
   Text,
   useClipboard,
 } from "@chakra-ui/react";
-
-import {
-  Column,
-  RowOnDesktopColumnOnMobile,
-  RowOrColumn,
-  Center,
-  Row,
-  useIsMobile,
-} from "lib/chakraUtils";
+import { Column, RowOnDesktopColumnOnMobile, RowOrColumn, Center, Row, useIsMobile } from "lib/chakraUtils";
+import DashboardBox, { DASHBOARD_BOX_PROPS } from "components/shared/DashboardBox";
+import CaptionedStat from "components/shared/CaptionedStat";
+import { ModalDivider } from "components/shared/Modal";
+import AppLink from "components/shared/AppLink";
 
 const AssetChart = dynamic(() => import("./AssetChart"), { ssr: false });
+
+// Components
 import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
-import CaptionedStat from "components/shared/CaptionedStat";
-import AppLink from "components/shared/AppLink";
-import DashboardBox, { DASHBOARD_BOX_PROPS } from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
 
+// React
+import { useQuery } from "react-query";
+
+// Rari
+import { Fuse } from "../../../esm/index"
 
 // Hooks
-import { useQuery } from "react-query";
+import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useTokenData } from "hooks/useTokenData";
-import { useRari } from "context/RariContext";
-import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
-import { memo, useState } from "react";
 import { useTranslation } from 'next-i18next';
+import { useRari } from "context/RariContext";
+import { memo, useState } from "react";
 
 // Utils
-import Fuse from "lib/fuse-sdk";
 import { shortAddress } from "utils/shortAddress";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 import { createComptroller } from "utils/createComptroller";
 import { shortUsdFormatter } from "utils/bigUtils";
-import { FuseUtilizationChartOptions } from "utils/chartOptions";
+
+// Ethers
+import { utils} from 'ethers'
 
 export const useExtraPoolInfo = (comptrollerAddress: string) => {
   const { fuse, address } = useRari();
@@ -62,19 +62,17 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
       enforceWhitelist,
       whitelist,
     ] = await Promise.all([
-      fuse.contracts.FusePoolLens.methods
-        .getPoolOwnership(comptrollerAddress)
-        .call({ gas: 1e18 }),
+      fuse.contracts.FusePoolLens.getPoolOwnership(comptrollerAddress, {gas: 1e18}),
 
-      fuse.getPriceOracle(await comptroller.methods.oracle().call()),
+      fuse.getPriceOracle(await comptroller.callStatic.oracle()),
 
-      comptroller.methods.closeFactorMantissa().call(),
+      comptroller.callStatic.closeFactorMantissa(),
 
-      comptroller.methods.liquidationIncentiveMantissa().call(),
+      comptroller.callStatic.liquidationIncentiveMantissa(),
 
       (() => {
         try {
-          comptroller.methods.enforceWhitelist().call();
+          comptroller.callStatic.enforceWhitelist();
         } catch (_) {
           return false;
         }
@@ -82,7 +80,7 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
 
       (() => {
         try {
-          comptroller.methods.getWhitelist().call();
+          comptroller.callStatic.getWhitelist();
         } catch (_) {
           return [];
         }
@@ -593,7 +591,7 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
     const supplyLevel =
       (Math.pow(
         (interestRateModel.getSupplyRate(
-          fuse.web3.utils.toBN((i * 1e16).toString())
+          utils.parseUnits((i).toString(), 16)
         ) /
           1e18) *
           (4 * 60 * 24) +
@@ -606,7 +604,7 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
     const borrowLevel =
       (Math.pow(
         (interestRateModel.getBorrowRate(
-          fuse.web3.utils.toBN((i * 1e16).toString())
+          utils.parseUnits((i).toString(), 16)
         ) /
           1e18) *
           (4 * 60 * 24) +

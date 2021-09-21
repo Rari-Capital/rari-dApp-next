@@ -5,7 +5,7 @@ import { useRari } from "../context/RariContext";
 import { getSDKPool } from "../utils/poolUtils";
 import { PoolInterface } from "constants/pools";
 import { fromWei, toBN } from "utils/ethersUtils";
-import { Vaults } from "rari-sdk-sharad-v2";
+import { Vaults } from "../esm/index"
 import BigNumber from "bignumber.js";
 
 interface UseQueryResponse {

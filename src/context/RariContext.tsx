@@ -15,7 +15,7 @@ import { useQueryClient } from "react-query";
 import { useTranslation } from "next-i18next";
 import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
-import { Vaults, Fuse } from "rari-sdk-sharad-v2";
+import { Vaults, Fuse } from "../esm/index"
 
 import LogRocket from "logrocket";
 import { useToast } from "@chakra-ui/react";

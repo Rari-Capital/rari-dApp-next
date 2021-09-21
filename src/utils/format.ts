@@ -1,7 +1,7 @@
 import { stringUsdFormatter } from "./bigUtils";
 import { fromWei } from "./ethersUtils";
 import { BigNumber } from "ethers"
-import { Vaults } from "rari-sdk-sharad-v2";
+import { Vaults } from "../esm/index"
 
 // Formats a BN balance USD or ETH denominated string
 export const formatBalanceBN = (

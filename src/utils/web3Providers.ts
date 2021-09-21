@@ -1,4 +1,4 @@
-import { Fuse } from "rari-sdk-sharad-v2";
+import { Fuse } from "../esm/index"
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 
