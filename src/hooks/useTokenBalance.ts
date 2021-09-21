@@ -29,7 +29,6 @@ export const fetchTokenBalance = async (
   ) {
     balance = await fuse.provider.getBalance(address);
   } else {
-    console.log("provide", fuse.provider, "signer", fuse.provider.getSigner(), address)
     const contract = new Contract(tokenAddress,ERC20ABI as any, fuse.provider.getSigner());
     balance = await contract.callStatic.balanceOf(address);
   }
