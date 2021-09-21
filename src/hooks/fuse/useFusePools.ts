@@ -1,13 +1,23 @@
+// React
 import { useMemo } from "react";
 import { useQuery } from "react-query";
+
+// Rari
 import { useRari } from "context/RariContext";
 import { Vaults, Fuse } from "../../esm/index"
+
+// Libraries
 import FuseJs from "fuse.js";
 
+// Utils
 import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
+import { toInt } from "utils/ethersUtils";
+
+// Ethers
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface FusePool {
   name: string;
@@ -84,13 +94,10 @@ export const fetchPools = async ({
     ethPrice,
   ] = await Promise.all([
     isMyPools
-      ? fuse.contracts.FusePoolLens.callStatic
-          .getPoolsBySupplierWithData(address)
+      ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
       : isCreatedPools
-      ? fuse.contracts.FusePoolLens.callStatic
-          .getPoolsByAccountWithData(address)
-      : fuse.contracts.FusePoolLens.callStatic
-          .getPublicPoolsWithData(),
+      ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
+      : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData(),
     fetchETHPrice,
   ]);
 
@@ -101,7 +108,7 @@ export const fetchPools = async ({
       underlyingTokens: underlyingTokens[id],
       underlyingSymbols: underlyingSymbols[id],
       pool: filterOnlyObjectProperties(fusePools[id]),
-      id: ids[id],
+      id: toInt(ids[id]),
       suppliedUSD: (totalSuppliedETH[id] / 1e18) * parseFloat(ethPrice),
       borrowedUSD: (totalBorrowedETH[id] / 1e18) * parseFloat(ethPrice),
     });
