@@ -25,6 +25,7 @@ import { SwitchCSS } from "components/shared/SwitchCSS";
 // React
 import { memo, useEffect } from "react";
 import { useRouter } from "next/router";
+import { useQuery } from 'react-query';
 
 // Rari
 import { useRari } from "context/RariContext";
@@ -224,6 +225,14 @@ const SupplyList = ({
 
   const isMobile = useIsMobile();
 
+  const { data: stakedOHMApyData } = useQuery("sOHM_APY", async () => {
+    const data = (
+      await fetch("https://api.rari.capital/fuse/pools/18/apy")
+    ).json();
+
+    return data as Promise<{ supplyApy: number; supplyWpy: number }>;
+  });
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -287,6 +296,7 @@ const SupplyList = ({
                   key={asset.underlyingToken}
                   assets={suppliedAssets}
                   index={index}
+                  stakedOHMApyData={stakedOHMApyData}
                 />
               );
             })}
@@ -300,6 +310,7 @@ const SupplyList = ({
                   key={asset.underlyingToken}
                   assets={nonSuppliedAssets}
                   index={index}
+                  stakedOHMApyData={stakedOHMApyData}
                 />
               );
             })}
@@ -318,10 +329,12 @@ const AssetSupplyRow = ({
   assets,
   index,
   comptrollerAddress,
+  stakedOHMApyData
 }: {
   assets: USDPricedFuseAsset[];
   index: number;
   comptrollerAddress: string;
+  stakedOHMApyData: {supplyApy: number, supplyWpy: number} | undefined;
 }) => {
   const {
     isOpen: isModalOpen,
@@ -400,6 +413,9 @@ const AssetSupplyRow = ({
     queryClient.refetchQueries();
   };
 
+  const isStakedOHM = asset.underlyingToken.toLowerCase() ===
+  "0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F".toLowerCase();
+
   const isMobile = useIsMobile();
 
   return (
@@ -455,10 +471,21 @@ const AssetSupplyRow = ({
               fontWeight="bold"
               fontSize="17px"
             >
-              {supplyAPY.toFixed(3)}%
+              {isStakedOHM 
+                ? stakedOHMApyData 
+                ? (stakedOHMApyData.supplyApy * 100).toFixed(3)
+                : "?"
+                : supplyAPY.toFixed(3)}%
+              
             </Text>
 
-            <Text fontSize="sm">{supplyWPY.toFixed(3)}%</Text>
+            <Text fontSize="sm">
+            {isStakedOHM 
+                ? stakedOHMApyData 
+                ? (stakedOHMApyData.supplyWpy * 100).toFixed(3)
+                : "?"
+                : supplyWPY.toFixed(3)}%
+            </Text>
           </Column>
         )}
 
