@@ -22,7 +22,6 @@ export default class DydxSubpool {
             return yield this.cache.getOrUpdate("dydxCurrencyApys", function () {
                 return __awaiter(this, void 0, void 0, function* () {
                     const data = (yield axios.get("https://api.dydx.exchange/v1/markets")).data;
-                    console.log(data);
                     let apyBNs = {};
                     for (let i = 0; i < data.markets.length; i++) {
                         apyBNs[data.markets[i].symbol] = utils.parseUnits(data.markets[i].totalSupplyAPR, 77);

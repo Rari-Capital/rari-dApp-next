@@ -192,7 +192,7 @@ export default class Governance {
             },
             sushiSwapDistributions: {
                 DISTRIBUTION_START_BLOCK: 11909000,
-                DISTIBUTION_PERIOD: 6500 * 365 * 3,
+                DISTRIBUTION_PERIOD: 6500 * 365 * 3,
                 //@ts-ignore
                 DISTRIBUTION_PERIOD_END: this.DISTRIBUTION_PERIOD + this.DISTRIBUTION_START_BLOCK,
                 FINAL_RGT_DISTRIBUTION: utils.parseUnits("568717819057309757517546")
@@ -242,7 +242,7 @@ export default class Governance {
                 },
                 getCurrentApr: function (blockNumber, totalStakedUsd) {
                     return __awaiter(this, void 0, void 0, function* () {
-                        // Predicted APY if we have't started the distribution period or we don't have enough data
+                        // Predicted APY if we have't started the distribution period or we don't have enough datac
                         if (blockNumber - 270 <
                             self.rgt.sushiSwapDistributions.DISTRIBUTION_START_BLOCK)
                             blockNumber =
@@ -262,7 +262,7 @@ export default class Governance {
                 },
                 totalStaked: function () {
                     return __awaiter(this, void 0, void 0, function* () {
-                        return BigNumber.from(yield self.contracts.RariGovernanceTokenUniswapDistributor.totalStaked());
+                        return yield self.contracts.RariGovernanceTokenUniswapDistributor.totalStaked();
                     });
                 },
                 getLpTokenData: function () {
