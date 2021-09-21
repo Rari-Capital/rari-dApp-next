@@ -10,7 +10,6 @@ import { useTranslation } from 'next-i18next';
 // Utils
 import { Column, Row, useIsMobile } from "lib/chakraUtils";
 import { filterPoolName } from "utils/fetchFusePoolData";
-import { toInt } from "utils/ethersUtils";
 
 export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
   const { t } = useTranslation();
