@@ -59,6 +59,8 @@ export const getPoolName = (pool: Pool, t: any) => {
       return t("ETH Pool");
     case Pool.YIELD:
       return t("Yield Pool");
+    case Pool.STABLE:
+      return t("Stable Pool")
     default:
       return t("Yield Pool");
   }
