@@ -7,7 +7,7 @@ import { BigNumber as EthersBigNumber, constants } from 'ethers'
 import BigNumber from "bignumber.js";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
-  const { 2: suppliedETHPerPool } = await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData({ gas: 1e18 })
+  const { 2: suppliedETHPerPool } = await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData()
 
   const totalSuppliedETH = EthersBigNumber.from(
     new BigNumber(
