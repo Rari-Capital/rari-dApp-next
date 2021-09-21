@@ -179,17 +179,42 @@ export default class StablePool {
             coinGeckoUsdPrices: 900,
             acceptedCurrencies: 30,
         });
-        this.contracts = {};
-        for (const contractName of Object.keys(contractAddressesStable))
-            this.contracts[contractName] = new Contract(contractAddressesStable[contractName], abisStable[contractName], this.provider);
-        this.legacyContracts = {};
-        for (const version of Object.keys(legacyContractAddresses)) {
-            if (!this.legacyContracts[version])
-                this.legacyContracts[version] = {};
-            for (const contractName of Object.keys(legacyContractAddresses[version]))
-                this.legacyContracts[version][contractName] = new Contract(legacyContractAddresses[version][contractName], legacyAbis[version][contractName], this.provider);
-        }
-        ;
+        this.contracts = {
+            RariFundController: new Contract(contractAddressesStable["RariFundController"], abisStable["RariFundController"], this.provider),
+            RariFundManager: new Contract(contractAddressesStable["RariFundManager"], abisStable["RariFundManager"], this.provider),
+            RariFundToken: new Contract(contractAddressesStable["RariFundToken"], abisStable["RariFundToken"], this.provider),
+            RariFundPriceConsumer: new Contract(contractAddressesStable["RariFundPriceConsumer"], abisStable["RariFundPriceConsumer"], this.provider),
+            RariFundProxy: new Contract(contractAddressesStable["RariFundProxy"], abisStable["RariFundProxy"], this.provider)
+        };
+        this.legacyContracts = {
+            "v1.0.0": {
+                RariFundManager: new Contract(legacyContractAddresses["v1.0.0"]["RariFundManager"], legacyAbis["v1.0.0"]["RariFundManager"], this.provider),
+                RariFundToken: new Contract(legacyContractAddresses["v1.0.0"]["RariFundToken"], legacyAbis["v1.0.0"]["RariFundToken"], this.provider),
+                RariFundProxy: new Contract(legacyContractAddresses["v1.0.0"]["RariFundProxy"], legacyAbis["v1.0.0"]["RariFundProxy"], this.provider),
+            },
+            "v1.1.0": {
+                RariFundController: new Contract(legacyContractAddresses["v1.1.0"]["RariFundController"], legacyAbis["v1.1.0"]["RariFundController"], this.provider),
+                RariFundManager: new Contract(legacyContractAddresses["v1.1.0"]["RariFundManager"], legacyAbis["v1.1.0"]["RariFundManager"], this.provider),
+                RariFundProxy: new Contract(legacyContractAddresses["v1.1.0"]["RariFundProxy"], legacyAbis["v1.1.0"]["RariFundProxy"], this.provider),
+            },
+            "v1.2.0": {
+                RariFundProxy: new Contract(legacyContractAddresses["v1.2.0"]["RariFundProxy"], legacyAbis["v1.2.0"]["RariFundProxy"], this.provider),
+            },
+            "v2.0.0": {
+                RariFundController: new Contract(legacyContractAddresses["v2.0.0"]["RariFundController"], legacyAbis["v2.0.0"]["RariFundController"], this.provider),
+                RariFundManager: new Contract(legacyContractAddresses["v2.0.0"]["RariFundManager"], legacyAbis["v2.0.0"]["RariFundManager"], this.provider),
+                RariFundProxy: new Contract(legacyContractAddresses["v2.0.0"]["RariFundProxy"], legacyAbis["v2.0.0"]["RariFundProxy"], this.provider),
+            },
+            "v2.2.0": {
+                RariFundProxy: new Contract(legacyContractAddresses["v2.2.0"]["RariFundProxy"], legacyAbis["v2.2.0"]["RariFundProxy"], this.provider),
+            },
+            "v2.4.0": {
+                RariFundProxy: new Contract(legacyContractAddresses["v2.4.0"]["RariFundProxy"], legacyAbis["v2.4.0"]["RariFundProxy"], this.provider),
+            },
+            "v2.5.0": {
+                RariFundController: new Contract(legacyContractAddresses["v2.5.0"]["RariFundController"], legacyAbis["v2.5.0"]["RariFundController"], this.provider),
+            }
+        };
         for (const currencyCode of Object.keys(this.internalTokens))
             this.internalTokens[currencyCode].contract = new Contract(this.internalTokens[currencyCode].address, erc20Abi, this.provider);
         var self = this;

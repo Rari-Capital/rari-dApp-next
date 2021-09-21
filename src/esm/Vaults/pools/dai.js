@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 // Ethers
 import { Contract } from "ethers";
 // StablePool
@@ -33,17 +42,19 @@ export default class DaiPool extends StablePools {
         this.API_BASE_URL = "https://api.rari.capital/pools/dai/";
         this.POOL_NAME = "Rari DAI Pool";
         this.POOL_TOKEN_SYMBOL = "RDPT";
-        this.contracts = {};
-        for (const contractName of Object.keys(contractAddressesDai))
-            this.contracts[contractName] = new Contract(contractAddressesDai[contractName], DaiPool.CONTRACT_ABIS[contractName], this.provider);
-        this.legacyContracts = {};
-        for (const version of Object.keys(legacyContractAddressesDai)) {
-            if (!this.legacyContracts[version])
-                this.legacyContracts[version] = {};
-            for (const contractName of Object.keys(legacyContractAddressesDai[version])) {
-                this.legacyContracts[version][contractName] = new Contract(legacyContractAddressesDai[version][contractName], legacyAbisDai[version][contractName], this.provider);
-            }
-        }
+        this.contracts = {
+            RariFundController: new Contract(contractAddressesDai["RariFundController"], DaiPool.CONTRACT_ABIS["RariFundController"], this.provider),
+            RariFundManager: new Contract(contractAddressesDai["RariFundManager"], DaiPool.CONTRACT_ABIS["RariFundManager"], this.provider),
+            RariFundToken: new Contract(contractAddressesDai["RariFundToken"], DaiPool.CONTRACT_ABIS["RariFundToken"], this.provider),
+            RariFundPriceConsumer: new Contract(contractAddressesDai["RariFundPriceConsumer"], DaiPool.CONTRACT_ABIS["RariFundPriceConsumer"], this.provider),
+            RariFundProxy: new Contract(contractAddressesDai["RariFundProxy"], DaiPool.CONTRACT_ABIS["RariFundProxy"], this.provider),
+        };
+        this.legacyContracts = {
+            "v1.0.0": {
+                RariFundController: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundController"], legacyAbisDai["v1.0.0"]["RariFundController"], this.provider),
+                RariFundProxy: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundProxy"], legacyAbisDai["v1.0.0"]["RariFundProxy"], this.provider),
+            },
+        };
         this.allocations.POOLS = (function () {
             let pools = ["dYdX", "Compound", "Aave", "mStable"];
             pools[100] = "Fuse6";
@@ -63,6 +74,18 @@ export default class DaiPool extends StablePools {
             Fuse6: ["DAI"],
             Fuse7: ["DAI"],
             Fuse18: ["DAI"],
+        };
+        var self = this;
+        this.history.getPoolAllocationHistory = function (fromBlock, toBlock) {
+            return __awaiter(this, void 0, void 0, function* () {
+                var events = [];
+                if (toBlock >= 11441321 && fromBlock <= 12535101)
+                    console.log(self.legacyContracts["v1.0.0"]);
+                events = yield self.legacyContracts["v1.0.0"].RariFundController.queryFilter(self.contracts.RariFundController.filters.PoolAllocation(), Math.max(fromBlock, 11441321), Math.min(toBlock, 12535101));
+                if (toBlock >= 12535101)
+                    events = events.concat(yield self.contracts.RariFundController.queryFilter(self.contracts.RariFundController.filters.PoolAllocation(), Math.max(fromBlock, 12535101), toBlock));
+                return events;
+            });
         };
     }
 }
