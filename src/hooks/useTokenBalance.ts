@@ -19,21 +19,22 @@ export const fetchTokenBalance = async (
   fuse: Fuse,
   address?: string
 ): Promise<EthersBigNumber> => {
-  let stringBalance;
+  let balance;
 
   if (!address || address === ETH_TOKEN_DATA.address) {
-    stringBalance = "0";
+    balance = "0";
   } else if (
     tokenAddress === ETH_TOKEN_DATA.address ||
     tokenAddress === "NO_ADDRESS_HERE_USE_WETH_FOR_ADDRESS"
   ) {
-    stringBalance = await fuse.provider.getBalance(address);
+    balance = await fuse.provider.getBalance(address);
   } else {
+    console.log("provide", fuse.provider, "signer", fuse.provider.getSigner(), address)
     const contract = new Contract(tokenAddress,ERC20ABI as any, fuse.provider.getSigner());
-    stringBalance = await contract.callStatic.balanceOf(address);
+    balance = await contract.callStatic.balanceOf(address);
   }
 
-  return stringBalance;
+  return balance;
 };
 
 export function useTokenBalance(tokenAddress: string) {
