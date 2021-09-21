@@ -100,17 +100,15 @@ export const fetchFusePoolData = async (
     comptroller,
     name: _unfiliteredName,
     isPrivate,
-  } = await fuse.contracts.FusePoolDirectory.methods
+  } = await fuse.contracts.FusePoolDirectory
     .pools(poolId)
-    .call({ from: address }, blockNum);
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
 
   let assets: USDPricedFuseAsset[] = (
-    await fuse.contracts.FusePoolLens.methods
+    await fuse.contracts.FusePoolLens.callStatic
       .getPoolAssetsWithData(comptroller)
-      .call({ from: address, gas: 1e18 }, blockNum)
   ).map(filterOnlyObjectProperties);
 
   let totalLiquidityUSD = 0;
