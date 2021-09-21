@@ -103,7 +103,7 @@ const AmountSelect = ({
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = utils.parseUnits(newAmount)
+    const bigAmount = utils.parseUnits(newAmount).div(constants.WeiPerEther)
     bigAmount.lt(constants.Zero)
       ? _setAmount(null)
       : _setAmount(bigAmount.mul(token.decimals < 18 ? 10 ** token.decimals : constants.WeiPerEther));
@@ -119,17 +119,17 @@ const AmountSelect = ({
     }
 
     if (mode === Mode.DEPOSIT) {
-      if (isSelectedTokenBalanceLoading) {
+      if (isSelectedTokenBalanceLoading || typeof selectedTokenBalance === "undefined") {
         return false;
       }
 
-      return amount.lte(selectedTokenBalance!.toString());
+      return amount.lte(selectedTokenBalance);
     } else {
-      if (isMaxLoading) {
+      if (isMaxLoading || typeof max === "undefined") {
         return false;
       }
 
-      return amount.lte(max!.toString());
+      return amount.lte(max);
     }
   })();
 
