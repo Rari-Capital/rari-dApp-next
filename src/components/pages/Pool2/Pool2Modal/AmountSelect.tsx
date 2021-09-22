@@ -34,7 +34,6 @@ import {
 // Utils
 import { Mode } from ".";
 import { handleGenericError } from "utils/errorHandling";
-import { toBN } from "utils/ethersUtils";
 
 // Ethers
 import { BigNumber, constants, utils } from 'ethers';
@@ -263,11 +262,11 @@ const TokenNameAndMaxButton = ({
     }
 
     if (maxBN.lt(constants.Zero) || maxBN.isZero()) {
-      updateAmount("");
+      updateAmount("0");
     } else {
       const str = maxBN.div(constants.WeiPerEther).toString()
       if (str.startsWith("0.000000")) {
-        updateAmount("");
+        updateAmount("0");
       } else {
         updateAmount(str);
       }
