@@ -1,6 +1,5 @@
-import { useState } from "react";
+// Chakra and UI
 import { Row, Column } from "lib/chakraUtils";
-
 import {
   Heading,
   Box,
@@ -12,30 +11,33 @@ import {
   useToast,
   IconButton,
 } from "@chakra-ui/react";
-
-import BigNumber from "bignumber.js";
-
-import { useQuery, useQueryClient } from "react-query";
-
 import { HashLoader } from "react-spinners";
+import DashboardBox from "components/shared/DashboardBox";
+import { ModalDivider } from "components/shared/Modal";
+import { SettingsIcon } from "@chakra-ui/icons";
 
+// React
+import { useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
 import { useTranslation } from 'next-i18next';
+
+// Rari
 import { useRari } from "context/RariContext";
+import { LP_TOKEN_CONTRACT } from "../../../../esm/Vaults/governance/governance"
+
+// Hooks
 import {
   fetchTokenBalance,
   useTokenBalance,
 } from "hooks/useTokenBalance";
 
-import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
-
+// Utils
 import { Mode } from ".";
-import { SettingsIcon } from "@chakra-ui/icons";
-
-import { LP_TOKEN_CONTRACT } from "../../../../esm/Vaults/governance/governance"
 import { handleGenericError } from "utils/errorHandling";
 import { toBN } from "utils/ethersUtils";
-import { BigNumber as EthersBigNumber, constants } from 'ethers';
+
+// Ethers
+import { BigNumber, constants, utils } from 'ethers';
 
 interface Props {
   onClose: () => any;
@@ -57,9 +59,7 @@ const AmountSelect = ({ onClose, mode, openOptions }: Props) => {
 
   const [userEnteredAmount, _setUserEnteredAmount] = useState("");
 
-  const [amount, _setAmount] = useState<BigNumber | null>(
-    () => new BigNumber(0)
-  );
+  const [amount, _setAmount] = useState<BigNumber | null>(constants.Zero);
 
   const { t } = useTranslation();
 
@@ -78,10 +78,10 @@ const AmountSelect = ({ onClose, mode, openOptions }: Props) => {
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = new BigNumber(newAmount);
-    bigAmount.isNaN()
-      ? _setAmount(null)
-      : _setAmount(bigAmount.multipliedBy(10 ** 18));
+    const bigAmount = utils.parseUnits(newAmount).div(constants.WeiPerEther);
+    bigAmount.lt(constants.Zero)
+      ? _setAmount(constants.Zero)
+      : _setAmount(bigAmount.mul(constants.WeiPerEther));
 
     setUserAction(UserAction.NO_ACTION);
   };
@@ -126,17 +126,10 @@ const AmountSelect = ({ onClose, mode, openOptions }: Props) => {
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
-      //@ts-ignore
-      const amountBN = toBN(amount!.decimalPlaces(0));
-
       if (mode === Mode.DEPOSIT) {
-        await rari.governance.rgt.sushiSwapDistributions.deposit(amountBN, {
-          from: address,
-        });
+        await rari.governance.rgt.sushiSwapDistributions.deposit(amount, address);
       } else {
-        await rari.governance.rgt.sushiSwapDistributions.withdraw(amountBN, {
-          from: address,
-        });
+        await rari.governance.rgt.sushiSwapDistributions.withdraw(amount, address);
       }
 
       queryClient.refetchQueries();
@@ -258,34 +251,21 @@ const TokenNameAndMaxButton = ({
 
   const setToMax = async () => {
     setIsMaxLoading(true);
-    let maxBN: EthersBigNumber;
+    let maxBN: BigNumber;
 
     if (mode === Mode.DEPOSIT) {
-      const balance = await fetchTokenBalance(
-        LP_TOKEN_CONTRACT,
-        fuse,
-        address
-      );
-
+      const balance = await fetchTokenBalance( LP_TOKEN_CONTRACT, fuse, address );
       maxBN = balance;
-    } else {
-      const deposited =
-        await rari.governance.rgt.sushiSwapDistributions.stakingBalanceOf(
-          address
-        );
 
+    } else {
+      const deposited = await rari.governance.rgt.sushiSwapDistributions.stakingBalanceOf(address);
       maxBN = deposited;
     }
 
     if (maxBN.lt(constants.Zero) || maxBN.isZero()) {
       updateAmount("");
     } else {
-      const str = new BigNumber(maxBN.toString())
-        .div(10 ** 18)
-        .toFixed(18)
-        // Remove trailing zeroes
-        .replace(/\.?0+$/, "");
-
+      const str = maxBN.div(constants.WeiPerEther).toString()
       if (str.startsWith("0.000000")) {
         updateAmount("");
       } else {

@@ -43,7 +43,9 @@ export const usePool2Balance = () => {
 
   const { data: balance } = useQuery(
     address + " pool2Balance",
-    async () => await fetchPool2Balance({ rari, fuse, address })
+    async () => {
+      return await fetchPool2Balance({ rari, fuse, address })
+    }  
   );
 
   return balance;
