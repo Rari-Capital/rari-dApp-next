@@ -36,7 +36,7 @@ export const fetchMaxWithdraw = async ({
   const [amount] = await getSDKPool({
     rari,
     pool: poolType,
-  }).withdrawals.getMaxWithdrawalAmount(symbol, bigBalance);
+  }).withdrawals.getMaxWithdrawalAmount(symbol, bigBalance, address);
 
   return amount;
 };

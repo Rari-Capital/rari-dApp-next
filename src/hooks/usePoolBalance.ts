@@ -6,7 +6,7 @@ import { getSDKPool } from "../utils/poolUtils";
 import { PoolInterface } from "constants/pools";
 import { fromWei, toBN } from "utils/ethersUtils";
 import { Vaults } from "../esm/index"
-import BigNumber from "bignumber.js";
+import { BigNumber } from 'ethers'
 
 interface UseQueryResponse {
   data: any;

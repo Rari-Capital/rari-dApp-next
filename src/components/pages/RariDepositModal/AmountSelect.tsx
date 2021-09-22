@@ -94,18 +94,17 @@ const AmountSelect = ({
 
   const [userEnteredAmount, _setUserEnteredAmount] = useState("");
 
-  const [amount, _setAmount] = useState<BigNumber | null>(constants.Zero);
+  const [amount, _setAmount] = useState<BigNumber>(constants.Zero);
 
   const updateAmount = (newAmount: string) => {
     if (newAmount.startsWith("-")) {
       return;
     }
-
     _setUserEnteredAmount(newAmount);
 
     const bigAmount = utils.parseUnits(newAmount).div(constants.WeiPerEther)
     bigAmount.lt(constants.Zero)
-      ? _setAmount(null)
+      ? _setAmount(constants.Zero)
       : _setAmount(bigAmount.mul(token.decimals < 18 ? 10 ** token.decimals : constants.WeiPerEther));
 
     setUserAction(UserAction.NO_ACTION);
