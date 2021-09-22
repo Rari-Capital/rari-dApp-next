@@ -191,9 +191,6 @@ const AmountSelect = ({
     try {
       const pool = getSDKPool({ rari, pool: poolType });
 
-      //@ts-ignore
-      const amountBN = rari.web3.utils.toBN(amount!.decimalPlaces(0));
-
       // If clicking for the first time:
       if (userAction === UserAction.NO_ACTION) {
         setUserAction(UserAction.REQUESTED_QUOTE);
@@ -205,7 +202,7 @@ const AmountSelect = ({
           const [amountToBeAdded, , _slippage] =
             (await pool.deposits.validateDeposit(
               token.symbol,
-              amountBN,
+              amount,
               address,
               true
             )) as BigNumber[];
@@ -216,7 +213,7 @@ const AmountSelect = ({
           const [amountToBeRemoved, , _slippage] =
             (await pool.withdrawals.validateWithdrawal(
               token.symbol,
-              amountBN,
+              amount,
               address,
               true
             )) as BigNumber[];
@@ -255,18 +252,15 @@ const AmountSelect = ({
 
       // They must have already seen the quote as the button to trigger this function is disabled while it's loading:
       // This means they are now ready to start sending transactions:
-
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
       if (mode === Mode.DEPOSIT) {
         // (Third item in array is approvalReceipt)
         const [, , , depositReceipt] = await pool.deposits.deposit(
           token.symbol,
-          amountBN,
+          amount,
           quoteAmount!,
-          {
-            from: address,
-          }
+          address,
         );
 
         if (!depositReceipt) {
@@ -278,7 +272,7 @@ const AmountSelect = ({
         }
       } else {
         // (Third item in array is withdrawReceipt)
-        await pool.withdrawals.withdraw(token.symbol, amountBN, quoteAmount!, {
+        await pool.withdrawals.withdraw(token.symbol, amount, quoteAmount!, {
           from: address,
         });
       }
