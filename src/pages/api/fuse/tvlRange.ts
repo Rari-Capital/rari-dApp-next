@@ -12,7 +12,6 @@ import {
   getAllTVLs,
   getTVLsByBlockRange,
   getTVLsByDateRange,
-  setupDB,
 } from "utils/api/db";
 
 // Cors

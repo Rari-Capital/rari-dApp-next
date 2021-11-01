@@ -90,7 +90,11 @@ const LendAndBorrow = ({
       const bigAmount = utils.parseUnits(newAmount);
 
       setLendAmountBN(
-            bigAmount.mul(lendAsset.underlyingDecimals === 18 ? constants.WeiPerEther : 10 ** lendAsset.underlyingDecimals)
+            bigAmount.mul(
+              lendAsset.underlyingDecimals.eq(18) ? 
+              constants.WeiPerEther 
+              : BigNumber.from(10).pow(lendAsset.underlyingDecimals)
+            )
           );
     },
     [lendAsset]
@@ -104,7 +108,11 @@ const LendAndBorrow = ({
       // Try to set the amount to BigNumber(newAmount):
       const bigAmount = utils.parseUnits(newAmount);
       setBorrowAmountBN(
-            bigAmount.mul(borrowAsset.underlyingDecimals === 18 ? constants.WeiPerEther : 10 ** borrowAsset.underlyingDecimals)
+            bigAmount.mul(
+              borrowAsset.underlyingDecimals.eq(18) ? 
+              constants.WeiPerEther 
+              : BigNumber.from(10).pow(borrowAsset.underlyingDecimals)
+              )
           );
     },
     [borrowAsset]
@@ -242,8 +250,8 @@ const StatsColumn = ({
   setError,
 }: {
   mode: AmountSelectMode;
-  lendAmount: number;
-  borrowAmount: number;
+  lendAmount: BigNumber;
+  borrowAmount: BigNumber;
   assets: USDPricedFuseAssetWithTokenData[] | USDPricedFuseAsset[];
   assetIndex: number;
   borrowAssetIndex: number;
@@ -297,13 +305,13 @@ const StatsColumn = ({
   // Borrow Ratios (Inverse of health factor)
   // Todo - Fix this
   const oldRatio =
-    borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD / borrowLimit;
+    borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.div(borrowLimit);
   const updatedRatio =
-    updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD / updatedBorrowLimit;
+    updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.div(updatedBorrowLimit);
 
   // At Liquidation Risk?
   // const atRiskOfLiquidation = oldRatio > 0.95;
-  const updatedAtRiskOfLiquidation = updatedRatio > 0.95;
+  const updatedAtRiskOfLiquidation = updatedRatio.gt(0.95);
 
   // Is there liquidity for this borrow?
   const insufficientBorrowLiquidity = useMemo(
@@ -348,7 +356,7 @@ const StatsColumn = ({
         );
 
         // Check if lend amount is more than balance
-        return lendAmount <= parseFloat(balance.toString());
+        return lendAmount.gte(balance);
       } catch (e) {
         handleGenericError(e, toast);
         return false;
@@ -360,8 +368,8 @@ const StatsColumn = ({
     if (!pool) return "Finding best pool...";
     else if (
       lendAmount === null ||
-      lendAmount < 0 ||
-      (lendAmount === 0 && borrowAmount <= 0)
+      lendAmount.lt(constants.Zero) ||
+      (lendAmount.lt(constants.Zero) && borrowAmount.lte(constants.Zero))
     )
       return "Enter a valid amount to supply.";
     else if (lendAmountisValid === undefined) return `Loading your balance...`;
@@ -384,7 +392,7 @@ const StatsColumn = ({
   }, [error]);
 
   const showSpinner: boolean = useMemo(
-    () => (lendAmount > 0 && borrowAmount > 0 && !updatedAsset) ?? false,
+    () => (lendAmount.gt(constants.Zero) && borrowAmount.gt(constants.Zero) && !updatedAsset) ?? false,
     [updatedAsset, lendAmount, borrowAmount]
   );
 
@@ -419,16 +427,14 @@ const StatsColumn = ({
               </Text>
 
               <Text fontWeight="bold" flexShrink={0} fontSize={"xs"}>
-                {smallUsdFormatter(
-                  asset.supplyBalance / 10 ** asset.underlyingDecimals
-                ).replace("$", "")}
+                {
+                  asset.supplyBalance.div(BigNumber.from(10).pow(asset.underlyingDecimals)).toString()}
                 {isSupplyingOrWithdrawing ? (
                   <>
                     {" → "}
-                    {smallUsdFormatter(
-                      updatedAsset!.supplyBalance /
-                        10 ** updatedAsset!.underlyingDecimals
-                    ).replace("$", "")}
+                    {
+                      updatedAsset!.supplyBalance.div(BigNumber.from(10).pow(updatedAsset!.underlyingDecimals)).toString()
+                    }
                   </>
                 ) : null}{" "}
                 {asset.underlyingSymbol}
@@ -438,7 +444,7 @@ const StatsColumn = ({
 
           {/* Borrow Balance */}
 
-          {(borrowAsset.borrowBalance > 0 ||
+          {(borrowAsset.borrowBalance.gt(constants.Zero) ||
             (updatedBorrowAsset?.borrowBalance ?? 0) > 0) && (
             <SimpleTooltip
               label={`${borrowAsset.underlyingSymbol} borrowed from Fuse Pool ${pool?.id}`}
@@ -454,16 +460,14 @@ const StatsColumn = ({
                   {t("Borrow Balance")}:
                 </Text>
                 <Text fontWeight="bold" flexShrink={0} fontSize={"xs"}>
-                  {abbreviateAmount(
-                    borrowAsset.borrowBalance /
-                      10 ** borrowAsset.underlyingDecimals
-                  ).replace("$", "")}
+                  {
+                    borrowAsset.borrowBalance.div(BigNumber.from(10).pow(borrowAsset.underlyingDecimals)).toString()
+                  }
                   <>
                     {" → "}
-                    {abbreviateAmount(
-                      updatedBorrowAsset!.borrowBalance /
-                        10 ** updatedBorrowAsset!.underlyingDecimals
-                    ).replace("$", "")}
+                    {
+                      updatedBorrowAsset!.borrowBalance.div(BigNumber.from(10).pow(updatedBorrowAsset!.underlyingDecimals)).toString()
+                    }
                   </>{" "}
                   {borrowAsset.underlyingSymbol}
                 </Text>
@@ -550,7 +554,7 @@ const StatsColumn = ({
                 fontSize={updatedAtRiskOfLiquidation ? "md" : "xs"}
               >
                 <Text fontWeight="bold" fontSize={"xs"}>
-                  {abbreviateAmount(borrowCredit)}
+                  {borrowCredit.toString()}
                 </Text>
                 <Text ml={1} fontWeight="bold" fontSize={"xs"}>
                   {" → "}
@@ -561,7 +565,7 @@ const StatsColumn = ({
                   color={updatedAtRiskOfLiquidation ? "red" : ""}
                   fontSize={updatedAtRiskOfLiquidation ? "md" : "xs"}
                 >
-                  {abbreviateAmount(updatedBorrowCredit)}
+                  {updatedBorrowCredit.toString()}
                 </Text>
               </Row>
             </Row>
@@ -616,8 +620,8 @@ const StatsColumn = ({
           </Row> */}
 
           {/* Total Debt Balance  */}
-          {(borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD > 0 ||
-            updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD > 0) && (
+          {borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.gt(constants.Zero) ||
+            updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.gt(constants.Zero) && (
             <SimpleTooltip
               label={`Total USD debt balance in pool ${pool?.id} after this transaction succeeds`}
               placement="bottom-end"
@@ -633,9 +637,9 @@ const StatsColumn = ({
                 </Text>
                 <Row mainAxisAlignment="flex-start" crossAxisAlignment="center">
                   <Text fontWeight="bold" fontSize={"xs"}>
-                    {abbreviateAmount(
-                      borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD
-                    )}
+                    {
+                      borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()
+                    }
                   </Text>
                   <Text ml={1} fontWeight="bold" fontSize={"xs"}>
                     {" → "}
@@ -646,10 +650,10 @@ const StatsColumn = ({
                     fontSize={updatedAtRiskOfLiquidation ? "md" : "xs"}
                     color={updatedAtRiskOfLiquidation ? "red" : ""}
                   >
-                    {abbreviateAmount(
-                      updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD
-                    )}{" "}
-                    ({!isNaN(updatedRatio) && (updatedRatio * 100).toFixed(0)}%)
+                    {
+                      updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()
+                    }{" "}
+                    ({!updatedRatio && (updatedRatio * 100).toFixed(0)}%)
                   </Text>
                 </Row>
               </Row>

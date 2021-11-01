@@ -20,7 +20,7 @@ export default class StablePool {
         getTotalSupply: () => Promise<BigNumber>;
         getTotalInterestAccrued: (fromBlock: number, toBlock: number | string) => Promise<BigNumber>;
         balanceOf: (address: string) => Promise<BigNumber>;
-        interestAccruedBy: (account: string, fromBlock: number, toBlock: number | string) => Promise<any>;
+        interestAccruedBy: (account: string, fromBlock?: number, toBlock?: number | string) => Promise<any>;
         transfer: (recipient: string, amount: BigNumber) => any;
     };
     allocations: any;

@@ -14,7 +14,7 @@ import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 
 // Ethers
-import { utils } from 'ethers'
+import { utils,constants } from 'ethers'
 import { JsonRpcProvider } from "@ethersproject/providers"
 
 interface APIAccountsFuseBalancesResponse {
@@ -95,19 +95,19 @@ export default async function handler(
           ...pool,
           assets:
             pool?.assets.filter(
-              (asset) => asset.borrowBalance > 0 || asset.supplyBalance > 0
+              (asset) => asset.borrowBalance.gt(constants.Zero) || asset.supplyBalance.gt(constants.Zero)
             ) ?? [],
         } as FusePoolData;
       });
 
       const totalBorrowsUSD =
         fusePoolsData?.reduce((a, b) => {
-          return a + (b?.totalBorrowBalanceUSD ?? 0);
+          return a + (b?.totalBorrowBalanceUSD ?  parseInt(b?.totalBorrowBalanceUSD.toString()) : 0);
         }, 0) ?? 0;
 
       const totalSuppliedUSD =
         fusePoolsDataWithFilteredAssets?.reduce((a, b) => {
-          return a + (b?.totalSupplyBalanceUSD ?? 0);
+          return a + (b?.totalSupplyBalanceUSD ? parseInt(b?.totalBorrowBalanceUSD.toString()) :  0);
         }, 0) ?? 0;
 
       // Calc totals

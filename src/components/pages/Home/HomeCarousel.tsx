@@ -41,7 +41,7 @@ const HomeCarousel = () => {
               >
                 The Rari Capital Ecosystem currently has{" "}
                 <InlineStyledText
-                  text={`${shortUsdFormatter(pool.totalSuppliedUSD)}
+                  text={`${pool.totalSuppliedUSD.toString()}
                   `}
                 />
                 in {" "}

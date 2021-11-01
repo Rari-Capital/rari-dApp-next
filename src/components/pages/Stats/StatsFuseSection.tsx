@@ -54,12 +54,12 @@ const Fuse = () => {
 
   const totalBorrowBalanceUSD =
     fusePoolsData?.reduce((a, b) => {
-      return a + b.totalBorrowBalanceUSD;
+      return a + (parseInt(b.totalBorrowBalanceUSD.toString()));
     }, 0) ?? 0;
 
   const totalSupplyBalanceUSD =
     fusePoolsData?.reduce((a, b) => {
-      return a + b.totalSupplyBalanceUSD;
+      return a + (parseInt(b.totalSupplyBalanceUSD.toString()));
     }, 0) ?? 0;
 
   const hasDeposits = useMemo(
@@ -102,10 +102,10 @@ const Fuse = () => {
 
             const ratio =
               fusePoolData?.totalBorrowBalanceUSD && maxBorrow
-                ? (fusePoolData.totalBorrowBalanceUSD / maxBorrow) * 100
+                ? (fusePoolData.totalBorrowBalanceUSD.div(maxBorrow)).mul(100)
                 : 0;
 
-            const isAtRiskOfLiquidation = ratio && ratio > 95;
+            const isAtRiskOfLiquidation = ratio && ratio.gt(95);
 
             return (
               <Tr key={filteredPool.id}>
@@ -120,14 +120,14 @@ const Fuse = () => {
                   fontSize="large"
                   fontWeight="bold"
                 >
-                  {!!ratio ? `${ratio.toFixed(1)}%` : "0%"}
+                  {!!ratio ? `${ratio.toString()}%` : "0%"}
                 </Td>
                 {/* Deposits By Asset */}
                 {/* Lend Balance */}
                 <Td textAlign="right">
                   {fusePoolData?.assets.map(
                     (asset: USDPricedFuseAsset) =>
-                      asset.supplyBalanceUSD > 0 && (
+                      asset.supplyBalanceUSD.gt(0) && (
                         <Box mt={2}>
                           <AssetContainer
                             asset={asset}
@@ -141,7 +141,7 @@ const Fuse = () => {
                 <Td textAlign="right">
                   {fusePoolData?.assets.map(
                     (asset: USDPricedFuseAsset) =>
-                      asset.borrowBalanceUSD > 0 && (
+                      asset.borrowBalanceUSD.gt(0) && (
                         <Box mt={2}>
                           <AssetContainer
                             asset={asset}
@@ -156,8 +156,8 @@ const Fuse = () => {
                 <Td textAlign="right">
                   {fusePoolData?.assets.map(
                     (asset: USDPricedFuseAsset) =>
-                      (asset.supplyBalanceUSD > 0 ||
-                        asset.borrowBalanceUSD > 0) && (
+                      (asset.supplyBalanceUSD.gt(0) ||
+                        asset.borrowBalanceUSD.gt(0)) && (
                         <Box mt={4}>
                           <AssetContainer
                             asset={asset}
@@ -204,14 +204,14 @@ const AssetContainer = ({
   type?: AssetContainerType;
   tokenData: TokenData;
 }) => {
-  const supplyAmount = asset.supplyBalance / 10 ** asset.underlyingDecimals;
-  const borrowAmount = asset.borrowBalance / 10 ** asset.underlyingDecimals;
+  const supplyAmount = asset.supplyBalance.div(10).pow(asset.underlyingDecimals);
+  const borrowAmount = asset.borrowBalance.div(10).pow(asset.underlyingDecimals);
   const formattedSupplyAmount =
-    supplyAmount.toFixed(2) + ` ${asset.underlyingSymbol}`;
+    supplyAmount.toString() + ` ${asset.underlyingSymbol}`;
   const formattedBorrowAmount =
-    borrowAmount.toFixed(2) + ` ${asset.underlyingSymbol}`;
-  const supplyBalanceUSD = shortUsdFormatter(asset.supplyBalanceUSD);
-  const borrowBalanceUSD = shortUsdFormatter(asset.borrowBalanceUSD);
+    borrowAmount.toString() + ` ${asset.underlyingSymbol}`;
+  const supplyBalanceUSD = asset.supplyBalanceUSD.toString();
+  const borrowBalanceUSD = asset.borrowBalanceUSD.toString();
 
   const borrowRate = convertMantissaToAPR(asset.borrowRatePerBlock).toFixed(2);
   const supplyRate = convertMantissaToAPY(

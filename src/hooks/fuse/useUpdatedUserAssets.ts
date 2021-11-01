@@ -152,7 +152,7 @@ export const useUpdatedUserAssetsForBorrowAndLend = ({
   lendIndex: number;
   borrowIndex: number;
   lendAmount: BigNumber;
-  borrowAmount: number;
+  borrowAmount: BigNumber;
 }) => {
   console.log({ assets, lendIndex, borrowIndex, lendAmount, borrowAmount });
 

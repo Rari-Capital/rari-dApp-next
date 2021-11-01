@@ -78,16 +78,16 @@ const StatsTotalSection = ({
 
   // Total Deposits
   const totalDepositsUSD = useMemo(() => {
-    const { totalSupplyBalanceUSD: fuseTotal }: FusePoolData =
+    const { totalSupplyBalanceUSD: fuseTotal } =
       fusePoolsData?.reduce(
-        (a, b) => {
+        (a: any, b:any) => {
           return {
             totalSupplyBalanceUSD:
-              a.totalSupplyBalanceUSD + b.totalSupplyBalanceUSD,
-          } as FusePoolData;
+              a.totalSupplyBalanceUSD.add(b.totalSupplyBalanceUSD).toString(),
+          };
         },
-        { totalSupplyBalanceUSD: 0 } as FusePoolData
-      ) ?? ({ totalSupplyBalanceUSD: 0 } as FusePoolData);
+        { totalSupplyBalanceUSD: "0" }
+      ) ?? ({ totalSupplyBalanceUSD: "0" });
 
     const vaultTotal = totals?.balance ?? 0;
 
@@ -102,16 +102,16 @@ const StatsTotalSection = ({
 
   // Total debt - todo: refactor into the `useFusePoolsData` hook
   const totalDebtUSD = useMemo(() => {
-    const { totalBorrowBalanceUSD }: FusePoolData =
+    const { totalBorrowBalanceUSD } =
       fusePoolsData?.reduce(
-        (a, b) => {
+        (a: any, b: any) => {
           return {
             totalBorrowBalanceUSD:
-              a.totalBorrowBalanceUSD + b.totalBorrowBalanceUSD,
-          } as FusePoolData;
+              a.totalBorrowBalanceUSD.add(b.totalBorrowBalanceUSD).toString(),
+          };
         },
-        { totalBorrowBalanceUSD: 0 } as FusePoolData
-      ) ?? ({ totalBorrowBalanceUSD: 0 } as FusePoolData);
+        { totalBorrowBalanceUSD: 0 }
+      ) ?? ({ totalBorrowBalanceUSD: 0 });
     return totalBorrowBalanceUSD;
   }, [fusePoolsData]);
 

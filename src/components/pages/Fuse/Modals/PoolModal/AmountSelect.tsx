@@ -948,7 +948,7 @@ const AmountInput = ({
 
 export async function testForCTokenErrorAndSend(
   txObjectStaticCall: any, // for static calls
-  txArgs: BigNumber,
+  txArgs: any,
   txObject: any, // actual method
   failMessage: string
 ) {

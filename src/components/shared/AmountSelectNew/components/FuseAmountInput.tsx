@@ -4,8 +4,10 @@ import { Input } from "@chakra-ui/input";
 import { Box, Heading } from "@chakra-ui/layout";
 import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/toast";
-import BigNumber from "bignumber.js";
 import DashboardBox from "components/shared/DashboardBox";
+
+import { BigNumber } from "@ethersproject/bignumber";
+import { formatEther } from "@ethersproject/units";
 
 // Hooks
 import { useRari } from "context/RariContext";
@@ -146,9 +148,8 @@ export const TokenNameAndMaxButton = ({
       if (maxBN!.isNeg() || maxBN!.isZero()) {
         updateAmount("");
       } else {
-        const str = new BigNumber(maxBN!.toString())
-          .div(10 ** asset.underlyingDecimals)
-          .toFixed(18)
+        const str = formatEther(BigNumber.from(maxBN)
+          .div(10).pow(asset.underlyingDecimals))
           // Remove trailing zeroes
           .replace(/\.?0+$/, "");
 

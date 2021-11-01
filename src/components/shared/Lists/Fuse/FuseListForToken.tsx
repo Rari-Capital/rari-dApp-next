@@ -36,13 +36,15 @@ import { RariApiTokenData } from "types/tokens";
 import { useFuseDataForAsset } from "hooks/fuse/useFuseDataForAsset";
 import { useMemo } from "react";
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
+import { BigNumber } from "@ethersproject/bignumber";
+import { constants } from "ethers";
 
 // Extends FusePoolData with USDPriceFuseAsset data
 interface FusePoolDataForAsset extends FusePoolData {
   asset: USDPricedFuseAsset;
-  assetBorrowedUSD: number;
-  assetSuppliedUSD: number;
-  assetLiquidityUSD: number;
+  assetBorrowedUSD: BigNumber;
+  assetSuppliedUSD: BigNumber;
+  assetLiquidityUSD: BigNumber;
   assetSupplyAPY: number;
   assetBorrowAPR: number;
 }
@@ -59,6 +61,8 @@ export const FuseListForToken = ({
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
+  console.log({ token, poolsWithThisAsset });
+
   const fusePoolsDataForAsset: FusePoolDataForAsset[] = useMemo(() => {
     return poolsWithThisAsset.map((pool) => {
       const asset = pool.assets[poolAssetIndex[pool.id]];
@@ -69,10 +73,10 @@ export const FuseListForToken = ({
         assetSuppliedUSD: asset.totalSupplyUSD,
         assetLiquidityUSD: asset.liquidityUSD,
         assetSupplyAPY: parseFloat(
-          convertMantissaToAPY(asset.supplyRatePerBlock).toFixed(2)
+          convertMantissaToAPY(parseInt(asset.supplyRatePerBlock.toString())).toFixed(2)
         ),
         assetBorrowAPR: parseFloat(
-          convertMantissaToAPY(asset.borrowRatePerBlock).toFixed(2)
+          convertMantissaToAPY(parseInt(asset.borrowRatePerBlock.toString())).toFixed(2)
         ),
       };
     });
@@ -243,8 +247,8 @@ export const FusePoolAssetRow = ({
           {/* Total Supply*/}
           <Td isNumeric={true} fontWeight="bold">
             {smaller
-              ? shortUsdFormatter(pool.assetLiquidityUSD)
-              : smallUsdFormatter(pool.assetLiquidityUSD)}
+              ? pool.assetLiquidityUSD.toString()
+              : pool.assetLiquidityUSD.toString()}
           </Td>
           {/* Total Borrow */}
           {/* <Td isNumeric={true} fontWeight="bold">

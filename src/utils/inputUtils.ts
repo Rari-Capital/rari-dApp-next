@@ -193,8 +193,9 @@ export const onLendBorrowConfirm = async ({
       } else {
         //  Supplying ERC20
         await testForCTokenErrorAndSend(
-          cToken.methods.mint(lendAmount),
-          address,
+          cToken.callStatic.mint,
+          lendAmount,
+          cToken.mint,
           "Cannot deposit this amount right now!"
         );
       }
@@ -211,8 +212,9 @@ export const onLendBorrowConfirm = async ({
 
       // Then initiate the borrow tx.
       await testForCTokenErrorAndSend(
-        borrowedCToken!.methods.borrow(borrowAmount),
-        address,
+        borrowedCToken.callStatic.borrow,
+        borrowAmount,
+        borrowedCToken.borrow,
         "Cannot borrow this amount right now!"
       );
     }

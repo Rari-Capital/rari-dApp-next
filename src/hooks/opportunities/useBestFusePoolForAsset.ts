@@ -4,6 +4,8 @@ import {
   FusePoolData,
   USDPricedFuseAssetWithTokenData,
 } from "utils/fetchFusePoolData";
+import ethers, {BigNumber} from 'ethers'
+
 
 interface BestPoolForAssetReturn {
   bestPool: FusePoolData | undefined;
@@ -24,7 +26,7 @@ export const useBestFusePoolForAsset = (
 
     if (poolsWithThisAsset?.length) {
       let bestPoolIndex: number = 0;
-      let highestSupplyRatePerBlock: number = 0;
+      let highestSupplyRatePerBlock: BigNumber =  ethers.constants.Zero;
 
       for (let i = 0; i < poolsWithThisAsset.length ?? 0; i++) {
         const pool = poolsWithThisAsset[i];
@@ -34,13 +36,13 @@ export const useBestFusePoolForAsset = (
         ] as USDPricedFuseAssetWithTokenData;
 
         // First, see if the user has any supply for this asset
-        if (asset.supplyBalanceUSD > 0) {
+        if (asset.supplyBalanceUSD.gt(ethers.constants.Zero)) {
           bestPoolIndex = i;
           break;
         }
 
         // Compare supply rates
-        if (asset.supplyRatePerBlock > highestSupplyRatePerBlock) {
+        if (asset.supplyRatePerBlock.gt(highestSupplyRatePerBlock)) {
           highestSupplyRatePerBlock = asset.supplyRatePerBlock;
           bestPoolIndex = i;
         }

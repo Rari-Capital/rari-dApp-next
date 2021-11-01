@@ -43,7 +43,7 @@ const FuseRow = ({
       <Td textAlign="right">
         {fusePoolsData?.map(({ comptroller, totalSupplyBalanceUSD }) => (
           <Text mb={mb ?? "0"} key={comptroller}>
-            {smallStringUsdFormatter(totalSupplyBalanceUSD)}
+            {totalSupplyBalanceUSD.toString()}
           </Text>
         ))}
       </Td>

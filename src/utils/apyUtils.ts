@@ -1,6 +1,6 @@
 import { toInt } from "./ethersUtils";
 
-export const convertMantissaToAPY = (mantissa: any, dayRange: number) => {
+export const convertMantissaToAPY = (mantissa: any, dayRange: number = 35) => {
   const parsedMantissa = toInt(mantissa)
   return (Math.pow((parsedMantissa / 1e18) * 6500 + 1, dayRange) - 1) * 100;
 };

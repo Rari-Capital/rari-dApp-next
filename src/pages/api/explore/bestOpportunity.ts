@@ -172,4 +172,4 @@ const getAsset = (
 ): USDPricedFuseAsset => fusePoolsData[i].assets[j];
 
 const assetOverLiquidityThreshold = (asset: USDPricedFuseAsset) =>
-  asset.liquidityUSD > 20000;
+  asset.liquidityUSD.gt(20000);

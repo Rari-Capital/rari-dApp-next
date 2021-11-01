@@ -1,3 +1,4 @@
+import { constants } from "ethers";
 import { useMemo } from "react";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
@@ -10,13 +11,13 @@ export const useTotalBorrowAndSupplyBalanceUSD = (
 export const getTotalBorrowAndSupplyBalanceUSD = (
   assets: USDPricedFuseAsset[]
 ) => {
-  let totalSupplyBalanceUSD = 0;
-  let totalBorrowBalanceUSD = 0;
+  let totalSupplyBalanceUSD = constants.Zero;
+  let totalBorrowBalanceUSD = constants.Zero;
 
   for (let i = 0; i < assets.length; i++) {
     const asset = assets[i];
-    totalSupplyBalanceUSD += asset.supplyBalanceUSD;
-    totalBorrowBalanceUSD += asset.borrowBalanceUSD;
+    totalSupplyBalanceUSD = totalSupplyBalanceUSD.add(asset.supplyBalanceUSD);
+    totalBorrowBalanceUSD = totalBorrowBalanceUSD.add(asset.borrowBalanceUSD);
   }
 
   return {

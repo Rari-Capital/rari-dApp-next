@@ -205,6 +205,8 @@ const OracleAndInterestRates = ({
   const data = useExtraPoolInfo(comptrollerAddress);
   const { hasCopied, onCopy } = useClipboard(data?.admin ?? "");
 
+  console.log({assets})
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -319,15 +321,10 @@ const OracleAndInterestRates = ({
 
         <StatRow
           statATitle={t("Platform Fee")}
-          statA={assets.length > 0 ? assets[0].fuseFee / 1e16 + "%" : "10%"}
+          statA={assets.length > 0 ? assets[0].fuseFee.div(1e16) + "%" : "10%"}
           statBTitle={t("Average Admin Fee")}
           statB={
-            assets
-              .reduce(
-                (a, b, _, { length }) => a + b.adminFee / 1e16 / length,
-                0
-              )
-              .toFixed(1) + "%"
+            "%"
           }
         />
 
@@ -401,13 +398,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
     // @ts-ignore
     selectedAsset.totalSupply === "0"
       ? 0
-      : parseFloat(
-          // Use Max.min() to cap util at 100%
-          Math.min(
-            (selectedAsset.totalBorrow / selectedAsset.totalSupply) * 100,
-            100
-          ).toFixed(0)
-        );
+      : selectedAsset.totalBorrow.div(selectedAsset.totalSupply).mul(100);
 
   const { data } = useQuery(selectedAsset.cToken + " curves", async () => {
     const interestRateModel = await fuse.getInterestRateModel(
@@ -515,7 +506,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         pb={2}
       >
         <CaptionedStat
-          stat={(selectedAsset.collateralFactor / 1e16).toFixed(0) + "%"}
+          stat={selectedAsset.collateralFactor.div(1e16).toString() + "%"}
           statSize="lg"
           captionSize="xs"
           caption={t("Collateral Factor")}
@@ -524,7 +515,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         />
 
         <CaptionedStat
-          stat={(selectedAsset.reserveFactor / 1e16).toFixed(0) + "%"}
+          stat={selectedAsset.reserveFactor.div(1e16).toString()+ "%"}
           statSize="lg"
           captionSize="xs"
           caption={t("Reserve Factor")}
@@ -544,7 +535,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         mt={3}
       >
         <CaptionedStat
-          stat={shortUsdFormatter(selectedAsset.totalSupplyUSD)}
+          stat={selectedAsset.totalSupplyUSD.toString()}
           statSize="lg"
           captionSize="xs"
           caption={t("Total Supplied")}
@@ -557,11 +548,11 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
             stat={
               selectedAsset.totalSupplyUSD.toString() === "0"
                 ? "0%"
-                : (
-                    (selectedAsset.totalBorrowUSD /
-                      selectedAsset.totalSupplyUSD) *
-                    100
-                  ).toFixed(0) + "%"
+                : 
+                    (selectedAsset.totalBorrowUSD.div(
+                      selectedAsset.totalSupplyUSD).mul(
+                    100)
+                  ).toString() + "%"
             }
             statSize="lg"
             captionSize="xs"
@@ -572,7 +563,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         )}
 
         <CaptionedStat
-          stat={shortUsdFormatter(selectedAsset.totalBorrowUSD)}
+          stat={selectedAsset.totalBorrowUSD.toString()}
           statSize="lg"
           captionSize="xs"
           caption={t("Total Borrowed")}
