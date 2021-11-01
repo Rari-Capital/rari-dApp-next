@@ -53,6 +53,11 @@ import PoolModal, { Mode } from "./Modals/PoolModal";
 // LogRocket
 import LogRocket from "logrocket";
 
+// Ethers
+import { toInt } from "utils/ethersUtils";
+import { BigNumber } from "@ethersproject/bignumber";
+import { constants, utils } from "ethers";
+
 const FusePoolPage = memo(() => {
   const { isAuthed } = useRari();
 
@@ -61,7 +66,7 @@ const FusePoolPage = memo(() => {
 
   let { poolId } = router.query;
 
-  const data = useFusePoolData(poolId as string | undefined);
+  const data = useFusePoolData(poolId as string | undefined, true);
 
   return (
     <>
@@ -138,16 +143,16 @@ const CollateralRatioBar = ({
   borrowUSD,
 }: {
   assets: USDPricedFuseAsset[];
-  borrowUSD: number;
+  borrowUSD: BigNumber;
 }) => {
   const { t } = useTranslation();
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = (borrowUSD / maxBorrow) * 100;
+  const ratio = (borrowUSD.div(maxBorrow)).mul(100);
 
   useEffect(() => {
-    if (ratio > 95) {
+    if (ratio.gt(95)) {
       LogRocket.track("Fuse-AtRiskOfLiquidation");
     }
   }, [ratio]);
@@ -165,30 +170,30 @@ const CollateralRatioBar = ({
 
         <SimpleTooltip label={t("This is how much you have borrowed.")}>
           <Text flexShrink={0} mt="2px" mr={3} fontSize="10px">
-            {smallUsdFormatter(borrowUSD)}
+            {borrowUSD.toString() //smallUsdFormatter 
+            }
           </Text>
         </SimpleTooltip>
 
         <SimpleTooltip
-          label={`You're using ${ratio.toFixed(1)}% of your ${smallUsdFormatter(
-            maxBorrow
-          )} borrow limit.`}
+          label={`You're using ${ratio.toString}% of your ${maxBorrow.toString()} borrow limit.` //smallUsdFormatter( 
+            }
         >
           <Box width="100%">
             <Progress
               size="xs"
               width="100%"
               colorScheme={
-                ratio <= 40
+                ratio.lte(40)
                   ? "whatsapp"
-                  : ratio <= 60
+                  : ratio.lte(60)
                   ? "yellow"
-                  : ratio <= 80
+                  : ratio.lte(80)
                   ? "orange"
                   : "red"
               }
               borderRadius="10px"
-              value={ratio}
+              value={toInt(ratio)}
             />
           </Box>
         </SimpleTooltip>
@@ -199,7 +204,7 @@ const CollateralRatioBar = ({
           )}
         >
           <Text flexShrink={0} mt="2px" ml={3} fontSize="10px">
-            {smallUsdFormatter(maxBorrow)}
+            {maxBorrow.toString} //smallUsdFormatter
           </Text>
         </SimpleTooltip>
       </Row>
@@ -213,14 +218,14 @@ const SupplyList = ({
   comptrollerAddress,
 }: {
   assets: USDPricedFuseAsset[];
-  supplyBalanceUSD: number;
+  supplyBalanceUSD: BigNumber;
   comptrollerAddress: string;
 }) => {
   const { t } = useTranslation();
 
-  const suppliedAssets = assets.filter((asset) => asset.supplyBalanceUSD > 1);
+  const suppliedAssets = assets.filter((asset) => asset.supplyBalanceUSD.gt(constants.One));
   const nonSuppliedAssets = assets.filter(
-    (asset) => asset.supplyBalanceUSD < 1
+    (asset) => asset.supplyBalanceUSD.lt(constants.One)
   );
 
   const isMobile = useIsMobile();
@@ -241,8 +246,8 @@ const SupplyList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Supply Balance:")} {smallUsdFormatter(supplyBalanceUSD)}
-      </Heading>
+        {"Supply Balance: "} {smallUsdFormatter( parseInt(utils.formatEther(supplyBalanceUSD.div(constants.WeiPerEther))) ) }
+       </Heading>
       <ModalDivider />
 
       {assets.length > 0 ? (
@@ -501,12 +506,12 @@ const AssetSupplyRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            {smallUsdFormatter(asset.supplyBalanceUSD)}
+            {smallUsdFormatter(toInt(asset.supplyBalanceUSD.div(BigNumber.from(10).pow(BigNumber.from(asset.underlyingDecimals)))))}
           </Text>
 
           <Text fontSize="sm">
             {smallUsdFormatter(
-              asset.supplyBalance / 10 ** asset.underlyingDecimals
+              toInt(asset.supplyBalance.div(BigNumber.from(10).pow(BigNumber.from(asset.underlyingDecimals))))
             ).replace("$", "")}{" "}
             {tokenData?.symbol ?? asset.underlyingSymbol}
           </Text>
@@ -538,13 +543,13 @@ const BorrowList = ({
   comptrollerAddress,
 }: {
   assets: USDPricedFuseAsset[];
-  borrowBalanceUSD: number;
+  borrowBalanceUSD: BigNumber;
   comptrollerAddress: string;
 }) => {
   const { t } = useTranslation();
-  const borrowedAssets = assets.filter((asset) => asset.borrowBalanceUSD > 1);
+  const borrowedAssets = assets.filter((asset) => asset.borrowBalanceUSD.gt(constants.One));
   const nonBorrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD < 1
+    (asset) => asset.borrowBalanceUSD.lt(constants.One)
   );
 
   const isMobile = useIsMobile();
@@ -557,7 +562,7 @@ const BorrowList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Borrow Balance:")} {smallUsdFormatter(borrowBalanceUSD)}
+        {"Borrow Balance:"} {smallUsdFormatter(parseInt(utils.formatEther(borrowBalanceUSD.div(constants.WeiPerEther))) )}
       </Heading>
       <ModalDivider />
 
@@ -735,12 +740,12 @@ const AssetBorrowRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            {smallUsdFormatter(asset.borrowBalanceUSD)}
+            { smallUsdFormatter( parseInt(utils.formatEther(asset.borrowBalanceUSD.div(constants.WeiPerEther))) ) .toString() }
           </Text>
 
           <Text fontSize="sm">
             {smallUsdFormatter(
-              asset.borrowBalance / 10 ** asset.underlyingDecimals
+              toInt(asset.borrowBalance.div(BigNumber.from(10).pow(asset.underlyingDecimals)))
             ).replace("$", "")}{" "}
             {tokenData?.symbol ?? asset.underlyingSymbol}
           </Text>
@@ -762,13 +767,13 @@ const AssetBorrowRow = ({
                 fontWeight="bold"
                 fontSize="17px"
               >
-                {shortUsdFormatter(asset.liquidityUSD)}
+                {
+                  shortUsdFormatter( parseInt(utils.formatEther(asset.liquidityUSD.div(constants.WeiPerEther))))
+                  }
               </Text>
 
               <Text fontSize="sm">
-                {shortUsdFormatter(
-                  asset.liquidity / 10 ** asset.underlyingDecimals
-                ).replace("$", "")}{" "}
+                {shortUsdFormatter( toInt(asset.liquidity.div(BigNumber.from(10).pow(asset.underlyingDecimals))) ).replace("$", "")}{" "}
                 {tokenData?.symbol}
               </Text>
             </Column>

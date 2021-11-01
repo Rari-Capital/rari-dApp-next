@@ -13,12 +13,12 @@ export const fetchFuseTotalBorrowAndSupply = async ({
   address: string;
 }) => {
   const [{ 0: supplyETH, 1: borrowETH }, ethPrice] = await Promise.all([
-    fuse.contracts.FusePoolLens.methods
-      .getUserSummary(address)
-      .call({ gas: 1e18 }),
+    fuse.contracts.FusePoolLens.callStatic.getUserSummary(address),
 
     fromWei(await rari.getEthUsdPriceBN()) as any,
   ]);
+
+  console.log(supplyETH, borrowETH, "totalBandS")
 
   return {
     totalSuppliedUSD: (supplyETH / 1e18) * ethPrice,

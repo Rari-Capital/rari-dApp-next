@@ -5,16 +5,16 @@ import { formatDDMMYYToDate } from "../dateUtils";
 
 const MONGODB_URL: string = process.env.MONGODB_URL as string;
 
-// Init
-export const setupDB = async () => {
-  await mongoose.connect(MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-  });
-  console.log("Connected to db...");
-};
+// // Init
+// export const setupDB = async () => {
+//   await mongoose.connect(MONGODB_URL, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//     useFindAndModify: false,
+//     useCreateIndex: true,
+//   });
+//   console.log("Connected to db...");
+// };
 
 export const dropCollection = async () => await TVLModel.collection.drop();
 

@@ -6,9 +6,11 @@ import {
 } from "utils/fetchFusePoolData";
 import useAllFusePools from "./useAllFusePools";
 
+import { constants, BigNumber} from 'ethers'
+
 interface AssetInFuse {
-  totalBorrowedUSD: number;
-  totalSuppliedUSD: number;
+  totalBorrowedUSD: BigNumber;
+  totalSuppliedUSD: BigNumber;
   highestSupplyAPY: number;
 }
 
@@ -38,8 +40,8 @@ export const useFuseDataForAsset = (assetAddress?: String) => {
   }, [assetAddress, allPools]);
 
   const totals = useMemo(() => {
-    let totalBorrowedUSD = 0;
-    let totalSuppliedUSD = 0;
+    let totalBorrowedUSD = constants.Zero;
+    let totalSuppliedUSD = constants.Zero;
     let highestSupplyAPY = 0;
 
     poolsWithThisAsset?.forEach((pool) => {
@@ -49,8 +51,8 @@ export const useFuseDataForAsset = (assetAddress?: String) => {
         return ass?.tokenData?.symbol === assetAddress;
       });
 
-      totalBorrowedUSD += asset?.totalBorrowUSD ?? 0;
-      totalSuppliedUSD += asset?.totalSupplyUSD ?? 0;
+      totalBorrowedUSD.add(asset?.totalBorrowUSD ?? constants.Zero);
+      totalSuppliedUSD.add(asset?.totalSupplyUSD ?? constants.Zero);
 
       const supplyAPY = convertMantissaToAPY(asset?.supplyRatePerBlock, 365);
       if (supplyAPY > highestSupplyAPY) highestSupplyAPY = supplyAPY;
@@ -81,8 +83,8 @@ export const useFuseDataForAssets = (assetSymbols: String[]) => {
   const totals: AssetInFuse[] = useMemo(
     () =>
       assetSymbols.map((assetSymbol) => {
-        let totalBorrowedUSD = 0;
-        let totalSuppliedUSD = 0;
+        let totalBorrowedUSD = constants.Zero;
+        let totalSuppliedUSD = constants.Zero;
         let highestSupplyAPY = 0;
 
         poolsWithThisAsset?.forEach((pool) => {
@@ -92,8 +94,8 @@ export const useFuseDataForAssets = (assetSymbols: String[]) => {
             return ass?.tokenData?.symbol === assetSymbol;
           });
 
-          totalBorrowedUSD += asset?.totalBorrowUSD ?? 0;
-          totalSuppliedUSD += asset?.totalSupplyUSD ?? 0;
+          totalBorrowedUSD.add(asset?.totalBorrowUSD ?? constants.Zero);
+          totalSuppliedUSD.add(asset?.totalSupplyUSD ?? constants.Zero);
 
           const supplyAPY = convertMantissaToAPY(
             asset?.supplyRatePerBlock,

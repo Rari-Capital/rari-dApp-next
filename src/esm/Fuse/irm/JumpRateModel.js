@@ -62,6 +62,8 @@ export default class JumpRateModel {
         }
     }
     getSupplyRate(utilizationRate) {
+
+        console.log(utilizationRate, "hey")
         if (!this.initialized || !this.reserveFactorMantissa)
             throw new Error("Interest rate model class not initialized.");
         const oneMinusReserveFactor = toBN(1e18).sub(this.reserveFactorMantissa);

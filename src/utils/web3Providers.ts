@@ -26,10 +26,10 @@ export const initFuseWithProviders = (
   const fuse = new Fuse(provider);
 
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
-  const turboProvider = new JsonRpcProvider(providerURL);
+  // const turboProvider = new JsonRpcProvider('http://localhost:8545');
 
-  fuse.contracts.FusePoolLens =
-    fuse.contracts.FusePoolLens.connect(turboProvider);
+  // fuse.contracts.FusePoolLens =
+  //   fuse.contracts.FusePoolLens.connect(turboProvider);
 
   return fuse;
 };

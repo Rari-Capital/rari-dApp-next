@@ -10,6 +10,7 @@ export const toBN = (input: BigNumberish) => {
 };
 
 export const toInt = (input: BigNumber) => {
+  if (!input) return 0
   return parseInt(input.toString())
 }
 

@@ -70,7 +70,7 @@ export default async function handler(
   //   Gets ALL fuse pool Data
   if (req.method === "GET") {
     try {
-      await setupDB();
+      // await setupDB();
 
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);

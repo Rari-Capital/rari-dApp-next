@@ -36,10 +36,12 @@ export default class Governance {
         this.API_BASE_URL = "https://api.rari.capital/governance/";
         this.provider = provider;
         this.cache = new Cache({ rgtUsdPrice: 900, lpTokenData: 900 });
-        this.contracts = {};
-        for (const contractName of Object.keys(contractAddresses)) {
-            this.contracts[contractName] = new Contract(contractAddresses[contractName], abis[contractName], provider);
-        }
+        this.contracts = {
+            RariGovernanceToken: new Contract(contractAddresses["RariGovernanceToken"], abis["RariGovernanceToken"], this.provider.getSigner()),
+            RariGovernanceTokenDistributor: new Contract(contractAddresses["RariGovernanceTokenDistributor"], abis["RariGovernanceTokenDistributor"], this.provider.getSigner()),
+            RariGovernanceTokenUniswapDistributor: new Contract(contractAddresses["RariGovernanceTokenUniswapDistributor"], abis["RariGovernanceTokenUniswapDistributor"], this.provider.getSigner()),
+            RariGovernanceTokenVesting: new Contract(contractAddresses["RariGovernanceTokenVesting"], abis["RariGovernanceTokenVesting"], this.provider.getSigner()),
+        };
         const self = this;
         const distributionStartBlock = 11094200;
         const distributionPeriod = 390000;
@@ -301,11 +303,11 @@ export default class Governance {
                     return __awaiter(this, void 0, void 0, function* () {
                         // TODO: RGT price getter function from Coingecko
                         const data = yield self.rgt.sushiSwapDistributions.getLpTokenData();
-                        const rgtReserves = (data.data.ethRgtPair.reserve1 / data.data.ethRgtPair.totalSupply).toString();
-                        const ethReserves = (data.data.ethRgtPair.reserve0 / data.data.ethRgtPair.totalSupply).toString();
+                        const rgtReserves = (data.data.ethRgtPair.reserve1 / data.data.ethRgtPair.totalSupply);
+                        const ethReserves = (data.data.ethRgtPair.reserve0 / data.data.ethRgtPair.totalSupply);
                         return {
-                            rgt: utils.parseUnits(rgtReserves),
-                            eth: utils.formatUnits(ethReserves),
+                            rgt: utils.parseUnits(rgtReserves.toString()),
+                            eth: utils.parseUnits(ethReserves.toString()),
                         };
                     });
                 },
@@ -342,23 +344,18 @@ export default class Governance {
                         };
                     });
                 },
-                deposit: function (amount, options) {
+                deposit: function (amount, sender) {
                     return __awaiter(this, void 0, void 0, function* () {
-                        const slp = new Contract(self.rgt.sushiSwapDistributions.LP_TOKEN_CONTRACT, ERC20ABI, self.provider);
-                        const allowance = yield slp.methods
-                            .allowance(options.from, self.contracts.RariGovernanceTokenUniswapDistributor.options
-                            .address);
-                        amount = BigNumber.from(amount);
+                        const slp = new Contract(LP_TOKEN_CONTRACT, ERC20ABI, self.provider.getSigner());
+                        const allowance = yield slp.allowance(sender, self.contracts.RariGovernanceTokenUniswapDistributor.address);
                         if (amount.gt(allowance))
-                            yield slp.methods.approve(self.contracts.RariGovernanceTokenUniswapDistributor.options.address, amount);
-                        yield self.contracts.RariGovernanceTokenUniswapDistributor.methods.deposit(amount);
+                            yield slp.approve(self.contracts.RariGovernanceTokenUniswapDistributor.address, amount);
+                        yield self.contracts.RariGovernanceTokenUniswapDistributor.deposit(amount);
                     });
                 },
-                withdraw: function (amount, options) {
+                withdraw: function (amount) {
                     return __awaiter(this, void 0, void 0, function* () {
-                        yield self.contracts.RariGovernanceTokenUniswapDistributor.methods
-                            .withdraw(amount)
-                            .send(options);
+                        yield self.contracts.RariGovernanceTokenUniswapDistributor.withdraw(amount);
                     });
                 },
                 getUnclaimed: function (account) {
@@ -366,12 +363,12 @@ export default class Governance {
                         return BigNumber.from(yield self.contracts.RariGovernanceTokenUniswapDistributor.getUnclaimedRgt(account));
                     });
                 },
-                claim: function (amount, options) {
+                claim: function (amount) {
                     return __awaiter(this, void 0, void 0, function* () {
                         return yield self.contracts.RariGovernanceTokenUniswapDistributor.claimRgt(amount);
                     });
                 },
-                claimAll: function (options) {
+                claimAll: function () {
                     return __awaiter(this, void 0, void 0, function* () {
                         return yield self.contracts.RariGovernanceTokenUniswapDistributor.claimAllRgt();
                     });
@@ -413,7 +410,7 @@ export default class Governance {
                     return yield self.contracts.RariGovernanceToken.balanceOf(account);
                 });
             },
-            transfer: function (recipient, amount, options) {
+            transfer: function (recipient, amount) {
                 return __awaiter(this, void 0, void 0, function* () {
                     return yield self.contracts.RariGovernanceToken.transfer(recipient, amount);
                 });

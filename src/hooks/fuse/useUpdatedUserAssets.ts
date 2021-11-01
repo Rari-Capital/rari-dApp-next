@@ -9,6 +9,7 @@ import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 import { AmountSelectMode } from "components/shared/AmountSelectNew/AmountSelectNew";
 
 import { constants, BigNumber, utils } from 'ethers'
+import { toInt } from "utils/ethersUtils";
 
 
 const useUpdatedUserAssets = ({
@@ -20,7 +21,7 @@ const useUpdatedUserAssets = ({
   mode: Mode | AmountSelectMode;
   assets: USDPricedFuseAsset[] | undefined;
   index: number;
-  amount: number;
+  amount: BigNumber;
 }) => {
   const { rari, fuse } = useRari();
 
@@ -30,7 +31,7 @@ const useUpdatedUserAssets = ({
       async () => {
         if (!assets || !assets.length) return [];
 
-        const ethPrice: number = parseInt(utils.formatEther(await rari.getEthUsdPriceBN()));
+        const ethPrice: BigNumber = await rari.getEthUsdPriceBN();
 
         const assetToBeUpdated = assets[index];
 
@@ -40,78 +41,59 @@ const useUpdatedUserAssets = ({
 
         let updatedAsset: USDPricedFuseAsset;
         if (mode === Mode.SUPPLY || mode === AmountSelectMode.LEND) {
-          const supplyBalance =
-            parseInt(assetToBeUpdated.supplyBalance as any) + amount;
+          const supplyBalance = assetToBeUpdated.supplyBalance.add(amount);
 
-          const totalSupply =
-            parseInt(assetToBeUpdated.totalSupply as any) + amount;
-
-          //   Len.log(
-          //     { mode, assetToBeUpdated, totalSupply, amount },
-          //     assetToBeUpdated.totalSupply
-          //   );
+          const totalSupply = assetToBeUpdated.totalSupply.add(amount);
 
           updatedAsset = {
             ...assetToBeUpdated,
 
             supplyBalance,
-            supplyBalanceUSD:
-              ((supplyBalance * assetToBeUpdated.underlyingPrice) / 1e36) *
-              ethPrice,
+            supplyBalanceUSD: (supplyBalance.mul(assetToBeUpdated.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther)),
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
-                totalSupply > 0
-                  ? BigNumber.from(assetToBeUpdated.totalBorrow)
-                      .div(utils.parseUnits(totalSupply.toString()))
+                totalSupply.gt(0)
+                  ? assetToBeUpdated.totalBorrow
                       .mul(constants.WeiPerEther)
+                      .div(totalSupply)
                   : constants.Zero
               )
           };
-
-          console.log("LEND", { updatedAsset });
         } else if (mode === Mode.WITHDRAW) {
-          const supplyBalance =
-            parseInt(assetToBeUpdated.supplyBalance as any) - amount;
+          const supplyBalance = assetToBeUpdated.supplyBalance.sub(amount);
 
-          const totalSupply =
-            parseInt(assetToBeUpdated.totalSupply as any) - amount;
+          const totalSupply = assetToBeUpdated.totalSupply.sub(amount);
 
           updatedAsset = {
             ...assetToBeUpdated,
 
             supplyBalance,
-            supplyBalanceUSD:
-              ((supplyBalance * assetToBeUpdated.underlyingPrice) / 1e36) *
-              ethPrice,
+            supplyBalanceUSD: supplyBalance.mul(assetToBeUpdated.underlyingPrice).mul(ethPrice.div(constants.WeiPerEther)),
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
-                totalSupply > 0
-                  ? BigNumber.from(assetToBeUpdated.totalBorrow)
-                      .div(utils.parseUnits(totalSupply.toString()))
-                      .mul(1e18)
+                totalSupply.gt(constants.Zero)
+                  ? assetToBeUpdated.totalBorrow
+                      .div(totalSupply)
+                      .mul(constants.WeiPerEther)
                   : 0
               )
           };
         } else if (mode === Mode.BORROW || mode === AmountSelectMode.BORROW) {
-          const borrowBalance =
-            parseInt(assetToBeUpdated.borrowBalance as any) + amount;
+          const borrowBalance = assetToBeUpdated.borrowBalance.add(amount);
 
-          const totalBorrow =
-            parseInt(assetToBeUpdated.totalBorrow as any) + amount;
+          const totalBorrow = assetToBeUpdated.totalBorrow.add(amount);
 
           updatedAsset = {
             ...assetToBeUpdated,
 
             borrowBalance,
-            borrowBalanceUSD:
-              ((borrowBalance * assetToBeUpdated.underlyingPrice) / 1e36) *
-              ethPrice,
+            borrowBalanceUSD: (borrowBalance.mul(assetToBeUpdated.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther)),
 
             totalBorrow,
             borrowRatePerBlock: interestRateModel.getBorrowRate(
-                assetToBeUpdated.totalSupply > 0
+                assetToBeUpdated.totalSupply.gt(constants.Zero)
                   ? utils.parseUnits(totalBorrow.toString())
                       .div(utils.parseUnits(assetToBeUpdated.totalSupply.toString()))
                       .mul(constants.WeiPerEther)
@@ -119,29 +101,23 @@ const useUpdatedUserAssets = ({
               )
           };
         } else if (mode === Mode.REPAY) {
-          const borrowBalance =
-            parseInt(assetToBeUpdated.borrowBalance as any) - amount;
+          const borrowBalance = assetToBeUpdated.borrowBalance.sub(amount);
 
-          const totalBorrow =
-            parseInt(assetToBeUpdated.totalBorrow as any) - amount;
+          const totalBorrow = assetToBeUpdated.totalBorrow.sub(amount);
 
           const borrowRatePerBlock = interestRateModel.getBorrowRate(
-              assetToBeUpdated.totalSupply > 0
-                ? utils.parseUnits(totalBorrow.toString())
-                    .div(utils.parseUnits(assetToBeUpdated.totalSupply.toString()))
+              assetToBeUpdated.totalSupply.gt(constants.Zero)
+                ? totalBorrow
+                    .div(assetToBeUpdated.totalSupply)
                     .mul(constants.WeiPerEther)
                 : 0
             )
-
-          //   console.log({ borrowRatePerBlock });
 
           updatedAsset = {
             ...assetToBeUpdated,
 
             borrowBalance,
-            borrowBalanceUSD:
-              ((borrowBalance * assetToBeUpdated.underlyingPrice) / 1e36) *
-              ethPrice,
+            borrowBalanceUSD: borrowBalance.mul(assetToBeUpdated.underlyingPrice).mul(ethPrice.div(constants.WeiPerEther)),
 
             totalBorrow,
             borrowRatePerBlock,
@@ -155,8 +131,6 @@ const useUpdatedUserAssets = ({
             return value;
           }
         });
-
-        console.log({ ret });
 
         return ret;
       }
@@ -177,7 +151,7 @@ export const useUpdatedUserAssetsForBorrowAndLend = ({
   assets: USDPricedFuseAsset[];
   lendIndex: number;
   borrowIndex: number;
-  lendAmount: number;
+  lendAmount: BigNumber;
   borrowAmount: number;
 }) => {
   console.log({ assets, lendIndex, borrowIndex, lendAmount, borrowAmount });

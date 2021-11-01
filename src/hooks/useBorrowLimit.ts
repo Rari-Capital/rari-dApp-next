@@ -1,20 +1,23 @@
+import { constants, BigNumber} from "ethers";
 import { useMemo } from "react";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
 export const useBorrowLimit = (
   assets: USDPricedFuseAsset[],
-  options?: { ignoreIsEnabledCheckFor?: string }
-): number => {
+  options?: { ignoreIsEnabledCheckFor?: string },
+  index?: any
+): BigNumber => {
+
   const maxBorrow = useMemo(() => {
-    let maxBorrow = 0;
+    let maxBorrow = constants.Zero;
     for (let i = 0; i < assets.length; i++) {
       let asset = assets[i];
-
+      
       if (
         options?.ignoreIsEnabledCheckFor === asset.cToken ||
         asset.membership
       ) {
-        maxBorrow += asset.supplyBalanceUSD * (asset.collateralFactor / 1e18);
+        maxBorrow = (maxBorrow.add(asset.supplyBalanceUSD)).mul(asset.collateralFactor);
       }
     }
     return maxBorrow;
@@ -29,7 +32,7 @@ export const useBorrowLimits = (
 ) => {
   const maxBorrows = useMemo(() => {
     return assetsArray?.map((assets) => {
-      let maxBorrow = 0;
+      let maxBorrow = constants.Zero;
       for (let i = 0; i < assets.length; i++) {
         let asset = assets[i];
 
@@ -37,7 +40,7 @@ export const useBorrowLimits = (
           options?.ignoreIsEnabledCheckFor === asset.cToken ||
           asset.membership
         ) {
-          maxBorrow += asset.supplyBalanceUSD * (asset.collateralFactor / 1e18);
+          maxBorrow.add(asset.supplyBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
         }
       }
       return maxBorrow;
@@ -51,9 +54,9 @@ export const useBorrowLimits = (
 export const useBorrowCredit = (
   assets: USDPricedFuseAsset[],
   options?: { ignoreIsEnabledCheckFor?: string }
-): number => {
+): BigNumber => {
   const maxBorrow = useMemo(() => {
-    let maxBorrow = 0;
+    let maxBorrow = constants.Zero;
     for (let i = 0; i < assets.length; i++) {
       let asset = assets[i];
 
@@ -63,11 +66,11 @@ export const useBorrowCredit = (
         asset.membership || // is asset enabled as collateral 
         options?.ignoreIsEnabledCheckFor === asset.cToken // is asset GOING to be enabled as collateral
       ) {
-        maxBorrow += asset.supplyBalanceUSD * (asset.collateralFactor / 1e18);
+        maxBorrow.add(asset.supplyBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
       }
 
       // No matter what, if something is being borrowed we subtract regardless of if its collateral
-      maxBorrow -= asset.borrowBalanceUSD * (asset.collateralFactor / 1e18);
+      maxBorrow.sub(asset.borrowBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
     }
     return maxBorrow
   }, [assets, options?.ignoreIsEnabledCheckFor]);

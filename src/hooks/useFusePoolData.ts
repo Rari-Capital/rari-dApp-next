@@ -11,12 +11,13 @@ import {
 import { useAssetsArrayWithTokenData } from "./useAssetsMap";
 
 export const useFusePoolData = (
-  poolId: string | undefined
+  poolId: string | undefined,
+  dev?: boolean
 ): FusePoolData | undefined => {
   const { fuse, rari, address } = useRari();
 
   const { data } = useQuery(poolId + " poolData " + address, () => {
-    return fetchFusePoolData(poolId, address, fuse, rari);
+    return fetchFusePoolData(poolId, address, fuse, rari, undefined , dev);
   });
 
   return data;

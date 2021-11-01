@@ -38,7 +38,6 @@ export default class Fuse {
             FuseSafeLiquidator: new Contract(Fuse.FuseSafeLiquidatorAddress, fuseSafeLiquidatorAbi, this.provider),
             FuseFeeDistributorAbi: new Contract(Fuse.FuseFeeDistributorAddress, fuseFeeDistributorAbi, this.provider)
         };
-        let accountToImpersonate = "0xB81473F20818225302b8FfFB905B53D58a793D84";
         this.getEthUsdPriceBN = function () {
             return __awaiter(this, void 0, void 0, function* () {
                 // Returns a USD price. Which means its a floating point of at least 2 decimal numbers.
@@ -85,7 +84,7 @@ export default class Fuse {
                 //3. Register new pool with FusePoolDirectory
                 let receipt;
                 try {
-                    const contract = this.contracts.FusePoolDirectory.connect(this.provider.getSigner(accountToImpersonate));
+                    const contract = this.contracts.FusePoolDirectory.connect(this.provider.getSigner());
                     receipt = yield contract
                         .deployPool(poolName, implementationAddress, enforceWhitelist, closeFactor, maxAssets, liquidationIncentive, priceOracle);
                 }
@@ -94,7 +93,7 @@ export default class Fuse {
                         (error.message ? error.message : error));
                 }
                 //4. Compute Unitroller address
-                const saltsHash = utils.solidityKeccak256(["address", "string", "uint"], [accountToImpersonate, poolName, receipt.deployTransaction.blockNumber]);
+                const saltsHash = utils.solidityKeccak256(["address", "string", "uint"], [options.from, poolName, receipt.deployTransaction.blockNumber]);
                 const byteCodeHash = utils.keccak256("0x" + this.contracts["contracts/Unitroller.sol:Unitroller"].bin);
                 let poolAddress = utils.getCreate2Address(Fuse.FUSE_POOL_DIRECTORY_CONTRACT_ADDRESS, saltsHash, byteCodeHash);
                 let unitroller = new Contract(poolAddress, JSON.parse(this.contracts["contracts/Unitroller.sol:Unitroller"].abi), this.provider);
@@ -443,7 +442,7 @@ export default class Fuse {
                         .div(BigNumber.from(10).pow(BigNumber.from(conf.decimals)));
                 }
                 // Get Comptroller
-                const comptroller = new Contract(conf.comptroller, JSON.parse(this.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi), this.provider.getSigner(accountToImpersonate));
+                const comptroller = new Contract(conf.comptroller, JSON.parse(this.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi), this.provider.getSigner());
                 // Check for price feed assuming !bypassPriceFeedCheck
                 if (!bypassPriceFeedCheck)
                     yield this.checkForCErc20PriceFeed(comptroller, conf, options);

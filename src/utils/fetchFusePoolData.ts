@@ -3,6 +3,9 @@ import Filter from "bad-words";
 import { TokenData } from "hooks/useTokenData";
 import { Vaults, Fuse } from "../esm/index"
 import { fromWei } from "./ethersUtils";
+import { BigNumber } from "@ethersproject/bignumber";
+import { constants, utils } from "ethers";
+import { createComptroller } from "./createComptroller";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
 
@@ -12,43 +15,57 @@ export function filterOnlyObjectProperties(obj: any) {
   ) as any;
 }
 
+export function filterOnlyObjectPropertiesBNtoNumber(obj: any) {
+
+  const cleanAssetWithBNs: any[] = Object.entries(obj).filter(([k]: any) => isNaN(k))
+  
+  // const assetObject = Object.fromEntries(
+  //   cleanAssetWithBNs
+  //   ) as any; 
+
+  // const final = Object.keys(assetObject).map((key) => typeof assetObject[key] === "object" ? [key, assetObject[key].toString()] : [key, assetObject[key]])
+  
+
+  return Object.fromEntries(cleanAssetWithBNs)
+}
+
 export interface FuseAsset {
   cToken: string;
 
-  borrowBalance: number;
-  supplyBalance: number;
-  liquidity: number;
+  borrowBalance: BigNumber;
+  supplyBalance: BigNumber;
+  liquidity: BigNumber;
 
   membership: boolean;
 
   underlyingName: string;
   underlyingSymbol: string;
   underlyingToken: string;
-  underlyingDecimals: number;
-  underlyingPrice: number;
-  underlyingBalance: number;
+  underlyingDecimals: BigNumber;
+  underlyingPrice: BigNumber;
+  underlyingBalance: BigNumber;
 
-  collateralFactor: number;
-  reserveFactor: number;
+  collateralFactor: BigNumber;
+  reserveFactor: BigNumber;
 
-  adminFee: number;
-  fuseFee: number;
+  adminFee: BigNumber;
+  fuseFee: BigNumber;
 
-  borrowRatePerBlock: number;
-  supplyRatePerBlock: number;
+  borrowRatePerBlock: BigNumber;
+  supplyRatePerBlock: BigNumber;
 
-  totalBorrow: number;
-  totalSupply: number;
+  totalBorrow: BigNumber;
+  totalSupply: BigNumber;
 }
 
 export interface USDPricedFuseAsset extends FuseAsset {
-  supplyBalanceUSD: number;
-  borrowBalanceUSD: number;
+  supplyBalanceUSD: BigNumber;
+  borrowBalanceUSD: BigNumber;
 
-  totalSupplyUSD: number;
-  totalBorrowUSD: number;
+  totalSupplyUSD: BigNumber;
+  totalBorrowUSD: BigNumber;
 
-  liquidityUSD: number;
+  liquidityUSD: BigNumber;
 }
 
 export interface USDPricedFuseAssetWithTokenData extends USDPricedFuseAsset {
@@ -63,8 +80,8 @@ export interface FusePoolData {
   totalLiquidityUSD: any;
   totalSuppliedUSD: any;
   totalBorrowedUSD: any;
-  totalSupplyBalanceUSD: any;
-  totalBorrowBalanceUSD: any;
+  totalSupplyBalanceUSD: BigNumber;
+  totalBorrowBalanceUSD: BigNumber;
   id: number;
 }
 
@@ -92,7 +109,8 @@ export const fetchFusePoolData = async (
   address: string,
   fuse: Fuse,
   rari?: Vaults,
-  blockNum: string | number = "latest"
+  blockNum: string | number = "latest",
+  dev?: boolean
 ): Promise<FusePoolData | undefined> => {
   if (!poolId) return undefined;
 
@@ -109,49 +127,43 @@ export const fetchFusePoolData = async (
   let assets: USDPricedFuseAsset[] = (
     await fuse.contracts.FusePoolLens.callStatic
       .getPoolAssetsWithData(comptroller)
-  ).map(filterOnlyObjectProperties);
+  ).map(filterOnlyObjectPropertiesBNtoNumber);
 
-  let totalLiquidityUSD = 0;
-
-  let totalSupplyBalanceUSD = 0;
-  let totalBorrowBalanceUSD = 0;
-
-  let totalSuppliedUSD = 0;
-  let totalBorrowedUSD = 0;
-
-  const ethPrice: number = fromWei(
-    // prefer rari because it has caching
-    await (rari ?? fuse).getEthUsdPriceBN()
-  ) as any;
-
+  let totalLiquidityUSD = constants.Zero;
+  
+  let totalSupplyBalanceUSD = constants.Zero;
+  let totalBorrowBalanceUSD = constants.Zero;
+  
+  let totalSuppliedUSD = constants.Zero;
+  let totalBorrowedUSD = constants.Zero;
+  
+  const ethPrice: BigNumber = 
+  // prefer rari because it has caching
+  await (rari ?? fuse).getEthUsdPriceBN()
+  
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
 
-    asset.supplyBalanceUSD =
-      ((asset.supplyBalance * asset.underlyingPrice) / 1e36) * ethPrice;
+    asset.supplyBalanceUSD = (asset.supplyBalance.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
 
-    asset.borrowBalanceUSD =
-      ((asset.borrowBalance * asset.underlyingPrice) / 1e36) * ethPrice;
+    asset.borrowBalanceUSD = (asset.borrowBalance.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
 
-    totalSupplyBalanceUSD += asset.supplyBalanceUSD;
-    totalBorrowBalanceUSD += asset.borrowBalanceUSD;
+    totalSupplyBalanceUSD.add(asset.supplyBalanceUSD);
+    totalBorrowBalanceUSD.add(asset.borrowBalanceUSD);
 
-    asset.totalSupplyUSD =
-      ((asset.totalSupply * asset.underlyingPrice) / 1e36) * ethPrice;
-    asset.totalBorrowUSD =
-      ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice;
+    asset.totalSupplyUSD = (asset.totalSupply.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
+    asset.totalBorrowUSD = (asset.totalBorrow.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
 
-    totalSuppliedUSD += asset.totalSupplyUSD;
-    totalBorrowedUSD += asset.totalBorrowUSD;
+    totalSuppliedUSD.add(asset.totalSupplyUSD);
+    totalBorrowedUSD.add(asset.totalBorrowUSD);
 
-    asset.liquidityUSD =
-      ((asset.liquidity * asset.underlyingPrice) / 1e36) * ethPrice;
+    asset.liquidityUSD = (asset.liquidity.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
 
-    totalLiquidityUSD += asset.liquidityUSD;
+    totalLiquidityUSD.add(asset.liquidityUSD);
   }
 
   return {
-    assets: assets.sort((a, b) => (b.liquidityUSD > a.liquidityUSD ? 1 : -1)),
+    assets: assets.sort((a, b) => (b.liquidityUSD.gt(a.liquidityUSD) ? 1 : -1)),
     comptroller,
     name,
     isPrivate,
