@@ -44,7 +44,6 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
   let data;
 
   if (address !== ETH_TOKEN_DATA.address) {
-    console.log("saerching address", address);
     try {
       data = {
         ...(await fetch(

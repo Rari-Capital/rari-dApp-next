@@ -46,7 +46,7 @@ import { createComptroller } from "utils/createComptroller";
 import { shortUsdFormatter } from "utils/bigUtils";
 
 // Ethers
-import { utils} from 'ethers'
+import { utils, BigNumber } from 'ethers'
 
 export const useExtraPoolInfo = (comptrollerAddress: string) => {
   const { fuse, address } = useRari();
@@ -62,7 +62,7 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
       enforceWhitelist,
       whitelist,
     ] = await Promise.all([
-      fuse.contracts.FusePoolLens.getPoolOwnership(comptrollerAddress, {gas: 1e18}),
+      fuse.contracts.FusePoolLens.getPoolOwnership(comptrollerAddress, {gasLimit: 1e18}),
 
       fuse.getPriceOracle(await comptroller.callStatic.oracle()),
 
@@ -204,9 +204,6 @@ const OracleAndInterestRates = ({
 
   const data = useExtraPoolInfo(comptrollerAddress);
   const { hasCopied, onCopy } = useClipboard(data?.admin ?? "");
-
-  console.log({assets})
-
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -321,7 +318,7 @@ const OracleAndInterestRates = ({
 
         <StatRow
           statATitle={t("Platform Fee")}
-          statA={assets.length > 0 ? assets[0].fuseFee.div(1e16) + "%" : "10%"}
+          statA={assets.length > 0 ? assets[0].fuseFee.div(BigNumber.from(10).pow(16)) + "%" : "10%"}
           statBTitle={t("Average Admin Fee")}
           statB={
             "%"
@@ -506,7 +503,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         pb={2}
       >
         <CaptionedStat
-          stat={selectedAsset.collateralFactor.div(1e16).toString() + "%"}
+          stat={selectedAsset.collateralFactor.div(BigNumber.from(10).pow(16)).toString() + "%"}
           statSize="lg"
           captionSize="xs"
           caption={t("Collateral Factor")}
@@ -515,7 +512,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         />
 
         <CaptionedStat
-          stat={selectedAsset.reserveFactor.div(1e16).toString()+ "%"}
+          stat={selectedAsset.reserveFactor.div(BigNumber.from(10).pow(16)).toString()+ "%"}
           statSize="lg"
           captionSize="xs"
           caption={t("Reserve Factor")}
