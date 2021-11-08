@@ -70,7 +70,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
               <PoolRow
                 key={pool.id}
                 poolNumber={pool.id}
-                name={filterPoolName(pool.pool.name)}
+                name={filterPoolName(pool.name)}
                 tvl={pool.suppliedUSD}
                 borrowed={pool.borrowedUSD}
                 tokens={pool.underlyingTokens.map((address, index) => ({
