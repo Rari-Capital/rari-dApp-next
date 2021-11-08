@@ -19,6 +19,7 @@ import { toInt } from "utils/ethersUtils";
 // Ethers
 import { BigNumber } from "@ethersproject/bignumber";
 
+
 export interface FusePool {
   name: string;
   creator: string;
@@ -26,11 +27,31 @@ export interface FusePool {
   isPrivate: boolean;
 }
 
-export interface MergedPool {
-  id: number;
-  pool: FusePool;
-  underlyingTokens: string[];
+interface LensFusePool {
+  blockPosted: string;
+  name: string;
+  creator: string;
+  comptroller: string;
+  timestampPosted: string;
+}
+
+interface LensFusePoolData {
+  totalBorrow: string;
+  totalSupply: string;
   underlyingSymbols: string[];
+  underlyingTokens: string[];
+  whitelistedAdmin: boolean;
+}
+
+export type LensPoolsWithData = [
+  ids: string[],
+  fusePools: LensFusePool[],
+  fusePoolsData: LensFusePoolData[],
+  errors: boolean[]
+];
+
+export interface MergedPool extends LensFusePoolData, LensFusePool {
+  id: number;
   suppliedUSD: number;
   borrowedUSD: number;
 }
@@ -63,10 +84,10 @@ export const fetchPools = async ({
   filter: string | null;
   blockNum?: number;
 }) => {
-  console.log({filter, address})
-
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
+
+  const isNonWhitelistedPools = filter === "unverified-pools";
 
   // We need the latest blockNumber
   const latestBlockNumber = await fuse.provider.getBlockNumber();
@@ -84,36 +105,46 @@ export const fetchPools = async ({
     ? fetchETHPriceAtDate(ddMMYYYY)
     : fetchCurrentETHPrice();
 
-  const [
-    {
-      0: ids,
-      1: fusePools,
-      2: totalSuppliedETH,
-      3: totalBorrowedETH,
-      4: underlyingTokens,
-      5: underlyingSymbols,
-    },
-    ethPrice,
-  ] = await Promise.all([
-    isMyPools
-      ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
-      : isCreatedPools
-      ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
-      : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(true),
-    fetchETHPrice,
-  ]);
+  const req = isMyPools
+  ? fuse.contracts.FusePoolLens.callStatic
+      .getPoolsBySupplierWithData(address)
+      
+  : isCreatedPools
+  ? fuse.contracts.FusePoolLens.callStatic
+      .getPoolsByAccountWithData(address)
+      
+  : isNonWhitelistedPools
+  ? fuse.contracts.FusePoolLens.callStatic
+      .getPublicPoolsByVerificationWithData(false)
+       
+  : fuse.contracts.FusePoolLens.callStatic
+      .getPublicPoolsByVerificationWithData(true)
+      
+
+  const {
+    0: ids,
+    1: fusePools,
+    2: fusePoolsData,
+    3: errors,
+  }: LensPoolsWithData = await req;
 
   const merged: MergedPool[] = [];
-  for (let id = 0; id < ids.length; id++) {
-    merged.push({
-      // I don't know why we have to do this but for some reason it just becomes an array after a refetch for some reason, so this forces it to be an object.
-      underlyingTokens: underlyingTokens[id],
-      underlyingSymbols: underlyingSymbols[id],
-      pool: filterOnlyObjectProperties(fusePools[id]),
-      id: toInt(ids[id]),
-      suppliedUSD: (totalSuppliedETH[id] / 1e18) * parseFloat(ethPrice),
-      borrowedUSD: (totalBorrowedETH[id] / 1e18) * parseFloat(ethPrice),
-    });
+  for (let i = 0; i < ids.length; i++) {
+    const id = parseFloat(ids[i]);
+    const fusePool = fusePools[i];
+    const fusePoolData = fusePoolsData[i];
+
+    const mergedPool = {
+      id,
+      suppliedUSD:
+        (parseFloat(fusePoolData.totalSupply) / 1e18) * (await fetchETHPrice),
+      borrowedUSD:
+        (parseFloat(fusePoolData.totalBorrow) / 1e18) * (await fetchETHPrice),
+      ...filterOnlyObjectProperties(fusePool),
+      ...filterOnlyObjectProperties(fusePoolData),
+    };
+
+    merged.push(mergedPool);
   }
 
   return merged;
