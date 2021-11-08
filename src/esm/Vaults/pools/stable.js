@@ -136,11 +136,11 @@ export default class StablePool {
             acceptedCurrencies: 30,
         });
         this.contracts = {
-            RariFundController: new Contract(contractAddressesStable["RariFundController"], abisStable["RariFundController"], this.provider.getSigner()),
-            RariFundManager: new Contract(contractAddressesStable["RariFundManager"], abisStable["RariFundManager"], this.provider.getSigner()),
-            RariFundToken: new Contract(contractAddressesStable["RariFundToken"], abisStable["RariFundToken"], this.provider.getSigner()),
-            RariFundPriceConsumer: new Contract(contractAddressesStable["RariFundPriceConsumer"], abisStable["RariFundPriceConsumer"], this.provider.getSigner()),
-            RariFundProxy: new Contract(contractAddressesStable["RariFundProxy"], abisStable["RariFundProxy"], this.provider.getSigner())
+            RariFundController: new Contract(contractAddressesStable["RariFundController"], abisStable["RariFundController"], this.provider),
+            RariFundManager: new Contract(contractAddressesStable["RariFundManager"], abisStable["RariFundManager"], this.provider),
+            RariFundToken: new Contract(contractAddressesStable["RariFundToken"], abisStable["RariFundToken"], this.provider),
+            RariFundPriceConsumer: new Contract(contractAddressesStable["RariFundPriceConsumer"], abisStable["RariFundPriceConsumer"], this.provider),
+            RariFundProxy: new Contract(contractAddressesStable["RariFundProxy"], abisStable["RariFundProxy"], this.provider)
         };
         this.legacyContracts = {
             "v1.0.0": {

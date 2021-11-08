@@ -37,10 +37,10 @@ export default class Governance {
         this.provider = provider;
         this.cache = new Cache({ rgtUsdPrice: 900, lpTokenData: 900 });
         this.contracts = {
-            RariGovernanceToken: new Contract(contractAddresses["RariGovernanceToken"], abis["RariGovernanceToken"], this.provider.getSigner()),
-            RariGovernanceTokenDistributor: new Contract(contractAddresses["RariGovernanceTokenDistributor"], abis["RariGovernanceTokenDistributor"], this.provider.getSigner()),
-            RariGovernanceTokenUniswapDistributor: new Contract(contractAddresses["RariGovernanceTokenUniswapDistributor"], abis["RariGovernanceTokenUniswapDistributor"], this.provider.getSigner()),
-            RariGovernanceTokenVesting: new Contract(contractAddresses["RariGovernanceTokenVesting"], abis["RariGovernanceTokenVesting"], this.provider.getSigner()),
+            RariGovernanceToken: new Contract(contractAddresses["RariGovernanceToken"], abis["RariGovernanceToken"], this.provider),
+            RariGovernanceTokenDistributor: new Contract(contractAddresses["RariGovernanceTokenDistributor"], abis["RariGovernanceTokenDistributor"], this.provider),
+            RariGovernanceTokenUniswapDistributor: new Contract(contractAddresses["RariGovernanceTokenUniswapDistributor"], abis["RariGovernanceTokenUniswapDistributor"], this.provider),
+            RariGovernanceTokenVesting: new Contract(contractAddresses["RariGovernanceTokenVesting"], abis["RariGovernanceTokenVesting"], this.provider),
         };
         const self = this;
         const distributionStartBlock = 11094200;
@@ -320,7 +320,7 @@ export default class Governance {
                 },
                 stakingBalanceOf: function (account) {
                     return __awaiter(this, void 0, void 0, function* () {
-                        return BigNumber.from(yield self.contracts.RariGovernanceTokenUniswapDistributor.stakingBalances(account));
+                        return yield self.contracts.RariGovernanceTokenUniswapDistributor.stakingBalances(account);
                     });
                 },
                 usdStakingBalanceOf: function (account) {

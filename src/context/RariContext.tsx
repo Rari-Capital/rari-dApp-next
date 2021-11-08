@@ -166,6 +166,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // We need to give rari the new provider (todo: and also ethers.js signer) every time someone logs in again
   const setRariAndAddressFromModal = useCallback(
     (modalProvider) => {
+      console.log({modalProvider})
       const provider = new Web3Provider(modalProvider);
       const rariInstance = new Vaults(provider);
       const fuseInstance = initFuseWithProviders(provider);

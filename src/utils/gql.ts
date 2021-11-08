@@ -2,7 +2,7 @@
 import { request } from "graphql-request";
 
 const FUSE_SUBGRAPH_GQL_ENDPOINT =
-  "https://api.thegraph.com/subgraphs/name/zacel/fusedemo";
+  "https://api.studio.thegraph.com/query/853/fuse-zacel/0.2.2";
 
 // const FUSE_SUBGRAPH_GQL_ENDPOINT =
 //   "https://api.thegraph.com/subgraphs/id/QmZUk988UJSQQtYwTmZobV26FqHZQJscGZMjRR35RnNzMw";

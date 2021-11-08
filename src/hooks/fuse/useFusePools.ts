@@ -63,6 +63,8 @@ export const fetchPools = async ({
   filter: string | null;
   blockNum?: number;
 }) => {
+  console.log({filter, address})
+
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
 
@@ -97,7 +99,7 @@ export const fetchPools = async ({
       ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
       : isCreatedPools
       ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
-      : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData(),
+      : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(true),
     fetchETHPrice,
   ]);
 

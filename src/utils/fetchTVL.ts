@@ -1,13 +1,20 @@
 // Vaults
-import { Vaults, Fuse } from "../esm/index"
+import { Vaults, Fuse } from "../esm/index";
 
 // Ethers
-import { BigNumber as EthersBigNumber, constants } from 'ethers'
+import { BigNumber as EthersBigNumber, constants } from "ethers";
 
 import BigNumber from "bignumber.js";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
-  const { 2: suppliedETHPerPool } = await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData()
+  console.log({ fuse });
+
+  const res =
+    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+      true
+    );
+
+  const { 2: suppliedETHPerPool } = res;
 
   const totalSuppliedETH = EthersBigNumber.from(
     new BigNumber(
@@ -16,6 +23,8 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
         .toString()
     ).toFixed(0)
   );
+
+  console.log(totalSuppliedETH.toString());
 
   return totalSuppliedETH;
 };
@@ -68,12 +77,29 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
     fetchFuseTVL(fuse),
   ]);
 
+  // console.log({
+  //   stableTVL,
+  //   yieldTVL,
+  //   ethTVLInETH,
+  //   daiTVL,
+  //   ethPriceBN,
+  //   stakedTVL,
+  //   fuseTVLInETH,
+  // });
+
   const ethUSDBN = ethPriceBN.div(constants.WeiPerEther);
 
   const ethTVL = ethTVLInETH.mul(ethUSDBN);
   const fuseTVL = fuseTVLInETH.mul(ethUSDBN);
 
-  return { stableTVL, yieldTVL, ethTVL, daiTVL, fuseTVL, stakedTVL };
+  return {
+    stableTVL,
+    yieldTVL,
+    ethTVL,
+    daiTVL,
+    fuseTVL,
+    stakedTVL
+  };
 };
 
 export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) => {

@@ -46,7 +46,6 @@ export const FusePoolFragment = gql`
     comptroller
     id
     index
-    maxAssets
     liquidationIncentive
     name
     priceOracle

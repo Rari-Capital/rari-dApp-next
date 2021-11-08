@@ -43,16 +43,16 @@ export default class DaiPool extends StablePools {
         this.POOL_NAME = "Rari DAI Pool";
         this.POOL_TOKEN_SYMBOL = "RDPT";
         this.contracts = {
-            RariFundController: new Contract(contractAddressesDai["RariFundController"], DaiPool.CONTRACT_ABIS["RariFundController"], this.provider.getSigner()),
-            RariFundManager: new Contract(contractAddressesDai["RariFundManager"], DaiPool.CONTRACT_ABIS["RariFundManager"], this.provider.getSigner()),
-            RariFundToken: new Contract(contractAddressesDai["RariFundToken"], DaiPool.CONTRACT_ABIS["RariFundToken"], this.provider.getSigner()),
-            RariFundPriceConsumer: new Contract(contractAddressesDai["RariFundPriceConsumer"], DaiPool.CONTRACT_ABIS["RariFundPriceConsumer"], this.provider.getSigner()),
-            RariFundProxy: new Contract(contractAddressesDai["RariFundProxy"], DaiPool.CONTRACT_ABIS["RariFundProxy"], this.provider.getSigner()),
+            RariFundController: new Contract(contractAddressesDai["RariFundController"], DaiPool.CONTRACT_ABIS["RariFundController"], this.provider),
+            RariFundManager: new Contract(contractAddressesDai["RariFundManager"], DaiPool.CONTRACT_ABIS["RariFundManager"], this.provider),
+            RariFundToken: new Contract(contractAddressesDai["RariFundToken"], DaiPool.CONTRACT_ABIS["RariFundToken"], this.provider),
+            RariFundPriceConsumer: new Contract(contractAddressesDai["RariFundPriceConsumer"], DaiPool.CONTRACT_ABIS["RariFundPriceConsumer"], this.provider),
+            RariFundProxy: new Contract(contractAddressesDai["RariFundProxy"], DaiPool.CONTRACT_ABIS["RariFundProxy"], this.provider),
         };
         this.legacyContracts = {
             "v1.0.0": {
-                RariFundController: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundController"], legacyAbisDai["v1.0.0"]["RariFundController"], this.provider.getSigner()),
-                RariFundProxy: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundProxy"], legacyAbisDai["v1.0.0"]["RariFundProxy"], this.provider.getSigner()),
+                RariFundController: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundController"], legacyAbisDai["v1.0.0"]["RariFundController"], this.provider),
+                RariFundProxy: new Contract(legacyContractAddressesDai["v1.0.0"]["RariFundProxy"], legacyAbisDai["v1.0.0"]["RariFundProxy"], this.provider),
             },
         };
         this.allocations.POOLS = (function () {
