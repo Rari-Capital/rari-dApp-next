@@ -1,4 +1,4 @@
-import { Fuse } from "../esm/index"
+import { Fuse } from "../esm/index";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 
@@ -6,11 +6,10 @@ export const infuraURL = `https://mainnet.infura.io/v3/2e56500614ce4496bde29b22e
 export const providerURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
 
 export function chooseBestWeb3Provider(): JsonRpcProvider | Web3Provider {
-  // const isClient = typeof window === "object";
-  // if (!isClient) {
-  //   return new JsonRpcProvider(providerURL);
-  // }
-  return new JsonRpcProvider(providerURL);
+  const isClient = typeof window === "object";
+  if (!isClient) {
+    return new JsonRpcProvider(providerURL);
+  }
 
   if (window.ethereum) {
     return new Web3Provider(window.ethereum);
@@ -27,10 +26,9 @@ export const initFuseWithProviders = (
   const fuse = new Fuse(provider);
 
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
-  // const turboProvider = new JsonRpcProvider('http://localhost:8545');
-
-  // fuse.contracts.FusePoolLens =
-  //   fuse.contracts.FusePoolLens.connect(turboProvider);
+  fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
+    new JsonRpcProvider(providerURL)
+  );
 
   return fuse;
 };
