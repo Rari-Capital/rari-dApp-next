@@ -18,8 +18,6 @@ export const fetchFuseTotalBorrowAndSupply = async ({
     fromWei(await rari.getEthUsdPriceBN()) as any,
   ]);
 
-  console.log(supplyETH, borrowETH, "totalBandS")
-
   return {
     totalSuppliedUSD: (supplyETH / 1e18) * ethPrice,
     totalBorrowedUSD: (borrowETH / 1e18) * ethPrice,
