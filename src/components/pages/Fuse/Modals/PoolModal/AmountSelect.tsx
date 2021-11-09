@@ -128,10 +128,15 @@ const AmountSelect = ({
     _setUserEnteredAmount(newAmount);
 
     const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals)
+    
 
-    bigAmount.lt(constants.Zero)
-      ? _setAmount(constants.Zero)
-      : _setAmount(bigAmount);
+    try {
+      
+      _setAmount(bigAmount);
+    } catch (e) {
+      // If the number was invalid, set the amount to null to disable confirming:
+      _setAmount(constants.Zero)
+    }
 
     setUserAction(UserAction.NO_ACTION);
   };
@@ -213,6 +218,8 @@ const AmountSelect = ({
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
+      console.log("Inside onConfirm")
+
       const isETH = asset.underlyingToken === ETH_TOKEN_DATA.address;
 
       const isRepayingMax =
@@ -240,15 +247,17 @@ const AmountSelect = ({
 
       if (mode === Mode.SUPPLY || mode === Mode.REPAY) {
         // if not eth check if amounti is approved for thsi token
+        console.log("inside if 1.", {isETH})
         if (!isETH) {
+          console.log("shouldnt be here babe")
           const token = new Contract(
             asset.underlyingToken,
             JSON.parse( fuse.compoundContracts[ "contracts/EIP20Interface.sol:EIP20Interface"].abi ),
             fuse.provider.getSigner()
           );
 
-          const hasApprovedEnough = (
-            await token.callStatic.allowance(address, cToken.address)).gte(amount);
+          const hasApprovedEnough = 
+            (await token.callStatic.allowance(address, cToken.address)).gte(amount);
 
             if (!hasApprovedEnough) {
               await token.approve(cToken.address, max)
@@ -259,23 +268,29 @@ const AmountSelect = ({
 
         // if ur suplying, then
         if (mode === Mode.SUPPLY) {
+          console.log("Inside supply")
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
+            console.log("enable as collateral")
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            comptroller.enterMarkets([asset.cToken])
+            console.log("HELLO")
+            await comptroller.enterMarkets([asset.cToken])
+            console.log("HEYYY")
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
           if (isETH) {
             const call = cToken.mint; //
+            console.log(cToken, cToken.mint)
 
             if (
               // If they are supplying their whole balance:
               amount === (await fuse.provider.getBalance(address))
             ) {
               // full balance of ETH
+              console.log("NOOO")
 
               // Subtract gas for max ETH
               const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
@@ -294,10 +309,9 @@ const AmountSelect = ({
               });
             } else {
               // custom amount of ETH
-              await call({
-                from: address,
-                value: amount,
-              });
+              console.log("hey",{amount}, call)
+
+              await call({value: amount});
             }
           } else {
             //  Custom amount of ERC20
@@ -665,8 +679,6 @@ const StatsColumn = ({
 }) => {
   const { t } = useTranslation();
 
-  console.log(amount.toString())
-
   // Get the new representation of a user's USDPricedFuseAssets after proposing a supply amount.
   const updatedAssets: USDPricedFuseAsset[] | undefined = useUpdatedUserAssets({
     mode,
@@ -700,9 +712,6 @@ const StatsColumn = ({
     updatedAsset?.borrowRatePerBlock ?? constants.Zero
   );
   
-  console.log(borrowLimit.toString(), "borrow Limit")
-  console.log(updatedBorrowLimit.toString(), "updated borrow limit")
-
   // If the difference is greater than a 0.1 percentage point change, alert the user
   const updatedAPYDiffIsLarge = isSupplyingOrWithdrawing
     ? Math.abs(updatedSupplyAPY - supplyAPY) > 0.1
