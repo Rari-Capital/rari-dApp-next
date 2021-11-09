@@ -1,5 +1,8 @@
 // Chakra and UI
-import { RowOrColumn, Column, Center } from "lib/chakraUtils";
+import { RowOrColumn, Row, Column, Center } from "lib/chakraUtils";
+import { CheckCircleIcon, WarningTwoIcon } from "@chakra-ui/icons";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { Text } from "@chakra-ui/layout";
 import { Heading } from "@chakra-ui/react";
 import CaptionedStat from "components/shared/CaptionedStat";
 import DashboardBox from "components/shared/DashboardBox";
@@ -10,7 +13,7 @@ import { ReactNode } from "react";
 // Hooks
 import { useTranslation } from 'next-i18next'
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { useFuseTVL, fetchFuseNumberTVL } from "hooks/fuse/useFuseTVL";
+import { fetchFuseNumberTVL } from "hooks/fuse/useFuseTVL";
 import { useFuseTotalBorrowAndSupply } from "hooks/fuse/useFuseTotalBorrowAndSupply";
 
 // Rari
@@ -18,19 +21,18 @@ import { useRari } from "context/RariContext";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
+import { FusePoolData } from "utils/fetchFusePoolData";
 
 // Components
 import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
 
 
-const FuseStatsBar = () => {
+const FuseStatsBar = ({data}: {data?: FusePoolData} ) => {
   const isMobile = useIsSmallScreen();
 
   const { t } = useTranslation();
 
   const { isAuthed, fuse, rari } = useRari();
-
-  const { data: fuseTVL } = useFuseTVL();
   const { data: totalBorrowAndSupply } = useFuseTotalBorrowAndSupply();
 
   return (
@@ -42,7 +44,7 @@ const FuseStatsBar = () => {
       height={isMobile ? "auto" : "125px"}
     >
       <DashboardBox
-        width={isMobile ? "100%" : "100%"}
+        width={isMobile ? "100%" : "50%"}
         height={isMobile ? "auto" : "100%"}
       >
         <Column
@@ -53,14 +55,42 @@ const FuseStatsBar = () => {
           p={4}
           fontSize="sm"
         >
-          <Heading size="lg" mb="2px">
-            {t("Fuse")}
-          </Heading>
+          <Row
+            mainAxisAlignment="flex-start"
+            crossAxisAlignment="center"
+            mb="2px"
+          >
+            {/* Title */}
+            {!!data ? (
+              <WhitelistedIcon isWhitelisted={data.isAdminWhitelisted} mb={1} />
+            ) : null}
+            <Heading size="lg" isTruncated>
+              {data?.name ?? "Fuse"}
+            </Heading>
+          </Row>
 
-          {t(
-            "There's {{tvl}} supplied to Fuse, the first truly open interest rate protocol. Lend, borrow, and create isolated lending markets with unlimited flexibility.",
-            { tvl: fuseTVL ? smallUsdFormatter(fuseTVL) : "?" }
+          {/* Description */}
+          {!!data ? (
+            <Text>
+              This pool has{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {smallUsdFormatter(data.totalSuppliedUSD)} supplied{" "}
+              </span>{" "}
+              across{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {data.assets.length} assets.
+              </span>{" "}
+              Fuse is the first truly open interest rate protocol. Lend, borrow,
+              and create isolated lending markets with unlimited flexibility.
+            </Text>
+          ) : (
+            <Text>
+              Fuse is the first truly open interest rate protocol. Lend, borrow,
+              and create isolated lending markets with unlimited flexibility.
+            </Text>
           )}
+
+
         </Column>
       </DashboardBox>
 
@@ -144,5 +174,37 @@ const StatBox = ({
         {children}
       </Center>
     </DashboardBox>
+  );
+};
+
+export const WhitelistedIcon = ({
+  isWhitelisted,
+  ...boxProps
+}: {
+  isWhitelisted: boolean;
+  [x: string]: any;
+}) => {
+  return (
+    <>
+      <SimpleTooltip
+        label={
+          isWhitelisted
+            ? "This pool is from a Whitelisted Admin"
+            : "This pool is not from a whitelisted admin. Use with caution!"
+        }
+        placement="bottom-end"
+      >
+        {isWhitelisted ? (
+          <CheckCircleIcon boxSize="20px" mr={3} {...boxProps} />
+        ) : (
+          <WarningTwoIcon
+            boxSize="20px"
+            mr={3}
+            color="orange.300"
+            {...boxProps}
+          />
+        )}
+      </SimpleTooltip>
+    </>
   );
 };
