@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
-import { Vaults, Fuse } from "../../esm/index"
+import { Vaults, Fuse } from "../../esm/index";
 
 // Libraries
 import FuseJs from "fuse.js";
@@ -18,7 +18,6 @@ import { toInt } from "utils/ethersUtils";
 
 // Ethers
 import { BigNumber } from "@ethersproject/bignumber";
-
 
 export interface FusePool {
   name: string;
@@ -86,7 +85,6 @@ export const fetchPools = async ({
 }) => {
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
-
   const isNonWhitelistedPools = filter === "unverified-pools";
 
   // We need the latest blockNumber
@@ -106,20 +104,16 @@ export const fetchPools = async ({
     : fetchCurrentETHPrice();
 
   const req = isMyPools
-  ? fuse.contracts.FusePoolLens.callStatic
-      .getPoolsBySupplierWithData(address)
-      
-  : isCreatedPools
-  ? fuse.contracts.FusePoolLens.callStatic
-      .getPoolsByAccountWithData(address)
-      
-  : isNonWhitelistedPools
-  ? fuse.contracts.FusePoolLens.callStatic
-      .getPublicPoolsByVerificationWithData(false)
-       
-  : fuse.contracts.FusePoolLens.callStatic
-      .getPublicPoolsByVerificationWithData(true)
-      
+    ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
+    : isCreatedPools
+    ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
+    : isNonWhitelistedPools
+    ? fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+        false
+      )
+    : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+        true
+      );
 
   const {
     0: ids,
@@ -147,12 +141,14 @@ export const fetchPools = async ({
     merged.push(mergedPool);
   }
 
+  console.log({ merged });
+
   return merged;
 };
 
 export interface UseFusePoolsReturn {
-  pools: MergedPool[] | undefined;
-  filteredPools: MergedPool[] | null;
+  pools: MergedPool[];
+  filteredPools: MergedPool[];
 }
 
 // returns impersonal data about fuse pools ( can filter by your supplied/created pools )
@@ -161,22 +157,27 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
 
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
+  const isNonWhitelistedPools = filter === "unverified-pools";
 
-  const { data: pools } = useQuery(
-    address + " fusePoolList" + (isMyPools || isCreatedPools ? filter : ""),
+  const { data: _pools } = useQuery(
+    address + " fusePoolList" + (filter ?? ""),
     async () => await fetchPools({ rari, fuse, address, filter })
   );
 
+  const pools = _pools ?? [];
+
+  console.log;
+
   const filteredPools = useMemo(() => {
-    if (!pools) {
-      return null;
+    if (!pools.length) {
+      return [];
     }
 
     if (!filter) {
       return poolSort(pools);
     }
 
-    if (isMyPools || isCreatedPools) {
+    if (isMyPools || isCreatedPools || isNonWhitelistedPools)  {
       return poolSort(pools);
     }
 
@@ -187,7 +188,7 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
 
     const filtered = new FuseJs(pools, options).search(filter);
     return poolSort(filtered.map((item) => item.item));
-  }, [pools, filter, isMyPools, isCreatedPools]);
+  }, [pools, filter, isMyPools, isCreatedPools, isNonWhitelistedPools]);
 
   return { pools, filteredPools };
 };

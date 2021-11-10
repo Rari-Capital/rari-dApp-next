@@ -90,7 +90,12 @@ const FuseTabBar = () => {
           ) : null}
         </ButtonGroup>
 
-        <TabLink route="/fuse" text={t("All Pools")} />
+        <TabLink route="/fuse" text={t("Verified Pools")} />
+        <TabLink
+          route="/fuse?filter=unverified-pools"
+          text={t("Unverified Pools")}
+        />
+
         {isAuthed && (
           <>
             <TabLink route="/fuse?filter=my-pools" text={t("My Pools")} />
@@ -148,6 +153,8 @@ const FuseTabBar = () => {
 const TabLink = ({ route, text }: { route: string; text: string }) => {
   const isMobile = useIsSmallScreen();
   const router = useRouter();
+
+  console.log( route, router.asPath.replace(/\/+$/, ""), route === router.asPath.replace(/\/+$/, "") );
 
   return (
     <AppLink

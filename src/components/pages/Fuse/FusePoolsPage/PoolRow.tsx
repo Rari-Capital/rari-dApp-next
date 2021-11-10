@@ -11,6 +11,8 @@ import { letterScore, usePoolRSS } from "hooks/useRSS";
 import { Center, Column, Row, useIsMobile } from "lib/chakraUtils";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { CTokenIcon } from "./CTokenIcon";
+import { usePoolIncentives } from "hooks/rewards/usePoolIncentives";
+import { CheckCircleIcon, WarningTwoIcon } from "@chakra-ui/icons";
 
 export const PoolRow = ({
   tokens,
@@ -19,8 +21,8 @@ export const PoolRow = ({
   borrowed,
   name,
   noBottomDivider,
-  smaller,
-  ...rowProps
+  isWhitelisted,
+  comptroller,
 }: {
   tokens: { symbol: string; address: string }[];
   poolNumber: number;
@@ -28,8 +30,8 @@ export const PoolRow = ({
   borrowed: number;
   name: string;
   noBottomDivider?: boolean;
-  smaller?: boolean;
-  [x:string]: any
+  isWhitelisted: boolean;
+  comptroller: string;
 }) => {
   const isEmpty = tokens.length === 0;
 
@@ -38,6 +40,12 @@ export const PoolRow = ({
   const rssScore = rss ? letterScore(rss.totalScore) : "?";
 
   const isMobile = useIsMobile();
+
+  const poolIncentives = usePoolIncentives(comptroller);
+  const { hasIncentives } = poolIncentives;
+  if (hasIncentives) {
+    console.log({ poolNumber, poolIncentives });
+  }
 
   return (
     <>
@@ -54,7 +62,6 @@ export const PoolRow = ({
           className="hover-row"
           pl={4}
           pr={1}
-          {...rowProps}
         >
           <Column
             pt={2}
@@ -73,7 +80,19 @@ export const PoolRow = ({
               </SimpleTooltip>
             )}
 
-            <Text mt={isEmpty ? 0 : 2}>{name}</Text>
+            <Row
+              mainAxisAlignment="flex-start"
+              crossAxisAlignment="center"
+              mt={isEmpty ? 0 : 2}
+            >
+              <WhitelistedIcon
+                isWhitelisted={isWhitelisted}
+                mr={2}
+                boxSize={"15px"}
+                mb="2px"
+              />
+              <Text>{name}</Text>
+            </Row>
           </Column>
 
           {isMobile ? null : (
@@ -82,10 +101,10 @@ export const PoolRow = ({
                 <b>{poolNumber}</b>
               </Center>
               <Center height="100%" width="16%">
-                <b>{smaller ? shortUsdFormatter(tvl) : smallUsdFormatter(tvl)}</b>
+                <b>{smallUsdFormatter(tvl)}</b>
               </Center>
               <Center height="100%" width="16%">
-                <b>{smaller ? shortUsdFormatter(borrowed) : smallUsdFormatter(borrowed)}</b>
+                <b>{smallUsdFormatter(borrowed)}</b>
               </Center>
               <Center height="100%" width="15%">
                 <SimpleTooltip
@@ -107,5 +126,36 @@ export const PoolRow = ({
     </>
   );
 };
-
 export default PoolRow;
+
+export const WhitelistedIcon = ({
+  isWhitelisted,
+  ...boxProps
+}: {
+  isWhitelisted: boolean;
+  [x: string]: any;
+}) => {
+  return (
+    <>
+      <SimpleTooltip
+        label={
+          isWhitelisted
+            ? "This pool is from a Whitelisted Admin"
+            : "This pool is not from a whitelisted admin. Use with caution!"
+        }
+        placement="bottom-end"
+      >
+        {isWhitelisted ? (
+          <CheckCircleIcon boxSize="20px" mr={3} {...boxProps} />
+        ) : (
+          <WarningTwoIcon
+            boxSize="20px"
+            mr={3}
+            color="orange.300"
+            {...boxProps}
+          />
+        )}
+      </SimpleTooltip>
+    </>
+  );
+};

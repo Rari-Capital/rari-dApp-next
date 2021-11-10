@@ -5,7 +5,7 @@ import PoolRow from "./PoolRow";
 
 // Hooks
 import { MergedPool } from "hooks/fuse/useFusePools";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 
 // Utils
 import { Column, Row, useIsMobile } from "lib/chakraUtils";
@@ -15,7 +15,6 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
-
 
   return (
     <Column
@@ -70,7 +69,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
               <PoolRow
                 key={pool.id}
                 poolNumber={pool.id}
-                name={filterPoolName(pool.pool.name)}
+                name={filterPoolName(pool.name)}
                 tvl={pool.suppliedUSD}
                 borrowed={pool.borrowedUSD}
                 tokens={pool.underlyingTokens.map((address, index) => ({
@@ -78,6 +77,8 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
                   address,
                 }))}
                 noBottomDivider={index === pools.length - 1}
+                isWhitelisted={pool.whitelistedAdmin}
+                comptroller={pool.comptroller}
               />
             );
           })

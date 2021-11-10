@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 
 import { useQuery, useQueries } from "react-query";
-import ERC20ABI from "../esm/Vaults/abi/ERC20.json"
+import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 import { useRari } from "../context/RariContext";
 
-import { Contract } from 'ethers'
+import { Contract } from "ethers";
 
 export const ETH_TOKEN_DATA = {
   symbol: "ETH",
@@ -106,6 +106,34 @@ export const useTokensData = (addresses: string[]): TokenData[] | null => {
     });
 
     if (!ret.length) return null;
+
+    return ret;
+  }, [tokensData]);
+};
+
+export interface TokensDataMap {
+  [address: string]: TokenData;
+}
+
+export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
+  const tokensData = useQueries(
+    addresses.map((address: string) => {
+      return {
+        queryKey: address + " tokenData",
+        queryFn: async () => await fetchTokenData(address),
+      };
+    })
+  );
+
+  return useMemo(() => {
+    const ret: TokensDataMap = {};
+    if (!tokensData.length) return {};
+    tokensData.forEach(({ data }) => {
+      const _data = data as TokenData;
+      if (_data && _data.address) {
+        ret[_data.address] = _data;
+      }
+    });
 
     return ret;
   }, [tokensData]);
