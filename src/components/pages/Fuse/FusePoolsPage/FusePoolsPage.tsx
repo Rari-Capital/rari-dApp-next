@@ -21,6 +21,8 @@ const FusePoolsPage = memo(() => {
   const filter = useFilter();
   const { filteredPools } = useFusePools(filter);
 
+  console.log({ filteredPools });
+
   return (
     <>
       <Column
@@ -37,7 +39,7 @@ const FusePoolsPage = memo(() => {
         <FuseTabBar />
 
         <DashboardBox width="100%" mt={4}>
-          <PoolList pools={filteredPools}/>
+          <PoolList pools={filteredPools} />
         </DashboardBox>
       </Column>
     </>
@@ -45,4 +47,3 @@ const FusePoolsPage = memo(() => {
 });
 
 export default FusePoolsPage;
-

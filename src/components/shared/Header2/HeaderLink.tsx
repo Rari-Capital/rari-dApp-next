@@ -93,7 +93,11 @@ export const HeaderLink = ({
   );
 };
 
-const splitHairs = (path: string) => path.split("/").filter((str) => !!str);
+const splitHairs = (path: string) =>
+  path
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter((str) => !!str);
 
 // Dropdown Header Link
 // Subitems are rendered as either a MenuItem or a MenuGroup
@@ -112,6 +116,7 @@ export const DropDownLink = ({
     () =>
       links.find((l) => {
         if (l.type === MenuItemType.LINK) {
+          
           return splitHairs(router.asPath).includes(
             splitHairs(l.link!.route)[0]
           );

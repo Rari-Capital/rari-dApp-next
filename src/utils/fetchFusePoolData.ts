@@ -1,10 +1,9 @@
 // @ts-ignore
 import Filter from "bad-words";
 import { TokenData } from "hooks/useTokenData";
-import { Vaults, Fuse } from "../esm/index"
-import { fromWei } from "./ethersUtils";
+import { Vaults, Fuse } from "../esm/index";
 import { BigNumber } from "@ethersproject/bignumber";
-import { constants, utils } from "ethers";
+import { constants } from "ethers";
 import { createComptroller } from "./createComptroller";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
@@ -16,17 +15,17 @@ export function filterOnlyObjectProperties(obj: any) {
 }
 
 export function filterOnlyObjectPropertiesBNtoNumber(obj: any) {
+  const cleanAssetWithBNs: any[] = Object.entries(obj).filter(([k]: any) =>
+    isNaN(k)
+  );
 
-  const cleanAssetWithBNs: any[] = Object.entries(obj).filter(([k]: any) => isNaN(k))
-  
   // const assetObject = Object.fromEntries(
   //   cleanAssetWithBNs
-  //   ) as any; 
+  //   ) as any;
 
   // const final = Object.keys(assetObject).map((key) => typeof assetObject[key] === "object" ? [key, assetObject[key].toString()] : [key, assetObject[key]])
-  
 
-  return Object.fromEntries(cleanAssetWithBNs)
+  return Object.fromEntries(cleanAssetWithBNs);
 }
 
 export interface FuseAsset {
@@ -75,17 +74,17 @@ export interface USDPricedFuseAssetWithTokenData extends USDPricedFuseAsset {
 }
 
 export interface FusePoolData {
-  assets: USDPricedFuseAssetWithTokenData[] | USDPricedFuseAsset[];
-  comptroller: any;
-  name: any;
+  assets: USDPricedFuseAsset[];
+  comptroller: string;
+  name: string;
   oracle: string;
   oracleModel: string | undefined;
   isPrivate: boolean;
-  totalLiquidityUSD: any;
-  totalSuppliedUSD: any;
-  totalBorrowedUSD: any;
-  totalSupplyBalanceUSD: any;
-  totalBorrowBalanceUSD: any;
+  totalLiquidityUSD: BigNumber;
+  totalSuppliedUSD: BigNumber;
+  totalBorrowedUSD: BigNumber;
+  totalSupplyBalanceUSD: BigNumber;
+  totalBorrowBalanceUSD: BigNumber;
   id?: number;
   admin: string;
   isAdminWhitelisted: boolean;
@@ -124,30 +123,31 @@ export const fetchFusePoolData = async (
     comptroller,
     name: _unfiliteredName,
     isPrivate,
-  } = await fuse.contracts.FusePoolDirectory
-    .pools(poolId)
+  } = await fuse.contracts.FusePoolDirectory.pools(poolId);
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
 
   let assets: USDPricedFuseAsset[] = (
-    await fuse.contracts.FusePoolLens.callStatic
-      .getPoolAssetsWithData(comptroller)
+    await fuse.contracts.FusePoolLens.callStatic.getPoolAssetsWithData(
+      comptroller,
+      { from: address }
+    )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
 
   let totalLiquidityUSD = constants.Zero;
-  
+
   let totalSupplyBalanceUSD = constants.Zero;
   let totalBorrowBalanceUSD = constants.Zero;
-  
+
   let totalSuppliedUSD = constants.Zero;
   let totalBorrowedUSD = constants.Zero;
-  
-  const ethPrice: BigNumber = 
-  // prefer rari because it has caching
-  await (rari ?? fuse).getEthUsdPriceBN()
 
-  let promises = []
+  const ethPrice: BigNumber =
+    // prefer rari because it has caching
+    await (rari ?? fuse).getEthUsdPriceBN();
+
+  let promises = [];
 
   const comptrollerContract = createComptroller(comptroller, fuse);
   let oracle: string = await comptrollerContract.callStatic.oracle();
@@ -157,10 +157,9 @@ export const fetchFusePoolData = async (
   const admin = await comptrollerContract.callStatic.admin();
 
   // Whitelisted (Verified)
-  const isAdminWhitelisted = await fuse.contracts.FusePoolDirectory.callStatic
-    .adminWhitelist(admin)
+  const isAdminWhitelisted =
+    await fuse.contracts.FusePoolDirectory.callStatic.adminWhitelist(admin);
 
-  
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
 
@@ -171,23 +170,41 @@ export const fetchFusePoolData = async (
         .then((isPaused: boolean) => (asset.isPaused = isPaused))
     );
 
-    asset.supplyBalanceUSD = (asset.supplyBalance.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
+    asset.supplyBalanceUSD = asset.supplyBalance
+      .mul(asset.underlyingPrice)
+      .mul(ethPrice)
+      .div(constants.WeiPerEther.pow(3));
 
-    asset.borrowBalanceUSD = (asset.borrowBalance.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
+    asset.borrowBalanceUSD = asset.borrowBalance
+      .mul(asset.underlyingPrice)
+      .mul(ethPrice)
+      .div(constants.WeiPerEther.pow(3));
 
-    totalSupplyBalanceUSD.add(asset.supplyBalanceUSD);
-    totalBorrowBalanceUSD.add(asset.borrowBalanceUSD);
+    totalSupplyBalanceUSD = totalSupplyBalanceUSD.add(asset.supplyBalanceUSD);
+    totalBorrowBalanceUSD = totalBorrowBalanceUSD.add(asset.borrowBalanceUSD);
 
-    asset.totalSupplyUSD = (asset.totalSupply.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
-    asset.totalBorrowUSD = (asset.totalBorrow.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
+    asset.totalSupplyUSD = asset.totalSupply
+      .mul(asset.underlyingPrice)
+      .mul(ethPrice)
+      .div(constants.WeiPerEther.pow(3));
 
-    totalSuppliedUSD.add(asset.totalSupplyUSD);
-    totalBorrowedUSD.add(asset.totalBorrowUSD);
+    asset.totalBorrowUSD = asset.totalBorrow
+      .mul(asset.underlyingPrice)
+      .mul(ethPrice)
+      .div(constants.WeiPerEther.pow(3));
 
-    asset.liquidityUSD = (asset.liquidity.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
+    totalSuppliedUSD = totalSuppliedUSD.add(asset.totalSupplyUSD);
+    totalBorrowedUSD = totalBorrowedUSD.add(asset.totalBorrowUSD);
+
+    asset.liquidityUSD = asset.liquidity
+      .mul(asset.underlyingPrice)
+      .mul(ethPrice)
+      .div(constants.WeiPerEther.pow(3))
 
     totalLiquidityUSD.add(asset.liquidityUSD);
   }
+
+  await Promise.all(promises);
 
   return {
     assets: assets.sort((a, b) => (b.liquidityUSD.gt(a.liquidityUSD) ? 1 : -1)),

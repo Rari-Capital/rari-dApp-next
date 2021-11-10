@@ -1,5 +1,4 @@
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
+import { BigNumber } from "ethers";
 
 const formatter = Intl.NumberFormat("en-US", {
   style: "currency",
@@ -40,25 +39,11 @@ export function shortUsdFormatter(num: number) {
   return "$" + shortFormatter.format(num);
 }
 
-const toBN = Web3.utils.toBN;
-
-export type BN = ReturnType<typeof toBN>;
-
-export const bigNumberToBN = ({
-  bigNumber,
-  web3,
-}: {
-  bigNumber: BigNumber;
-  web3: Web3;
-}) => {
-  return web3.utils.toBN(bigNumber.toFixed(0));
-};
-
-// If BigNumber is null, undefined or zero then we return true
-export const bigNumberIsZero = (bn?: BigNumber | null) => bn?.isZero() ?? true;
-
 export const abbreviateAmount = (amount: number) => {
   return Math.abs(amount) > 100000
     ? shortUsdFormatter(amount)
     : smallUsdFormatter(amount);
 };
+
+export const bnToString = (bn: BigNumber): string => bn.toString();
+export const bnToNumber = (bn: BigNumber): number => parseFloat(bnToString(bn));

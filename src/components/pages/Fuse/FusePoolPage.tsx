@@ -10,13 +10,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import {
-  Column,
-  Center,
-  Row,
-  RowOrColumn,
-  useIsMobile,
-} from "lib/chakraUtils";
+import { Column, Center, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
 import DashboardBox from "components/shared/DashboardBox";
 import { ModalDivider } from "components/shared/Modal";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
@@ -25,13 +19,13 @@ import { SwitchCSS } from "components/shared/SwitchCSS";
 // React
 import { memo, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from 'react-query';
+import { useQuery } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
 
 // Hooks
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 import { useQueryClient } from "react-query";
 import { useBorrowLimit } from "hooks/useBorrowLimit";
 import { useFusePoolData } from "hooks/useFusePoolData";
@@ -68,6 +62,8 @@ const FusePoolPage = memo(() => {
 
   const data = useFusePoolData(poolId as string | undefined, true);
 
+  console.log({ data });
+
   return (
     <>
       <Column
@@ -78,19 +74,9 @@ const FusePoolPage = memo(() => {
         width={isMobile ? "100%" : "1150px"}
         px={isMobile ? 4 : 0}
       >
-        <FuseStatsBar />
+        <FuseStatsBar data={data} />
 
         <FuseTabBar />
-
-        {
-          /* If they have some asset enabled as collateral, show the collateral ratio bar */
-          data && data.assets.some((asset) => asset.membership) ? (
-            <CollateralRatioBar
-              assets={data.assets}
-              borrowUSD={data.totalBorrowBalanceUSD}
-            />
-          ) : null
-        }
 
         <RowOrColumn
           width="100%"
@@ -149,7 +135,7 @@ const CollateralRatioBar = ({
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = (borrowUSD.div(maxBorrow)).mul(100);
+  const ratio = borrowUSD.div(maxBorrow).mul(100);
 
   useEffect(() => {
     if (ratio.gt(95)) {
@@ -170,14 +156,18 @@ const CollateralRatioBar = ({
 
         <SimpleTooltip label={t("This is how much you have borrowed.")}>
           <Text flexShrink={0} mt="2px" mr={3} fontSize="10px">
-            {borrowUSD.toString() //smallUsdFormatter 
+            {
+              borrowUSD.toString() //smallUsdFormatter
             }
           </Text>
         </SimpleTooltip>
 
         <SimpleTooltip
-          label={`You're using ${ratio.toString}% of your ${maxBorrow.toString()} borrow limit.` //smallUsdFormatter( 
-            }
+          label={
+            `You're using ${
+              ratio.toString
+            }% of your ${maxBorrow.toString()} borrow limit.` //smallUsdFormatter(
+          }
         >
           <Box width="100%">
             <Progress
@@ -223,9 +213,11 @@ const SupplyList = ({
 }) => {
   const { t } = useTranslation();
 
-  const suppliedAssets = assets.filter((asset) => asset.supplyBalanceUSD.gt(constants.One));
-  const nonSuppliedAssets = assets.filter(
-    (asset) => asset.supplyBalanceUSD.lt(constants.One)
+  const suppliedAssets = assets.filter((asset) =>
+    asset.supplyBalanceUSD.gt(constants.One)
+  );
+  const nonSuppliedAssets = assets.filter((asset) =>
+    asset.supplyBalanceUSD.lt(constants.One)
   );
 
   const isMobile = useIsMobile();
@@ -246,8 +238,9 @@ const SupplyList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {"Supply Balance: "} {smallUsdFormatter( parseInt(utils.formatEther(supplyBalanceUSD.div(constants.WeiPerEther))) ) }
-       </Heading>
+        {"Supply Balance: "}{" "}
+        {smallUsdFormatter(parseFloat(supplyBalanceUSD.toString()))}
+      </Heading>
       <ModalDivider />
 
       {assets.length > 0 ? (
@@ -334,12 +327,12 @@ const AssetSupplyRow = ({
   assets,
   index,
   comptrollerAddress,
-  stakedOHMApyData
+  stakedOHMApyData,
 }: {
   assets: USDPricedFuseAsset[];
   index: number;
   comptrollerAddress: string;
-  stakedOHMApyData: {supplyApy: number, supplyWpy: number} | undefined;
+  stakedOHMApyData: { supplyApy: number; supplyWpy: number } | undefined;
 }) => {
   const {
     isOpen: isModalOpen,
@@ -366,13 +359,13 @@ const AssetSupplyRow = ({
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
     let call;
-    let callArgs
+    let callArgs;
     if (asset.membership) {
-      call = comptroller.callStatic.exitMarket;      
-      callArgs = asset.cToken
+      call = comptroller.callStatic.exitMarket;
+      callArgs = asset.cToken;
     } else {
       call = comptroller.callStatic.enterMarkets;
-      callArgs = [asset.cToken]
+      callArgs = [asset.cToken];
     }
 
     let response = await call(callArgs, { from: address });
@@ -404,11 +397,11 @@ const AssetSupplyRow = ({
     }
 
     if (asset.membership) {
-      call = comptroller.exitMarket;      
-      callArgs = asset.cToken
+      call = comptroller.exitMarket;
+      callArgs = asset.cToken;
     } else {
       call = comptroller.enterMarkets;
-      callArgs = [asset.cToken]
+      callArgs = [asset.cToken];
     }
 
     await call(callArgs, { from: address });
@@ -418,8 +411,9 @@ const AssetSupplyRow = ({
     queryClient.refetchQueries();
   };
 
-  const isStakedOHM = asset.underlyingToken.toLowerCase() ===
-  "0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F".toLowerCase();
+  const isStakedOHM =
+    asset.underlyingToken.toLowerCase() ===
+    "0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F".toLowerCase();
 
   const isMobile = useIsMobile();
 
@@ -476,20 +470,21 @@ const AssetSupplyRow = ({
               fontWeight="bold"
               fontSize="17px"
             >
-              {isStakedOHM 
-                ? stakedOHMApyData 
-                ? (stakedOHMApyData.supplyApy * 100).toFixed(3)
-                : "?"
-                : supplyAPY.toFixed(3)}%
-              
+              {isStakedOHM
+                ? stakedOHMApyData
+                  ? (stakedOHMApyData.supplyApy * 100).toFixed(3)
+                  : "?"
+                : supplyAPY.toFixed(3)}
+              %
             </Text>
 
             <Text fontSize="sm">
-            {isStakedOHM 
-                ? stakedOHMApyData 
-                ? (stakedOHMApyData.supplyWpy * 100).toFixed(3)
-                : "?"
-                : supplyWPY.toFixed(3)}%
+              {isStakedOHM
+                ? stakedOHMApyData
+                  ? (stakedOHMApyData.supplyWpy * 100).toFixed(3)
+                  : "?"
+                : supplyWPY.toFixed(3)}
+              %
             </Text>
           </Column>
         )}
@@ -506,12 +501,16 @@ const AssetSupplyRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            {smallUsdFormatter(toInt(asset.supplyBalanceUSD.div(BigNumber.from(10).pow(BigNumber.from(asset.underlyingDecimals)))))}
+            {smallUsdFormatter(toInt(asset.supplyBalanceUSD))}
           </Text>
 
           <Text fontSize="sm">
             {smallUsdFormatter(
-              toInt(asset.supplyBalance.div(BigNumber.from(10).pow(BigNumber.from(asset.underlyingDecimals))))
+              toInt(
+                asset.supplyBalance.div(
+                  BigNumber.from(10).pow(asset.underlyingDecimals)
+                )
+              )
             ).replace("$", "")}{" "}
             {tokenData?.symbol ?? asset.underlyingSymbol}
           </Text>
@@ -547,9 +546,11 @@ const BorrowList = ({
   comptrollerAddress: string;
 }) => {
   const { t } = useTranslation();
-  const borrowedAssets = assets.filter((asset) => asset.borrowBalanceUSD.gt(constants.One));
-  const nonBorrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.lt(constants.One)
+  const borrowedAssets = assets.filter((asset) =>
+    asset.borrowBalanceUSD.gt(constants.One)
+  );
+  const nonBorrowedAssets = assets.filter((asset) =>
+    asset.borrowBalanceUSD.lt(constants.One)
   );
 
   const isMobile = useIsMobile();
@@ -562,7 +563,7 @@ const BorrowList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {"Borrow Balance:"} {smallUsdFormatter(parseInt(utils.formatEther(borrowBalanceUSD.div(constants.WeiPerEther))) )}
+        {"Borrow Balance:"} {smallUsdFormatter(toInt(borrowBalanceUSD))}
       </Heading>
       <ModalDivider />
 
@@ -672,6 +673,8 @@ const AssetBorrowRow = ({
 
   const isMobile = useIsMobile();
 
+  console.log({ asset });
+
   return (
     <>
       <PoolModal
@@ -740,12 +743,16 @@ const AssetBorrowRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            { smallUsdFormatter( parseInt(utils.formatEther(asset.borrowBalanceUSD.div(constants.WeiPerEther))) ) .toString() }
+            {smallUsdFormatter(toInt(asset.borrowBalanceUSD))}
           </Text>
 
           <Text fontSize="sm">
             {smallUsdFormatter(
-              toInt(asset.borrowBalance.div(BigNumber.from(10).pow(asset.underlyingDecimals)))
+              toInt(
+                asset.borrowBalance.div(
+                  BigNumber.from(10).pow(asset.underlyingDecimals)
+                )
+              )
             ).replace("$", "")}{" "}
             {tokenData?.symbol ?? asset.underlyingSymbol}
           </Text>
@@ -767,13 +774,17 @@ const AssetBorrowRow = ({
                 fontWeight="bold"
                 fontSize="17px"
               >
-                {
-                  shortUsdFormatter( parseInt(utils.formatEther(asset.liquidityUSD.div(constants.WeiPerEther))))
-                  }
+                {shortUsdFormatter(toInt(asset.liquidityUSD))}
               </Text>
 
               <Text fontSize="sm">
-                {shortUsdFormatter( toInt(asset.liquidity.div(BigNumber.from(10).pow(asset.underlyingDecimals))) ).replace("$", "")}{" "}
+                {shortUsdFormatter(
+                  toInt(
+                    asset.liquidity.div(
+                      BigNumber.from(10).pow(asset.underlyingDecimals)
+                    )
+                  )
+                ).replace("$", "")}{" "}
                 {tokenData?.symbol}
               </Text>
             </Column>
