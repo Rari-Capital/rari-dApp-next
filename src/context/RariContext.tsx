@@ -22,7 +22,7 @@ import { useToast } from "@chakra-ui/react";
 
 import {
   chooseBestWeb3Provider,
-  infuraURL,
+  alchemyURL,
   initFuseWithProviders,
 } from "../utils/web3Providers";
 
@@ -50,7 +50,9 @@ async function launchModalLazy(
     walletconnect: {
       package: WalletConnectProvider.default,
       options: {
-        infuraId: infuraURL.replace("https://mainnet.infura.io/v3/", ""),
+        rpc: {
+          1: alchemyURL,
+        },
       },
       display: {
         description: t("Scan with a wallet to connect"),
@@ -166,7 +168,6 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // We need to give rari the new provider (todo: and also ethers.js signer) every time someone logs in again
   const setRariAndAddressFromModal = useCallback(
     (modalProvider) => {
-      console.log({modalProvider})
       const provider = new Web3Provider(modalProvider);
       const rariInstance = new Vaults(provider);
       const fuseInstance = initFuseWithProviders(provider);

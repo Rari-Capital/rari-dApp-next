@@ -66,6 +66,8 @@ export interface USDPricedFuseAsset extends FuseAsset {
   totalBorrowUSD: BigNumber;
 
   liquidityUSD: BigNumber;
+
+  isPaused: boolean;
 }
 
 export interface USDPricedFuseAssetWithTokenData extends USDPricedFuseAsset {
@@ -76,13 +78,17 @@ export interface FusePoolData {
   assets: USDPricedFuseAssetWithTokenData[] | USDPricedFuseAsset[];
   comptroller: any;
   name: any;
+  oracle: string;
+  oracleModel: string | undefined;
   isPrivate: boolean;
   totalLiquidityUSD: any;
   totalSuppliedUSD: any;
   totalBorrowedUSD: any;
-  totalSupplyBalanceUSD: BigNumber;
-  totalBorrowBalanceUSD: BigNumber;
-  id: number;
+  totalSupplyBalanceUSD: any;
+  totalBorrowBalanceUSD: any;
+  id?: number;
+  admin: string;
+  isAdminWhitelisted: boolean;
 }
 
 export enum FusePoolMetric {
@@ -140,9 +146,30 @@ export const fetchFusePoolData = async (
   const ethPrice: BigNumber = 
   // prefer rari because it has caching
   await (rari ?? fuse).getEthUsdPriceBN()
+
+  let promises = []
+
+  const comptrollerContract = createComptroller(comptroller, fuse);
+  let oracle: string = await comptrollerContract.callStatic.oracle();
+
+  let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
+
+  const admin = await comptrollerContract.callStatic.admin();
+
+  // Whitelisted (Verified)
+  const isAdminWhitelisted = await fuse.contracts.FusePoolDirectory.callStatic
+    .adminWhitelist(admin)
+
   
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
+
+    promises.push(
+      comptrollerContract.callStatic
+        .borrowGuardianPaused(asset.cToken)
+        // TODO: THIS WILL BE BUILT INTO THE LENS
+        .then((isPaused: boolean) => (asset.isPaused = isPaused))
+    );
 
     asset.supplyBalanceUSD = (asset.supplyBalance.mul(asset.underlyingPrice)).mul(ethPrice.div(constants.WeiPerEther));
 
@@ -167,6 +194,9 @@ export const fetchFusePoolData = async (
     comptroller,
     name,
     isPrivate,
+    oracle,
+    oracleModel,
+    admin,
 
     totalLiquidityUSD,
 
@@ -175,6 +205,6 @@ export const fetchFusePoolData = async (
 
     totalSupplyBalanceUSD,
     totalBorrowBalanceUSD,
-    id: parseFloat(poolId),
+    isAdminWhitelisted,
   };
 };
