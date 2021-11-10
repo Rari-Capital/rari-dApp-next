@@ -9,10 +9,10 @@ import { letterScore, usePoolRSS } from "hooks/useRSS";
 
 // Utils
 import { Center, Column, Row, useIsMobile } from "lib/chakraUtils";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { smallUsdFormatter } from "utils/bigUtils";
 import { CTokenIcon } from "./CTokenIcon";
 import { usePoolIncentives } from "hooks/rewards/usePoolIncentives";
-import { CheckCircleIcon, WarningTwoIcon } from "@chakra-ui/icons";
+import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 
 export const PoolRow = ({
   tokens,
@@ -127,35 +127,3 @@ export const PoolRow = ({
   );
 };
 export default PoolRow;
-
-export const WhitelistedIcon = ({
-  isWhitelisted,
-  ...boxProps
-}: {
-  isWhitelisted: boolean;
-  [x: string]: any;
-}) => {
-  return (
-    <>
-      <SimpleTooltip
-        label={
-          isWhitelisted
-            ? "This pool is from a Whitelisted Admin"
-            : "This pool is not from a whitelisted admin. Use with caution!"
-        }
-        placement="bottom-end"
-      >
-        {isWhitelisted ? (
-          <CheckCircleIcon boxSize="20px" mr={3} {...boxProps} />
-        ) : (
-          <WarningTwoIcon
-            boxSize="20px"
-            mr={3}
-            color="orange.300"
-            {...boxProps}
-          />
-        )}
-      </SimpleTooltip>
-    </>
-  );
-};

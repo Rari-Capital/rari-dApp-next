@@ -18,11 +18,6 @@ import { useRari } from "context/RariContext";
 // Utils
 import { handleGenericError } from "utils/errorHandling";
 import { fetchTokenBalance } from "hooks/useTokenBalance";
-import {
-  bigNumberIsZero,
-  smallUsdFormatter,
-  abbreviateAmount,
-} from "utils/bigUtils";
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
 import { onLendBorrowConfirm } from "utils/inputUtils";
 

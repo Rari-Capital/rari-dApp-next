@@ -122,6 +122,8 @@ export const fetchPools = async ({
     3: errors,
   }: LensPoolsWithData = await req;
 
+  console.log({fusePoolsData})
+
   const merged: MergedPool[] = [];
   for (let i = 0; i < ids.length; i++) {
     const id = parseFloat(ids[i]);
@@ -140,8 +142,6 @@ export const fetchPools = async ({
 
     merged.push(mergedPool);
   }
-
-  console.log({ merged });
 
   return merged;
 };
