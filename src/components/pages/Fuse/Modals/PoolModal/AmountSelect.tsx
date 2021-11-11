@@ -52,8 +52,8 @@ import {
   convertMantissaToAPY,
 } from "../../../../../utils/apyUtils";
 
-import { Contract } from 'ethers';
-import { BigNumber, utils, constants} from 'ethers'
+import { Contract } from "ethers";
+import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
 
 enum UserAction {
@@ -89,6 +89,7 @@ interface Props {
   mode: Mode;
   setMode: (mode: Mode) => any;
   comptrollerAddress: string;
+  isBorrowPaused?: boolean;
 }
 
 const AmountSelect = ({
@@ -98,6 +99,7 @@ const AmountSelect = ({
   mode,
   setMode,
   comptrollerAddress,
+  isBorrowPaused = false,
 }: Props) => {
   const asset = assets[index];
 
@@ -113,7 +115,7 @@ const AmountSelect = ({
 
   const [userEnteredAmount, _setUserEnteredAmount] = useState("");
 
-  const [amount, _setAmount] = useState<BigNumber>( constants.Zero );
+  const [amount, _setAmount] = useState<BigNumber>(constants.Zero);
 
   const showEnableAsCollateral = !asset.membership && mode === Mode.SUPPLY;
   const [enableAsCollateral, setEnableAsCollateral] = useState(
@@ -127,15 +129,13 @@ const AmountSelect = ({
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals)
-    
+    const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
 
     try {
-      
       _setAmount(bigAmount);
     } catch (e) {
       // If the number was invalid, set the amount to null to disable confirming:
-      _setAmount(constants.Zero)
+      _setAmount(constants.Zero);
     }
 
     setUserAction(UserAction.NO_ACTION);
@@ -157,7 +157,7 @@ const AmountSelect = ({
           comptrollerAddress
         );
 
-        return (amount.div(constants.WeiPerEther)).lte(max);
+        return amount.div(constants.WeiPerEther).lte(max);
       } catch (e) {
         handleGenericError(e, toast);
         return false;
@@ -166,8 +166,9 @@ const AmountSelect = ({
   );
 
   let depositOrWithdrawAlert = null;
-
-  if (amount === null || amount.isZero()) {
+  if (mode === Mode.BORROW && isBorrowPaused) {
+    depositOrWithdrawAlert = t("Borrowing is disabled for this asset.");
+  } else if (amount === null || amount.isZero()) {
     if (mode === Mode.SUPPLY) {
       depositOrWithdrawAlert = t("Enter a valid amount to supply.");
     } else if (mode === Mode.BORROW) {
@@ -218,7 +219,7 @@ const AmountSelect = ({
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
-      console.log("Inside onConfirm")
+      console.log("Inside onConfirm");
 
       const isETH = asset.underlyingToken === ETH_TOKEN_DATA.address;
 
@@ -242,55 +243,60 @@ const AmountSelect = ({
                 "contracts/CErc20Delegate.sol:CErc20Delegate"
               ].abi
             ),
-          fuse.provider.getSigner()
+        fuse.provider.getSigner()
       );
 
       if (mode === Mode.SUPPLY || mode === Mode.REPAY) {
         // if not eth check if amounti is approved for thsi token
-        console.log("inside if 1.", {isETH})
+        console.log("inside if 1.", { isETH });
         if (!isETH) {
-          console.log("shouldnt be here babe")
+          console.log("shouldnt be here babe");
           const token = new Contract(
             asset.underlyingToken,
-            JSON.parse( fuse.compoundContracts[ "contracts/EIP20Interface.sol:EIP20Interface"].abi ),
+            JSON.parse(
+              fuse.compoundContracts[
+                "contracts/EIP20Interface.sol:EIP20Interface"
+              ].abi
+            ),
             fuse.provider.getSigner()
           );
 
-          const hasApprovedEnough = 
-            (await token.callStatic.allowance(address, cToken.address)).gte(amount);
+          const hasApprovedEnough = (
+            await token.callStatic.allowance(address, cToken.address)
+          ).gte(amount);
 
-            if (!hasApprovedEnough) {
-              await token.approve(cToken.address, max)
-            }
+          if (!hasApprovedEnough) {
+            await token.approve(cToken.address, max);
+          }
 
           LogRocket.track("Fuse-Approve");
         }
 
         // if ur suplying, then
         if (mode === Mode.SUPPLY) {
-          console.log("Inside supply")
+          console.log("Inside supply");
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
-            console.log("enable as collateral")
+            console.log("enable as collateral");
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            console.log("HELLO")
-            await comptroller.enterMarkets([asset.cToken])
-            console.log("HEYYY")
+            console.log("HELLO");
+            await comptroller.enterMarkets([asset.cToken]);
+            console.log("HEYYY");
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
           if (isETH) {
             const call = cToken.mint; //
-            console.log(cToken, cToken.mint)
+            console.log(cToken, cToken.mint);
 
             if (
               // If they are supplying their whole balance:
               amount === (await fuse.provider.getBalance(address))
             ) {
               // full balance of ETH
-              console.log("NOOO")
+              console.log("NOOO");
 
               // Subtract gas for max ETH
               const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
@@ -309,9 +315,9 @@ const AmountSelect = ({
               });
             } else {
               // custom amount of ETH
-              console.log("hey",{amount}, call)
+              console.log("hey", { amount }, call);
 
-              await call({value: amount});
+              await call({ value: amount });
             }
           } else {
             //  Custom amount of ERC20
@@ -397,7 +403,7 @@ const AmountSelect = ({
       // Wait 2 seconds for refetch and then close modal.
       // We do this instead of waiting the refetch because some refetches take a while or error out and we want to close now.
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("made it")
+      console.log("made it");
       onClose();
     } catch (e) {
       handleGenericError(e, toast);
@@ -484,6 +490,7 @@ const AmountSelect = ({
                     color={tokenData?.color ?? "#FFF"}
                     displayAmount={userEnteredAmount}
                     updateAmount={updateAmount}
+                    disabled={isBorrowPaused}
                   />
                   <TokenNameAndMaxButton
                     comptrollerAddress={comptrollerAddress}
@@ -693,9 +700,13 @@ const StatsColumn = ({
 
   // Calculate Old and new Borrow Limits
   const borrowLimit = useBorrowLimit(assets, {}, index);
-  const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
-    ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
-  }, index);
+  const updatedBorrowLimit = useBorrowLimit(
+    updatedAssets ?? [],
+    {
+      ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
+    },
+    index
+  );
 
   const isSupplyingOrWithdrawing =
     mode === Mode.SUPPLY || mode === Mode.WITHDRAW;
@@ -711,15 +722,20 @@ const StatsColumn = ({
   const updatedBorrowAPR = convertMantissaToAPR(
     updatedAsset?.borrowRatePerBlock ?? constants.Zero
   );
-  
+
   // If the difference is greater than a 0.1 percentage point change, alert the user
   const updatedAPYDiffIsLarge = isSupplyingOrWithdrawing
     ? Math.abs(updatedSupplyAPY - supplyAPY) > 0.1
     : Math.abs(updatedBorrowAPR - borrowAPR) > 0.1;
 
-
-  const parsedUpdatedBorrowLimit = utils.formatEther(updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther))
-  const parsedUpdatedDebtBalance = updatedAsset ? utils.formatEther(updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)) : "0.00"
+  const parsedUpdatedBorrowLimit = utils.formatEther(
+    updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
+  );
+  const parsedUpdatedDebtBalance = updatedAsset
+    ? utils.formatEther(
+        updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)
+      )
+    : "0.00";
 
   return (
     <DashboardBox width="100%" height="190px" mt={4}>
@@ -746,11 +762,18 @@ const StatsColumn = ({
               flexShrink={0}
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
-              {utils.commify(utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)) }
+              {utils.commify(
+                utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+              )}
               {isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
-                  {utils.commify(utils.formatUnits(updatedAsset.supplyBalance, updatedAsset.underlyingDecimals)) }
+                  {utils.commify(
+                    utils.formatUnits(
+                      updatedAsset.supplyBalance,
+                      updatedAsset.underlyingDecimals
+                    )
+                  )}
                 </>
               ) : null}{" "}
               {asset.underlyingSymbol}
@@ -797,12 +820,21 @@ const StatsColumn = ({
               fontWeight="bold"
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
-              {smallUsdFormatter( parseInt(utils.formatEther(borrowLimit.div(constants.WeiPerEther))) )
-                }
+              {smallUsdFormatter(
+                parseInt(
+                  utils.formatEther(borrowLimit.div(constants.WeiPerEther))
+                )
+              )}
               {isSupplyingOrWithdrawing ? (
                 <>
-                  {" → "} {"$" + utils.commify(parsedUpdatedBorrowLimit.slice(0, (parsedUpdatedBorrowLimit.indexOf(".") + 3)))
-                                  }
+                  {" → "}{" "}
+                  {"$" +
+                    utils.commify(
+                      parsedUpdatedBorrowLimit.slice(
+                        0,
+                        parsedUpdatedBorrowLimit.indexOf(".") + 3
+                      )
+                    )}
                 </>
               ) : null}{" "}
             </Text>
@@ -818,14 +850,22 @@ const StatsColumn = ({
               fontWeight="bold"
               fontSize={!isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
-              {"$" + utils.formatEther(asset.borrowBalanceUSD)//smallUsdFormatter(
-                }
+              {
+                "$" + utils.formatEther(asset.borrowBalanceUSD) //smallUsdFormatter(
+              }
               {!isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
-                  {"$" + utils.commify(parsedUpdatedDebtBalance.slice(0, (parsedUpdatedDebtBalance.indexOf(".") + 3))) // smallUsdFormatter(
-                    }
-                </>     
+                  {
+                    "$" +
+                      utils.commify(
+                        parsedUpdatedDebtBalance.slice(
+                          0,
+                          parsedUpdatedDebtBalance.indexOf(".") + 3
+                        )
+                      ) // smallUsdFormatter(
+                  }
+                </>
               ) : null}
             </Text>
           </Row>
@@ -873,7 +913,7 @@ const TokenNameAndMaxButton = ({
       if (maxBN!.lt(constants.Zero) || maxBN!.isZero()) {
         updateAmount("");
       } else {
-        const str = maxBN.div(asset.underlyingDecimals).toString()
+        const str = maxBN.div(asset.underlyingDecimals).toString();
 
         updateAmount(str);
       }
@@ -933,10 +973,12 @@ const AmountInput = ({
   displayAmount,
   updateAmount,
   color,
+  disabled = false,
 }: {
   displayAmount: string;
   updateAmount: (symbol: string) => any;
   color: string;
+  disabled?: boolean;
 }) => {
   return (
     <Input
@@ -951,6 +993,7 @@ const AmountInput = ({
       color={color}
       onChange={(event) => updateAmount(event.target.value)}
       mr={4}
+      disabled={disabled}
     />
   );
 };
@@ -962,7 +1005,7 @@ export async function testForCTokenErrorAndSend(
   failMessage: string
 ) {
   let response = await txObjectStaticCall(txArgs);
-  console.log(response)
+  console.log(response);
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string of a number.
   if (response.toString() !== "0") {
     response = parseInt(response);
@@ -1018,7 +1061,7 @@ export const fetchGasForCall = async (
     res.json()
   );
 
-  const gasPrice = utils.parseUnits(standard.toString(), "gwei")
+  const gasPrice = utils.parseUnits(standard.toString(), "gwei");
   const gasWEI = estimatedGas.mul(gasPrice);
 
   return { gasWEI, gasPrice, estimatedGas };
@@ -1059,10 +1102,13 @@ async function fetchMaxAmount(
   if (mode === Mode.BORROW) {
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
-    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(address, asset.cToken)
+    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(
+      address,
+      asset.cToken
+    );
 
     if (err !== 0) {
-      return maxBorrow.mul(utils.parseUnits("0.75")).toString()
+      return maxBorrow.mul(utils.parseUnits("0.75")).toString();
     } else {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
@@ -1071,7 +1117,10 @@ async function fetchMaxAmount(
   if (mode === Mode.WITHDRAW) {
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
-    const { 0: err, 1: maxRedeem } = await comptroller.callStatic.getMaxRedeem(address, asset.cToken)
+    const { 0: err, 1: maxRedeem } = await comptroller.callStatic.getMaxRedeem(
+      address,
+      asset.cToken
+    );
 
     if (err !== 0) {
       return BigNumber.from(maxRedeem);

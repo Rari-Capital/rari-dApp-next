@@ -78,34 +78,35 @@ export const letterScore = (totalScore: number) => {
   }
 };
 
-export const usePoolRSS = (poolId: string | number) => {
+export const usePoolRSS = (poolId: string | number | undefined) => {
   const { data } = useQuery(
     poolId + " rss",
     () => {
-      return fetch(
-        // Since running the vercel functions requires a Vercel account and is super slow,
-        // just fetch this data from the live site in development:
-        (process.env.NODE_ENV === "development"
-          ? "https://app.rari.capital"
-          : "") +
-          "/api/rss?poolID=" +
-          poolId
-      )
-        .then((res) => res.json())
-        .catch((e) => {
-          console.log("Could not fetch RSS!");
-          console.log(e);
-        }) as Promise<{
-        liquidity: number;
-        collateralFactor: number;
-        reserveFactor: number;
-        utilization: number;
-        averageRSS: number;
-        upgradeable: number;
-        mustPass: number;
-        totalScore: number;
-        lastUpdated: string;
-      }>;
+      if (!!poolId)
+        return fetch(
+          // Since running the vercel functions requires a Vercel account and is super slow,
+          // just fetch this data from the live site in development:
+          (process.env.NODE_ENV === "development"
+            ? "https://app.rari.capital"
+            : "") +
+            "/api/rss?poolID=" +
+            poolId
+        )
+          .then((res) => res.json())
+          .catch((e) => {
+            console.log("Could not fetch RSS!");
+            console.log(e);
+          }) as Promise<{
+          liquidity: number;
+          collateralFactor: number;
+          reserveFactor: number;
+          utilization: number;
+          averageRSS: number;
+          upgradeable: number;
+          mustPass: number;
+          totalScore: number;
+          lastUpdated: string;
+        }>;
     },
     {
       refetchOnMount: false,

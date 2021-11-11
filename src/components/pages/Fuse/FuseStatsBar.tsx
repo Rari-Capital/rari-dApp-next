@@ -2,18 +2,22 @@ import { Heading, Text } from "@chakra-ui/react";
 import { RowOrColumn, Column, Center, Row } from "lib/chakraUtils";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { useRari } from "context/RariContext";
-import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { bnToNumber, smallUsdFormatter } from "utils/bigUtils";
+
+// Components
 import CaptionedStat from "components/shared/CaptionedStat";
 import DashboardBox from "components/shared/DashboardBox";
+import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
+import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 
+// Hooks
 import { fetchFuseNumberTVL } from "hooks/fuse/useFuseTVL";
+import { useRari } from "context/RariContext";
+import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { useFuseTotalBorrowAndSupply } from "hooks/fuse/useFuseTotalBorrowAndSupply";
 
-import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
+// Utils
+import { bnToNumber, smallUsdFormatter } from "utils/bigUtils";
 import { FusePoolData } from "utils/fetchFusePoolData";
-import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 
 const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
   const isMobile = useIsSmallScreen();

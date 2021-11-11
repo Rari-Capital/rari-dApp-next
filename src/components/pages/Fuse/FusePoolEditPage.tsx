@@ -21,7 +21,7 @@ import { useQueryClient, useQuery } from "react-query";
 import { memo, ReactNode, useEffect, useState } from "react";
 
 // Components
-import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 import { WhitelistInfo } from "./FusePoolCreatePage";
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";

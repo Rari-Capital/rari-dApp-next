@@ -21,7 +21,7 @@ import AppLink from "components/shared/AppLink";
 const AssetChart = dynamic(() => import("./AssetChart"), { ssr: false });
 
 // Components
-import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
 

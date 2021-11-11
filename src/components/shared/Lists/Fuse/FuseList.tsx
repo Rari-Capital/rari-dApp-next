@@ -12,10 +12,9 @@ import {
 } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import CTokenIcon from "components/pages/Fuse/FusePoolsPage/CTokenIcon";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
 // Hooks
-import { useFusePools } from "hooks/fuse/useFusePools";
 import { useTranslation } from "next-i18next";
 import { useSortableList } from "hooks/useSortableList";
 

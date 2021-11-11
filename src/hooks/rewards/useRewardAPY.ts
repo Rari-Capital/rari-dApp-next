@@ -9,15 +9,16 @@ import {
   createMasterPriceOracle,
   createOracle,
 } from "utils/createComptroller";
-import Fuse from "fuse-sdk";
+import { Fuse } from "esm";
 import { useRari } from "context/RariContext";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import { toBN } from "utils/bigUtils";
+
 import {
   CTokenIncentivesMap,
   CTokenRewardsDistributorIncentives,
 } from "./usePoolIncentives";
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
+import { constants, BigNumber } from "ethers";
 
 // ( ( rewardSupplySpeed * rewardEthPrice ) / ( underlyingTotalSupply * underlyingEthPrice / 1e18 / 1e18 ) )
 // (
@@ -76,7 +77,7 @@ export const useIncentivesWithRates = (
     [...underlyings, ...rewardTokenAddrs],
     comptroller
   );
-  // console.log({ incentives, cTokensDataMap, underlyings, tokenPrices });
+  console.log({ incentives, cTokensDataMap, underlyings, tokenPrices });
 
   // This shit is bananas
   if (!tokenPrices || !ctokenAddrs) return {};
@@ -96,7 +97,9 @@ export const useIncentivesWithRates = (
               cTokenAddress,
               rewardSpeed: supplySpeed,
               rewardEthPrice: tokenPrices.tokenPrices[rewardToken].ethPrice,
-              underlyingTotalSupply: cTokenData.totalSupply,
+              underlyingTotalSupply: parseFloat(
+                cTokenData.totalSupply.toString()
+              ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
             };
@@ -105,7 +108,9 @@ export const useIncentivesWithRates = (
               cTokenAddress,
               rewardSpeed: borrowSpeed,
               rewardEthPrice: tokenPrices.tokenPrices[rewardToken].ethPrice,
-              underlyingTotalSupply: cTokenData.totalSupply,
+              underlyingTotalSupply: parseFloat(
+                cTokenData.totalSupply.toString()
+              ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
             };
@@ -182,21 +187,21 @@ export const useCTokensDataForRewards = (
         cTokenAddrs.map(async (cTokenAddr) => {
           const ctokenInstance = createCToken(fuse, cTokenAddr);
           console.log({ ctokenInstance });
-          const underlying = await ctokenInstance.methods.underlying().call();
+          const underlying = await ctokenInstance.callStatic.underlying();
 
-          const decimals = await ctokenInstance.methods.decimals().call();
+          const decimals = await ctokenInstance.callStatic.decimals();
 
-          const cTokenTotalSupply = await ctokenInstance.methods
-            .totalSupply()
-            .call();
+          const cTokenTotalSupply: BigNumber =
+            await ctokenInstance.callStatic.totalSupply();
 
-          const exchangeRateCurrent = await ctokenInstance.methods
-            .exchangeRateCurrent()
-            .call();
+          const exchangeRateCurrent: BigNumber =
+            await ctokenInstance.callStatic.exchangeRateCurrent();
 
-          const underlyingTotalSupply2 =
-            (parseFloat(cTokenTotalSupply) * parseFloat(exchangeRateCurrent)) /
-            1e18;
+          console.log({ underlying, cTokenTotalSupply, exchangeRateCurrent });
+
+          const underlyingTotalSupply2 = cTokenTotalSupply
+            .mul(exchangeRateCurrent)
+            .div(constants.WeiPerEther);
 
           // const underlyingTotalSupply =
           //   parseFloat(
@@ -213,10 +218,12 @@ export const useCTokensDataForRewards = (
 
           const obj: CTokenDataForRewards = {
             underlyingToken: underlying,
-            underlyingPrice: 0,
+            underlyingPrice: constants.Zero,
             cToken: cTokenAddr,
             totalSupply: underlyingTotalSupply2 ?? 0,
           };
+
+          console.log({ obj });
 
           _map[cTokenAddr] = obj;
 
@@ -254,17 +261,15 @@ export const getPriceFromOracles = async (
 
   // Pool's MPO
   const comptrollerInstance = createComptroller(comptroller, fuse);
-  const oracleAddress: string = await comptrollerInstance.methods
-    .oracle()
-    .call();
+  const oracleAddress: string = await comptrollerInstance.callStatic.oracle();
   // const oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
   const oracleContract = createOracle(oracleAddress, fuse, "MasterPriceOracle");
 
   let price;
   try {
-    price = await oracleContract.methods.price(tokenAddress).call();
+    price = await oracleContract.callStatic.price(tokenAddress);
   } catch {
-    price = await masterPriceOracle.methods.price(tokenAddress).call();
+    price = await masterPriceOracle.callStatic.price(tokenAddress);
   }
 
   return price;

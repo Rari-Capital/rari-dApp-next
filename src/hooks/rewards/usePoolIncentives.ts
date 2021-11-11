@@ -128,7 +128,7 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
   // const  = useAssetPricesInEth(
 
   if (hasIncentives) {
-    console.log({ incentives });
+    console.log({ incentives, incentivesWithRates });
   }
 
   return {

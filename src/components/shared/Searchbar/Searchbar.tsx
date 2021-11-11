@@ -133,7 +133,7 @@ const Searchbar = ({
           value={val}
           color="grey"
           onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onBlur={() => setTimeout(() => setFocused(false), 500)}
           {...inputProps}
         />
         {!smaller && (
