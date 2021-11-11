@@ -10,7 +10,7 @@ import { letterScore, usePoolRSS } from "hooks/useRSS";
 // Utils
 import { Center, Column, Row, useIsMobile } from "lib/chakraUtils";
 import { smallUsdFormatter } from "utils/bigUtils";
-import { CTokenIcon } from "./CTokenIcon";
+import { CTokenIcon } from "../../../shared/Icons/CTokenIcon";
 import { usePoolIncentives } from "hooks/rewards/usePoolIncentives";
 import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 

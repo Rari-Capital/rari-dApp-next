@@ -13,7 +13,7 @@ import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 // Components
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
-import { CTokenIcon } from "./FusePoolsPage/CTokenIcon";
+import { CTokenIcon } from "../../shared/Icons/CTokenIcon";
 import AppLink from "components/shared/AppLink";
 
 // React
