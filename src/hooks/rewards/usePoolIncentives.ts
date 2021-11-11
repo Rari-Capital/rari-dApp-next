@@ -40,13 +40,16 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
     async () => {
       if (!comptroller) return [];
 
-      const result = await fuse.contracts.FusePoolLensSecondary.methods
-        .getRewardSpeedsByPool(comptroller)
-        .call();
+      const result =
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
+          comptroller
+        );
 
       return result;
     }
   );
+
+  console.log({ data, fuse });
 
   // 2. Destructure data from Contract call
   const cTokens: string[] = data?.[0] ?? [];
@@ -117,7 +120,11 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
     [incentives]
   );
 
-  const incentivesWithRates = useIncentivesWithRates(incentives, rewardTokens, comptroller!);
+  const incentivesWithRates = useIncentivesWithRates(
+    incentives,
+    rewardTokens,
+    comptroller!
+  );
   // const  = useAssetPricesInEth(
 
   if (hasIncentives) {

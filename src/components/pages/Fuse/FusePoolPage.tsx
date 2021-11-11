@@ -17,7 +17,7 @@ import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { SwitchCSS } from "components/shared/SwitchCSS";
 
 // React
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 
@@ -32,6 +32,11 @@ import { useFusePoolData } from "hooks/useFusePoolData";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useTokenData } from "hooks/useTokenData";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
+import {
+  CTokenRewardsDistributorIncentives,
+  IncentivesData,
+  usePoolIncentives,
+} from "hooks/rewards/usePoolIncentives";
 
 // Utils
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
@@ -51,6 +56,47 @@ import LogRocket from "logrocket";
 import { toInt } from "utils/ethersUtils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { constants, utils } from "ethers";
+import { useIsComptrollerAdmin } from "hooks/fuse/useIsComptrollerAdmin";
+import { motion } from "framer-motion";
+import { GlowingBox } from "components/shared/GlowingButton";
+import { CTokenAvatarGroup } from "./FusePoolsPage/CTokenIcon";
+import { TokensDataMap } from "types/tokens";
+
+const FuseRewardsBanner = ({
+  rewardTokensData,
+}: {
+  rewardTokensData: TokensDataMap;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      style={{ width: "100%" }}
+    >
+      <GlowingBox w="100%" h="50px" mt={4}>
+        <Row
+          mainAxisAlignment="flex-start"
+          crossAxisAlignment="center"
+          h="100%"
+          w="100"
+          p={3}
+        >
+          <Heading fontSize="md" ml={2}>
+            {" "}
+            🎉 This pool is offering rewards
+          </Heading>
+          <CTokenAvatarGroup
+            tokenAddresses={Object.keys(rewardTokensData)}
+            ml={2}
+            mr={2}
+            popOnHover={true}
+          />
+        </Row>
+      </GlowingBox>
+    </motion.div>
+  );
+};
 
 const FusePoolPage = memo(() => {
   const { isAuthed } = useRari();
@@ -62,7 +108,11 @@ const FusePoolPage = memo(() => {
 
   const data = useFusePoolData(poolId as string | undefined, true);
 
-  console.log({ data });
+  const incentivesData: IncentivesData = usePoolIncentives(data?.comptroller);
+  const { hasIncentives } = incentivesData;
+  const isAdmin = useIsComptrollerAdmin(data?.comptroller);
+
+  console.log({ incentivesData });
 
   return (
     <>
@@ -75,6 +125,22 @@ const FusePoolPage = memo(() => {
         px={isMobile ? 4 : 0}
       >
         <FuseStatsBar data={data} />
+
+        {
+          /* If they have some asset enabled as collateral, show the collateral ratio bar */
+          data && data.assets.some((asset) => asset.membership) ? (
+            <CollateralRatioBar
+              assets={data.assets}
+              borrowUSD={data.totalBorrowBalanceUSD}
+            />
+          ) : null
+        }
+
+        {hasIncentives && (
+          <FuseRewardsBanner
+            rewardTokensData={incentivesData.rewardTokensData}
+          />
+        )}
 
         <FuseTabBar />
 
@@ -135,7 +201,11 @@ const CollateralRatioBar = ({
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = borrowUSD.div(maxBorrow).mul(100);
+  const ratio = useMemo(() => {
+    const mB = parseFloat(maxBorrow.toString());
+    const bUSD = parseFloat(borrowUSD.toString());
+    return BigNumber.from(Math.floor((bUSD / mB) * 100));
+  }, [maxBorrow, borrowUSD]);
 
   useEffect(() => {
     if (ratio.gt(95)) {
@@ -157,17 +227,15 @@ const CollateralRatioBar = ({
         <SimpleTooltip label={t("This is how much you have borrowed.")}>
           <Text flexShrink={0} mt="2px" mr={3} fontSize="10px">
             {
-              borrowUSD.toString() //smallUsdFormatter
+              smallUsdFormatter(borrowUSD.toNumber()) //smallUsdFormatter
             }
           </Text>
         </SimpleTooltip>
 
         <SimpleTooltip
-          label={
-            `You're using ${
-              ratio.toString
-            }% of your ${maxBorrow.toString()} borrow limit.` //smallUsdFormatter(
-          }
+          label={`You're using ${ratio.toString()}% of your ${smallUsdFormatter(
+            maxBorrow.toNumber()
+          )} borrow limit.`}
         >
           <Box width="100%">
             <Progress
@@ -194,7 +262,7 @@ const CollateralRatioBar = ({
           )}
         >
           <Text flexShrink={0} mt="2px" ml={3} fontSize="10px">
-            {maxBorrow.toString} //smallUsdFormatter
+            {smallUsdFormatter(maxBorrow.toNumber())}
           </Text>
         </SimpleTooltip>
       </Row>
@@ -672,8 +740,6 @@ const AssetBorrowRow = ({
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
-
-  console.log({ asset });
 
   return (
     <>

@@ -1,26 +1,28 @@
-import { constants, BigNumber} from "ethers";
+import { constants, BigNumber } from "ethers";
 import { useMemo } from "react";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
 export const useBorrowLimit = (
   assets: USDPricedFuseAsset[],
-  options?: { ignoreIsEnabledCheckFor?: string },
-  index?: any
+  options?: { ignoreIsEnabledCheckFor?: string }
 ): BigNumber => {
-
   const maxBorrow = useMemo(() => {
-    let maxBorrow = constants.Zero;
+    let _maxBorrow = constants.Zero;
+
     for (let i = 0; i < assets.length; i++) {
       let asset = assets[i];
-      
       if (
         options?.ignoreIsEnabledCheckFor === asset.cToken ||
         asset.membership
       ) {
-        maxBorrow = (maxBorrow.add(asset.supplyBalanceUSD)).mul(asset.collateralFactor);
+        _maxBorrow = _maxBorrow.add(
+          asset.supplyBalanceUSD
+            .mul(asset.collateralFactor)
+            .div(constants.WeiPerEther)
+        );
       }
     }
-    return maxBorrow;
+    return _maxBorrow;
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 
   return maxBorrow;
@@ -40,7 +42,9 @@ export const useBorrowLimits = (
           options?.ignoreIsEnabledCheckFor === asset.cToken ||
           asset.membership
         ) {
-          maxBorrow.add(asset.supplyBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
+          maxBorrow
+            .add(asset.supplyBalanceUSD)
+            .mul(asset.collateralFactor.div(constants.WeiPerEther));
         }
       }
       return maxBorrow;
@@ -63,16 +67,20 @@ export const useBorrowCredit = (
       // Only factor in borrow limit if asset is listed as collateral
       // OR if that user is GOING to enable as collateral
       if (
-        asset.membership || // is asset enabled as collateral 
+        asset.membership || // is asset enabled as collateral
         options?.ignoreIsEnabledCheckFor === asset.cToken // is asset GOING to be enabled as collateral
       ) {
-        maxBorrow.add(asset.supplyBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
+        maxBorrow
+          .add(asset.supplyBalanceUSD)
+          .mul(asset.collateralFactor.div(constants.WeiPerEther));
       }
 
       // No matter what, if something is being borrowed we subtract regardless of if its collateral
-      maxBorrow.sub(asset.borrowBalanceUSD).mul(asset.collateralFactor.div(constants.WeiPerEther));
+      maxBorrow
+        .sub(asset.borrowBalanceUSD)
+        .mul(asset.collateralFactor.div(constants.WeiPerEther));
     }
-    return maxBorrow
+    return maxBorrow;
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 
   return maxBorrow;
