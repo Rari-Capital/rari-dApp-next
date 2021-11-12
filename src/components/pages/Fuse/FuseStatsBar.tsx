@@ -28,8 +28,6 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
 
   const { data: totalBorrowAndSupply } = useFuseTotalBorrowAndSupply();
 
-  console.log({data})
-
   return (
     <RowOrColumn
       width="100%"

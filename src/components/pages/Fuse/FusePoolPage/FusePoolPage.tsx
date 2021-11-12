@@ -115,7 +115,6 @@ const FusePoolPage = memo(() => {
   const router = useRouter();
 
   let { poolId } = router.query;
-
   const data = useFusePoolData(poolId as string | undefined, true);
 
   const incentivesData: IncentivesData = usePoolIncentives(data?.comptroller);
@@ -152,7 +151,7 @@ const FusePoolPage = memo(() => {
               <Box h="100%" ml="auto" color="black">
                 <AppLink
                   /* @ts-ignore */
-                  href={"/edit"}
+                  href={router.asPath + "/edit"}
                 >
                   <HStack>
                     <Text fontWeight="bold">Edit </Text>
@@ -326,8 +325,6 @@ const SupplyList = ({
 
   const isMobile = useIsMobile();
 
-  console.log({ incentivesData });
-
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -389,10 +386,10 @@ const SupplyList = ({
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
 
-              console.log({
-                supplyIncentivesForAsset,
-                incentivesForCToken: incentivesData?.incentives?.[asset.cToken],
-              });
+              // console.log({
+              //   supplyIncentivesForAsset,
+              //   incentivesForCToken: incentivesData?.incentives?.[asset.cToken],
+              // });
 
               return (
                 <AssetSupplyRow
@@ -664,19 +661,17 @@ const AssetSupplyRow = ({
                 <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1}>
                   {supplyIncentives?.map((supplyIncentive, i) => {
                     return (
-                      <SimpleTooltip label={displayedSupplyAPRLabel}>
-                        <CTokenIcon
-                          address={supplyIncentive.rewardToken}
-                          boxSize="20px"
-                          onMouseEnter={() => handleMouseEnter(i)}
-                          onMouseLeave={() => handleMouseLeave()}
-                          _hover={{
-                            zIndex: 9,
-                            border: ".5px solid white",
-                            transform: "scale(1.3);",
-                          }}
-                        />
-                      </SimpleTooltip>
+                      <CTokenIcon
+                        address={supplyIncentive.rewardToken}
+                        boxSize="20px"
+                        onMouseEnter={() => handleMouseEnter(i)}
+                        onMouseLeave={() => handleMouseLeave()}
+                        _hover={{
+                          zIndex: 9,
+                          border: ".5px solid white",
+                          transform: "scale(1.3);",
+                        }}
+                      />
                     );
                   })}
                 </AvatarGroup>

@@ -97,16 +97,35 @@ export enum FusePoolMetric {
 }
 
 export const filterPoolName = (name: string) => {
-  // Manual rename pool 6 until we add func to change pool names.
   if (name === "Tetranode's Pool") {
-    return "Tetranode's RGT Pool";
+    return "Tetranode's Locker";
+  }
+
+  if (name === "state's pool") {
+    return "Ribbon Pool";
+  }
+
+  if (name === "Stake DAO Pool") {
+    return "The Animal Kingdom";
   }
 
   if (name === "Tetranode's ETH Pool") {
     return "ChainLinkGod's / Tetranode's Up Only Pool";
   }
 
-  return filter.clean(name);
+  if (name === "Tetranode's Flavor of the Month") {
+    return "FeiRari (Fei DAO Pool)";
+  }
+
+  if (name === "WOO pool") {
+    return "Warlord's WOO Pool";
+  }
+
+  if (name === "Yearn's Yield") {
+    return "Yearn Soup Pot of Yield";
+  }
+
+  return filter.clean(name + "$W@G0N0M1C$").replace("$W@G0N0M1C$", "");
 };
 
 export const fetchFusePoolData = async (
@@ -124,6 +143,8 @@ export const fetchFusePoolData = async (
     name: _unfiliteredName,
     isPrivate,
   } = await fuse.contracts.FusePoolDirectory.pools(poolId);
+
+  console.log({ isPrivate });
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
@@ -199,7 +220,7 @@ export const fetchFusePoolData = async (
     asset.liquidityUSD = asset.liquidity
       .mul(asset.underlyingPrice)
       .mul(ethPrice)
-      .div(constants.WeiPerEther.pow(3))
+      .div(constants.WeiPerEther.pow(3));
 
     totalLiquidityUSD.add(asset.liquidityUSD);
   }

@@ -15,7 +15,6 @@ import { Column, RowOrColumn, Center, Row } from "lib/chakraUtils";
 import { SliderWithLabel } from "components/shared/SliderWithLabel";
 import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
 
-
 // React
 import { useQueryClient, useQuery } from "react-query";
 import { memo, ReactNode, useEffect, useState } from "react";
@@ -34,7 +33,7 @@ import { useTokenData } from "hooks/useTokenData";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { useExtraPoolInfo } from "./FusePoolInfoPage";
 
@@ -48,7 +47,6 @@ import LogRocket from "logrocket";
 
 // Ethers
 import { Contract, utils, BigNumber } from "ethers";
-
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => {};
@@ -85,9 +83,8 @@ export const useIsUpgradeable = (comptrollerAddress: string) => {
   const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
-    const isUpgradeable: boolean = await comptroller.methods
-      .adminHasRights()
-      .call();
+    const isUpgradeable: boolean =
+      await comptroller.callStatic.adminHasRights();
 
     return isUpgradeable;
   });
@@ -116,8 +113,6 @@ export async function testForComptrollerErrorAndSend(
 }
 
 const FusePoolEditPage = memo(() => {
-  const { isAuthed } = useRari();
-
   const isMobile = useIsSemiSmallScreen();
 
   const {
@@ -130,10 +125,12 @@ const FusePoolEditPage = memo(() => {
 
   const { t } = useTranslation();
 
-  const router = useRouter()
-  const poolId = router.query.poolId as string
+  const router = useRouter();
+  const poolId = router.query.poolId as string;
 
   const data = useFusePoolData(poolId);
+
+  console.log({ data });
 
   return (
     <>
@@ -236,8 +233,8 @@ const PoolConfiguration = ({
   comptrollerAddress: string;
 }) => {
   const { t } = useTranslation();
-  const router = useRouter()
-  const poolId = router.query.poolId as string
+  const router = useRouter();
+  const poolId = router.query.poolId as string;
 
   const { fuse, address } = useRari();
 
@@ -312,7 +309,9 @@ const PoolConfiguration = ({
   const renounceOwnership = async () => {
     const unitroller = new Contract(
       comptrollerAddress,
-      JSON.parse( fuse.compoundContracts["contracts/Unitroller.sol:Unitroller"].abi ),
+      JSON.parse(
+        fuse.compoundContracts["contracts/Unitroller.sol:Unitroller"].abi
+      ),
       fuse.provider.getSigner()
     );
 
@@ -355,7 +354,9 @@ const PoolConfiguration = ({
 
   const updateCloseFactor = async () => {
     // 50% -> 0.5 * 1e18
-    const bigCloseFactor: BigNumber = utils.parseUnits((closeFactor / 100).toString())
+    const bigCloseFactor: BigNumber = utils.parseUnits(
+      (closeFactor / 100).toString()
+    );
 
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
@@ -376,7 +377,9 @@ const PoolConfiguration = ({
 
   const updateLiquidationIncentive = async () => {
     // 8% -> 1.08 * 1e8
-    const bigLiquidationIncentive: BigNumber = utils.parseUnits(((liquidationIncentive / 100) + 1).toString())
+    const bigLiquidationIncentive: BigNumber = utils.parseUnits(
+      (liquidationIncentive / 100 + 1).toString()
+    );
 
     const comptroller = createComptroller(comptrollerAddress, fuse);
 

@@ -5,7 +5,9 @@ import { Text } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/toast";
 import { testForComptrollerErrorAndSend } from "components/pages/Fuse/FusePoolEditPage";
 import { useRari } from "context/RariContext";
-import { useIsComptrollerAdmin } from "hooks/fuse/useIsComptrollerAdmin";
+import {
+  useIsComptrollerPendingAdmin,
+} from "hooks/fuse/useIsComptrollerAdmin";
 import LogRocket from "logrocket";
 import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -58,7 +60,7 @@ export const PendingAdminAlert = ({
 
   const [isAccepting, setIsAccepting] = useState(false);
 
-  const isPendingAdmin = useIsComptrollerAdmin(comptroller);
+  const isPendingAdmin = useIsComptrollerPendingAdmin(comptroller);
 
   const acceptAdmin = async () => {
     if (!comptroller) return;
@@ -100,7 +102,7 @@ export const PendingAdminAlert = ({
             >
               <HStack>
                 <Text fontWeight="bold">
-                  {isAccepting} ? Accepting... : Accept Admin{" "}
+                  {isAccepting ? "Accepting..." : "Accept Admin"}
                 </Text>
               </HStack>
             </Button>

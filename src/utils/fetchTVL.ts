@@ -7,7 +7,6 @@ import { BigNumber as EthersBigNumber, constants } from "ethers";
 import BigNumber from "bignumber.js";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
-  console.log({ fuse });
 
   const res =
     await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
@@ -23,8 +22,6 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
         .toString()
     ).toFixed(0)
   );
-
-  console.log(totalSuppliedETH.toString());
 
   return totalSuppliedETH;
 };

@@ -154,8 +154,6 @@ const TabLink = ({ route, text }: { route: string; text: string }) => {
   const isMobile = useIsSmallScreen();
   const router = useRouter();
 
-  console.log( route, router.asPath.replace(/\/+$/, ""), route === router.asPath.replace(/\/+$/, "") );
-
   return (
     <AppLink
       className="no-underline"

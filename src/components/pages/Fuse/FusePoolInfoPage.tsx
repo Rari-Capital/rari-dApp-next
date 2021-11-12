@@ -12,8 +12,17 @@ import {
   Text,
   useClipboard,
 } from "@chakra-ui/react";
-import { Column, RowOnDesktopColumnOnMobile, RowOrColumn, Center, Row, useIsMobile } from "lib/chakraUtils";
-import DashboardBox, { DASHBOARD_BOX_PROPS } from "components/shared/DashboardBox";
+import {
+  Column,
+  RowOnDesktopColumnOnMobile,
+  RowOrColumn,
+  Center,
+  Row,
+  useIsMobile,
+} from "lib/chakraUtils";
+import DashboardBox, {
+  DASHBOARD_BOX_PROPS,
+} from "components/shared/DashboardBox";
 import CaptionedStat from "components/shared/CaptionedStat";
 import { ModalDivider } from "components/shared/Modal";
 import AppLink from "components/shared/AppLink";
@@ -29,13 +38,13 @@ import FuseTabBar from "./FuseTabBar";
 import { useQuery } from "react-query";
 
 // Rari
-import { Fuse } from "../../../esm/index"
+import { Fuse } from "../../../esm/index";
 
 // Hooks
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useTokenData } from "hooks/useTokenData";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 import { useRari } from "context/RariContext";
 import { memo, useState } from "react";
 
@@ -46,58 +55,50 @@ import { createComptroller } from "utils/createComptroller";
 import { shortUsdFormatter } from "utils/bigUtils";
 
 // Ethers
-import { utils, BigNumber } from 'ethers'
+import { utils, BigNumber, constants } from "ethers";
 
+// Todo - fix this some reason some `whitelist` dont work
 export const useExtraPoolInfo = (comptrollerAddress: string) => {
   const { fuse, address } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
     const comptroller = createComptroller(comptrollerAddress, fuse);
+    console.log({ comptroller, constants });
 
-    const [
-      { 0: admin, 1: upgradeable },
-      oracle,
-      closeFactor,
-      liquidationIncentive,
-      enforceWhitelist,
-      whitelist,
-    ] = await Promise.all([
-      fuse.contracts.FusePoolLens.getPoolOwnership(comptrollerAddress, {gasLimit: 1e18}),
+    const whitelist: any[] = [];
 
-      fuse.getPriceOracle(await comptroller.callStatic.oracle()),
+    const { 0: admin, 1: upgradeable } =
+      await fuse.contracts.FusePoolLensSecondary.getPoolOwnership(
+        comptrollerAddress,
+      );
 
-      comptroller.callStatic.closeFactorMantissa(),
+    const oracle = await fuse.getPriceOracle(
+      await comptroller.callStatic.oracle()
+    );
 
-      comptroller.callStatic.liquidationIncentiveMantissa(),
+    const closeFactor = await comptroller.callStatic.closeFactorMantissa();
+    const liquidationIncentive =
+      await comptroller.callStatic.liquidationIncentiveMantissa();
 
-      (() => {
-        try {
-          comptroller.callStatic.enforceWhitelist();
-        } catch (_) {
-          return false;
-        }
-      })(),
+    const enforceWhitelist = await comptroller.callStatic.enforceWhitelist();
 
-      (() => {
-        try {
-          comptroller.callStatic.getWhitelist();
-        } catch (_) {
-          return [];
-        }
-      })(),
-    ]);
+    // const whitelist = await comptroller.callStatic.getWhitelist({
+    //   gasLimit: constants.WeiPerEther,
+    // });
 
-    return {
+    const obj = {
       admin,
       upgradeable,
       enforceWhitelist,
-      whitelist: whitelist as string[],
+      whitelist,
       isPowerfulAdmin:
         admin.toLowerCase() === address.toLowerCase() && upgradeable,
       oracle,
       closeFactor,
       liquidationIncentive,
     };
+
+    return obj;
   });
 
   return data;
@@ -318,11 +319,13 @@ const OracleAndInterestRates = ({
 
         <StatRow
           statATitle={t("Platform Fee")}
-          statA={assets.length > 0 ? assets[0].fuseFee.div(BigNumber.from(10).pow(16)) + "%" : "10%"}
-          statBTitle={t("Average Admin Fee")}
-          statB={
-            "%"
+          statA={
+            assets.length > 0
+              ? assets[0].fuseFee.div(BigNumber.from(10).pow(16)) + "%"
+              : "10%"
           }
+          statBTitle={t("Average Admin Fee")}
+          statB={"%"}
         />
 
         <StatRow
@@ -503,7 +506,11 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         pb={2}
       >
         <CaptionedStat
-          stat={selectedAsset.collateralFactor.div(BigNumber.from(10).pow(16)).toString() + "%"}
+          stat={
+            selectedAsset.collateralFactor
+              .div(BigNumber.from(10).pow(16))
+              .toString() + "%"
+          }
           statSize="lg"
           captionSize="xs"
           caption={t("Collateral Factor")}
@@ -512,7 +519,11 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         />
 
         <CaptionedStat
-          stat={selectedAsset.reserveFactor.div(BigNumber.from(10).pow(16)).toString()+ "%"}
+          stat={
+            selectedAsset.reserveFactor
+              .div(BigNumber.from(10).pow(16))
+              .toString() + "%"
+          }
           statSize="lg"
           captionSize="xs"
           caption={t("Reserve Factor")}
@@ -545,11 +556,10 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
             stat={
               selectedAsset.totalSupplyUSD.toString() === "0"
                 ? "0%"
-                : 
-                    (selectedAsset.totalBorrowUSD.div(
-                      selectedAsset.totalSupplyUSD).mul(
-                    100)
-                  ).toString() + "%"
+                : selectedAsset.totalBorrowUSD
+                    .div(selectedAsset.totalSupplyUSD)
+                    .mul(100)
+                    .toString() + "%"
             }
             statSize="lg"
             captionSize="xs"
@@ -578,9 +588,7 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
   for (var i = 0; i <= 100; i++) {
     const supplyLevel =
       (Math.pow(
-        (interestRateModel.getSupplyRate(
-          utils.parseUnits((i).toString(), 16)
-        ) /
+        (interestRateModel.getSupplyRate(utils.parseUnits(i.toString(), 16)) /
           1e18) *
           (4 * 60 * 24) +
           1,
@@ -591,9 +599,7 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
 
     const borrowLevel =
       (Math.pow(
-        (interestRateModel.getBorrowRate(
-          utils.parseUnits((i).toString(), 16)
-        ) /
+        (interestRateModel.getBorrowRate(utils.parseUnits(i.toString(), 16)) /
           1e18) *
           (4 * 60 * 24) +
           1,
