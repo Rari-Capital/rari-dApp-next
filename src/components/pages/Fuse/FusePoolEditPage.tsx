@@ -8,6 +8,16 @@ import {
   useDisclosure,
   Spinner,
   useToast,
+  // Table
+  Image,
+  HStack,
+  Th,
+  Thead,
+  Table,
+  Tbody,
+  Tr,
+  Td,
+  Badge,
 } from "@chakra-ui/react";
 import { ModalDivider } from "components/shared/Modal";
 import DashboardBox from "components/shared/DashboardBox";
@@ -17,10 +27,13 @@ import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
 
 // React
 import { useQueryClient, useQuery } from "react-query";
-import { memo, ReactNode, useEffect, useState } from "react";
+import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 
 // Components
-import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
+import {
+  CTokenAvatarGroup,
+  CTokenIcon,
+} from "components/shared/Icons/CTokenIcon";
 import { WhitelistInfo } from "./FusePoolCreatePage";
 import FuseStatsBar from "./FuseStatsBar";
 import FuseTabBar from "./FuseTabBar";
@@ -47,6 +60,17 @@ import LogRocket from "logrocket";
 
 // Ethers
 import { Contract, utils, BigNumber } from "ethers";
+import {
+  useCTokensUnderlying,
+  usePoolIncentives,
+} from "hooks/rewards/usePoolIncentives";
+import {
+  RewardsDistributor,
+  useRewardsDistributorsForPool,
+} from "hooks/rewards/useRewardsDistributorsForPool";
+import { useTokenBalance } from "hooks/useTokenBalance";
+import AddRewardsDistributorModal from "./Modals/AddRewardsDistributorModal";
+import EditRewardsDistributorModal from "./Modals/EditRewardsDistributorModal";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => {};
@@ -121,6 +145,18 @@ const FusePoolEditPage = memo(() => {
     onClose: closeAddAssetModal,
   } = useDisclosure();
 
+  const {
+    isOpen: isAddRewardsDistributorModalOpen,
+    onOpen: openAddRewardsDistributorModal,
+    onClose: closeAddRewardsDistributorModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isEditRewardsDistributorModalOpen,
+    onOpen: openEditRewardsDistributorModal,
+    onClose: closeEditRewardsDistributorModal,
+  } = useDisclosure();
+
   const authedOpenModal = useAuthedCallback(openAddAssetModal);
 
   const { t } = useTranslation();
@@ -130,7 +166,22 @@ const FusePoolEditPage = memo(() => {
 
   const data = useFusePoolData(poolId);
 
-  console.log({ data });
+  // RewardsDistributor stuff
+  const poolIncentives = usePoolIncentives(data?.comptroller);
+  const rewardsDistributors = useRewardsDistributorsForPool(data?.comptroller);
+  const [rewardsDistributor, setRewardsDistributor] = useState<
+    RewardsDistributor | undefined
+  >();
+
+  console.log({ poolIncentives, rewardsDistributors });
+
+  const handleRewardsRowClick = useCallback(
+    (rD: RewardsDistributor) => {
+      setRewardsDistributor(rD);
+      openEditRewardsDistributorModal();
+    },
+    [setRewardsDistributor, openEditRewardsDistributorModal]
+  );
 
   return (
     <>
@@ -142,6 +193,25 @@ const FusePoolEditPage = memo(() => {
           poolID={poolId}
           isOpen={isAddAssetModalOpen}
           onClose={closeAddAssetModal}
+        />
+      ) : null}
+
+      {data ? (
+        <AddRewardsDistributorModal
+          comptrollerAddress={data.comptroller}
+          poolName={data.name}
+          poolID={poolId}
+          isOpen={isAddRewardsDistributorModalOpen}
+          onClose={closeAddRewardsDistributorModal}
+        />
+      ) : null}
+
+      {data && !!rewardsDistributor ? (
+        <EditRewardsDistributorModal
+          rewardsDistributor={rewardsDistributor}
+          pool={data}
+          isOpen={isEditRewardsDistributorModalOpen}
+          onClose={closeEditRewardsDistributorModal}
         />
       ) : null}
 
@@ -218,6 +288,88 @@ const FusePoolEditPage = memo(() => {
             </DashboardBox>
           </Box>
         </RowOrColumn>
+
+        {/* Rewards Distributors */}
+        <DashboardBox w="100%" h="100%" my={4}>
+          <Row
+            mainAxisAlignment="space-between"
+            crossAxisAlignment="center"
+            p={3}
+          >
+            <Heading size="md">Rewards Distributors </Heading>
+            {data?.comptroller && (
+              <AddRewardsDistributorButton
+                openAddRewardsDistributorModal={openAddRewardsDistributorModal}
+                comptrollerAddress={data.comptroller}
+              />
+            )}
+          </Row>
+
+          {!!data && !rewardsDistributors.length && (
+            <Column
+              w="100%"
+              h="100%"
+              mainAxisAlignment="center"
+              crossAxisAlignment="center"
+              p={4}
+            >
+              <Text mb={4}>
+                {t("There are no RewardsDistributors for this pool.")}
+              </Text>
+              <AddRewardsDistributorButton
+                openAddRewardsDistributorModal={openAddRewardsDistributorModal}
+                comptrollerAddress={data?.comptroller}
+              />
+            </Column>
+          )}
+
+          {!data && (
+            <Column
+              w="100%"
+              h="100%"
+              mainAxisAlignment="center"
+              crossAxisAlignment="center"
+              p={4}
+            >
+              <Spinner />
+            </Column>
+          )}
+
+          {!!data && !!rewardsDistributors.length && (
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th color="white" size="sm">
+                    {t("Reward Token:")}
+                  </Th>
+                  <Th color="white">{t("Active CTokens:")}</Th>
+                  <Th color="white">{t("Balance:")}</Th>
+                  <Th color="white">{t("Admin?")}</Th>
+                </Tr>
+              </Thead>
+
+              <Tbody minHeight="50px">
+                {!data && !rewardsDistributors.length ? (
+                  <Spinner />
+                ) : (
+                  rewardsDistributors.map((rD, i) => {
+                    return (
+                      <RewardsDistributorRow
+                        key={rD.address}
+                        rewardsDistributor={rD}
+                        handleRowClick={handleRewardsRowClick}
+                        hideModalDivider={i === rewardsDistributors.length - 1}
+                        activeCTokens={
+                          poolIncentives.rewardsDistributorCtokens[rD.address]
+                        }
+                      />
+                    );
+                  })
+                )}
+              </Tbody>
+            </Table>
+          )}
+        </DashboardBox>
       </Column>
     </>
   );
@@ -730,5 +882,103 @@ export const ConfigRow = ({
     >
       {children}
     </Row>
+  );
+};
+
+const AddRewardsDistributorButton = ({
+  openAddRewardsDistributorModal,
+  comptrollerAddress,
+}: {
+  openAddRewardsDistributorModal: () => any;
+  comptrollerAddress: string;
+}) => {
+  const { t } = useTranslation();
+
+  const isUpgradeable = useIsUpgradeable(comptrollerAddress);
+
+  return isUpgradeable ? (
+    <DashboardBox
+      onClick={openAddRewardsDistributorModal}
+      as="button"
+      py={1}
+      px={2}
+      fontWeight="bold"
+    >
+      {t("Add Rewards Distributor")}
+    </DashboardBox>
+  ) : null;
+};
+
+const RewardsDistributorRow = ({
+  rewardsDistributor,
+  handleRowClick,
+  hideModalDivider,
+  activeCTokens,
+}: {
+  rewardsDistributor: RewardsDistributor;
+  handleRowClick: (rD: RewardsDistributor) => void;
+  hideModalDivider: boolean;
+  activeCTokens: string[];
+}) => {
+  const { address, fuse } = useRari();
+  const isAdmin = address === rewardsDistributor.admin;
+
+  const tokenData = useTokenData(rewardsDistributor.rewardToken);
+  //   Balances
+  const { data: rDBalance } = useTokenBalance(
+    rewardsDistributor.rewardToken,
+    rewardsDistributor.address
+  );
+
+  const underlyingsMap = useCTokensUnderlying(activeCTokens);
+  const underlyings = Object.values(underlyingsMap);
+
+  return (
+    <>
+      <Tr
+        _hover={{ background: "grey", cursor: "pointer" }}
+        h="30px"
+        p={5}
+        flexDir="row"
+        onClick={() => handleRowClick(rewardsDistributor)}
+      >
+        <Td>
+          <HStack>
+            {tokenData?.logoURL ? (
+              <Image
+                src={tokenData.logoURL}
+                boxSize="30px"
+                borderRadius="50%"
+              />
+            ) : null}
+            <Heading fontSize="22px" color={tokenData?.color ?? "#FFF"} ml={2}>
+              {tokenData
+                ? tokenData.symbol ?? "Invalid Address!"
+                : "Loading..."}
+            </Heading>
+          </HStack>
+        </Td>
+
+        <Td>
+          {!!underlyings.length ? (
+            <CTokenAvatarGroup tokenAddresses={underlyings} popOnHover={true} />
+          ) : (
+            <Badge colorScheme="red">Inactive</Badge>
+          )}
+        </Td>
+
+        <Td>
+          {(parseFloat(rDBalance?.toString() ?? "0") / 1e18).toFixed(3)}{" "}
+          {tokenData?.symbol}
+        </Td>
+
+        <Td>
+          <Badge colorScheme={isAdmin ? "green" : "red"}>
+            {isAdmin ? "Is Admin" : "Not Admin"}
+          </Badge>
+        </Td>
+      </Tr>
+      {/* {!hideModalDivider && <ModalDivider />} */}
+    </>
   );
 };

@@ -1,4 +1,5 @@
 import { useRari } from "context/RariContext";
+import { Contract } from "ethers";
 import { useQuery } from "react-query";
 import { createComptroller } from "utils/createComptroller";
 
@@ -19,9 +20,10 @@ export const useRewardsDistributorsForPool = (
       if (!comptrollerAddress) return [];
       const comptroller = createComptroller(comptrollerAddress, fuse);
 
-      const rewardsDistributors: string[] = await comptroller.methods
-        .getRewardsDistributors()
-        .call();
+      console.log({ comptroller });
+
+      const rewardsDistributors: string[] =
+        await comptroller.callStatic.getRewardsDistributors();
 
       console.log({ rewardsDistributors });
 
@@ -29,19 +31,22 @@ export const useRewardsDistributorsForPool = (
 
       const distributors: RewardsDistributor[] = await Promise.all(
         rewardsDistributors.map(async (addr) => {
-          const distributor = new fuse.web3.eth.Contract(
+          const distributor = new Contract(
+            addr,
             JSON.parse(
               fuse.compoundContracts[
                 "contracts/RewardsDistributorDelegate.sol:RewardsDistributorDelegate"
               ].abi
             ),
-            addr
+            fuse.provider.getSigner()
           );
+
+          console.log({ addr, distributor });
 
           const ret = {
             address: addr,
-            rewardToken: await distributor.methods.rewardToken().call(),
-            admin: await await distributor.methods.admin().call(),
+            rewardToken: await distributor.callStatic.rewardToken(),
+            admin: await await distributor.callStatic.admin(),
           };
           return ret;
         })

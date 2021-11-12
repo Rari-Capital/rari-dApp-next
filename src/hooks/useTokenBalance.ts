@@ -4,15 +4,15 @@ import { useQueries, useQuery } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
-import { Fuse } from '../esm/index'
-import ERC20ABI from "../esm/Vaults/abi/ERC20.json"
+import { Fuse } from "../esm/index";
+import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 
 // Hooks
 import { ETH_TOKEN_DATA } from "./useTokenData";
 import BigNumber from "bignumber.js";
 
 // Ethers
-import { Contract, BigNumber as EthersBigNumber } from 'ethers'
+import { Contract, BigNumber as EthersBigNumber } from "ethers";
 
 export const fetchTokenBalance = async (
   tokenAddress: string,
@@ -29,22 +29,25 @@ export const fetchTokenBalance = async (
   ) {
     balance = await fuse.provider.getBalance(address);
   } else {
-    const contract = new Contract(tokenAddress,ERC20ABI as any, fuse.provider.getSigner());
+    const contract = new Contract(
+      tokenAddress,
+      ERC20ABI as any,
+      fuse.provider.getSigner()
+    );
     balance = await contract.callStatic.balanceOf(address);
   }
 
   return balance;
 };
 
-export function useTokenBalance(tokenAddress: string) {
+export function useTokenBalance(tokenAddress: string, customAddress?: string) {
   const { fuse, address } = useRari();
 
-  const { data, isLoading } = useQuery(
-    tokenAddress + " balanceOf " + address,
-    () => fetchTokenBalance(tokenAddress, fuse, address)
-  );
+  const addressToCheck = customAddress ?? address;
 
-  return { data, isLoading };
+  return useQuery(tokenAddress + " balanceOf " + addressToCheck, () =>
+    fetchTokenBalance(tokenAddress, fuse, addressToCheck)
+  );
 }
 
 export function useTokenBalances(tokenAddresses: string[]): number[] {
