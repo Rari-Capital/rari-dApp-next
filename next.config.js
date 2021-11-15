@@ -6,7 +6,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 module.exports = withBundleAnalyzer({
   /* config options here */
   images: {
-    domains: ["raw.githubusercontent.com", "icons.iconarchive.com"],
+    domains: ["raw.githubusercontent.com", "icons.iconarchive.com", "i.ibb.co"],
   },
   i18n,
   eslint: {

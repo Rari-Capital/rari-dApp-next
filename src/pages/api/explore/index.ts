@@ -22,14 +22,14 @@ export type SubgraphUnderlyingAsset = {
   name: string;
   symbol: string;
   address: string;
-  price: number;
   decimals: number;
-  totalBorrow: number;
-  totalBorrowUSD: number;
-  totalLiquidity: number;
-  totalLiquidityUSD: number;
-  totalSupply: number;
-  totalSupplyUSD: number;
+  price: number;
+  totalBorrow?: number;
+  totalBorrowUSD?: number;
+  totalLiquidity?: number;
+  totalLiquidityUSD?: number;
+  totalSupply?: number;
+  totalSupplyUSD?: number;
   ctokens?: SubgraphCToken[];
 };
 
@@ -92,7 +92,6 @@ export default async function handler(
       const tokensData: TokensDataMap = await fetchTokensAPIDataAsMap(
         addresses
       );
-
 
       const results = {
         topEarningFuseStable,

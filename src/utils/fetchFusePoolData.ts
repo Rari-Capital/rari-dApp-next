@@ -144,7 +144,6 @@ export const fetchFusePoolData = async (
     isPrivate,
   } = await fuse.contracts.FusePoolDirectory.pools(poolId);
 
-  console.log({ isPrivate });
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);

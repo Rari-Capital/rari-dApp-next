@@ -45,6 +45,7 @@ import { queryFusePools } from "services/gql";
 import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
 import { SubgraphPool } from "pages/api/explore";
+import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 
 // Fetcher
 const homepagePoolsFetcher = async (
@@ -54,12 +55,7 @@ const homepagePoolsFetcher = async (
   tokensData: TokensDataMap;
 }> => {
   const pools = await queryFusePools(ids);
-  const addresses = new Set<string>();
-  for (let pool of pools) {
-    for (let asset of pool.assets) {
-      addresses.add(asset.underlying.address);
-    }
-  }
+  const addresses = getUniqueTokensForFusePools(pools);
   const tokensData = await fetchTokensAPIDataAsMap([...Array.from(addresses)]);
   return { pools, tokensData };
 };
