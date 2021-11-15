@@ -48,7 +48,7 @@ export const FusePoolFragment = gql`
     index
     liquidationIncentive
     name
-    priceOracle
+    priceOracle 
     totalBorrowUSD
     totalLiquidityUSD
     totalSupplyUSD
