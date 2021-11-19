@@ -2,12 +2,22 @@ import Image from "next/image";
 import { Heading, Menu, MenuList, useBreakpointValue } from "@chakra-ui/react";
 import DashboardBox from "components/shared/DashboardBox";
 import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
-import { Box, Center, SimpleGrid, Spacer, Text } from "@chakra-ui/layout";
+import {
+  Box,
+  Center,
+  HStack,
+  SimpleGrid,
+  Spacer,
+  Text,
+} from "@chakra-ui/layout";
+
 import {
   ExploreGridBoxMetric,
   FuseAssetGridBox,
   VaultGridBox,
 } from "./ExploreGridBox";
+
+import FuseAssetBoxNew from "./ExploreFuseBox2";
 
 // Hooks
 import { useTVLFetchers } from "hooks/useTVL";
@@ -18,9 +28,11 @@ import { ReactNode } from "react";
 import { smallUsdFormatter } from "utils/bigUtils";
 import { Column, Row } from "lib/chakraUtils";
 
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { APIExploreData, SubgraphPool } from "pages/api/explore";
+import {
+  APIExploreData,
+  SubgraphCToken,
+  SubgraphPool,
+} from "pages/api/explore";
 import useSWR from "swr";
 
 import axios from "axios";
@@ -29,22 +41,25 @@ import { GET_TOP_FUSE_POOLS } from "gql/fusePools/getTopFusePools";
 import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
-import HomeFuseCard from "../Home/HomeFuseCard";
+
+import ExploreFuseCard from "./ExploreFuseBox";
+import { useAccountBalances } from "context/BalancesContext";
+import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
+import { GET_UNDERLYING_ASSETS_WITH_POOLS } from "gql/fusePools/getUnderlyingAssetsWithPools";
 
 // Fetchers
 const exploreFetcher = async (route: string): Promise<APIExploreData> => {
   // const data = await getExploreData();
-  // console.log({ data });
   const { data }: { data: APIExploreData } = await axios.get(route);
 
   return data;
 };
 
-const topFusePoolsFetcher = async (
-  route: string
-): Promise<{ pools: SubgraphPool[]; tokensData: TokensDataMap }> => {
+const topFusePoolsFetcher = async (): Promise<{
+  pools: SubgraphPool[];
+  tokensData: TokensDataMap;
+}> => {
   // const data = await getExploreData();
-  // console.log({ data });
   const { pools }: { pools: SubgraphPool[] } = await makeGqlRequest(
     GET_TOP_FUSE_POOLS
   );
@@ -56,6 +71,128 @@ const topFusePoolsFetcher = async (
   return { pools, tokensData };
 };
 
+interface RecommendedMarketsMap {
+  [tokenAddress: string]: {
+    bestSupplyRate: string;
+    poolId: string;
+    assetIndex: number;
+  };
+}
+
+type RecommendedPoolDataMap = { [token: string]: SubgraphPool };
+
+interface RecommendedPoolsReturn {
+  recommended: RecommendedMarketsMap;
+  poolsMap: RecommendedPoolDataMap;
+}
+
+const recommendedPoolsFetcher = async (
+  ...tokenAddresses: string[]
+): Promise<RecommendedPoolsReturn> => {
+  // Get all pools where any of these tokens exist
+  const { underlyingAssets } = await makeGqlRequest(
+    GET_UNDERLYING_ASSETS_WITH_POOLS,
+    {
+      tokenAddresses,
+    }
+  );
+
+  const underlyingAssetsMap: {
+    [token: string]: any;
+  } = underlyingAssets.reduce(function (map: any, underlyingAsset: any) {
+    map[underlyingAsset.address] = underlyingAsset;
+    return map;
+  }, {});
+
+  const _uniquePools = new Set();
+  for (let i = 0; i < underlyingAssets.length; i++) {
+    const asset = underlyingAssets[i];
+    asset.pools.forEach((pool: any) => _uniquePools.add(pool.id));
+  }
+  const uniquePools = [...Array.from(_uniquePools)] as string[];
+
+  // Get Pools data
+  const { pools } = await makeGqlRequest(GET_RECOMMENDED_POOLS, {
+    poolIds: uniquePools,
+    tokenIds: tokenAddresses,
+  });
+
+  let poolsMap: {
+    [token: string]: SubgraphPool;
+  } = pools.reduce(function (map: any, pool: any) {
+    map[pool.id] = pool;
+    return map;
+  }, {});
+
+  const map: RecommendedMarketsMap = {};
+
+  for (let token of tokenAddresses) {
+    const tokenData: {
+      address: string;
+      symbol: string;
+      pools: { index: number; id: string }[];
+    } = underlyingAssetsMap[token];
+
+    const { pools } = tokenData;
+    pools.forEach(({ id }) => {
+      const pool = poolsMap[id];
+      if (!!pool) {
+        const assetIndex = pool.assets.findIndex(
+          (asset) => asset.underlying.id === token
+        );
+        if (assetIndex < 0) return;
+
+        const cToken = pool.assets[assetIndex];
+
+        if (!!cToken) {
+          // Create default if doesn't exist in map
+          if (!map[token]) {
+            map[token] = {
+              bestSupplyRate: cToken.supplyAPY,
+              poolId: id,
+              assetIndex,
+            };
+          } else {
+            // Update best supply rate
+            if (
+              parseFloat(cToken.supplyAPY) >
+              parseFloat(map[token].bestSupplyRate)
+            ) {
+              map[token] = {
+                bestSupplyRate: cToken.supplyAPY,
+                poolId: id,
+                assetIndex,
+              };
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // reduce poolsMap to only pools which were recommended
+  const recommendedPoolDataMap: RecommendedPoolDataMap = {};
+  Object.values(map).forEach(({ poolId }) => {
+    recommendedPoolDataMap[poolId] = poolsMap[poolId];
+  });
+  poolsMap = {};
+
+  return {
+    recommended: map,
+    poolsMap: recommendedPoolDataMap,
+  };
+};
+
+const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
+  const { data } = useSWR([...tokens], recommendedPoolsFetcher);
+  return (
+    data ?? {
+      recommended: {},
+      poolsMap: {},
+    }
+  );
+};
+
 const ExplorePage = () => {
   const { getNumberTVL } = useTVLFetchers();
   const { t } = useTranslation();
@@ -65,12 +202,15 @@ const ExplorePage = () => {
   // Data
   // Fetchers
   const { data, error } = useSWR("/api/explore", exploreFetcher);
-  const { data: topFusePools } = useSWR("/poop", topFusePoolsFetcher);
+  const { data: topFusePools } = useSWR("topFusePools", topFusePoolsFetcher);
   const { results, tokensData } = data ?? {};
   const { pools: topPools, tokensData: topFusePoolsTokensData } =
     topFusePools ?? { pools: [], tokensData: {} };
 
-  console.log({ topPools, topFusePools });
+  const [balances, significantTokens] = useAccountBalances();
+
+  const { recommended, poolsMap } = useRecommendedPools(significantTokens);
+  console.log({ recommended, poolsMap });
 
   const {
     topEarningFuseStable,
@@ -130,13 +270,13 @@ const ExplorePage = () => {
           <SimpleGrid columns={2} spacing={5} w="100%" h="100%">
             <HoverCard height="100%">
               <FuseAssetGridBox
-                data={topEarningFuseAsset}
+                data={topEarningFuseStable}
                 tokenData={
-                  topEarningFuseAsset
-                    ? tokensData?.[topEarningFuseAsset?.underlying.address]
+                  topEarningFuseStable
+                    ? tokensData?.[topEarningFuseStable?.underlying.address]
                     : undefined
                 }
-                heading="Top Lend APY"
+                heading="Top Stable Lend"
               />
             </HoverCard>
             <HoverCard height="100%">
@@ -198,28 +338,34 @@ const ExplorePage = () => {
               based on your positions
             </Text>
           </Row>
-          <Row
-            mainAxisAlignment="space-between"
-            crossAxisAlignment="flex-start"
+          <HStack
+            justify="space-between"
+            alignItems="flex-start"
             w="100%"
             h="100%"
             expand={true}
             flex={1}
             py={4}
+            spacing={4}
           >
-            <HoverCard w="100%" h="100%" mx={5} ml={0}>
-              <FuseAssetGridBox
-                data={topEarningFuseAsset}
-                tokenData={
-                  topEarningFuseAsset
-                    ? tokensData?.[topEarningFuseAsset?.underlying.address]
-                    : undefined
-                }
-              />
-            </HoverCard>
-            <HoverCard w="100%" h="100%" mx={5} />
-            <HoverCard w="100%" h="100%" mx={5} mr={0} />
-          </Row>
+            {[...Object.keys(recommended), ...Object.keys(recommended)]
+
+              .slice(0, 3)
+              .map((tokenAddress) => {
+                const recommendedAsset = recommended[tokenAddress];
+                const tokenBalance = balances[tokenAddress];
+                return (
+                  <HoverCard w="100%" h="100%" ml={0} maxW="420px">
+                    <FuseAssetBoxNew
+                      pool={poolsMap[recommendedAsset.poolId]}
+                      assetIndex={recommendedAsset.assetIndex}
+                      tokenData={tokensData?.[tokenAddress] ?? undefined}
+                      balance={tokenBalance}
+                    />
+                  </HoverCard>
+                );
+              })}
+          </HStack>
         </Column>
       </Row>
 
@@ -229,16 +375,17 @@ const ExplorePage = () => {
         crossAxisAlignment="flex-start"
         w="100%"
         h="250px"
-        bg="lime"
+        // bg="lime"
         px={8}
         py={4}
+        my={3}
       >
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           w="100%"
           h="100%"
-          bg="coral"
+          // bg="coral"
         >
           <Row
             mainAxisAlignment="flex-start"
@@ -248,26 +395,29 @@ const ExplorePage = () => {
           >
             <Heading>Top Fuse Pools</Heading>
           </Row>
-          <Row
-            mainAxisAlignment="space-between"
-            crossAxisAlignment="flex-start"
+          <HStack
+            justify="space-between"
+            alignItems="flex-start"
             w="100%"
             h="100%"
             expand={true}
             flex={1}
-            py={3}
+            py={4}
+            spacing={4}
           >
-            {topPools.map((pool) => {
-              return (
-                <HoverCard w="100%" h="100%" mx={5}>
-                  <HomeFuseCard
-                    pool={pool}
-                    tokensData={topFusePoolsTokensData}
-                  />
-                </HoverCard>
-              );
-            })}
-          </Row>
+            {topPools.length
+              ? topPools.map((pool) => {
+                  return (
+                    <HoverCard w="100%" h="100%">
+                      <ExploreFuseCard
+                        pool={pool}
+                        tokensData={topFusePoolsTokensData}
+                      />
+                    </HoverCard>
+                  );
+                })
+              : Array(3).map((_) => <HoverCard w="100%" h="100%" mx={5} />)}
+          </HStack>
         </Column>
       </Row>
     </Column>
@@ -283,8 +433,16 @@ const HoverCard = ({
 }) => {
   return (
     <DashboardBox
-      border="none"
-      _hover={{ transform: "scale(1.02)", cursor: "pointer", bg: "#272727" }}
+      border="1px solid #272727"
+      _hover={{
+        cursor: "pointer",
+        bg: "#272727",
+        opacity: 1,
+        transform: "translateY(-7px) scale(1.00)",
+        boxShadow: "0px .2px 4px grey;",
+      }}
+      transition="transform 0.2s ease 0s"
+      opacity={0.9}
       {...boxProps}
     >
       {children}

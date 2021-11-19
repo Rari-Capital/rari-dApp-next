@@ -7,6 +7,7 @@ import {
   SkeletonText,
   Text,
   Image,
+  Box
 } from "@chakra-ui/react";
 
 import { HomepageFusePool, HOMEPAGE_FUSE_POOLS } from "constants/homepage";
@@ -62,25 +63,13 @@ const ExploreFuseCard = ({
       href={`/fuse/pool/${pool?.index}`}
       style={{ textDecoration: "none" }}
     >
-      <DashboardBox
-        height={{
-          sm: "150px",
-          lg: "150px",
-        }}
-        width={{
-          sm: "250px",
-          lg: "300px",
-        }}
-        ml={10}
+      <Box
+        height="100%"
+        width="100%"
         p={5}
         transition="transform 0.2s ease 0s"
         opacity={0.9}
-        _hover={{
-          // background: "grey",
-          opacity: 1,
-          transform: "translateY(-7px)",
-          boxShadow: "0px .2px 4px grey;",
-        }}
+       
       >
         <SkeletonText
           isLoaded={!!pool && !!pool.assets.length}
@@ -123,7 +112,7 @@ const ExploreFuseCard = ({
           mx={2}
           my={2}
         /> */}
-      </DashboardBox>
+      </Box>
     </AppLink>
     // </motion.div>
   );

@@ -28,7 +28,7 @@ export enum ExploreGridBoxMetric {
 // top earning stablecoin, newest yield agg, most popular asset, top earning asset, and most borrowed asset?
 export const FuseAssetGridBox = ({
   bg,
-  heading = "Top Stable Lend",
+  heading = "",
   data,
   tokenData,
   metric = ExploreGridBoxMetric.SUPPLY_RATE,
@@ -138,13 +138,23 @@ export const FuseAssetGridBox = ({
                 my={1}
               >
                 <HStack alignItems="flex-end">
-                  <Heading fontSize={["sm", "md", "2xl"]}>{subtitle}</Heading>
-                  <Text fontSize={["sm"]}>{subtitleDecoration}</Text>
+                  <Heading
+                    fontSize={["sm", "md", "2xl"]}
+                    bgGradient="linear(to-l, #7928CA, #FF0080)"
+                    bgClip="text"
+                  >
+                    {subtitle}
+                  </Heading>
+                  <Text fontSize={["sm"]} color="grey" ml={2}>
+                    {subtitleDecoration}
+                  </Text>
                 </HStack>
               </Skeleton>
             </Box>
             <Box>
-              <Text fontSize={["sm"]}>Pool {data?.pool?.index}</Text>
+              <Text fontSize={["sm"]} color="grey">
+                Pool {data?.pool?.index}
+              </Text>
             </Box>
           </Column>
         </Row>
@@ -210,7 +220,11 @@ export const VaultGridBox = ({
                 my={1}
               >
                 <HStack alignItems="flex-end">
-                  <Heading fontSize={["sm", "md", "2xl"]}>
+                  <Heading
+                    fontSize={["sm", "md", "2xl"]}
+                    bgGradient="linear(to-l, #7928CA, #FF0080)"
+                    bgClip="text"
+                  >
                     {" "}
                     {poolInfo.poolName}
                   </Heading>
@@ -218,7 +232,7 @@ export const VaultGridBox = ({
                 </HStack>
               </Skeleton>
             </Box>
-            <Box>
+            <Box color="grey">
               <Text fontSize={["sm"]}>{poolAPY}% APY</Text>
             </Box>
           </Column>
