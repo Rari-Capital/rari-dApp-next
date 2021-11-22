@@ -21,31 +21,15 @@ import { useSortableList } from "hooks/useSortableList";
 import { SortableTableHeader } from "./Common";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 
-// Fetchers
-const allTokensFetcher = async (): Promise<{
+export const AllAssetsList = ({
+  assets,
+  tokensData,
+}: {
   assets: SubgraphUnderlyingAsset[];
   tokensData: TokensDataMap;
-}> => {
-  const underlyingAssets = await queryAllUnderlyingAssets();
-
-  const addrs = underlyingAssets.map((asset) => asset.address);
-  const tokensData = await fetchTokensAPIDataAsMap(addrs);
-
-  return {
-    assets: underlyingAssets,
-    tokensData,
-  };
-};
-
-export const AllAssetsList = () => {
+}) => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
-  const { data, error } = useSWR("allAssets", allTokensFetcher);
-
-  const { assets, tokensData } = data ?? {
-    assets: [],
-    tokensData: {},
-  };
 
   const {
     sorted: sortedAssets,
@@ -55,7 +39,7 @@ export const AllAssetsList = () => {
   } = useSortableList(assets);
 
   return (
-    <Box h="100%" w="100%">
+    <Box h="400px" w="100%" overflowY="scroll">
       {!sortedAssets.length ? (
         <Box w="100%" h="50px">
           <Center>
@@ -64,7 +48,7 @@ export const AllAssetsList = () => {
         </Box>
       ) : (
         <Table variant="unstyled">
-          <Thead position="sticky" top={0} left={0} bg="#121212">
+          <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
             <Tr>
               <SortableTableHeader
                 text="Asset"
@@ -109,11 +93,14 @@ export const AllAssetsList = () => {
           <Tbody>
             {sortedAssets.map((underlyingAsset) => {
               return (
-                <AssetRow
-                  asset={underlyingAsset}
-                  tokenData={tokensData[underlyingAsset.id]}
-                  key={underlyingAsset.symbol}
-                />
+                <>
+                  <AssetRow
+                    asset={underlyingAsset}
+                    tokenData={tokensData[underlyingAsset.id]}
+                    key={underlyingAsset.symbol}
+                  />
+                  <ModalDivider />
+                </>
               );
             })}
           </Tbody>

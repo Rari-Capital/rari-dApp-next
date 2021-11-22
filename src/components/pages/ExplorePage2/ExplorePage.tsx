@@ -44,6 +44,7 @@ import ExploreFuseCard from "./ExploreFuseBox";
 import { useAccountBalances } from "context/BalancesContext";
 import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
 import { GET_UNDERLYING_ASSETS_WITH_POOLS } from "gql/fusePools/getUnderlyingAssetsWithPools";
+import TokenExplorer from "./TokenExplorer";
 
 // Fetchers
 const exploreFetcher = async (route: string): Promise<APIExploreData> => {
@@ -305,7 +306,7 @@ const ExplorePage = () => {
       </Row>
 
       {/* Recommended Row */}
-      <Collapse in={hasBalances} animateOpacity style={{width: "100%"}}>
+      <Collapse in={hasBalances} animateOpacity style={{ width: "100%" }}>
         <Row
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
@@ -392,6 +393,9 @@ const ExplorePage = () => {
             // h="20px"
           >
             <Heading>Top Fuse Pools</Heading>
+            <Text ml={3} color="grey">
+              based on total supply
+            </Text>
           </Row>
           <HStack
             justify="space-between"
@@ -424,6 +428,27 @@ const ExplorePage = () => {
           </HStack>
         </Column>
       </Row>
+
+      {/* Top Fuse Pools */}
+      <HStack
+        justify="flex-start"
+        align="flex-start"
+        w="100%"
+        h="100%"
+        // bg="lime"
+        px={8}
+        py={4}
+        my={3}
+      >
+        <Column
+          mainAxisAlignment="flex-start"
+          crossAxisAlignment="flex-start"
+          w="100%"
+          h="100%"
+        >
+          <TokenExplorer />
+        </Column>
+      </HStack>
     </Column>
   );
 };
