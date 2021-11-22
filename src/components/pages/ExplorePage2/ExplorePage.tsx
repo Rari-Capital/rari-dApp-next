@@ -1,4 +1,4 @@
-import { Heading, useBreakpointValue, Image } from "@chakra-ui/react";
+import { Heading, useBreakpointValue, Image, Collapse } from "@chakra-ui/react";
 import DashboardBox from "components/shared/DashboardBox";
 
 import {
@@ -40,7 +40,6 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
 
 import ExploreFuseCard from "./ExploreFuseBox";
-import ExploreFuseCard2 from "./ExploreFuseBox2";
 
 import { useAccountBalances } from "context/BalancesContext";
 import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
@@ -306,7 +305,7 @@ const ExplorePage = () => {
       </Row>
 
       {/* Recommended Row */}
-      {hasBalances && (
+      <Collapse in={hasBalances} animateOpacity style={{width: "100%"}}>
         <Row
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
@@ -366,7 +365,7 @@ const ExplorePage = () => {
             </HStack>
           </Column>
         </Row>
-      )}
+      </Collapse>
 
       {/* Top Fuse Pools */}
       <Row

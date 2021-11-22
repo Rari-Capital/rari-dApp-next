@@ -66,8 +66,6 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     // Get Underlying Assets from subgraph
-    console.log("poop");
-
     try {
       const [
         topEarningFuseStable,
@@ -82,8 +80,6 @@ export default async function handler(
         getMostBorrowedFuseAsset(),
         getCheapestStablecoinBorrow(),
       ]);
-
-      console.log("pee");
 
       const addresses = [];
       addresses.push(
