@@ -5,7 +5,7 @@ import { request } from "graphql-request";
 const SUBGRAPH_V2 = "https://api.studio.thegraph.com/query/853/fuse-zacel/0.2.2"
 const SUBGRAPH_V4 = "https://api.studio.thegraph.com/query/853/fuse-zacel/0.4.1"
 
-
+  
 // const FUSE_SUBGRAPH_GQL_ENDPOINT =
 //   "https://api.thegraph.com/subgraphs/id/QmZUk988UJSQQtYwTmZobV26FqHZQJscGZMjRR35RnNzMw";
 

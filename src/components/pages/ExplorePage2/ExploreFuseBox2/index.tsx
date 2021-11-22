@@ -8,7 +8,7 @@ import {
   Divider,
   VStack,
 } from "@chakra-ui/react";
-import { Avatar } from "@chakra-ui/avatar";
+import { Avatar, AvatarBadge, AvatarGroup } from "@chakra-ui/avatar";
 import AppLink from "components/shared/AppLink";
 import { Column, Row } from "lib/chakraUtils";
 import { SubgraphCToken, SubgraphPool } from "pages/api/explore";
@@ -16,6 +16,8 @@ import { convertMantissaToAPY, convertMantissaToAPR } from "utils/apyUtils";
 import { useMemo } from "react";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { RariApiTokenData } from "types/tokens";
+import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
+import { ModalDivider } from "components/shared/Modal";
 
 export enum ExploreGridBoxMetric {
   TOTAL_BORROWS,
@@ -89,6 +91,7 @@ export const FuseAssetBoxNew = ({
         crossAxisAlignment="flex-start"
         // border="1px solid #272727"
         p={5}
+        px={7}
         // maxW="200px"
         //  bg="lime"
       >
@@ -97,17 +100,22 @@ export const FuseAssetBoxNew = ({
           crossAxisAlignment="center"
           w="100%"
           flexGrow={1}
+          bg=""
           p={3}
+          py={4}
         >
-          <Heading fontSize={["sm", "md", "lg", "xl"]}>{heading}</Heading>
-          <Box mr={2}>
-            <SkeletonCircle isLoaded={!loading} boxSize={["30px", "40px"]}>
-              {tokenData?.logoURL && (
-                <Avatar src={tokenData?.logoURL} h="100%" w="100%" />
-              )}
+          <Box my={1} bg="">
+            <SkeletonCircle isLoaded={!loading} boxSize={["30px", "45px"]}>
+              <Avatar
+                src={tokenData?.logoURL}
+                h="100%"
+                w="100%"
+                // name={data?.name}
+              />
+              {/* <FusePoolBadge pool={pool} /> */}
             </SkeletonCircle>
           </Box>
-          <Box maxWidth="275px">
+          <Box maxWidth="250px" ml={2}>
             <Skeleton
               isLoaded={!loading}
               height={loading ? "20px" : "100%"}
@@ -115,26 +123,34 @@ export const FuseAssetBoxNew = ({
               my={1}
             >
               <HStack alignItems="flex-end">
-                <Heading fontSize={["sm", "md", "2xl"]} isTruncated={true}>
+                <Heading fontSize={["sm", "md", "xl"]} isTruncated={true}>
                   {pool?.name}
                 </Heading>
               </HStack>
             </Skeleton>
           </Box>
-          <Box>
-                 
+          <Box ml={2}>
+            <WhitelistedIcon
+              isWhitelisted={true}
+              mr={2}
+              boxSize={"15px"}
+              mb="2px"
+            />
           </Box>
         </Row>
-        <Divider background="#121212" />
+
+        <ModalDivider />
+
         <Row
-          mainAxisAlignment="space-around"
+          mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           mt="auto"
           w="100%"
           h="100%"
-          // bg="aqua"
+          bg=""
           flexGrow={1}
           p={3}
+          py={4}
         >
           <VStack alignItems="flex-start">
             <HStack>
@@ -157,7 +173,7 @@ export const FuseAssetBoxNew = ({
               </Heading>
             </Skeleton>
           </VStack>
-          <VStack alignItems="flex-start">
+          <VStack alignItems="flex-start" ml={"auto"} mr="auto">
             <Text fontSize={["sm"]} color="grey">
               You have
             </Text>
@@ -178,3 +194,33 @@ export const FuseAssetBoxNew = ({
 };
 
 export default FuseAssetBoxNew;
+
+const FusePoolBadge = ({ pool }: { pool: SubgraphPool | undefined }) => {
+  return (
+    <Avatar h="100%" w="100%" bg="" src="static/icons/fuse-glow.svg">
+      <AvatarGroup max={4} mb={2} spacing="2">
+        <AvatarBadge
+          borderColor="transparent"
+          bg="purple"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+        <AvatarBadge
+          borderColor="transparent"
+          bg="pink"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+        <AvatarBadge
+          borderColor="transparent"
+          bg="lime"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+      </AvatarGroup>
+    </Avatar>
+  );
+};

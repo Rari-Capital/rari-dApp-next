@@ -1,121 +1,325 @@
-import { useMemo } from "react";
-
 import {
-  AvatarGroup,
-  Avatar,
   Heading,
-  SkeletonText,
+  Skeleton,
+  SkeletonCircle,
+  Box,
+  HStack,
   Text,
-  Image,
-  Box
+  Divider,
+  VStack,
 } from "@chakra-ui/react";
-
-import { HomepageFusePool, HOMEPAGE_FUSE_POOLS } from "constants/homepage";
-import DashboardBox from "components/shared/DashboardBox";
+import { Avatar, AvatarBadge, AvatarGroup } from "@chakra-ui/avatar";
 import AppLink from "components/shared/AppLink";
-import { SubgraphPool } from "pages/api/explore";
-import { TokensDataMap } from "types/tokens";
-import { useIsMobile } from "lib/chakraUtils";
+import { Column, Row } from "lib/chakraUtils";
+import { SubgraphCToken, SubgraphPool } from "pages/api/explore";
+import { convertMantissaToAPY, convertMantissaToAPR } from "utils/apyUtils";
+import { useMemo } from "react";
+import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { RariApiTokenData } from "types/tokens";
+import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
+import { ModalDivider } from "components/shared/Modal";
+import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 
-const ExploreFuseCard = ({
+export enum ExploreGridBoxMetric {
+  TOTAL_BORROWS,
+  TOTAL_SUPPLY,
+  SUPPLY_RATE,
+  BORROW_RATE,
+}
+
+// top earning stablecoin, newest yield agg, most popular asset, top earning asset, and most borrowed asset?
+export const FuseAssetBoxNew = ({
+  bg,
+  heading = "",
+  tokenData,
+  metric = ExploreGridBoxMetric.SUPPLY_RATE,
+  balance,
   pool,
-  tokensData,
+  assetIndex,
 }: {
+  bg?: string;
+  heading?: string;
+  tokenData?: RariApiTokenData;
+  metric?: ExploreGridBoxMetric;
+  balance?: number;
   pool: SubgraphPool | undefined;
-  tokensData: TokensDataMap;
+  assetIndex?: number;
 }) => {
-  const { title, subtitle }: HomepageFusePool = useMemo(() => {
-    if (!pool) return { title: null, subtitle: null, id: -1 };
-    return HOMEPAGE_FUSE_POOLS.find((p) => p.id == parseInt(pool.index))!;
-  }, [pool]);
+  // If we have passed in an `assetIndex` then let's get the cToken Data
+  const cToken = useMemo(() => {
+    if (!!assetIndex && pool) return pool?.assets[assetIndex];
+  }, [pool, assetIndex]);
 
-  const isMobile = useIsMobile();
-
-  const assetsSubtitle: string | null = useMemo(() => {
-    if (!pool) return null;
-
-    const NUM = 3;
-
-    const symbols: string[] = [];
-
-    pool.assets.forEach((a, i) => {
-      const { symbol } = a.underlying;
-      if (i < NUM && symbol) symbols.push(symbol!);
-    });
-
-    let caption;
-    if (pool.assets.length <= 3) {
-      caption = symbols.join(", ");
-    } else {
-      caption = `${symbols.join(", ")}, and ${pool.assets.length - NUM} others`;
-    }
-
-    return caption;
-  }, [pool]);
+  // If we have provided an `assetIndex`, we are trying waiting on cTokenData
+  const loading = useMemo(() => {
+    if (!!assetIndex) return !cToken;
+    else return !pool;
+  }, [pool, assetIndex, cToken]);
 
   return (
-    // <motion.div
-    //   initial={{ opacity: 0, x: 40 }}
-    //   animate={{ opacity: 1, x: 0 }}
-    //   exit={{ opacity: 0, x: -40 }}
-    // >
     <AppLink
-      href={`/fuse/pool/${pool?.index}`}
-      style={{ textDecoration: "none" }}
+      href={
+        pool?.index
+          ? `/fuse/pool/${pool.index}`
+          : cToken?.underlying?.id
+          ? `/token/${cToken?.underlying?.id}`
+          : `#`
+      }
+      className="no-underline"
+      w="100%"
+      h="100%"
     >
-      <Box
-        height="100%"
-        width="100%"
+      <Column
+        w="100%"
+        h="100%"
+        mainAxisAlignment="flex-start"
+        crossAxisAlignment="flex-start"
+        // border="1px solid #272727"
         p={5}
-        transition="transform 0.2s ease 0s"
-        opacity={0.9}
-       
+        px={7}
+        // maxW="200px"
+        //  bg="lime"
       >
-        <SkeletonText
-          isLoaded={!!pool && !!pool.assets.length}
-          height="10px"
-          noOfLines={2}
-          spacing="5"
+        <Row
+          mainAxisAlignment="flex-start"
+          crossAxisAlignment="center"
+          w="100%"
+          flexGrow={1}
+          bg=""
+          p={3}
+          py={4}
         >
-          <AvatarGroup my={1} size="xs" max={3}>
-            {pool?.assets.slice(0, 3).map((asset) => {
-              return (
-                <Avatar
-                  bg="#FFF"
-                  borderWidth="1px"
-                  name={"Loading..."}
-                  src={
-                    tokensData[asset.underlying.address]?.logoURL ?? undefined
-                  }
-                  key={asset.underlying.address}
-                />
-              );
-            })}
-          </AvatarGroup>
-
-          <Heading size="sm" mt={2}>
-            {title ?? pool?.name}
-          </Heading>
-          {!isMobile && (
-            <Text size="xs" color="gray.500" fontWeight="bold">
-              {subtitle ?? assetsSubtitle}
-            </Text>
+          <Box my={1} bg="">
+            <SkeletonCircle isLoaded={!loading} boxSize={["30px", "45px"]}>
+              {!!cToken ? (
+                <Avatar src={tokenData?.logoURL} h="100%" w="100%" />
+              ) : (
+                <FusePoolBadge pool={pool} />
+              )}
+            </SkeletonCircle>
+          </Box>
+          <Box maxWidth="250px" ml={2}>
+            <Skeleton
+              isLoaded={!loading}
+              height={loading ? "20px" : "100%"}
+              maxWidth="100%"
+              my={1}
+            >
+              <HStack alignItems="flex-end">
+                <Heading fontSize={["sm", "md", "xl"]} isTruncated={true}>
+                  {pool?.name}
+                </Heading>
+              </HStack>
+            </Skeleton>
+          </Box>
+          {!!loading && (
+            <Box ml={2}>
+              <WhitelistedIcon
+                isWhitelisted={true}
+                mr={2}
+                boxSize={"15px"}
+                mb="2px"
+              />
+            </Box>
           )}
-        </SkeletonText>
-        {/* <Image
-          src={"/static/icons/fuse-glow.svg"}
-          zIndex={11}
-          boxSize={"20px"}
-          position="absolute"
-          bottom={0}
-          right={0}
-          mx={2}
-          my={2}
-        /> */}
-      </Box>
+        </Row>
+
+        <ModalDivider />
+
+        <Row
+          mainAxisAlignment="flex-start"
+          crossAxisAlignment="flex-start"
+          mt="auto"
+          w="100%"
+          h="100%"
+          bg=""
+          flexGrow={1}
+          p={3}
+          py={4}
+        >
+          <LeftSide
+            pool={pool}
+            assetIndex={assetIndex}
+            metric={metric}
+            tokenData={tokenData}
+          />
+          <RightSide tokenData={tokenData} pool={pool} balance={balance} />
+        </Row>
+      </Column>
     </AppLink>
-    // </motion.div>
   );
 };
 
-export default ExploreFuseCard;
+export default FuseAssetBoxNew;
+
+const FusePoolBadge = ({ pool }: { pool: SubgraphPool | undefined }) => {
+  const underlyingAssets: string[] | undefined = pool?.underlyingAssets.map(
+    ({ id }) => id
+  );
+
+  const tokensData = useTokensDataAsMap(underlyingAssets);
+
+  return (
+    <Avatar h="100%" w="100%" bg="" src="static/icons/fuse-glow.svg">
+      <AvatarGroup max={4} mb={2} spacing="2">
+        <AvatarBadge
+          borderColor="transparent"
+          bg="purple"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+        <AvatarBadge
+          borderColor="transparent"
+          bg="pink"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+        <AvatarBadge
+          borderColor="transparent"
+          bg="lime"
+          boxSize=".5em"
+          mb={1}
+          mr={3}
+        />
+      </AvatarGroup>
+    </Avatar>
+  );
+};
+
+const LeftSide = ({
+  tokenData,
+  assetIndex,
+  metric,
+  pool,
+}: {
+  tokenData?: TokenData;
+  assetIndex?: number;
+  pool: SubgraphPool | undefined;
+  metric: ExploreGridBoxMetric;
+}) => {
+  const cToken =
+    assetIndex !== undefined && pool ? pool.assets[assetIndex] : undefined;
+  const hasCToken = !!cToken;
+
+  const loading = useMemo(() => {
+    if (!!assetIndex) return !cToken;
+    else return !pool;
+  }, [pool, assetIndex, cToken]);
+
+  const [title, subtitle]: [string, string] = useMemo(() => {
+    let title = "",
+      subtitle = "";
+
+    if (!!cToken) {
+      switch (metric) {
+        case ExploreGridBoxMetric.SUPPLY_RATE:
+          const supplyRate = convertMantissaToAPY(
+            cToken?.supplyRatePerBlock,
+            365
+          );
+          subtitle = `${supplyRate.toFixed(1)}%`;
+          title = "Supply APY";
+          break;
+        case ExploreGridBoxMetric.BORROW_RATE:
+          const borrowRate = convertMantissaToAPR(cToken?.borrowRatePerBlock);
+          subtitle = `${borrowRate.toFixed(1)}%`;
+          title = "Borrow APR";
+          break;
+        case ExploreGridBoxMetric.TOTAL_BORROWS:
+          subtitle = `${shortUsdFormatter(
+            parseFloat(cToken?.totalBorrowUSD ?? "0")
+          )}`;
+          title = "Total Borrowed";
+          break;
+        case ExploreGridBoxMetric.TOTAL_SUPPLY:
+          subtitle = `${shortUsdFormatter(
+            parseFloat(cToken?.totalSupplyUSD ?? "0")
+          )}`;
+          title = "Total Supplied";
+          break;
+        default:
+          break;
+      }
+    } else if (!!pool) {
+      title = "Total Supply";
+      subtitle = shortUsdFormatter(pool.totalSupplyUSD);
+    }
+    return [title, subtitle];
+  }, [metric, cToken, pool]);
+
+  return (
+    <VStack alignItems="flex-start">
+      <HStack>
+        {hasCToken && (
+          <Avatar src={tokenData?.logoURL} h="15px" w="15px" mr={0} />
+        )}
+        <Text fontSize={["sm"]} color="grey">
+          {title}
+        </Text>
+      </HStack>
+      <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
+        <Heading
+          fontSize={["sm", "md", "2xl"]}
+          bgGradient="linear(to-l, #7928CA, #FF0080)"
+          bgClip="text"
+        >
+          {subtitle}
+        </Heading>
+      </Skeleton>
+    </VStack>
+  );
+};
+
+// If you pass in a balance, show that, else show pool data
+const RightSide = ({
+  tokenData,
+  pool,
+  balance,
+}: {
+  tokenData?: TokenData;
+  pool: SubgraphPool | undefined;
+  balance: number | undefined;
+}) => {
+  const showBalance = !!balance;
+
+  const loading = useMemo(() => !pool, [pool, balance]);
+
+  return showBalance ? (
+    <VStack alignItems="flex-start" mx="auto">
+      <Text fontSize={["sm"]} color="grey">
+        You have
+      </Text>
+      <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
+        <Heading fontSize={["sm", "md", "2xl"]}>
+          {balance?.toFixed(2)} {tokenData?.symbol}
+        </Heading>
+      </Skeleton>
+    </VStack>
+  ) : !!pool ? (
+    <HStack justify="flex-start" align="flex-start" mx="auto">
+      <VStack alignItems="flex-start" ml={"auto"} mr="auto">
+        <Text fontSize={["sm"]} color="grey">
+          Total Supply
+        </Text>
+        <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
+          <Heading fontSize={["sm"]}>
+            {shortUsdFormatter(pool.totalSupplyUSD)}
+          </Heading>
+        </Skeleton>
+      </VStack>
+
+      <VStack alignItems="flex-start" ml={"auto"} mr="auto">
+        <Text fontSize={["sm"]} color="grey">
+          Total Supply
+        </Text>
+        <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
+          <Heading fontSize={["sm"]}>
+            {shortUsdFormatter(pool.totalSupplyUSD)}
+          </Heading>
+        </Skeleton>
+      </VStack>
+    </HStack>
+  ) : null;
+};

@@ -1,12 +1,9 @@
-
 import { GET_ALL_UNDERLYING_ASSETS } from "gql/getAllUnderlyingAssets";
 import {
   SEARCH_FOR_TOKEN,
   SEARCH_FOR_TOKENS_BY_ADDRESSES,
 } from "gql/searchTokens";
-import {
-  SubgraphUnderlyingAsset,
-} from "pages/api/explore";
+import { SubgraphUnderlyingAsset } from "pages/api/explore";
 import { GQLSearchReturn } from "types/search";
 import { makeGqlRequest } from "utils/gql";
 
@@ -25,7 +22,6 @@ export const querySearchForToken = async (
   await makeGqlRequest(SEARCH_FOR_TOKEN, {
     search: text.toUpperCase(),
   });
-
 
 // Searches for UnderlyingAssets by their addresses
 export const querySearchForTokenByAddresses = async (

@@ -1,7 +1,6 @@
-import Image from "next/image";
-import { Heading, Menu, MenuList, useBreakpointValue } from "@chakra-ui/react";
+import { Heading, useBreakpointValue, Image } from "@chakra-ui/react";
 import DashboardBox from "components/shared/DashboardBox";
-import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
+
 import {
   Box,
   Center,
@@ -17,12 +16,10 @@ import {
   VaultGridBox,
 } from "./ExploreGridBox";
 
-import FuseAssetBoxNew from "./ExploreFuseBox2";
-
 // Hooks
 import { useTVLFetchers } from "hooks/useTVL";
 import { useTranslation } from "next-i18next";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
@@ -43,6 +40,8 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
 
 import ExploreFuseCard from "./ExploreFuseBox";
+import ExploreFuseCard2 from "./ExploreFuseBox2";
+
 import { useAccountBalances } from "context/BalancesContext";
 import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
 import { GET_UNDERLYING_ASSETS_WITH_POOLS } from "gql/fusePools/getUnderlyingAssetsWithPools";
@@ -210,7 +209,17 @@ const ExplorePage = () => {
   const [balances, significantTokens] = useAccountBalances();
 
   const { recommended, poolsMap } = useRecommendedPools(significantTokens);
-  console.log({ recommended, poolsMap });
+
+  const recommendedTokens = useMemo(
+    () =>
+      [...Object.keys(recommended), ...Object.keys(recommended)].slice(0, 3),
+    [recommended]
+  );
+
+  const hasBalances = useMemo(
+    () => !!significantTokens.length,
+    [significantTokens]
+  );
 
   const {
     topEarningFuseStable,
@@ -229,29 +238,6 @@ const ExplorePage = () => {
       mt={5}
       width="100%"
     >
-      {/* Top Row */}
-      {/* <Row
-        mainAxisAlignment="flex-start"
-        crossAxisAlignment="flex-start"
-        w="100%"
-        mb={5}
-      >
-        <APYWithRefreshMovingStat
-          formatStat={smallUsdFormatter}
-          fetchInterval={40000}
-          loadingPlaceholder="$?"
-          apyInterval={100}
-          fetch={getNumberTVL}
-          queryKey={"totalValueLocked"}
-          apy={0.15}
-          statSize={statsSize!}
-          captionSize={captionSize!}
-          caption={t("The Rari Protocol currently secures") + ":"}
-          crossAxisAlignment="flex-start"
-          captionFirst={true}
-        />
-      </Row> */}
-
       {/* Main Row */}
       <Row
         mainAxisAlignment="flex-start"
@@ -261,11 +247,20 @@ const ExplorePage = () => {
         h="350px"
         // bg="red"
       >
-        <Box w="100%" h="100%" bg="pink" px={8} py={2}>
-          <DashboardBox bg="aqua" w="100%" h="100%" p={2}></DashboardBox>
+        <Box w="100%" h="100%" bg="" px={8} py={2}>
+          <DashboardBox
+            bg=""
+            w="100%"
+            h="100%"
+            p={0}
+            _hover={{ cursor: "pointer" }}
+          >
+            <Image h="100%" w="100%" src="static/drake.jpg" />
+          </DashboardBox>
         </Box>
 
         <Spacer />
+
         <Box bg="" w="100%" h="100%" px={8} py={2}>
           <SimpleGrid columns={2} spacing={5} w="100%" h="100%">
             <HoverCard height="100%">
@@ -311,70 +306,74 @@ const ExplorePage = () => {
       </Row>
 
       {/* Recommended Row */}
-      <Row
-        mainAxisAlignment="flex-start"
-        crossAxisAlignment="flex-start"
-        w="100%"
-        h="250px"
-        // bg="purple"
-        px={8}
-        py={4}
-      >
-        <Column
+      {hasBalances && (
+        <Row
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           w="100%"
           h="100%"
-          // bg="coral"
+          bg=""
+          px={8}
+          py={4}
         >
-          <Row
+          <Column
             mainAxisAlignment="flex-start"
-            crossAxisAlignment="flex-end"
-            w="100%"
-            // h="20px"
-          >
-            <Heading>Recommended</Heading>
-            <Text ml={3} color="grey">
-              based on your positions
-            </Text>
-          </Row>
-          <HStack
-            justify="space-between"
-            alignItems="flex-start"
+            crossAxisAlignment="flex-start"
             w="100%"
             h="100%"
-            expand={true}
-            flex={1}
-            py={4}
-            spacing={4}
+            // bg="coral"
           >
-            {[...Object.keys(recommended), ...Object.keys(recommended)]
+            <Row
+              mainAxisAlignment="flex-start"
+              crossAxisAlignment="flex-end"
+              w="100%"
+              // h="20px"
+            >
+              <Heading>Recommended</Heading>
+              <Text ml={3} color="grey">
+                based on your positions
+              </Text>
+            </Row>
 
-              .slice(0, 3)
-              .map((tokenAddress) => {
-                const recommendedAsset = recommended[tokenAddress];
-                const tokenBalance = balances[tokenAddress];
-                return (
-                  <HoverCard w="100%" h="100%" ml={0} maxW="420px">
-                    <FuseAssetBoxNew
-                      pool={poolsMap[recommendedAsset.poolId]}
-                      assetIndex={recommendedAsset.assetIndex}
-                      tokenData={tokensData?.[tokenAddress] ?? undefined}
-                      balance={tokenBalance}
-                    />
-                  </HoverCard>
-                );
-              })}
-          </HStack>
-        </Column>
-      </Row>
+            <HStack
+              justify="space-between"
+              alignItems="flex-start"
+              w="100%"
+              h="100%"
+              expand={true}
+              // flex={1}
+              py={4}
+              spacing={4}
+            >
+              {[0, 1, 2].map((index) => (
+                <HoverCard w="100%" h="100%" ml={0} bg="">
+                  <ExploreFuseCard
+                    pool={
+                      poolsMap[recommended[recommendedTokens[index]]?.poolId] ??
+                      undefined
+                    }
+                    assetIndex={
+                      recommended[recommendedTokens[index]]?.assetIndex ??
+                      undefined
+                    }
+                    tokenData={
+                      tokensData?.[recommendedTokens[index]] ?? undefined
+                    }
+                    balance={balances[recommendedTokens[index]] ?? undefined}
+                  />
+                </HoverCard>
+              ))}
+            </HStack>
+          </Column>
+        </Row>
+      )}
 
       {/* Top Fuse Pools */}
       <Row
         mainAxisAlignment="flex-start"
         crossAxisAlignment="flex-start"
         w="100%"
-        h="250px"
+        h="100%"
         // bg="lime"
         px={8}
         py={4}
@@ -405,18 +404,24 @@ const ExplorePage = () => {
             py={4}
             spacing={4}
           >
-            {topPools.length
-              ? topPools.map((pool) => {
-                  return (
-                    <HoverCard w="100%" h="100%">
-                      <ExploreFuseCard
-                        pool={pool}
-                        tokensData={topFusePoolsTokensData}
-                      />
-                    </HoverCard>
-                  );
-                })
-              : Array(3).map((_) => <HoverCard w="100%" h="100%" mx={5} />)}
+            <HoverCard w="100%" h="100%">
+              <ExploreFuseCard
+                pool={topPools[0]}
+                // tokensData={topFusePoolsTokensData}
+              />
+            </HoverCard>
+            <HoverCard w="100%" h="100%">
+              <ExploreFuseCard
+                pool={topPools[1]}
+                // tokensData={topFusePoolsTokensData}
+              />
+            </HoverCard>
+            <HoverCard w="100%" h="100%">
+              <ExploreFuseCard
+                pool={topPools[2]}
+                // tokensData={topFusePoolsTokensData}
+              />
+            </HoverCard>
           </HStack>
         </Column>
       </Row>

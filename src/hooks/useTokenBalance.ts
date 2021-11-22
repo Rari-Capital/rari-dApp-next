@@ -53,6 +53,7 @@ export function useTokenBalance(tokenAddress: string, customAddress?: string) {
 export function useTokenBalances(tokenAddresses: string[]): number[] {
   const { fuse, address } = useRari();
 
+
   const balances = useQueries(
     tokenAddresses.map((tokenAddress: string) => {
       return {

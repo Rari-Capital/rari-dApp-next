@@ -21,6 +21,9 @@ export const GET_TOP_FUSE_POOLS = gql`
           symbol
         }
       }
+      underlyingAssets {
+        id
+      }
     }
   }
   ${CTokenFragment}
