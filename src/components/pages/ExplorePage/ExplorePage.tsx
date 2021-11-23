@@ -213,7 +213,9 @@ const ExplorePage = () => {
 
   const recommendedTokens = useMemo(
     () =>
-      [...Object.keys(recommended), ...Object.keys(recommended)].slice(0, 3),
+      Object.keys(recommended).length
+        ? Object.keys(recommended)
+        : ["a", "b", "c"],
     [recommended]
   );
 
@@ -258,7 +260,6 @@ const ExplorePage = () => {
               _hover={{
                 cursor: "pointer",
                 opacity: 1,
-                transform: "translateY(-7px) scale(1.00)",
                 boxShadow: "0px .2px 4px grey;",
               }}
               transition="transform 0.2s ease 0s"
@@ -356,21 +357,17 @@ const ExplorePage = () => {
               py={4}
               spacing={4}
             >
-              {[0, 1, 2].map((index) => (
+              {recommendedTokens.map((tokenAddress) => (
                 <HoverCard w="100%" h="100%" ml={0} bg="">
                   <ExploreFuseCard
                     pool={
-                      poolsMap[recommended[recommendedTokens[index]]?.poolId] ??
-                      undefined
+                      poolsMap[recommended[tokenAddress]?.poolId] ?? undefined
                     }
                     assetIndex={
-                      recommended[recommendedTokens[index]]?.assetIndex ??
-                      undefined
+                      recommended[tokenAddress]?.assetIndex ?? undefined
                     }
-                    tokenData={
-                      tokensData?.[recommendedTokens[index]] ?? undefined
-                    }
-                    balance={balances[recommendedTokens[index]] ?? undefined}
+                    tokenData={tokensData?.[tokenAddress] ?? undefined}
+                    balance={balances[tokenAddress] ?? undefined}
                   />
                 </HoverCard>
               ))}

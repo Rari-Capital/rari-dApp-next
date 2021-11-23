@@ -1,4 +1,4 @@
-import ExplorePage from "components/pages/ExplorePage2";
+import ExplorePage from "components/pages/ExplorePage";
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 export async function getStaticProps({ locale }: { locale: string }) {
