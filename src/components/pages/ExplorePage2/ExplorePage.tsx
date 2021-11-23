@@ -45,6 +45,7 @@ import { useAccountBalances } from "context/BalancesContext";
 import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
 import { GET_UNDERLYING_ASSETS_WITH_POOLS } from "gql/fusePools/getUnderlyingAssetsWithPools";
 import TokenExplorer from "./TokenExplorer";
+import AppLink from "components/shared/AppLink";
 
 // Fetchers
 const exploreFetcher = async (route: string): Promise<APIExploreData> => {
@@ -247,17 +248,27 @@ const ExplorePage = () => {
         h="350px"
         // bg="red"
       >
-        <Box w="100%" h="100%" bg="" px={8} py={2}>
-          <DashboardBox
-            bg=""
-            w="100%"
-            h="100%"
-            p={0}
-            _hover={{ cursor: "pointer" }}
-          >
-            <Image h="100%" w="100%" src="static/drake.jpg" />
-          </DashboardBox>
-        </Box>
+        <AppLink href={"/overview"}>
+          <Box w="100%" h="100%" bg="" px={8} py={2}>
+            <DashboardBox
+              bg=""
+              w="100%"
+              h="100%"
+              p={0}
+              _hover={{
+                cursor: "pointer",
+                opacity: 1,
+                transform: "translateY(-7px) scale(1.00)",
+                boxShadow: "0px .2px 4px grey;",
+              }}
+              transition="transform 0.2s ease 0s"
+              opacity={0.9}
+              overflow="hidden"
+            >
+              <Image h="100%" w="100%" src="static/ad.png" />
+            </DashboardBox>
+          </Box>
+        </AppLink>
 
         <Spacer />
 
