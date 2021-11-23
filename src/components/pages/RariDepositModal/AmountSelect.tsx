@@ -40,7 +40,7 @@ import {
 
 // Utils
 import { tokens } from "../../../utils/tokenUtils";
-import { BN, smallStringUsdFormatter } from "../../../utils/bigUtils";
+import { smallStringUsdFormatter } from "../../../utils/bigUtils";
 import { Mode } from ".";
 import {
   getSDKPool,

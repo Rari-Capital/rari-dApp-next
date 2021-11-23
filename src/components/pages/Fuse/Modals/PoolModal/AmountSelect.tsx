@@ -41,7 +41,7 @@ import { useBorrowLimit } from "../../../../../hooks/useBorrowLimit";
 import useUpdatedUserAssets from "hooks/fuse/useUpdatedUserAssets";
 
 // Utils
-import { BN, smallUsdFormatter } from "../../../../../utils/bigUtils";
+import { smallUsdFormatter } from "../../../../../utils/bigUtils";
 import { Mode } from ".";
 import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
 import { createComptroller } from "../../../../../utils/createComptroller";
@@ -699,14 +699,10 @@ const StatsColumn = ({
   const updatedAsset = updatedAssets ? updatedAssets[index] : null;
 
   // Calculate Old and new Borrow Limits
-  const borrowLimit = useBorrowLimit(assets, {}, index);
-  const updatedBorrowLimit = useBorrowLimit(
-    updatedAssets ?? [],
-    {
-      ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
-    },
-    index
-  );
+  const borrowLimit = useBorrowLimit(assets, {});
+  const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
+    ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
+  });
 
   const isSupplyingOrWithdrawing =
     mode === Mode.SUPPLY || mode === Mode.WITHDRAW;

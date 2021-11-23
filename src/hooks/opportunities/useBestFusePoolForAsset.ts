@@ -32,7 +32,7 @@ export const useBestFusePoolForAsset = (
         const pool = poolsWithThisAsset[i];
 
         const asset: USDPricedFuseAssetWithTokenData = pool.assets[
-          poolAssetIndex[pool.id]
+          poolAssetIndex[pool.id!]
         ] as USDPricedFuseAssetWithTokenData;
 
         // First, see if the user has any supply for this asset
@@ -50,7 +50,7 @@ export const useBestFusePoolForAsset = (
       const _bestPool = poolsWithThisAsset[bestPoolIndex];
       return {
         bestPool: _bestPool,
-        poolAssetIndex: poolAssetIndex[_bestPool.id],
+        poolAssetIndex: poolAssetIndex[_bestPool.id!],
       };
     } else {
       return {

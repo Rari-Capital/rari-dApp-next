@@ -1,13 +1,8 @@
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
 import {
-  createMasterPriceOracle,
   createRewardsDistributor,
 } from "utils/createComptroller";
-
-import Fuse from "fuse-sdk";
-import { useTokensDataAsMap } from "hooks/useTokenData";
-import { useAssetPricesInEth } from "./useRewardAPY";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {

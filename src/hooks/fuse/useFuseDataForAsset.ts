@@ -31,7 +31,7 @@ export const useFuseDataForAsset = (assetAddress?: String) => {
           if (
             asset.underlyingToken.toLowerCase() === assetAddress?.toLowerCase()
           ) {
-            poolAssetIndex[pool.id] = index;
+            poolAssetIndex[pool.id!] = index;
             return true;
           }
         })

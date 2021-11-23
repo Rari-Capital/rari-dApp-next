@@ -7,9 +7,11 @@ export const GlowingButton = ({
   onClick,
   leftIcon,
   disabled,
+  label,
   ...boxProps
 }: BoxProps & {
   leftIcon?: ReactElement;
+  label?: string
   onClick: () => any;
   disabled?: boolean;
 }) => {
@@ -28,6 +30,7 @@ export const GlowingButton = ({
         _focus={{ boxShadow: "0 0 3pt 3pt #2F74AF" }}
         _disabled={{ cursor: "not-allowed" }}
         fontSize={boxProps.fontSize ?? "xl"}
+        label={label}
       >
         {children}
       </Button>

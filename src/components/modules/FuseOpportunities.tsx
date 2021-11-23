@@ -79,14 +79,15 @@ const FuseOpportunities = ({ token }: { token: TokenData }) => {
               key={pool.id}
               poolNumber={pool.id!}
               name={filterPoolName(pool.name)}
-              tvl={pool.totalSuppliedUSD}
-              borrowed={pool.totalBorrowedUSD}
+              tvl={pool.totalSuppliedUSD.toNumber()}
+              borrowed={pool.totalBorrowedUSD.toNumber()}
               tokens={pool.assets.map((asset: USDPricedFuseAsset) => ({
                 symbol: asset.underlyingSymbol,
                 address: asset.underlyingToken,
               }))}
               noBottomDivider={index === sortedPools.length - 1}
-              smaller={true}
+              isWhitelisted={pool.isAdminWhitelisted}
+              comptroller={pool.comptroller}
             />
           );
         })

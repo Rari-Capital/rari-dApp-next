@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import CTokenIcon from "components/shared/Icons/CTokenIcon";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
 // Hooks
 import { useFusePools } from "hooks/fuse/useFusePools";
@@ -65,7 +65,7 @@ export const FuseListForToken = ({
 
   const fusePoolsDataForAsset: FusePoolDataForAsset[] = useMemo(() => {
     return poolsWithThisAsset.map((pool) => {
-      const asset = pool.assets[poolAssetIndex[pool.id]];
+      const asset = pool.assets[poolAssetIndex[pool.id!]];
       return {
         ...pool,
         asset,
@@ -73,10 +73,14 @@ export const FuseListForToken = ({
         assetSuppliedUSD: asset.totalSupplyUSD,
         assetLiquidityUSD: asset.liquidityUSD,
         assetSupplyAPY: parseFloat(
-          convertMantissaToAPY(parseInt(asset.supplyRatePerBlock.toString())).toFixed(2)
+          convertMantissaToAPY(
+            parseInt(asset.supplyRatePerBlock.toString())
+          ).toFixed(2)
         ),
         assetBorrowAPR: parseFloat(
-          convertMantissaToAPY(parseInt(asset.borrowRatePerBlock.toString())).toFixed(2)
+          convertMantissaToAPY(
+            parseInt(asset.borrowRatePerBlock.toString())
+          ).toFixed(2)
         ),
       };
     });

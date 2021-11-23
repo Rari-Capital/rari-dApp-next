@@ -194,13 +194,15 @@ export const FusePoolRow = ({
           </Td>
           {/* Total Supply*/}
           <Td isNumeric={true} fontWeight="bold">
-            {smaller ? shortUsdFormatter(tvl) : smallUsdFormatter(tvl)}
+            {smaller
+              ? shortUsdFormatter(parseFloat(tvl.toString()))
+              : smallUsdFormatter(parseFloat(tvl.toString()))}
           </Td>
           {/* Total Borrow */}
           <Td isNumeric={true} fontWeight="bold">
             {smaller
-              ? shortUsdFormatter(borrowed)
-              : smallUsdFormatter(borrowed)}
+              ? shortUsdFormatter(parseFloat(borrowed.toString()))
+              : smallUsdFormatter(parseFloat(borrowed.toString()))}
           </Td>
           {/* Risk Score # */}
           <Td isNumeric={true} fontWeight="bold">

@@ -151,11 +151,14 @@ export const AssetRow = ({
           <Td isNumeric={true}>
             <Stack direction="column">
               <Text fontWeight="bold">
-                {smallUsdFormatter(asset.totalSupplyUSD)}
+                {asset.totalSupplyUSD &&
+                  smallUsdFormatter(asset.totalSupplyUSD)}
               </Text>
               <Text fontWeight="" fontSize="sm">
-                {(asset.totalSupply / 10 ** asset.decimals).toFixed(2)}{" "}
-                {asset.symbol}
+                {asset.totalSupply &&
+                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${
+                    asset.symbol
+                  }`}
               </Text>
             </Stack>
           </Td>
@@ -163,11 +166,14 @@ export const AssetRow = ({
           <Td isNumeric={true}>
             <Stack direction="column">
               <Text fontWeight="bold">
-                {smallUsdFormatter(asset.totalBorrowUSD)}
+                {asset.totalBorrowUSD &&
+                  smallUsdFormatter(asset.totalBorrowUSD)}
               </Text>
               <Text fontWeight="" fontSize="sm">
-                {(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)}{" "}
-                {asset.symbol}
+                {asset.totalBorrow &&
+                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${
+                    asset.symbol
+                  }`}
               </Text>
             </Stack>
           </Td>
@@ -175,7 +181,8 @@ export const AssetRow = ({
           <Td isNumeric={true}>
             <Stack direction="column">
               <Text fontWeight="bold">
-                {smallUsdFormatter(asset.totalLiquidityUSD).substring(0, 15)}
+                {asset.totalLiquidityUSD &&
+                  smallUsdFormatter(asset.totalLiquidityUSD).substring(0, 15)}
               </Text>
               {/* <Text fontWeight="" fontSize="sm">
                 {(asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}

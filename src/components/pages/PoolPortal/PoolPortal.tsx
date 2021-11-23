@@ -63,7 +63,7 @@
   import { PoolTypeProvider, usePoolType } from "context/PoolContext";
 
   // Utils
-  import { BN, smallStringUsdFormatter } from "utils/bigUtils";
+  import { smallStringUsdFormatter } from "utils/bigUtils";
   import { getSDKPool, Pool } from "utils/poolUtils";
   import { tokens } from "utils/tokenUtils";
   import { fetchRGTAPR } from "utils/fetchPoolAPY";
@@ -570,7 +570,7 @@
       poolType + " currencyAllocations",
       async () => {
         const currencyAllocations: {
-          [key: string]: BN;
+          [key: string]: BigNumber;
         } = await getSDKPool({
           rari,
           pool: poolType,
@@ -777,10 +777,11 @@
 
     return (
       <GlowingButton
-        label={t("Deposit")}
         width="170px"
         height="50px"
         {...props}
-      />
+      >
+        <Text>Deposit</Text>
+        </GlowingButton>
     );
   };

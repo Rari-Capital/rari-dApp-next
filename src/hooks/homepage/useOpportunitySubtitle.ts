@@ -56,21 +56,27 @@ export const useOpportunitySubtitle = (
         switch (opportunity.fuseMetric) {
           case FusePoolMetric.TotalBorrowedUSD:
             return fusePoolData?.totalBorrowedUSD
-              ? `${shortUsdFormatter(fusePoolData?.totalBorrowedUSD)} borrowed`
+              ? `${shortUsdFormatter(
+                  fusePoolData.totalBorrowedUSD.toNumber()
+                )} borrowed`
               : null;
           case FusePoolMetric.TotalSuppliedUSD:
             return fusePoolData?.totalSuppliedUSD
-              ? `${shortUsdFormatter(fusePoolData?.totalSuppliedUSD)} supplied`
+              ? `${shortUsdFormatter(
+                  fusePoolData.totalSuppliedUSD.toNumber()
+                )} supplied`
               : null;
           case FusePoolMetric.TotalLiquidityUSD:
             return fusePoolData?.totalLiquidityUSD
               ? `${shortUsdFormatter(
-                  fusePoolData?.totalLiquidityUSD
+                  fusePoolData.totalLiquidityUSD.toNumber()
                 )} liquidity`
               : null;
           default:
             return fusePoolData?.totalSuppliedUSD
-              ? `${shortUsdFormatter(fusePoolData?.totalSuppliedUSD)} supplied`
+              ? `${shortUsdFormatter(
+                  fusePoolData.totalSuppliedUSD.toNumber()
+                )} supplied`
               : null;
         }
 

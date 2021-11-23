@@ -145,9 +145,9 @@ const FusePoolInfoPage = memo(() => {
               <OracleAndInterestRates
                 assets={data.assets}
                 name={data.name}
-                totalSuppliedUSD={data.totalSuppliedUSD}
-                totalBorrowedUSD={data.totalBorrowedUSD}
-                totalLiquidityUSD={data.totalLiquidityUSD}
+                totalSuppliedUSD={data.totalSuppliedUSD.toNumber()}
+                totalBorrowedUSD={data.totalBorrowedUSD.toNumber()}
+                totalLiquidityUSD={data.totalLiquidityUSD.toNumber()}
                 comptrollerAddress={data.comptroller}
               />
             ) : (
