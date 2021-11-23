@@ -469,7 +469,7 @@ const ExplorePage = () => {
   );
 };
 
-const HoverCard = ({
+export const HoverCard = ({
   children,
   ...boxProps
 }: {

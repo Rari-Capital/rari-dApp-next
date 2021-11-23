@@ -1,5 +1,9 @@
 import gql from "graphql-tag";
-import { CTokenFragment, FusePoolFragment, UnderlyingAssetFragment } from "../fragments";
+import {
+  CTokenFragment,
+  FusePoolFragment,
+  UnderlyingAssetFragment,
+} from "../fragments";
 
 export const GET_POOLS_BY_IDS = gql`
   query GetPoolsByIds($ids: [BigInt!]!) {
@@ -10,6 +14,9 @@ export const GET_POOLS_BY_IDS = gql`
         underlying {
           ...UnderlyingAssetFragment
         }
+      }
+      underlyingAssets {
+        id
       }
     }
   }

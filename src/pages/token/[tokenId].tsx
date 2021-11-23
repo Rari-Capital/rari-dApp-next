@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 
 // Components
-import TokenDetails from "components/pages/Tokens/TokenDetails";
+import TokenDetails from "components/pages/TokenDetails";
 
 // Constants
 import { ETH_TOKEN_DATA, fetchTokenData, TokenData } from "hooks/useTokenData";

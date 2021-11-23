@@ -46,6 +46,8 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
 import { SubgraphPool } from "pages/api/explore";
 import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
+import FuseAssetBoxNew from "../ExplorePage/ExploreFuseBox";
+import { HoverCard } from "../ExplorePage/ExplorePage";
 
 // Fetcher
 const homepagePoolsFetcher = async (
@@ -142,7 +144,16 @@ const Home = () => {
         >
           <Marquee gradient={false} style={{ padding: "10px" }}>
             {HOMEPAGE_FUSE_POOLS.map((constantPool, i) => (
-              <HomeFuseCard
+              // <HoverCard w="100%" h="100%" mx={4}>
+              //   <FuseAssetBoxNew
+              //     pool={pools?.find(
+              //       (p) => parseInt(p.index) == constantPool.id
+              //     )}
+              //     // tokensData={tokensData}
+              //     key={i}
+              //   />
+              // </HoverCard>
+                <HomeFuseCard
                 pool={pools?.find((p) => parseInt(p.index) == constantPool.id)}
                 tokensData={tokensData}
                 key={i}

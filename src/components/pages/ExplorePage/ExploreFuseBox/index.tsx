@@ -135,7 +135,7 @@ export const FuseAssetBoxNew = ({
           bg=""
           flexGrow={1}
           p={3}
-          py={4}
+          py={3}
         >
           <LeftSide
             pool={pool}
