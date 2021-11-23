@@ -357,7 +357,7 @@ const ExplorePage = () => {
               py={4}
               spacing={4}
             >
-              {recommendedTokens.map((tokenAddress) => (
+              {recommendedTokens.slice(0, 3).map((tokenAddress) => (
                 <HoverCard w="100%" h="100%" ml={0} bg="">
                   <ExploreFuseCard
                     pool={
