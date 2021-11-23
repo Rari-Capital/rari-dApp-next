@@ -22,8 +22,7 @@ import { useTranslation } from "next-i18next";
 import { ReactNode, useMemo } from "react";
 
 // Utils
-import { smallUsdFormatter } from "utils/bigUtils";
-import { Column, Row } from "lib/chakraUtils";
+import { Column, Row, RowOrColumn } from "lib/chakraUtils";
 
 import {
   APIExploreData,
@@ -198,6 +197,13 @@ const ExplorePage = () => {
   const { t } = useTranslation();
 
   const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 10, lg: 10 });
+  const isMobile =
+    useBreakpointValue({
+      base: true,
+      sm: true,
+      md: true,
+      lg: false,
+    }) ?? false;
 
   // Data
   // Fetchers
@@ -242,34 +248,37 @@ const ExplorePage = () => {
       width="100%"
     >
       {/* Main Row */}
-      <Row
+      <RowOrColumn
         mainAxisAlignment="flex-start"
         crossAxisAlignment="flex-start"
+        isRow={!isMobile}
         w="100%"
         mb={5}
-        h="350px"
-        // bg="red"
+        height={isMobile ? "100%" : "350px"}
+        bg=""
       >
-        <AppLink href={"/overview"}>
-          <Box w="100%" h="100%" bg="" px={8} py={2}>
-            <DashboardBox
-              bg=""
-              w="100%"
-              h="100%"
-              p={0}
-              _hover={{
-                cursor: "pointer",
-                opacity: 1,
-                boxShadow: "0px .2px 4px grey;",
-              }}
-              transition="transform 0.2s ease 0s"
-              opacity={0.9}
-              overflow="hidden"
-            >
+        <Box w="100%" h="100%" bg="" px={8} py={2}>
+          <DashboardBox
+            bg="#272727"
+            w="100%"
+            h="100%"
+            p={0}
+            _hover={{
+              cursor: "pointer",
+              opacity: 1,
+              boxShadow: "0px .2px 4px grey;",
+              transform: "translateY(-7px) scale(1.00)",
+            }}
+            transition="transform 0.2s ease 0s"
+            opacity={0.9}
+            overflow="hidden"
+            flex={0}
+          >
+            <AppLink href={"/overview"}>
               <Image h="100%" w="100%" src="static/ad.png" />
-            </DashboardBox>
-          </Box>
-        </AppLink>
+            </AppLink>
+          </DashboardBox>
+        </Box>
 
         <Spacer />
 
@@ -315,11 +324,11 @@ const ExplorePage = () => {
             </HoverCard>
           </SimpleGrid>
         </Box>
-      </Row>
+      </RowOrColumn>
 
       {/* Recommended Row */}
       <Collapse in={hasBalances} animateOpacity style={{ width: "100%" }}>
-        <Row
+        <RowOrColumn
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           w="100%"
@@ -327,6 +336,7 @@ const ExplorePage = () => {
           bg=""
           px={8}
           py={4}
+          isRow={!isMobile}
         >
           <Column
             mainAxisAlignment="flex-start"
@@ -373,7 +383,7 @@ const ExplorePage = () => {
               ))}
             </HStack>
           </Column>
-        </Row>
+        </RowOrColumn>
       </Collapse>
 
       {/* Top Fuse Pools */}
@@ -382,7 +392,7 @@ const ExplorePage = () => {
         crossAxisAlignment="flex-start"
         w="100%"
         h="100%"
-        // bg="lime"
+        bg=""
         px={8}
         py={4}
         my={3}
@@ -411,9 +421,7 @@ const ExplorePage = () => {
             w="100%"
             h="100%"
             expand={true}
-            flex={1}
             py={4}
-            spacing={4}
           >
             <HoverCard w="100%" h="100%">
               <ExploreFuseCard
@@ -437,7 +445,7 @@ const ExplorePage = () => {
         </Column>
       </Row>
 
-      {/* Top Fuse Pools */}
+      {/* Token Explorer */}
       <HStack
         justify="flex-start"
         align="flex-start"
