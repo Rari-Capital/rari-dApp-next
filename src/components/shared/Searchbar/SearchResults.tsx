@@ -71,7 +71,8 @@ const SearchResults = ({
             <Text ml={2}>{fusePool.name}</Text>
             {!smaller && (
               <Text ml={"auto"}>
-                {shortUsdFormatter(fusePool.totalLiquidityUSD)} Liquidity
+                {shortUsdFormatter(parseFloat(fusePool.totalLiquidityUSD))}{" "}
+                Liquidity
               </Text>
             )}
           </Row>

@@ -61,6 +61,8 @@ export const FuseListForToken = ({
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
+  console.log({ token, poolsWithThisAsset });
+
   const fusePoolsDataForAsset: FusePoolDataForAsset[] = useMemo(() => {
     return poolsWithThisAsset.map((pool) => {
       const asset = pool.assets[poolAssetIndex[pool.id!]];
@@ -86,12 +88,12 @@ export const FuseListForToken = ({
 
   console.log({ fusePoolsDataForAsset });
 
-  // const {
-  //   sorted: sortedPools,
-  //   handleSortClick,
-  //   sortBy,
-  //   sortDir,
-  // } = useSortableList(fusePoolsDataForAsset);
+  const {
+    sorted: sortedPools,
+    handleSortClick,
+    sortBy,
+    sortDir,
+  } = useSortableList(fusePoolsDataForAsset);
 
   return (
     <Box h="100%" w="100%">

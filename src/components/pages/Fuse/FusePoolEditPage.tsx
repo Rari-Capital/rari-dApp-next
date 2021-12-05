@@ -48,7 +48,8 @@ import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { useExtraPoolInfo } from "./FusePoolInfoPage";
+import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
+
 
 // Utils
 import { createComptroller } from "utils/createComptroller";
@@ -71,6 +72,7 @@ import {
 import { useTokenBalance } from "hooks/useTokenBalance";
 import AddRewardsDistributorModal from "./Modals/AddRewardsDistributorModal";
 import EditRewardsDistributorModal from "./Modals/EditRewardsDistributorModal";
+import { useIsUpgradeable } from "hooks/fuse/edit/useIsUpgradable";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => {};
