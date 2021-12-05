@@ -88,6 +88,7 @@ interface RecommendedPoolsReturn {
 const recommendedPoolsFetcher = async (
   ...tokenAddresses: string[]
 ): Promise<RecommendedPoolsReturn> => {
+  
   // Get all pools where any of these tokens exist
   const { underlyingAssets } = await makeGqlRequest(
     GET_UNDERLYING_ASSETS_WITH_POOLS,
@@ -111,10 +112,13 @@ const recommendedPoolsFetcher = async (
   const uniquePools = [...Array.from(_uniquePools)] as string[];
 
   // Get Pools data
-  const { pools } = await makeGqlRequest(GET_RECOMMENDED_POOLS, {
-    poolIds: uniquePools,
-    tokenIds: tokenAddresses,
-  });
+  const { pools }: { pools: SubgraphPool[] } = await makeGqlRequest(
+    GET_RECOMMENDED_POOLS,
+    {
+      poolIds: uniquePools,
+      tokenIds: tokenAddresses,
+    }
+  );
 
   let poolsMap: {
     [token: string]: SubgraphPool;
@@ -368,7 +372,7 @@ const ExplorePage = () => {
               spacing={4}
             >
               {recommendedTokens.slice(0, 3).map((tokenAddress) => (
-                <HoverCard w="100%" h="100%" ml={0} bg="">
+                <HoverCard w="100%" h="100%" ml={0} bg="" key={tokenAddress}>
                   <ExploreFuseCard
                     pool={
                       poolsMap[recommended[tokenAddress]?.poolId] ?? undefined

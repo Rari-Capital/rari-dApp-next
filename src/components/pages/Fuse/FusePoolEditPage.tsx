@@ -26,7 +26,7 @@ import { SliderWithLabel } from "components/shared/SliderWithLabel";
 import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
 
 // React
-import { useQueryClient, useQuery } from "react-query";
+import { useQueryClient } from "react-query";
 import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 
 // Components
@@ -101,20 +101,7 @@ export enum ComptrollerErrorCodes {
   SUPPLY_ABOVE_MAX,
 }
 
-export const useIsUpgradeable = (comptrollerAddress: string) => {
-  const { fuse } = useRari();
 
-  const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
-
-    const isUpgradeable: boolean =
-      await comptroller.callStatic.adminHasRights();
-
-    return isUpgradeable;
-  });
-
-  return data;
-};
 
 export async function testForComptrollerErrorAndSend(
   txObject: any,

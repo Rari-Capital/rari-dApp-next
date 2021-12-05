@@ -76,11 +76,12 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
   return data as TokenData;
 };
 
-export const useTokenData = (address: string): TokenData | undefined => {
-  const { data: tokenData } = useQuery(
-    address + " tokenData",
-    async () => await fetchTokenData(address)
-  );
+export const useTokenData = (
+  address: string | undefined
+): TokenData | undefined => {
+  const { data: tokenData } = useQuery(address + " tokenData", async () => {
+    return !!address ? await fetchTokenData(address) : undefined;
+  });
   return tokenData;
 };
 

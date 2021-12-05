@@ -14,7 +14,6 @@ import Cors from "cors";
 
 
 // Ethers
-import { utils } from 'ethers'
 import { JsonRpcProvider } from "@ethersproject/providers"
 
 // Rari

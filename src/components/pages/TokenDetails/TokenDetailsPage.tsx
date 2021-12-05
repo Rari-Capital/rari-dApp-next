@@ -1,14 +1,72 @@
-import { Box, Heading, Link, Image, VStack } from "@chakra-ui/react";
-import { Column, Row, RowOrColumn } from "lib/chakraUtils";
+import {
+  Avatar,
+  Box,
+  Heading,
+  Link,
+  Image,
+  VStack,
+  HStack,
+  Text,
+} from "@chakra-ui/react";
+import { Center, Column, Row, RowOrColumn } from "lib/chakraUtils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 import { TokenData } from "hooks/useTokenData";
 import MarketChart from "components/modules/MarketChart";
 import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
+import { makeGqlRequest } from "utils/gql";
+import useSWR from "swr";
+import { useState } from "react";
+import { ChevronRightIcon } from "@chakra-ui/icons";
+import AppLink from "components/shared/AppLink";
+import { useDeployVault, useIsVaultCreated } from "lib/vaultsv2";
+import { useRari } from "context/RariContext";
+import FusePoolListForToken from "./FusePoolListForToken";
+import {
+  GET_BEST_CTOKENS_FOR_UNDERLYING,
+  GQLBestCTokenForUnderlyings,
+} from "gql/ctokens/getBestCTokensForUnderlying";
+import AvatarWithBadge from "components/shared/Icons/AvatarWithBadge";
+
+const fetchBestCTokensForUnderlying = async (tokenAddress: string) => {
+  const data: GQLBestCTokenForUnderlyings = await makeGqlRequest(
+    GET_BEST_CTOKENS_FOR_UNDERLYING,
+    {
+      tokenAddress,
+    }
+  );
+  return data;
+};
+
+const useBestCTokensForUnderlying = (tokenAddress: string) => {
+  const { data, error } = useSWR(
+    [tokenAddress.toLowerCase(), "best"],
+    fetchBestCTokensForUnderlying
+  );
+
+  const { bestSupplyAPY, bestBorrowAPR }: GQLBestCTokenForUnderlyings =
+    data ?? {
+      bestSupplyAPY: [],
+      bestBorrowAPR: [],
+    };
+
+  const bestSupplyCToken = bestSupplyAPY?.[0];
+  const bestBorrowCToken = bestBorrowAPR?.[0];
+
+  const ret = { bestSupplyCToken, bestBorrowCToken };
+  return ret;
+};
 
 const TokenDetails = ({ token }: { token: TokenData }) => {
   const isMobile = useIsSmallScreen();
+  const { fuse } = useRari();
+
+  const { bestSupplyCToken, bestBorrowCToken } = useBestCTokensForUnderlying(
+    token.address
+  );
+
+  const isVaultCreated = useIsVaultCreated(token.address);
+  const { deployVault, isDeploying } = useDeployVault();
 
   return (
     <Column
@@ -29,7 +87,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
         isRow={!isMobile}
         width="100%"
         h="100%"
-        bg="red"
+        // bg="red"
       >
         {/* Column 1 */}
         <Column
@@ -40,6 +98,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           p={2}
           flexBasis={"70%"}
           flexGrow={0}
+          mr={3}
         >
           {/* Chart */}
           <MarketChart token={token} mb={5} />
@@ -52,36 +111,76 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
         <VStack
           width="100%"
           height="100%"
-          mainAxisAlignment="center"
+          mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           p={2}
           flexBasis={"30%"}
           flexGrow={1}
+          bg=""
+          ml={3}
         >
-          <DashboardBox h="150px" w="100%">
-            <Heading mx="auto" my="auto">
-              Enter Vault
-            </Heading>
+          <DashboardBox
+            h="130px"
+            w="100%"
+            mb={2}
+            _hover={{
+              transform: "scale(1.02)",
+              cursor: "pointer",
+            }}
+            onClick={() =>
+              isVaultCreated ? undefined : deployVault(token.address)
+            }
+          >
+            <Center h="100%">
+              {isVaultCreated ? (
+                <Heading>Enter Vault</Heading>
+              ) : (
+                <VStack>
+                  {isDeploying ? (
+                    <Text>Deploying Vault</Text>
+                  ) : (
+                    <>
+                      <Text>Vault not yet created</Text>
+                      <Heading color={token.color}>Create Vault</Heading>
+                    </>
+                  )}
+                </VStack>
+              )}
+            </Center>
           </DashboardBox>
 
-          <DashboardBox h="290px" w="100%">
-            <Box w="100%" h="30%">
-              <Heading mx="auto" my="auto">
-                1
-              </Heading>
-            </Box>
-            <ModalDivider />
-            <Box w="100%" h="30%">
-              <Heading mx="auto" my="auto">
-                2
-              </Heading>
-            </Box>
-            <ModalDivider />
-            <Box w="100%" h="30%">
-              <Heading mx="auto" my="auto">
-                3
-              </Heading>
-            </Box>
+          <DashboardBox h="100%" w="100%" px={5} py={3} flexGrow={1} mt={2}>
+            <Heading mb={2}>{"Lend & Borrow"}</Heading>
+            <VStack h="100%" w="100%" mt={2}>
+              <CTokenBox
+                title={"Best Supply APY"}
+                subtitle={
+                  !!bestSupplyCToken?.supplyAPY
+                    ? `${parseFloat(bestSupplyCToken.supplyAPY).toFixed(2)}%`
+                    : undefined
+                }
+                href={
+                  bestSupplyCToken
+                    ? `/fuse/pool/${bestSupplyCToken.pool.index}`
+                    : "#"
+                }
+              />
+              <CTokenBox
+                title={"Best Borrow APR"}
+                subtitle={
+                  !!bestBorrowCToken?.borrowAPR
+                    ? `${parseFloat(bestBorrowCToken.borrowAPR).toFixed(2)}%`
+                    : undefined
+                }
+                href={
+                  bestBorrowCToken
+                    ? `/fuse/pool/${bestBorrowCToken.pool.index}`
+                    : "#"
+                }
+              />
+
+              <CTokenBox title={"Highest LTV"} subtitle={"60%"} href="#" />
+            </VStack>
           </DashboardBox>
 
           {/* Chart */}
@@ -90,6 +189,20 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           {/* <AssetOpportunities token={token} /> */}
         </VStack>
       </RowOrColumn>
+
+      <VStack h="100%" w="100%" bg="" alignItems="flex-start">
+        <HStack h="100%" w="100%" bg="" alignItems="center">
+          <Heading p={4}>{"Lend & Borrow"}</Heading>
+          <Avatar src={token.logoURL} />
+          {/* <AvatarWithBadge
+            outerImage={token.logoURL}
+            badgeImage={"/static/fuseicon.png"}
+          /> */}
+        </HStack>
+        <Box w="100%" h="400px">
+          <FusePoolListForToken token={token} />
+        </Box>
+      </VStack>
     </Column>
   );
 };
@@ -181,5 +294,51 @@ const Header = ({
         </Row>
       </Row>
     </Row>
+  );
+};
+
+const CTokenBox = ({
+  title,
+  subtitle,
+  href = "#",
+}: {
+  title: string;
+  subtitle?: string;
+  href: string;
+}) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <AppLink
+      href={href}
+      as={Box}
+      w="100%"
+      bg={hovered ? "" : ""}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      _hover={{
+        cursor: "pointer",
+        opacity: 1,
+      }}
+      opacity={0.9}
+    >
+      <HStack w="100%" justifyContent="space-between" bg="">
+        <VStack h="100%" bg="" alignItems="flex-start">
+          <Text my="auto" color="#676767">
+            {title}
+          </Text>
+          <Heading bgGradient="linear(to-l, #7928CA, #FF0080)" bgClip="text">
+            {subtitle}
+          </Heading>
+        </VStack>
+        <Box ml="auto" bg="" pr={24}>
+          <ChevronRightIcon
+            transition="transform 0.2s ease 0s"
+            transform={hovered ? "translateX(7px) scale(1.00)" : ""}
+            ml="auto"
+          />
+        </Box>
+      </HStack>
+    </AppLink>
   );
 };

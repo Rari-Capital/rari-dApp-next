@@ -31,7 +31,7 @@ export const CTokenAvatarGroup = ({
   ...props
 }: {
   tokenAddresses: string[];
-  popOnHover: boolean;
+  popOnHover?: boolean;
   [x: string]: any;
 }) => {
   return (

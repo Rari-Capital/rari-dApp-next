@@ -2,21 +2,21 @@ export interface GQLCToken {
   id: string;
   name: string;
   symbol: string;
-  supplyRatePerBlock: number;
-  borrowRatePerBlock: number;
-  supplyAPY: number;
-  borrowAPR: number;
-  liquidity: number;
-  liquidityUSD: number;
-  totalSupply: number;
-  totalBorrow: number;
-  totalSupplyUSD: number;
-  totalBorrowUSD: number;
-  adminFee: number;
-  fuseFee: number;
-  reserveFactor: number;
-  underlyingBalance: number;
-  underlying? : GQLUnderlyingAsset;
+  supplyRatePerBlock: string;
+  borrowRatePerBlock: string;
+  supplyAPY: string;
+  borrowAPR: string;
+  liquidity: string;
+  liquidityUSD: string;
+  totalSupply: string;
+  totalBorrow: string;
+  totalSupplyUSD: string;
+  totalBorrowUSD: string;
+  adminFee: string;
+  fuseFee: string;
+  reserveFactor: string;
+  underlyingBalance: string;
+  underlying?: GQLUnderlyingAsset;
   pool?: GQLFusePool;
 }
 
@@ -25,29 +25,30 @@ export interface GQLUnderlyingAsset {
   id: string;
   name: string;
   symbol: string;
-  price: number;
-  totalBorrow: number;
-  totalBorrowUSD: number;
-  totalLiquidity: number;
-  totalLiquidityUSD: number;
-  totalSupply: number;
-  totalSupplyUSD: number;
+  price: string;
+  totalBorrow: string;
+  totalBorrowUSD: string;
+  totalLiquidity: string;
+  totalLiquidityUSD: string;
+  totalSupply: string;
+  totalSupplyUSD: string;
   pools?: GQLFusePool[];
   ctokens?: GQLCToken[];
 }
 
 export interface GQLFusePool {
   address: string;
-  closeFactor: number;
+  closeFactor: string;
   comptroller: string;
   id: string;
-  index: number;
-  maxAssets: number;
-  liquidationIncentive: number;
+  index: string;
+  maxAssets: string;
+  liquidationIncentive: string;
   name: string;
   priceOracle: string;
-  totalBorrowUSD: number;
-  totalLiquidityUSD: number;
-  totalSupplyUSD: number;
+  totalBorrowUSD: string;
+  totalLiquidityUSD: string;
+  totalSupplyUSD: string;
   assets?: GQLCToken[];
+  underlyingAssets?: GQLUnderlyingAsset[];
 }

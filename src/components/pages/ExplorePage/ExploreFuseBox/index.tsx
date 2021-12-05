@@ -18,7 +18,11 @@ import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { RariApiTokenData } from "types/tokens";
 import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 import { ModalDivider } from "components/shared/Modal";
-import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
+import {
+  TokenData,
+  useTokenData,
+  useTokensDataAsMap,
+} from "hooks/useTokenData";
 
 export enum ExploreGridBoxMetric {
   TOTAL_BORROWS,
@@ -56,6 +60,14 @@ export const FuseAssetBoxNew = ({
     else return !pool;
   }, [pool, assetIndex, cToken]);
 
+  const _tokenData = useTokenData(
+    assetIndex ? pool?.assets[assetIndex].underlying.address : undefined
+  );
+
+  const TokenData = tokenData ?? _tokenData;
+
+  console.log({ tokenData, _tokenData, TokenData });
+
   return (
     <AppLink
       href={
@@ -92,7 +104,7 @@ export const FuseAssetBoxNew = ({
           <Box my={1} bg="">
             <SkeletonCircle isLoaded={!loading} boxSize={["30px", "45px"]}>
               {!!cToken ? (
-                <Avatar src={tokenData?.logoURL} h="100%" w="100%" />
+                <Avatar src={TokenData?.logoURL} h="100%" w="100%" />
               ) : (
                 <FusePoolBadge pool={pool} />
               )}
@@ -141,9 +153,9 @@ export const FuseAssetBoxNew = ({
             pool={pool}
             assetIndex={assetIndex}
             metric={metric}
-            tokenData={tokenData}
+            tokenData={TokenData}
           />
-          <RightSide tokenData={tokenData} pool={pool} balance={balance} />
+          <RightSide tokenData={TokenData} pool={pool} balance={balance} />
         </Row>
       </Column>
     </AppLink>

@@ -12,7 +12,7 @@ const SUBGRAPH_V5 = "https://api.studio.thegraph.com/query/853/fuse-zacel/0.5.31
 
 export const makeGqlRequest = async (query: any, vars: any = {}) => {
   try {
-    return await request(SUBGRAPH_V4, query, { ...vars });
+    return await request(SUBGRAPH_V5, query, { ...vars });
   } catch (err) {
     console.error(err);
   }

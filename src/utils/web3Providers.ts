@@ -2,7 +2,7 @@ import { Fuse } from "../esm/index";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 
-export const alchemyURL =  `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
+export const alchemyURL =  `https://rpc.tenderly.co/fork/56f3694f-48fc-4db3-83a2-fe38f5ffc030`;
 export const providerURL = `http://127.0.0.1:8545/`;
 
 export function chooseBestWeb3Provider(): JsonRpcProvider | Web3Provider {

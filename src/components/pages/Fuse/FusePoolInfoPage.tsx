@@ -51,58 +51,12 @@ import { memo, useState } from "react";
 // Utils
 import { shortAddress } from "utils/shortAddress";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import { createComptroller } from "utils/createComptroller";
 import { shortUsdFormatter } from "utils/bigUtils";
 
 // Ethers
-import { utils, BigNumber, constants } from "ethers";
+import { utils, BigNumber } from "ethers";
+import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 
-// Todo - fix this some reason some `whitelist` dont work
-export const useExtraPoolInfo = (comptrollerAddress: string) => {
-  const { fuse, address } = useRari();
-
-  const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
-    console.log({ comptroller, constants });
-
-    const whitelist: any[] = [];
-
-    const { 0: admin, 1: upgradeable } =
-      await fuse.contracts.FusePoolLensSecondary.getPoolOwnership(
-        comptrollerAddress,
-      );
-
-    const oracle = await fuse.getPriceOracle(
-      await comptroller.callStatic.oracle()
-    );
-
-    const closeFactor = await comptroller.callStatic.closeFactorMantissa();
-    const liquidationIncentive =
-      await comptroller.callStatic.liquidationIncentiveMantissa();
-
-    const enforceWhitelist = await comptroller.callStatic.enforceWhitelist();
-
-    // const whitelist = await comptroller.callStatic.getWhitelist({
-    //   gasLimit: constants.WeiPerEther,
-    // });
-
-    const obj = {
-      admin,
-      upgradeable,
-      enforceWhitelist,
-      whitelist,
-      isPowerfulAdmin:
-        admin.toLowerCase() === address.toLowerCase() && upgradeable,
-      oracle,
-      closeFactor,
-      liquidationIncentive,
-    };
-
-    return obj;
-  });
-
-  return data;
-};
 
 const FusePoolInfoPage = memo(() => {
   const { isAuthed } = useRari();

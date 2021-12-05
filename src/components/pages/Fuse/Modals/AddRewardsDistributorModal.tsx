@@ -23,12 +23,10 @@ import DashboardBox, {
 } from "../../../shared/DashboardBox";
 import { ModalDivider, MODAL_PROPS } from "../../../shared/Modal";
 
-import { ETH_TOKEN_DATA, TokenData, useTokenData } from "hooks/useTokenData";
+import { useTokenData } from "hooks/useTokenData";
 import SmallWhiteCircle from "static/small-white-circle.png";
 import { useRari } from "context/RariContext";
 import { Fuse } from "esm";
-
-import { ConfigRow } from "../FusePoolEditPage";
 
 import {
   createComptroller,
