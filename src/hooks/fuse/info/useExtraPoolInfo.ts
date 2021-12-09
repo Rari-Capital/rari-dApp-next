@@ -8,7 +8,6 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
   
     const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
       const comptroller = createComptroller(comptrollerAddress, fuse);
-      console.log({ comptroller });
   
       const whitelist: any[] = [];
   

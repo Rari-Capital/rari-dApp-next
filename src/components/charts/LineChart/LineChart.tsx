@@ -128,7 +128,7 @@ const LineChart = ({
   }, [color, chartCreated, currentValue, data, height, setValue, textColor])
 
 
-  console.log({chartCreated})
+  // console.log({chartCreated})
 
  // Set the data once the chart is created
   useEffect(() => {

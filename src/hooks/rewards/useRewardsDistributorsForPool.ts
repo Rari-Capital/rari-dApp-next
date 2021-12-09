@@ -20,12 +20,12 @@ export const useRewardsDistributorsForPool = (
       if (!comptrollerAddress) return [];
       const comptroller = createComptroller(comptrollerAddress, fuse);
 
-      console.log({ comptroller });
+      // console.log({ comptroller });
 
       const rewardsDistributors: string[] =
         await comptroller.callStatic.getRewardsDistributors();
 
-      console.log({ rewardsDistributors });
+      // console.log({ rewardsDistributors });
 
       if (!rewardsDistributors.length) return [];
 
@@ -41,7 +41,7 @@ export const useRewardsDistributorsForPool = (
             fuse.provider.getSigner()
           );
 
-          console.log({ addr, distributor });
+          // console.log({ addr, distributor });
 
           const ret = {
             address: addr,

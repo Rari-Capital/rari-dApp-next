@@ -14,10 +14,8 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
-import { toInt } from "utils/ethersUtils";
 
 // Ethers
-import { BigNumber } from "@ethersproject/bignumber";
 
 export interface FusePool {
   name: string;
@@ -122,8 +120,6 @@ export const fetchPools = async ({
     3: errors,
   }: LensPoolsWithData = await req;
 
-  console.log({fusePoolsData})
-
   const merged: MergedPool[] = [];
   for (let i = 0; i < ids.length; i++) {
     const id = parseFloat(ids[i]);
@@ -165,8 +161,6 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
   );
 
   const pools = _pools ?? [];
-
-  console.log;
 
   const filteredPools = useMemo(() => {
     if (!pools.length) {

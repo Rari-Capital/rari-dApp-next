@@ -13,12 +13,9 @@ import {
   Heading,
 } from "@chakra-ui/react";
 
-import BigNumber from "bignumber.js";
 import { Column, Row } from "lib/chakraUtils";
 
-import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
-import { useQuery } from "react-query";
 
 import { useRari } from "context/RariContext";
 

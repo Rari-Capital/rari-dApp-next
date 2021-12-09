@@ -119,7 +119,9 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           bg=""
           ml={3}
         >
-          <DashboardBox
+          <AppLink
+            href={`/vaults/${token.address}`}
+            as={DashboardBox}
             h="130px"
             w="100%"
             mb={2}
@@ -127,13 +129,13 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
               transform: "scale(1.02)",
               cursor: "pointer",
             }}
-            onClick={() =>
-              isVaultCreated ? undefined : deployVault(token.address)
-            }
+            // onClick={() =>
+            //   isVaultCreated ? undefined : deployVault(token.address)
+            // }
           >
             <Center h="100%">
               {isVaultCreated ? (
-                <Heading>Enter Vault</Heading>
+                <Heading color={token.color}>Enter Vault</Heading>
               ) : (
                 <VStack>
                   {isDeploying ? (
@@ -147,7 +149,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 </VStack>
               )}
             </Center>
-          </DashboardBox>
+          </AppLink>
 
           <DashboardBox h="100%" w="100%" px={5} py={3} flexGrow={1} mt={2}>
             <Heading mb={2}>{"Lend & Borrow"}</Heading>

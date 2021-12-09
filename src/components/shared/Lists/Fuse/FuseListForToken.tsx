@@ -61,7 +61,7 @@ export const FuseListForToken = ({
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
-  console.log({ token, poolsWithThisAsset });
+  // console.log({ token, poolsWithThisAsset });
 
   const fusePoolsDataForAsset: FusePoolDataForAsset[] = useMemo(() => {
     return poolsWithThisAsset.map((pool) => {
@@ -86,7 +86,7 @@ export const FuseListForToken = ({
     });
   }, [poolsWithThisAsset, poolAssetIndex]);
 
-  console.log({ fusePoolsDataForAsset });
+  // console.log({ fusePoolsDataForAsset });
 
   const {
     sorted: sortedPools,

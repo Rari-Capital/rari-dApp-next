@@ -557,7 +557,7 @@ const AssetSupplyRow = ({
           .join(", ")}
          `;
 
-  console.log({ supplyIncentives });
+  // console.log({ supplyIncentives });
 
   const _hovered = hovered > 0 ? hovered : 0;
 

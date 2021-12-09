@@ -65,13 +65,13 @@ const useRewardSpeedsOfCToken = (rDAddress: any, cTokenAddress?: string) => {
 
     // Get Supply reward speed for this CToken from the mapping
     instance.callStatic.compSupplySpeeds(cTokenAddress).then((result: any) => {
-      console.log({ result });
+      // console.log({ result });
       setSupplySpeed(result);
     });
 
     // Get Borrow reward speed for this CToken from the mapping
     instance.callStatic.compBorrowSpeeds(cTokenAddress).then((result: any) => {
-      console.log({ result });
+      // console.log({ result });
       setBorrowSpeed(result);
     });
   }, [instance, fuse, cTokenAddress]);
@@ -288,7 +288,6 @@ const EditRewardsDistributorModal = ({
                 step={0.1}
                 min={0}
                 onChange={(valueString) => {
-                  console.log({ valueString });
                   setSendAmt(parseFloat(valueString));
                 }}
               >
@@ -373,7 +372,7 @@ const EditRewardsDistributorModal = ({
                     step={0.1}
                     min={0}
                     onChange={(supplySpeed) => {
-                      console.log({ supplySpeed });
+                      // console.log({ supplySpeed });
                       setSupplySpeed(parseFloat(supplySpeed));
                     }}
                   >
@@ -420,7 +419,7 @@ const EditRewardsDistributorModal = ({
                     step={0.1}
                     min={0}
                     onChange={(borrowSpeed) => {
-                      console.log({ borrowSpeed });
+                      // console.log({ borrowSpeed });
                       setBorrowSpeed(parseFloat(borrowSpeed));
                     }}
                   >

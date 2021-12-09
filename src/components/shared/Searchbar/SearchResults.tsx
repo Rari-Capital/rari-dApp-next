@@ -85,7 +85,7 @@ const SearchResults = ({
     return tokens.map((token, i: number) => {
       const route =
         token.id === ETH_TOKEN_DATA.address
-          ? `/token/eth`
+          ? `/token/${ETH_TOKEN_DATA.address}`
           : `/token/${token.id}`;
       return (
         <AppLink

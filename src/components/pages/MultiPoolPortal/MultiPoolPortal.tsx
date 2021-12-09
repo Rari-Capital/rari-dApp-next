@@ -62,7 +62,7 @@ import AppLink from "components/shared/AppLink";
 import { useTVLFetchers } from "hooks/useTVL";
 import { usePoolAPY } from "hooks/usePoolAPY";
 
-import BigNumber from "bignumber.js";
+import { BigNumber } from "ethers";
 import { InfoIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useNoSlippageCurrencies } from "hooks/useNoSlippageCurrencies";
 import { usePoolInterestEarned } from "hooks/usePoolInterest";
@@ -156,17 +156,14 @@ const GovernanceStats = () => {
     async () => {
       const rawBalance = await rari.governance.rgt.balanceOf(address);
 
-      return stringUsdFormatter(fromWei(rawBalance)).replace(
-        "$",
-        ""
-      );
+      return stringUsdFormatter(fromWei(rawBalance)).replace("$", "");
     }
   );
 
   const { data: rgtSupply } = useQuery("rgtSupply", async () => {
     const rawSupply =
       //@ts-ignore
-      await rari.governance.contracts.RariGovernanceToken.totalSupply()
+      await rari.governance.contracts.RariGovernanceToken.totalSupply();
 
     return smallStringUsdFormatter((parseFloat(rawSupply) / 1e18).toFixed(0))
       .replace("$", "")
@@ -498,7 +495,7 @@ const InterestEarned = () => {
     if (interestEarned && yieldPoolBalance) {
       if (
         interestEarned.yieldPoolInterestEarned.isZero() &&
-        new BigNumber(yieldPoolBalance.toString()).div(1e18).gt(20)
+        BigNumber.from(yieldPoolBalance.toString()).div(1e18).gt(20)
       ) {
         return true;
       } else {

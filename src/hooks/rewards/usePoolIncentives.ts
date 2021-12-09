@@ -49,8 +49,6 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
     }
   );
 
-  console.log({ data, fuse });
-
   // 2. Destructure data from Contract call
   const cTokens: string[] = data?.[0] ?? [];
   const rewardsDistributors: string[] = data?.[1] ?? [];
@@ -125,7 +123,6 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
     rewardTokens,
     comptroller!
   );
-  // const  = useAssetPricesInEth(
 
   if (hasIncentives) {
     console.log({ incentives, incentivesWithRates });

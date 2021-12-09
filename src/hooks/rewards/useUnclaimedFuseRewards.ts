@@ -147,12 +147,12 @@ export function useUnclaimedFuseRewards() {
           .getUnclaimedRewardsByDistributors(address, uniqueRDs)
           .call();
 
-      console.log({ address, uniqueRDs, unclaimedResults });
+      // console.log({ address, uniqueRDs, unclaimedResults });
 
       const rewardTokens = unclaimedResults[0];
       const unclaimedAmounts = unclaimedResults[1];
 
-      console.log({ unclaimedAmounts });
+      // console.log({ unclaimedAmounts });
 
       const results: { rewardToken: string; unclaimed: number }[] = [];
 
@@ -180,7 +180,7 @@ export function useUnclaimedFuseRewards() {
       }
     }) ?? [];
 
-  console.log({ _unclaimed, unclaimed });
+  // console.log({ _unclaimed, unclaimed });
 
   //   console.log("rewards2", {
   //     rewardsDistributorsByFusePool,

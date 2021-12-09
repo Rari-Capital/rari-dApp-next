@@ -7,7 +7,6 @@ import { useRari } from "context/RariContext";
 import LendingPool from "./LendingPool";
 
 // Utils
-import Web3 from "web3";
 import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
 // Types

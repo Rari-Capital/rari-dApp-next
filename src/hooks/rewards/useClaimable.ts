@@ -75,8 +75,6 @@ export function useClaimable(showPrivate: boolean = false): UseClaimableReturn {
     unclaimedFuseRewards,
   ]);
 
-  console.log({ unclaimedFuseRewards });
-
   // Construct a list of claimable rewards across reward types
   const allClaimable: GenericClaimableReward[] = useMemo(() => {
     // Fuse Rewards
@@ -85,8 +83,6 @@ export function useClaimable(showPrivate: boolean = false): UseClaimableReturn {
         mode: "fuse",
         unclaimed: unclaimedFuseReward,
       })) ?? [];
-
-    console.log({ unclaimedFuseRewards });
 
     // RGT Rewards
     const rgtRewards: GenericClaimableReward[] = [];

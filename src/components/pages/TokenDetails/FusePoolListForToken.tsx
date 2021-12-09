@@ -85,7 +85,7 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
     <Box w="100%" h="100%" bg="" overflowY="scroll">
       <Table variant="unstyled">
         <Thead position="sticky" top={0} left={0} bg="" zIndex={4}>
-          <Tr bg="" color="#7D7D7D">
+          <Tr bg="black" color="#7D7D7D">
             <Th fontSize="sm" fontWeight="normal">
               Fuse Pool
             </Th>

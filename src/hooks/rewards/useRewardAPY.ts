@@ -77,7 +77,7 @@ export const useIncentivesWithRates = (
     [...underlyings, ...rewardTokenAddrs],
     comptroller
   );
-  console.log({ incentives, cTokensDataMap, underlyings, tokenPrices });
+  // console.log({ incentives, cTokensDataMap, underlyings, tokenPrices });
 
   // This shit is bananas
   if (!tokenPrices || !ctokenAddrs) return {};
@@ -186,7 +186,7 @@ export const useCTokensDataForRewards = (
       const cTokensArray = await Promise.all(
         cTokenAddrs.map(async (cTokenAddr) => {
           const ctokenInstance = createCToken(fuse, cTokenAddr);
-          console.log({ ctokenInstance });
+          // console.log({ ctokenInstance });
           const underlying = await ctokenInstance.callStatic.underlying();
 
           const decimals = await ctokenInstance.callStatic.decimals();
@@ -197,7 +197,7 @@ export const useCTokensDataForRewards = (
           const exchangeRateCurrent: BigNumber =
             await ctokenInstance.callStatic.exchangeRateCurrent();
 
-          console.log({ underlying, cTokenTotalSupply, exchangeRateCurrent });
+          // console.log({ underlying, cTokenTotalSupply, exchangeRateCurrent });
 
           const underlyingTotalSupply2 = cTokenTotalSupply
             .mul(exchangeRateCurrent)
@@ -223,7 +223,7 @@ export const useCTokensDataForRewards = (
             totalSupply: underlyingTotalSupply2 ?? 0,
           };
 
-          console.log({ obj });
+          // console.log({ obj });
 
           _map[cTokenAddr] = obj;
 

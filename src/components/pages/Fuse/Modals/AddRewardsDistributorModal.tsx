@@ -32,8 +32,9 @@ import {
   createComptroller,
   createRewardsDistributor,
 } from "utils/createComptroller";
-import Web3 from "web3";
 import TransactionStepper from "components/shared/TransactionStepper";
+
+import { utils } from "ethers";
 
 const steps = ["Deploying Rewards Distributor", "Configuring Comptroller"];
 
@@ -76,8 +77,8 @@ const AddRewardsDistributorModal = ({
     }
 
     try {
-      const validAddress = Web3.utils.toChecksumAddress(address);
-      if (validAddress && isRewardsDistributorAddress) {
+      const validAddress = utils.getAddress(address);
+      if (!!validAddress && isRewardsDistributorAddress) {
         const rd = createRewardsDistributor(address, fuse);
         rd.methods
           .rewardToken()

@@ -66,7 +66,7 @@ export const FuseAssetBoxNew = ({
 
   const TokenData = tokenData ?? _tokenData;
 
-  console.log({ tokenData, _tokenData, TokenData });
+  // console.log({ tokenData, _tokenData, TokenData });
 
   return (
     <AppLink

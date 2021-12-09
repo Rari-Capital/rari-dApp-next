@@ -12,7 +12,7 @@ import {
   NumberInputStepper,
   Select,
 } from "@chakra-ui/react";
-import BigNumber from "bignumber.js";
+import { BigNumber } from "ethers";
 import { Column, Row } from "lib/chakraUtils";
 
 import { useEffect, useState } from "react";
@@ -99,7 +99,7 @@ export const ClaimRGTModal = ({
     claimMethod(
       toBN(
         //@ts-ignore
-        new BigNumber(amount).multipliedBy(1e18).decimalPlaces(0)
+        BigNumber.from(amount).mul(1e18)
       ),
       { from: address }
     );
