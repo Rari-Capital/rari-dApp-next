@@ -17,6 +17,9 @@ export const ETH_TOKEN_DATA = {
     "https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/64/Ethereum-ETH-icon.png",
 };
 
+export const WETH9_TOKEN_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+export const WETH9_TOKEN_ADDRESS_KOVAN =
+  "0xd0a1e359811322d97991e03f863a0c30c2cf029c";
 export interface TokenData {
   name: string;
   symbol: string;
@@ -45,16 +48,17 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
 
   if (address !== ETH_TOKEN_DATA.address) {
     try {
+      // Since running the vercel functions requires a Vercel account and is super slow,
+      // just fetch this data from the live site in development:
+      let url =
+        (process.env.NODE_ENV === "development"
+          ? "https://app.rari.capital"
+          : "") +
+        "/api/tokenData?address=" +
+        address;
+
       data = {
-        ...(await fetch(
-          // Since running the vercel functions requires a Vercel account and is super slow,
-          // just fetch this data from the live site in development:
-          (process.env.NODE_ENV === "development"
-            ? "https://app.rari.capital"
-            : "") +
-            "/api/tokenData?address=" +
-            address
-        ).then((res) => res.json())),
+        ...(await fetch(url).then((res) => res.json())),
         address: address,
       };
     } catch (e) {

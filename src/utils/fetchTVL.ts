@@ -4,10 +4,7 @@ import { Vaults, Fuse } from "../esm/index";
 // Ethers
 import { BigNumber as EthersBigNumber, constants } from "ethers";
 
-import BigNumber from "bignumber.js";
-
 export const fetchFuseTVL = async (fuse: Fuse) => {
-
   const res =
     await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
       true
@@ -16,11 +13,11 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
   const { 2: suppliedETHPerPool } = res;
 
   const totalSuppliedETH = EthersBigNumber.from(
-    new BigNumber(
+    EthersBigNumber.from(
       suppliedETHPerPool
         .reduce((a: number, b: string) => a + parseInt(b), 0)
         .toString()
-    ).toFixed(0)
+    )
   );
 
   return totalSuppliedETH;
@@ -36,23 +33,24 @@ export const fetchFuseTVLBorrowsAndSupply = async (
       .getPublicPoolsWithData()
       .call({ gas: 1e18 }, blockNum);
 
-  const totalSuppliedETH = EthersBigNumber.from(
-    new BigNumber(
-      suppliedETHPerPool
-        .reduce((a: number, b: string) => a + parseInt(b), 0)
-        .toString()
-    ).toFixed(0)
-  );
+  let totalSuppliedETH = suppliedETHPerPool
+    .reduce((a: number, b: string) => a + parseInt(b), 0)
+    .toFixed(2);
 
-  const totalBorrowedETH = EthersBigNumber.from(
-    new BigNumber(
-      borrowedETHPerPool
-        .reduce((a: number, b: string) => a + parseInt(b), 0)
-        .toString()
-    ).toFixed(0)
-  );
+  let totalBorrowedETH = borrowedETHPerPool
+    .reduce((a: number, b: string) => a + parseInt(b), 0)
+    .toFixed(2);
 
-  return { totalSuppliedETH, totalBorrowedETH };
+  console.log({ totalSuppliedETH, totalBorrowedETH });
+
+  let totalSuppliedETHBN = EthersBigNumber.from(totalSuppliedETH);
+
+  const totalBorrowedETHBN = EthersBigNumber.from(totalBorrowedETH);
+
+  return {
+    totalSuppliedETH: totalSuppliedETHBN,
+    totalBorrowedETH: totalBorrowedETHBN,
+  };
 };
 
 export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
@@ -95,17 +93,22 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
     ethTVL,
     daiTVL,
     fuseTVL,
-    stakedTVL
+    stakedTVL,
   };
 };
 
 export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) => {
-  const tvls = await perPoolTVL(Vaults, fuse);
+  try {
+    const tvls = await perPoolTVL(Vaults, fuse);
 
-  return tvls.stableTVL
-    .add(tvls.yieldTVL)
-    .add(tvls.ethTVL)
-    .add(tvls.daiTVL)
-    .add(tvls.stakedTVL)
-    .add(tvls.fuseTVL);
+    return tvls.stableTVL
+      .add(tvls.yieldTVL)
+      .add(tvls.ethTVL)
+      .add(tvls.daiTVL)
+      .add(tvls.stakedTVL)
+      .add(tvls.fuseTVL);
+  } catch (err) {
+    console.log({ err });
+    return constants.Zero;
+  }
 };

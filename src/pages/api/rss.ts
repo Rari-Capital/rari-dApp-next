@@ -277,7 +277,7 @@ export default async (request: NowRequest, response: NowResponse) => {
       const rss = await computeAssetRSS(address);
       return response.json({ ...rss, lastUpdated });
     } catch (err) {
-      console.log({ err });
+      // console.log({ err });
       return response.status(500);
     }
   } else if (poolID) {

@@ -9,17 +9,18 @@ import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 
 // Hooks
 import { ETH_TOKEN_DATA } from "./useTokenData";
-import BigNumber from "bignumber.js";
 
 // Ethers
-import { Contract, BigNumber as EthersBigNumber } from "ethers";
+import { Contract, BigNumber as EthersBigNumber, constants } from "ethers";
 
 export const fetchTokenBalance = async (
-  tokenAddress: string,
+  tokenAddress: string | undefined,
   fuse: Fuse,
   address?: string
 ): Promise<EthersBigNumber> => {
   let balance;
+
+  if (!tokenAddress) return constants.Zero;
 
   if (!address || address === ETH_TOKEN_DATA.address) {
     balance = "0";
@@ -40,10 +41,13 @@ export const fetchTokenBalance = async (
   return balance;
 };
 
-export function useTokenBalance(tokenAddress: string, customAddress?: string) {
+export function useTokenBalance(
+  tokenAddress: string | undefined,
+  customHolder?: string
+) {
   const { fuse, address } = useRari();
 
-  const addressToCheck = customAddress ?? address;
+  const addressToCheck = customHolder ?? address;
 
   return useQuery(tokenAddress + " balanceOf " + addressToCheck, () =>
     fetchTokenBalance(tokenAddress, fuse, addressToCheck)
@@ -52,7 +56,6 @@ export function useTokenBalance(tokenAddress: string, customAddress?: string) {
 
 export function useTokenBalances(tokenAddresses: string[]): number[] {
   const { fuse, address } = useRari();
-
 
   const balances = useQueries(
     tokenAddresses.map((tokenAddress: string) => {
@@ -67,7 +70,9 @@ export function useTokenBalances(tokenAddresses: string[]): number[] {
 
   return useMemo(() => {
     return balances.map((bal) => {
-      return bal.data ? parseFloat((bal.data as BigNumber).toString()) : 0;
+      return bal.data
+        ? parseFloat((bal.data as EthersBigNumber).toString())
+        : 0;
     });
   }, [balances]);
 }

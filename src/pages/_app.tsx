@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 // Next
 import { AppProps } from "next/app";
 import dynamic from "next/dynamic";
@@ -68,9 +66,7 @@ const customTheme = {
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    console.log("render");
-  }, []);
+  console.log("render MyApp");
 
   return (
     <ChakraProvider theme={customTheme}>

@@ -5,6 +5,7 @@ import {
 
 export const  PRODUCTS_DROPDOWN_ITEMS: MenuItemInterface[] = [
   { type: MenuItemType.LINK, link: { name: "Fuse", route: "/fuse" } },
+  { type: MenuItemType.LINK, link: { name: "Vaults", route: "/vaults" } },
   { type: MenuItemType.LINK, link: { name: "Pool2", route: "/pool2" } },
   { type: MenuItemType.LINK, link: { name: "Tranches", route: "/tranches" } },
   { type: MenuItemType.LINK, link: { name: "Overview", route: "/overview" } },
