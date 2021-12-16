@@ -104,7 +104,10 @@ const VaultCard = ({ vault }: { vault: GetVaultsResult_Vault }) => {
 
       {/* BarBar */}
       <Box width="100%" h="100%" px={4} mb="auto">
-        <BaarBaar strategies={vault.trustedStrategies} />
+        <BaarBaar
+          strategies={vault.trustedStrategies}
+          totalHoldings={vault.totalHoldings}
+        />
       </Box>
     </AppLink>
   );
@@ -112,8 +115,8 @@ const VaultCard = ({ vault }: { vault: GetVaultsResult_Vault }) => {
 
 type BalanceObj = Pick<SubgraphStrategy, "balance">;
 
-const BaarBaar = ({ strategies }: { strategies: SubgraphStrategy[] }) => {
-  const strategiesMap = useMemo(() => {
+export const useVaultStrategyPercentages = (strategies: SubgraphStrategy[]) => {
+  return useMemo(() => {
     const map: { [id: string]: number } = {};
     if (strategies.length) {
       // Get the total balance of all the strategies
@@ -132,7 +135,8 @@ const BaarBaar = ({ strategies }: { strategies: SubgraphStrategy[] }) => {
         const stratBalance = BigNumber.from(strat.balance);
 
         let percent = Math.ceil(
-          stratBalance.mul(10000).div(totalBalance).toNumber() / 100
+          stratBalance.mul(10000).div(BigNumber.from(totalBalance)).toNumber() /
+            100
         );
 
         map[strat.id] = percent;
@@ -140,7 +144,16 @@ const BaarBaar = ({ strategies }: { strategies: SubgraphStrategy[] }) => {
     }
     return map;
   }, [strategies]);
+};
 
+const BaarBaar = ({
+  strategies,
+  totalHoldings,
+}: {
+  strategies: SubgraphStrategy[];
+  totalHoldings: string;
+}) => {
+  const strategiesMap = useVaultStrategyPercentages(strategies);
   console.log({ strategiesMap });
 
   return (

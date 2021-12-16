@@ -147,14 +147,19 @@ export const depositIntoVault = async (
   console.log({
     amountBN,
     tokenAddress,
+    token,
     amount: amountBN.toString(),
     vault,
-    allowance,
+    vaultAddress,
+    user,
+    allowanceBN: allowance,
+    allowance: allowance.toString(),
+    shouldApprove: allowance.lt(amountBN),
   });
 
-  if (!allowance.gte(amountBN)) {
+  if (allowance.lt(amountBN)) {
     setStep("APPROVING");
-    await token.approve(vaultAddress, amountBN);
+    await token.approve(vaultAddress, constants.MaxUint256);
   }
 
   setStep("DEPOSITING");
@@ -189,7 +194,7 @@ export const useDepositIntoVault = () => {
           setDepositStep(undefined);
         });
     },
-    [fuse, toast, setDepositStep, depositIntoVault]
+    [fuse, address, toast, setDepositStep, depositIntoVault]
   );
 
   return { deposit: depositFn, depositStep };

@@ -36,7 +36,7 @@ import { makeGqlRequest } from "utils/gql";
 import { GET_TOP_FUSE_POOLS } from "gql/fusePools/getTopFusePools";
 import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 import { fetchTokensAPIDataAsMap } from "utils/services";
-import { TokensDataMap } from "types/tokens";
+import { RariApiTokenData, TokensDataMap } from "types/tokens";
 
 import ExploreFuseCard from "./ExploreFuseBox";
 
@@ -83,12 +83,14 @@ type RecommendedPoolDataMap = { [token: string]: SubgraphPool };
 interface RecommendedPoolsReturn {
   recommended: RecommendedMarketsMap;
   poolsMap: RecommendedPoolDataMap;
+  tokensData: TokensDataMap;
 }
 
 const recommendedPoolsFetcher = async (
   ...tokenAddresses: string[]
 ): Promise<RecommendedPoolsReturn> => {
-  
+  const tokensData = await fetchTokensAPIDataAsMap(tokenAddresses);
+
   // Get all pools where any of these tokens exist
   const { underlyingAssets } = await makeGqlRequest(
     GET_UNDERLYING_ASSETS_WITH_POOLS,
@@ -183,6 +185,7 @@ const recommendedPoolsFetcher = async (
   return {
     recommended: map,
     poolsMap: recommendedPoolDataMap,
+    tokensData,
   };
 };
 
@@ -192,6 +195,7 @@ const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
     data ?? {
       recommended: {},
       poolsMap: {},
+      tokensData: {},
     }
   );
 };
@@ -219,7 +223,11 @@ const ExplorePage = () => {
 
   const [balances, significantTokens] = useAccountBalances();
 
-  const { recommended, poolsMap } = useRecommendedPools(significantTokens);
+  const {
+    recommended,
+    poolsMap,
+    tokensData: recommendedTokensData,
+  } = useRecommendedPools(significantTokens);
 
   const recommendedTokens = useMemo(
     () =>
@@ -278,7 +286,7 @@ const ExplorePage = () => {
             overflow="hidden"
             flex={0}
           >
-            <AppLink href={"/overview"}>
+            <AppLink href={"/vaults"}>
               <Image h="100%" w="100%" src="static/ad.png" />
             </AppLink>
           </DashboardBox>
@@ -380,7 +388,9 @@ const ExplorePage = () => {
                     assetIndex={
                       recommended[tokenAddress]?.assetIndex ?? undefined
                     }
-                    tokenData={tokensData?.[tokenAddress] ?? undefined}
+                    tokenData={
+                      recommendedTokensData?.[tokenAddress] ?? undefined
+                    }
                     balance={balances[tokenAddress] ?? undefined}
                   />
                 </HoverCard>

@@ -21,6 +21,8 @@ import { Button } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { MobileNavModal } from "./MobileNavModal";
 
+
+
 export const HeaderHeightWithTopPadding = new PixelSize(
   38 + DASHBOARD_BOX_SPACING.asNumber()
 );

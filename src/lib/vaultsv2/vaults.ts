@@ -30,10 +30,10 @@ interface GetVaultByUnderlyingResult {
 }
 
 export const fetchVaultByUnderlying = async (tokenAddress: string) => {
-  const { vaults }: GetVaultByUnderlyingResult = await makeVaultsGqlRequest(
+  const res: GetVaultByUnderlyingResult = await makeVaultsGqlRequest(
     GET_VAULT_FOR_UNDERLYING,
     { tokenAddress }
   );
-  const vault = vaults[0];
+  const vault = res.vaults[0];
   return vault;
 };

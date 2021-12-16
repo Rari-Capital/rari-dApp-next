@@ -162,7 +162,6 @@ const FusePoolEditPage = memo(() => {
     RewardsDistributor | undefined
   >();
 
-  // console.log({ poolIncentives, rewardsDistributors });
 
   const handleRewardsRowClick = useCallback(
     (rD: RewardsDistributor) => {
