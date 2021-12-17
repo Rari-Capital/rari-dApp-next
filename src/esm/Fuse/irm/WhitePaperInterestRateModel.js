@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { createContract, toBN } from "../utils/web3";
+import { createContract, toBN } from "../../utils/web3";
 import { contracts } from "../contracts/compound-protocol.min.json";
 export default class WhitePaperInterestRateModel {
     init(interestRateModelAddress, assetAddress, provider) {

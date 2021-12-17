@@ -15,7 +15,7 @@ import { useQueryClient } from "react-query";
 import { useTranslation } from "next-i18next";
 import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
-import { Vaults, Fuse } from "../esm/index"
+import { Vaults, Fuse } from "../esm";
 
 import LogRocket from "logrocket";
 import { useToast } from "@chakra-ui/react";
@@ -27,6 +27,7 @@ import {
 } from "../utils/web3Providers";
 
 import { Web3Provider } from "@ethersproject/providers";
+import { SUPPORTED_CHAIN_IDS } from "constants/networks";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
@@ -138,39 +139,45 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // Check the user's network:
   useEffect(() => {
     Promise.all([
-      rari.provider.send("net_version", []),
-      rari.provider.getNetwork(),
+      fuse.provider.send("net_version", []),
+      fuse.provider.getNetwork(),
     ]).then(([netId, network]) => {
       const { chainId } = network;
       console.log("Network ID: " + netId, "Chain ID: " + chainId);
 
-      // Don't show "wrong network" toasts if dev
-      if (process.env.NODE_ENV === "development") {
-        return;
-      }
+      // // Don't show "wrong network" toasts if dev
+      // if (process.env.NODE_ENV === "development") {
+      //   return;
+      // }
 
-      if (netId !== 1 || chainId !== 1) {
-        // setTimeout(() => {
-        //   toast({
-        //     title: "Wrong network!",
-        //     description:
-        //       "You are on the wrong network! Switch to the mainnet and reload this page!",
-        //     status: "warning",
-        //     position: "bottom-right",
-        //     duration: 300000,
-        //     isClosable: true,
-        //   });
-        // }, 1500);
+      if (!SUPPORTED_CHAIN_IDS.includes(chainId)) {
+        setTimeout(() => {
+          toast({
+            title: "Unsupported network!",
+            description: "Supported Networks: Mainnet, Arbitrum, Optimism",
+            status: "warning",
+            position: "bottom-right",
+            duration: 300000,
+            isClosable: true,
+          });
+        }, 1500);
       }
     });
-  }, [rari, toast]);
+  }, [fuse, toast]);
 
   // We need to give rari the new provider (todo: and also ethers.js signer) every time someone logs in again
   const setRariAndAddressFromModal = useCallback(
-    (modalProvider) => {
+    async (modalProvider) => {
       const provider = new Web3Provider(modalProvider);
+      const { chainId } = await provider.getNetwork();
+
+      console.log({ chainId });
+
       const rariInstance = new Vaults(provider);
-      const fuseInstance = initFuseWithProviders(provider);
+      const fuseInstance = initFuseWithProviders(provider, chainId);
+
+      console.log({ fuseInstance });
+
       setRari(rariInstance);
       setFuse(fuseInstance);
 

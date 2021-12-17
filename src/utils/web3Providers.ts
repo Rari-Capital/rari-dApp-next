@@ -1,4 +1,4 @@
-import { Fuse } from "../esm/index";
+import { Fuse } from "../esm";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 
@@ -21,9 +21,10 @@ export function chooseBestWeb3Provider(): JsonRpcProvider | Web3Provider {
 }
 
 export const initFuseWithProviders = (
-  provider = chooseBestWeb3Provider()
+  provider = chooseBestWeb3Provider(),
+  chainId = 1
 ): Fuse => {
-  const fuse = new Fuse(provider);
+  const fuse = new Fuse(provider, chainId);
 
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(

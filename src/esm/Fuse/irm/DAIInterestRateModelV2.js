@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { createContract, toBN } from "../utils/web3";
+import { createContract, toBN } from "../../utils/web3";
 import JumpRateModel from "./JumpRateModel.js";
 import { contracts } from "../contracts/compound-protocol.min.json";
 export default class DAIInterestRateModelV2 extends JumpRateModel {
@@ -17,7 +17,8 @@ export default class DAIInterestRateModelV2 extends JumpRateModel {
         });
         return __awaiter(this, void 0, void 0, function* () {
             yield _super.init.call(this, interestRateModelAddress, assetAddress, provider);
-            const interestRateContract = createContract(interestRateModelAddress, contracts["contracts/DAIInterestRateModelV2.sol:DAIInterestRateModelV2"].abi, provider);
+            const interestRateContract = createContract(interestRateModelAddress, contracts["contracts/DAIInterestRateModelV2.sol:DAIInterestRateModelV2"]
+                .abi, provider);
             this.dsrPerBlock = toBN(yield interestRateContract.callStatic.dsrPerBlock());
             const cTokenContract = createContract(assetAddress, contracts["contracts/CTokenInterfaces.sol:CTokenInterface"].abi, provider);
             this.cash = toBN(yield cTokenContract.callStatic.getCash());
@@ -31,7 +32,8 @@ export default class DAIInterestRateModelV2 extends JumpRateModel {
         });
         return __awaiter(this, void 0, void 0, function* () {
             yield _super._init.call(this, interestRateModelAddress, reserveFactorMantissa, adminFeeMantissa, fuseFeeMantissa, provider);
-            const interestRateContract = createContract(interestRateModelAddress, contracts["contracts/DAIInterestRateModelV2.sol:DAIInterestRateModelV2"].abi, provider);
+            const interestRateContract = createContract(interestRateModelAddress, contracts["contracts/DAIInterestRateModelV2.sol:DAIInterestRateModelV2"]
+                .abi, provider);
             this.dsrPerBlock = toBN(yield interestRateContract.callStatic.dsrPerBlock());
             this.cash = toBN(0);
             this.borrows = toBN(0);
@@ -51,7 +53,11 @@ export default class DAIInterestRateModelV2 extends JumpRateModel {
         });
     }
     getSupplyRate(utilizationRate) {
-        if (!this.initialized || !this.cash || !this.borrows || !this.reserves || !this.dsrPerBlock)
+        if (!this.initialized ||
+            !this.cash ||
+            !this.borrows ||
+            !this.reserves ||
+            !this.dsrPerBlock)
             throw new Error("Interest rate model class not initialized.");
         // const protocolRate = super.getSupplyRate(utilizationRate, this.reserveFactorMantissa); //todo - do we need this
         const protocolRate = super.getSupplyRate(utilizationRate);
