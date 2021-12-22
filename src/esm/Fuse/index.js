@@ -149,16 +149,18 @@ export default class Fuse {
                 switch (model) {
                     // Keep MasterPriceOracle
                     case "MasterPriceOracle":
-                        console.log("In MasterPriceOracle");
+                        console.log("0.) In MasterPriceOracle");
                         // let initializableClones = new Contract(
                         //   this.addresses.INITIALIZABLE_CLONES_CONTRACT_ADDRESS,
                         //   initializableClonesAbi,
                         //   this.provider.getSigner()
                         // );
                         let initializableClones = InitializableClones__factory.connect(this.addresses.INITIALIZABLE_CLONES_CONTRACT_ADDRESS, this.provider.getSigner());
+                        console.log("1.) In MasterPriceOracle", { initializableClones });
                         let masterPriceOracle = {
                             interface: new Interface(Oracle.contracts["MasterPriceOracle"].abi)
                         };
+                        console.log("2.) In MasterPriceOracle", { masterPriceOracle });
                         // let masterPriceOracle = new MasterPriceOracle__factory(this.provider.getSigner())
                         deployArgs = [
                             conf.underlyings ? conf.underlyings : [],
@@ -170,6 +172,7 @@ export default class Fuse {
                             conf.canAdminOverwrite ? true : false,
                         ];
                         let initializerData = masterPriceOracle.interface.encodeFunctionData("initialize", deployArgs);
+                        console.log("3.) In MasterPriceOracle", { initializerData });
                         let tx = yield initializableClones.clone(this.addresses.MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS, initializerData);
                         const receipt = yield tx.wait(1);
                         console.log("4: In MasterPriceOracle", { receipt });

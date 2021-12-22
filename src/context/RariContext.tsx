@@ -27,7 +27,7 @@ import {
 } from "../utils/web3Providers";
 
 import { Web3Provider } from "@ethersproject/providers";
-import { SUPPORTED_CHAIN_IDS } from "constants/networks";
+import { isSupportedChainId } from "esm/utils/networks";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
@@ -108,6 +108,7 @@ export interface RariContextData {
   logout: () => any;
   address: string;
   isAttemptingLogin: boolean;
+  chainId: number | undefined;
 }
 
 export const EmptyAddress = "0x0000000000000000000000000000000000000000";
@@ -132,6 +133,8 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
   const [web3ModalProvider, setWeb3ModalProvider] = useState<any | null>(null);
 
+  const [chainId, setChainId] = useState<number | undefined>();
+
   const toast = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -144,13 +147,14 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     ]).then(([netId, network]) => {
       const { chainId } = network;
       console.log("Network ID: " + netId, "Chain ID: " + chainId);
+      setChainId(chainId);
 
       // // Don't show "wrong network" toasts if dev
       // if (process.env.NODE_ENV === "development") {
       //   return;
       // }
 
-      if (!SUPPORTED_CHAIN_IDS.includes(chainId)) {
+      if (!isSupportedChainId(chainId)) {
         setTimeout(() => {
           toast({
             title: "Unsupported network!",
@@ -264,6 +268,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       logout,
       address,
       isAttemptingLogin,
+      chainId,
     }),
     [rari, web3ModalProvider, login, logout, address, fuse, isAttemptingLogin]
   );

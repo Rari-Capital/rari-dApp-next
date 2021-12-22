@@ -458,42 +458,48 @@ const addresses = {
         FUSE_POOL_LENS_CONTRACT_ADDRESS: "0xBF29f83D9a0EC1d9eC7281381E04750b817feA4E",
         FUSE_POOL_LENS_SECONDARY_CONTRACT_ADDRESS: "0xb2a4B68f5126F1624b900f5d637Bd15968d7a119",
         // CEther and CERC20
-        COMPTROLLER_IMPLEMENTATION_CONTRACT_ADDRESS: "0x2f6d8Ff753886AE2b49E0c3bB6504867F2977078",
-        CETHER_DELEGATE_CONTRACT_ADDRESS: "",
-        CERC20_DELEGATE_CONTRACT_ADDRESS: "0xCFA81742393B52c493b8d76E55FFE4992A5cfFd9",
+        COMPTROLLER_IMPLEMENTATION_CONTRACT_ADDRESS: "0xCE8322B3C5363c0eb98A490bF42d4e5F4670F354",
+        CETHER_DELEGATE_CONTRACT_ADDRESS: "0xB50eF61B568c10894E1B3DE308a31B8E75e9B4ff",
+        CERC20_DELEGATE_CONTRACT_ADDRESS: "0xaa029B1A8050979934093cf76eC9E8c13fE16CBf",
         // Oracles
-        MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS: "",
-        INITIALIZABLE_CLONES_CONTRACT_ADDRESS: "",
+        MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS: "0x6AB2497DB9F36ebD69d2F9F13329A27Fe070af09",
+        INITIALIZABLE_CLONES_CONTRACT_ADDRESS: "0x374D551f0584107d6B4D2B061E09436c0FA0C098",
         PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES: {
-            PreferredPriceOracle_V2_Quick_USDC: "0xCc5F01efd5647C77861Ce15C923731f9e27E3132",
-            MasterPriceOracle_V2_BEEFY_LP: "0x606AF64e16bF85F587E9ac27Fa2e8461C5258321",
-            MasterPriceOracle_V2_KLIMA: "0xd9b7b49a2e95c56c115ecf3d3f2546aaaa8f0a35",
+            MasterPriceOracle: "0xc5a8c01509c1972895dfb23f6bdf304365cbcce0",
+            ChainlinkPriceOracleV2: "0xCc5F01efd5647C77861Ce15C923731f9e27E3132",
         },
         PRICE_ORACLE_RUNTIME_BYTECODE_HASHES: {
-            "PreferredPriceOracleV2 Quickswap USDC": "0xe6a7eb0795fc9c5e05048d191246ac01efaff82eac6c8c981ed0b475e89e77a9",
-            "MasterPriceOracleV2 Beefy": "0x567982b74679a69cfb2ae6b114951562cc80d6790d0c2fdb9a4c1fb46733138d",
-            "MasterPriceOracleV2 Klima": "0x17a4e51aa4284da1b2ced8254eac606175ceaf9b810a48c0a336fc0195c95a4a",
+            MasterPriceOracle: "0x8d2bcaa1429031ae2b19a4516e5fdc68fb9346f158efb642fcf9590c09de2175",
+            ChainlinkPriceOracleV2: "0x8d2bcaa1429031ae2b19a4516e5fdc68fb9346f158efb642fcf9590c09de2175",
         },
         ORACLES: [
-            "PreferredPriceOracle",
-            "ChainlinkPriceOracleV2",
-            "UniswapTwapPriceOracle_SushiSwap",
+            "MasterPriceOracle",
+            "ChainlinkPriceOracleV2"
         ],
-        oracles: {},
-        DEPLOYABLE_ORACLES: [
-            "PreferredPriceOracle",
-            "ChainlinkPriceOracleV2",
-            "UniswapTwapPriceOracle_SushiSwap",
-        ],
-        // // UNI-V2 Oracles (Sushi for arbi)
-        UNISWAP_V2_FACTORY_ADDRESS: "0xc35DADB65012eC5796536bD9864eD8773aBc74C4",
-        UNISWAP_V2_PAIR_INIT_CODE_HASH: "0xe18a34eb0e04b04f7a0ac29a6e80748dca96319b42c54d679cb821dca90c6303",
+        oracles: {
+            MasterPriceOracle: {
+                address: "0xc5a8c01509c1972895dfb23f6bdf304365cbcce0",
+                bytecodeHash: "0x8d2bcaa1429031ae2b19a4516e5fdc68fb9346f158efb642fcf9590c09de2175",
+                deployable: false,
+                oldVersions: {}
+            },
+            ChainlinkPriceOracleV2: {
+                address: "0xCc5F01efd5647C77861Ce15C923731f9e27E3132",
+                bytecodeHash: "0x8d2bcaa1429031ae2b19a4516e5fdc68fb9346f158efb642fcf9590c09de2175",
+                deployable: false,
+                oldVersions: {}
+            },
+        },
+        DEPLOYABLE_ORACLES: [],
+        // // UNI-V2 Oracles (Sushiswap for arbitrum)
+        UNISWAP_V2_FACTORY_ADDRESS: "0xc35dadb65012ec5796536bd9864ed8773abc74c4",
+        UNISWAP_V2_PAIR_INIT_CODE_HASH: "",
         UNISWAP_TWAP_PRICE_ORACLE_ROOT_CONTRACT_ADDRESS: "",
-        UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS: "",
-        UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS: "",
+        UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS: "0x1AC1EC4030D3EBaeae7BE8d5786a8a7Bca071A06",
+        UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS: "0xa18C88f04E46Caa1541c90E8eB1a25F9F45B8C8a",
         // // UNI-V3 Oracles
         UNISWAP_V3_FACTORY_ADDRESS: "",
-        UNISWAP_V3_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS: "",
+        UNISWAP_V3_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS: "0x2B88F7F53649EfAE653e53A204B4618EdE06Dd29",
         // IRM
         PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES: {
             JumpRateModel_Cream_Stables_Majors: "0xa80F8CC22b4Ff9442B7F188D96E9B75d6cFd80F6",

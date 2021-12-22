@@ -50,7 +50,6 @@ import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 
-
 // Utils
 import { createComptroller } from "utils/createComptroller";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
@@ -103,14 +102,12 @@ export enum ComptrollerErrorCodes {
   SUPPLY_ABOVE_MAX,
 }
 
-
-
 export async function testForComptrollerErrorAndSend(
   txObject: any,
   caller: string,
   failMessage: string
 ) {
-  let response = await txObject.call({ from: caller });
+  let response = await txObject({ from: caller });
 
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
   if (response[0] !== "0") {
@@ -161,7 +158,6 @@ const FusePoolEditPage = memo(() => {
   const [rewardsDistributor, setRewardsDistributor] = useState<
     RewardsDistributor | undefined
   >();
-
 
   const handleRewardsRowClick = useCallback(
     (rD: RewardsDistributor) => {

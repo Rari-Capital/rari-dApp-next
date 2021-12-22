@@ -1,4 +1,4 @@
-// Chakra and UI 
+// Chakra and UI
 import {
   Heading,
   Modal,
@@ -23,7 +23,7 @@ import { QuestionIcon } from "@chakra-ui/icons";
 import { SimpleTooltip } from "../../../../shared/SimpleTooltip";
 
 // React and NextJs
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import dynamic from "next/dynamic";
@@ -37,7 +37,7 @@ import {
 
 // Rari
 import { useRari } from "../../../../../context/RariContext";
-import { Fuse } from "../../../../../esm/index"
+import { Fuse } from "../../../../../esm/index";
 
 // Utils
 import { FuseIRMDemoChartOptions } from "../../../../../utils/chartOptions";
@@ -55,7 +55,7 @@ import {
 import { testForCTokenErrorAndSend } from "../PoolModal/AmountSelect";
 
 // Ethers
-import { Contract, utils, constants } from 'ethers'
+import { Contract, utils, constants } from "ethers";
 
 //LogRocket
 import LogRocket from "logrocket";
@@ -69,7 +69,9 @@ const formatPercentage = (value: number) => value.toFixed(0) + "%";
 export const createCToken = (fuse: Fuse, cTokenAddress: string) => {
   const cErc20Delegate = new Contract(
     cTokenAddress,
-    JSON.parse( fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi ),
+    JSON.parse(
+      fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi
+    ),
     fuse.provider.getSigner()
   );
 
@@ -158,13 +160,16 @@ export const AssetSettings = ({
   };
 
   const [interestRateModel, setInterestRateModel] = useState(
-    Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES.JumpRateModel_Cream_Stables_Majors
+    fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
+      .JumpRateModel_Cream_Stables_Majors
   );
 
   const { data: curves } = useQuery(
     interestRateModel + adminFee + reserveFactor + " irm",
     async () => {
       const IRM = await fuse.identifyInterestRateModel(interestRateModel);
+
+      console.log({ IRM, interestRateModel });
 
       if (IRM === null) {
         return null;
@@ -207,13 +212,15 @@ export const AssetSettings = ({
     setIsDeploying(true);
 
     // 50% -> 0.5 * 1e18
-    const bigCollateralFacotr =  utils.parseUnits((collateralFactor / 100).toString())
+    const bigCollateralFacotr = utils.parseUnits(
+      (collateralFactor / 100).toString()
+    );
 
     // 10% -> 0.1 * 1e18
-    const bigReserveFactor =  utils.parseUnits((reserveFactor / 100).toString())
+    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString());
 
     // 5% -> 0.05 * 1e18
-    const bigAdminFee = utils.parseUnits((adminFee / 100).toString())
+    const bigAdminFee = utils.parseUnits((adminFee / 100).toString());
 
     const conf: any = {
       underlying: tokenData.address,
@@ -277,7 +284,9 @@ export const AssetSettings = ({
     const comptroller = createComptroller(comptrollerAddress, fuse);
 
     // 70% -> 0.7 * 1e18
-    const bigCollateralFactor = utils.parseUnits((collateralFactor / 100).toString())
+    const bigCollateralFactor = utils.parseUnits(
+      (collateralFactor / 100).toString()
+    );
     try {
       await testForComptrollerErrorAndSend(
         comptroller.methods._setCollateralFactor(
@@ -300,7 +309,7 @@ export const AssetSettings = ({
     const cToken = createCToken(fuse, cTokenAddress!);
 
     // 10% -> 0.1 * 1e18
-    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString())
+    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString());
 
     try {
       await testForCTokenErrorAndSend(
@@ -322,7 +331,7 @@ export const AssetSettings = ({
     const cToken = createCToken(fuse, cTokenAddress!);
 
     // 5% -> 0.05 * 1e18
-    const bigAdminFee =  utils.parseUnits((adminFee / 100).toString())
+    const bigAdminFee = utils.parseUnits((adminFee / 100).toString());
 
     try {
       await testForCTokenErrorAndSend(
@@ -470,25 +479,15 @@ export const AssetSettings = ({
           value={interestRateModel}
           onChange={(event) => setInterestRateModel(event.target.value)}
         >
-          <option
-            className="black-bg-option"
-            value={
-              Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-                .JumpRateModel_Cream_Stables_Majors
-            }
-          >
-            ALCX JumpRateModel
-          </option>
-
-          <option
-            className="black-bg-option"
-            value={
-              Fuse.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-                .WhitePaperInterestRateModel_Compound_ETH
-            }
-          >
-            ETH WhitePaperRateModel
-          </option>
+          {Object.entries(
+            fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
+          ).map(([key, value]) => {
+            return (
+              <option className="black-bg-option" value={value} key={key}>
+                {key}
+              </option>
+            );
+          })}
         </Select>
 
         {cTokenData &&

@@ -232,8 +232,6 @@ const PoolConfiguration = () => {
           "latest"
         );
 
-        console.log({ events });
-
         let event = events.filter(
           (event: any) =>
             event.args.pool.comptroller.toLowerCase() ===

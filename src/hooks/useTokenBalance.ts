@@ -16,9 +16,12 @@ import { Contract, BigNumber as EthersBigNumber, constants } from "ethers";
 export const fetchTokenBalance = async (
   tokenAddress: string | undefined,
   fuse: Fuse,
-  address?: string
+  address?: string,
+  chainId = 1
 ): Promise<EthersBigNumber> => {
   let balance;
+
+  if (chainId !== 1) return constants.Zero;
 
   if (!tokenAddress) return constants.Zero;
 
@@ -55,14 +58,14 @@ export function useTokenBalance(
 }
 
 export function useTokenBalances(tokenAddresses: string[]): number[] {
-  const { fuse, address } = useRari();
+  const { fuse, address, chainId } = useRari();
 
   const balances = useQueries(
     tokenAddresses.map((tokenAddress: string) => {
       return {
-        queryKey: tokenAddress + " balance",
+        queryKey: tokenAddress + " balance " + chainId,
         queryFn: () => {
-          return fetchTokenBalance(tokenAddress, fuse, address);
+          return fetchTokenBalance(tokenAddress, fuse, address, chainId);
         },
       };
     })

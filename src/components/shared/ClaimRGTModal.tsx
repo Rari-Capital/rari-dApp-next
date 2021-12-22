@@ -39,19 +39,24 @@ export const ClaimRGTModal = ({
 }) => {
   const { t } = useTranslation();
 
-  const { address, rari } = useRari();
+  const { address, rari, chainId } = useRari();
 
   const [amount, setAmount] = useState(0);
 
-  const { data: unclaimed } = useQuery(address + " unclaimed RGT", async () => {
-    return parseFloat(
-      fromWei(await rari.governance.rgt.distributions.getUnclaimed(address))
-    );
-  });
+  const { data: unclaimed } = useQuery(
+    address + " unclaimed RGT " + chainId,
+    async () => {
+      if (chainId !== 1) return;
+      return parseFloat(
+        fromWei(await rari.governance.rgt.distributions.getUnclaimed(address))
+      );
+    }
+  );
 
   const { data: privateUnclaimed } = useQuery(
-    address + " privateUnclaimed RGT",
+    address + " privateUnclaimed RGT " + chainId,
     async () => {
+      if (chainId !== 1) return;
       return parseFloat(
         fromWei(await rari.governance.rgt.vesting.getUnclaimed(address))
       );
@@ -59,8 +64,9 @@ export const ClaimRGTModal = ({
   );
 
   const { data: pool2Unclaimed } = useQuery(
-    address + " pool2Unclaimed RGT",
+    address + " pool2Unclaimed RGT " + chainId,
     async () => {
+      if (chainId !== 1) return;
       return parseFloat(
         fromWei(
           await rari.governance.rgt.sushiSwapDistributions.getUnclaimed(address)
