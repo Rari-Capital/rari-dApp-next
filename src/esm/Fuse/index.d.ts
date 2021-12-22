@@ -15,9 +15,7 @@ export default class Fuse {
         [key: string]: Contract;
     };
     compoundContracts: MinifiedContracts;
-    openOracleContracts: MinifiedContracts;
     oracleContracts: MinifiedContracts;
-    getEthUsdPriceBN: any;
     identifyPriceOracle: any;
     deployPool: any;
     deployPriceOracle: any;

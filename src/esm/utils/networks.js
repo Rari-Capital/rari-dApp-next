@@ -7,11 +7,12 @@ export var ChainID;
     ChainID[ChainID["KOVAN"] = 42] = "KOVAN";
     //
     ChainID[ChainID["ARBITRUM"] = 42161] = "ARBITRUM";
+    ChainID[ChainID["ARBITRUM_TESTNET"] = 421611] = "ARBITRUM_TESTNET";
     //
     ChainID[ChainID["OPTIMISM"] = 10] = "OPTIMISM";
 })(ChainID || (ChainID = {}));
 export const isSupportedChainId = (chainId) => {
     const isSupported = Object.values(ChainID).includes(chainId);
-    console.log(Object.values(chainId), chainId);
+    console.log(Object.values(chainId), chainId, { isSupportedChainId });
     return isSupported;
 };

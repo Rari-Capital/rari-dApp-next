@@ -5,6 +5,7 @@ export declare enum ChainID {
     GÖRLI = 5,
     KOVAN = 42,
     ARBITRUM = 42161,
+    ARBITRUM_TESTNET = 421611,
     OPTIMISM = 10
 }
 export declare const isSupportedChainId: (chainId: number) => boolean;
