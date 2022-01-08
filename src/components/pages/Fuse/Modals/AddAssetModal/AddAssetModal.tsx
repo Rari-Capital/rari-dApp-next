@@ -1,596 +1,112 @@
 // Chakra and UI
-import {
-  Heading,
-  Modal,
-  ModalContent,
-  ModalOverlay,
-  Input,
-  Button,
-  Box,
-  Text,
-  Image,
-  Select,
-  Spinner,
-  useToast,
-} from "@chakra-ui/react";
+import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/modal";
+import { CloseButton } from "@chakra-ui/react";
+import { ModalDivider, MODAL_PROPS } from "../../../../shared/Modal";
 import { Column, Center } from "lib/chakraUtils";
+import SmallWhiteCircle from "../../../../../static/small-white-circle.png";
+import { Heading, Box } from "@chakra-ui/layout";
+import { Image } from "@chakra-ui/image";
+import { Input } from "@chakra-ui/input";
 import DashboardBox, {
   DASHBOARD_BOX_PROPS,
-} from "../../../../shared/DashboardBox";
-import { ModalDivider, MODAL_PROPS } from "../../../../shared/Modal";
-import { SliderWithLabel } from "../../../../shared/SliderWithLabel";
-import { QuestionIcon } from "@chakra-ui/icons";
-import { SimpleTooltip } from "../../../../shared/SimpleTooltip";
-
-// React and NextJs
-import { useTranslation } from "next-i18next";
-import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import dynamic from "next/dynamic";
-
-// Hooks
-import {
-  ETH_TOKEN_DATA,
-  TokenData,
-  useTokenData,
-} from "../../../../../hooks/useTokenData";
-
-// Rari
-import { useRari } from "../../../../../context/RariContext";
-import { Fuse } from "../../../../../esm/index";
+} from "components/shared/DashboardBox";
 
 // Utils
-import { FuseIRMDemoChartOptions } from "../../../../../utils/chartOptions";
-import { handleGenericError } from "../../../../../utils/errorHandling";
-import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
-import { createComptroller } from "../../../../../utils/createComptroller";
+import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
+
+// React
+import { useState } from "react";
+
+// Hooks
+import { useOracleData } from "hooks/fuse/useOracleData";
+import { useTranslation } from "react-i18next";
+import { useRari } from "context/RariContext";
+import { ETH_TOKEN_DATA, useTokenData } from "hooks/useTokenData";
 
 // Components
-import { convertIRMtoCurve } from "../../FusePoolInfoPage";
-import {
-  ConfigRow,
-  SaveButton,
-  testForComptrollerErrorAndSend,
-} from "../../FusePoolEditPage";
-import { testForCTokenErrorAndSend } from "../PoolModal/AmountSelect";
-
-// Ethers
-import { Contract, utils, constants } from "ethers";
-
-//LogRocket
-import LogRocket from "logrocket";
-
-const AddAssetChart = dynamic(() => import("./AddAssetChart"), {
-  ssr: false,
-});
-
-const formatPercentage = (value: number) => value.toFixed(0) + "%";
-
-export const createCToken = (fuse: Fuse, cTokenAddress: string) => {
-  const cErc20Delegate = new Contract(
-    cTokenAddress,
-    JSON.parse(
-      fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi
-    ),
-    fuse.provider.getSigner()
-  );
-
-  return cErc20Delegate;
-};
-
-export const useCTokenData = (
-  comptrollerAddress?: string,
-  cTokenAddress?: string
-) => {
-  const { fuse } = useRari();
-
-  const { data } = useQuery(cTokenAddress + " cTokenData", async () => {
-    if (comptrollerAddress && cTokenAddress) {
-      const comptroller = createComptroller(comptrollerAddress, fuse);
-      const cToken = createCToken(fuse, cTokenAddress);
-
-      const [
-        adminFeeMantissa,
-        reserveFactorMantissa,
-        interestRateModelAddress,
-        { collateralFactorMantissa },
-      ] = await Promise.all([
-        cToken.methods.adminFeeMantissa().call(),
-        cToken.methods.reserveFactorMantissa().call(),
-        cToken.methods.interestRateModel().call(),
-        comptroller.methods.markets(cTokenAddress).call(),
-      ]);
-
-      return {
-        reserveFactorMantissa,
-        adminFeeMantissa,
-        collateralFactorMantissa,
-        interestRateModelAddress,
-      };
-    } else {
-      return null;
-    }
-  });
-
-  return data;
-};
-
-export const AssetSettings = ({
-  poolName,
-  poolID,
-  tokenData,
-  comptrollerAddress,
-  cTokenAddress,
-  existingAssets,
-  closeModal,
-}: {
-  poolName: string;
-  poolID: string;
-  comptrollerAddress: string;
-  tokenData: TokenData;
-
-  // Only for editing mode
-  cTokenAddress?: string;
-
-  // Only for add asset modal
-  existingAssets?: USDPricedFuseAsset[];
-  closeModal: () => any;
-}) => {
-  const { t } = useTranslation();
-  const { fuse, address } = useRari();
-  const toast = useToast();
-  const queryClient = useQueryClient();
-
-  const [isDeploying, setIsDeploying] = useState(false);
-
-  const [collateralFactor, setCollateralFactor] = useState(50);
-  const [reserveFactor, setReserveFactor] = useState(10);
-  const [adminFee, setAdminFee] = useState(5);
-
-  const scaleCollateralFactor = (_collateralFactor: number) => {
-    return _collateralFactor / 1e16;
-  };
-
-  const scaleReserveFactor = (_reserveFactor: number) => {
-    return _reserveFactor / 1e16;
-  };
-
-  const scaleAdminFee = (_adminFee: number) => {
-    return _adminFee / 1e16;
-  };
-
-  const [interestRateModel, setInterestRateModel] = useState(
-    fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-      .JumpRateModel_Cream_Stables_Majors
-  );
-
-  const { data: curves } = useQuery(
-    interestRateModel + adminFee + reserveFactor + " irm",
-    async () => {
-      const IRM = await fuse.identifyInterestRateModel(interestRateModel);
-
-      console.log({ IRM, interestRateModel });
-
-      if (IRM === null) {
-        return null;
-      }
-
-      await IRM._init(
-        fuse.provider,
-        interestRateModel,
-        // reserve factor
-        reserveFactor * 1e16,
-        // admin fee
-        adminFee * 1e16,
-        // hardcoded 10% Fuse fee
-        0.1e18
-      );
-
-      return convertIRMtoCurve(IRM, fuse);
-    }
-  );
-
-  const deploy = async () => {
-    // If pool already contains this asset:
-    if (
-      existingAssets!.some(
-        (asset) => asset.underlyingToken === tokenData.address
-      )
-    ) {
-      toast({
-        title: "Error!",
-        description: "You have already added this asset to this pool.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right",
-      });
-
-      return;
-    }
-
-    setIsDeploying(true);
-
-    // 50% -> 0.5 * 1e18
-    const bigCollateralFacotr = utils.parseUnits(
-      (collateralFactor / 100).toString()
-    );
-
-    // 10% -> 0.1 * 1e18
-    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString());
-
-    // 5% -> 0.05 * 1e18
-    const bigAdminFee = utils.parseUnits((adminFee / 100).toString());
-
-    const conf: any = {
-      underlying: tokenData.address,
-      comptroller: comptrollerAddress,
-      interestRateModel,
-      initialExchangeRateMantissa: constants.WeiPerEther,
-
-      // Ex: BOGGED USDC
-      name: poolName + " " + tokenData.name,
-      // Ex: fUSDC-456
-      symbol: "f" + tokenData.symbol + "-" + poolID,
-      decimals: 8,
-      admin: address,
-    };
-
-    try {
-      await fuse.deployAsset(
-        conf,
-        bigCollateralFacotr,
-        bigReserveFactor,
-        bigAdminFee,
-        { from: address }
-      );
-
-      LogRocket.track("Fuse-DeployAsset");
-
-      queryClient.refetchQueries();
-      // Wait 2 seconds for refetch and then close modal.
-      // We do this instead of waiting the refetch because some refetches take a while or error out and we want to close now.
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast({
-        title: "You have successfully added an asset to this pool!",
-        description: "You may now lend and borrow with this asset.",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right",
-      });
-
-      closeModal();
-    } catch (e) {
-      handleGenericError(e, toast);
-    }
-  };
-
-  const cTokenData = useCTokenData(comptrollerAddress, cTokenAddress);
-
-  // Update values on refetch!
-  useEffect(() => {
-    if (cTokenData) {
-      setCollateralFactor(cTokenData.collateralFactorMantissa / 1e16);
-      setReserveFactor(cTokenData.reserveFactorMantissa / 1e16);
-      setAdminFee(cTokenData.adminFeeMantissa / 1e16);
-
-      setInterestRateModel(cTokenData.interestRateModelAddress);
-    }
-  }, [cTokenData]);
-
-  const updateCollateralFactor = async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
-
-    // 70% -> 0.7 * 1e18
-    const bigCollateralFactor = utils.parseUnits(
-      (collateralFactor / 100).toString()
-    );
-    try {
-      await testForComptrollerErrorAndSend(
-        comptroller.methods._setCollateralFactor(
-          cTokenAddress,
-          bigCollateralFactor
-        ),
-        address,
-        ""
-      );
-
-      LogRocket.track("Fuse-UpdateCollateralFactor");
-
-      queryClient.refetchQueries();
-    } catch (e) {
-      handleGenericError(e, toast);
-    }
-  };
-
-  const updateReserveFactor = async () => {
-    const cToken = createCToken(fuse, cTokenAddress!);
-
-    // 10% -> 0.1 * 1e18
-    const bigReserveFactor = utils.parseUnits((reserveFactor / 100).toString());
-
-    try {
-      await testForCTokenErrorAndSend(
-        cToken.callStatic._setReserveFactor,
-        bigReserveFactor,
-        cToken._setReserveFactor,
-        ""
-      );
-
-      LogRocket.track("Fuse-UpdateReserveFactor");
-
-      queryClient.refetchQueries();
-    } catch (e) {
-      handleGenericError(e, toast);
-    }
-  };
-
-  const updateAdminFee = async () => {
-    const cToken = createCToken(fuse, cTokenAddress!);
-
-    // 5% -> 0.05 * 1e18
-    const bigAdminFee = utils.parseUnits((adminFee / 100).toString());
-
-    try {
-      await testForCTokenErrorAndSend(
-        cToken.callStatic._setAdminFee,
-        bigAdminFee,
-        cToken._setAdminFee,
-        ""
-      );
-
-      LogRocket.track("Fuse-UpdateAdminFee");
-
-      queryClient.refetchQueries();
-    } catch (e) {
-      handleGenericError(e, toast);
-    }
-  };
-
-  const updateInterestRateModel = async () => {
-    const cToken = createCToken(fuse, cTokenAddress!);
-
-    try {
-      await testForCTokenErrorAndSend(
-        cToken.callStatic._setInterestRateModel,
-        interestRateModel,
-        cToken._setInterestRateModel,
-        ""
-      );
-
-      LogRocket.track("Fuse-UpdateInterestRateModel");
-
-      queryClient.refetchQueries();
-    } catch (e) {
-      handleGenericError(e, toast);
-    }
-  };
-
-  return (
-    <Column
-      mainAxisAlignment="flex-start"
-      crossAxisAlignment="flex-start"
-      overflowY="auto"
-      width="100%"
-      height="100%"
-    >
-      <ConfigRow height="35px">
-        <SimpleTooltip
-          label={t(
-            "Collateral factor can range from 0-90%, and represents the proportionate increase in liquidity (borrow limit) that an account receives by depositing the asset."
-          )}
-        >
-          <Text fontWeight="bold">
-            {t("Collateral Factor")} <QuestionIcon ml={1} mb="4px" />
-          </Text>
-        </SimpleTooltip>
-
-        {cTokenData &&
-        collateralFactor !==
-          scaleCollateralFactor(cTokenData.collateralFactorMantissa) ? (
-          <SaveButton ml={3} onClick={updateCollateralFactor} />
-        ) : null}
-
-        <SliderWithLabel
-          ml="auto"
-          value={collateralFactor}
-          setValue={setCollateralFactor}
-          formatValue={formatPercentage}
-          max={90}
-        />
-      </ConfigRow>
-
-      <ModalDivider />
-
-      <ConfigRow height="35px">
-        <SimpleTooltip
-          label={t(
-            "The fraction of interest generated on a given asset that is routed to the asset's Reserve Pool. The Reserve Pool protects lenders against borrower default and liquidation malfunction."
-          )}
-        >
-          <Text fontWeight="bold">
-            {t("Reserve Factor")} <QuestionIcon ml={1} mb="4px" />
-          </Text>
-        </SimpleTooltip>
-
-        {cTokenData &&
-        reserveFactor !==
-          scaleReserveFactor(cTokenData.reserveFactorMantissa) ? (
-          <SaveButton ml={3} onClick={updateReserveFactor} />
-        ) : null}
-
-        <SliderWithLabel
-          ml="auto"
-          value={reserveFactor}
-          setValue={setReserveFactor}
-          formatValue={formatPercentage}
-          max={50}
-        />
-      </ConfigRow>
-      <ModalDivider />
-
-      <ConfigRow height="35px">
-        <SimpleTooltip
-          label={t(
-            "The fraction of interest generated on a given asset that is routed to the asset's admin address as a fee."
-          )}
-        >
-          <Text fontWeight="bold">
-            {t("Admin Fee")} <QuestionIcon ml={1} mb="4px" />
-          </Text>
-        </SimpleTooltip>
-
-        {cTokenData &&
-        adminFee !== scaleAdminFee(cTokenData.adminFeeMantissa) ? (
-          <SaveButton ml={3} onClick={updateAdminFee} />
-        ) : null}
-
-        <SliderWithLabel
-          ml="auto"
-          value={adminFee}
-          setValue={setAdminFee}
-          formatValue={formatPercentage}
-          max={30}
-        />
-      </ConfigRow>
-
-      <ModalDivider />
-
-      <ConfigRow>
-        <SimpleTooltip
-          label={t(
-            "The interest rate model chosen for an asset defines the rates of interest for borrowers and suppliers at different utilization levels."
-          )}
-        >
-          <Text fontWeight="bold">
-            {t("Interest Model")} <QuestionIcon ml={1} mb="4px" />
-          </Text>
-        </SimpleTooltip>
-
-        <Select
-          {...DASHBOARD_BOX_PROPS}
-          ml="auto"
-          borderRadius="7px"
-          fontWeight="bold"
-          _focus={{ outline: "none" }}
-          width="230px"
-          value={interestRateModel}
-          onChange={(event) => setInterestRateModel(event.target.value)}
-        >
-          {Object.entries(
-            fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
-          ).map(([key, value]) => {
-            return (
-              <option className="black-bg-option" value={value} key={key}>
-                {key}
-              </option>
-            );
-          })}
-        </Select>
-
-        {cTokenData &&
-        cTokenData.interestRateModelAddress.toLowerCase() !==
-          interestRateModel.toLowerCase() ? (
-          <SaveButton
-            height="40px"
-            borderRadius="7px"
-            onClick={updateInterestRateModel}
-          />
-        ) : null}
-      </ConfigRow>
-
-      <Box
-        height="170px"
-        width="100%"
-        color="#000000"
-        overflow="hidden"
-        pl={2}
-        pr={3}
-        className="hide-bottom-tooltip"
-        flexShrink={0}
-      >
-        {curves ? (
-          <AddAssetChart tokenData={tokenData} curves={curves} />
-        ) : curves === undefined ? (
-          <Center expand color="#FFF">
-            <Spinner />
-          </Center>
-        ) : (
-          <Center expand color="#FFFFFF">
-            <Text>
-              {t("No graph is available for this asset's interest curves.")}
-            </Text>
-          </Center>
-        )}
-      </Box>
-
-      {cTokenAddress ? null : (
-        <Box px={4} mt={4} width="100%">
-          <Button
-            fontWeight="bold"
-            fontSize="2xl"
-            borderRadius="10px"
-            width="100%"
-            height="70px"
-            color={tokenData.overlayTextColor! ?? "#000"}
-            bg={tokenData.color! ?? "#FFF"}
-            _hover={{ transform: "scale(1.02)" }}
-            _active={{ transform: "scale(0.95)" }}
-            isLoading={isDeploying}
-            onClick={deploy}
-          >
-            {t("Confirm")}
-          </Button>
-        </Box>
-      )}
-    </Column>
-  );
-};
+import AssetSettings from "./AssetSettings";
 
 const AddAssetModal = ({
-  comptrollerAddress,
-  poolName,
-  poolID,
   isOpen,
+  poolID,
   onClose,
+  poolName,
+  oracleModel,
   existingAssets,
+  poolOracleAddress,
+  comptrollerAddress,
 }: {
-  comptrollerAddress: string;
-  poolName: string;
-  poolID: string;
-  isOpen: boolean;
-  onClose: () => any;
-  existingAssets: USDPricedFuseAsset[];
+  comptrollerAddress: string; // Pool's comptroller address.
+  poolOracleAddress: string; // Pool's oracle address.
+  existingAssets: USDPricedFuseAsset[]; // List of exising assets in fuse pool.
+  oracleModel: string | undefined; // Pool's oracle model name.
+  poolName: string; // Used to name assets at deployment. i.e f-USDC-koan.
+  poolID: string; // Fuse pool ID.
+  isOpen: boolean; // Modal config.
+  onClose: () => any; // Modal config.
 }) => {
   const { t } = useTranslation();
+  const { fuse } = useRari();
 
+  // Will change with user's input
   const [tokenAddress, _setTokenAddress] = useState<string>("");
 
+  // Get token data. i.e symbol, logo, etc.
   const tokenData = useTokenData(tokenAddress);
+
+  // Get fuse pool's oracle data. i.e contract, admin, overwriting permissions
+  const oracleData = useOracleData(poolOracleAddress, fuse, oracleModel);
+
+  console.log({ poolOracleAddress, oracleModel, oracleData });
 
   const isEmpty = tokenAddress.trim() === "";
 
   return (
     <Modal
-      motionPreset="slideInBottom"
       isOpen={isOpen}
       onClose={onClose}
-      isCentered
+      motionPreset="slideInBottom"
+      isCentered={isEmpty ? true : false}
+      closeOnOverlayClick={false}
     >
       <ModalOverlay />
-      <ModalContent {...MODAL_PROPS}>
-        <Heading fontSize="27px" my={4} textAlign="center">
-          {t("Add Asset")}
-        </Heading>
+      <ModalContent
+        {...MODAL_PROPS}
+        width={isEmpty ? "25%" : "50%"}
+        height={isEmpty ? "auto" : "95%"}
+        maxWidth="50%"
+        maxHeight="100%"
+        overflowY="scroll"
+      >
+        <Box
+          d="flex"
+          flexDirection="row"
+          width="100%"
+          justifyContent="center"
+          alignItems="center"
+          px={3}
+        >
+          <Box flexBasis="10%" />
+
+          <Heading my={4} ml="auto" fontSize="27px" textAlign="center">
+            {t("Add Asset")}
+          </Heading>
+
+          <Box
+            marginLeft="auto"
+            onClick={onClose}
+            _hover={{ color: "white", transform: "scale(1.2);" }}
+          >
+            <CloseButton />
+          </Box>
+        </Box>
 
         <ModalDivider />
 
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="center"
-          pb={4}
+          height="100%"
         >
           {!isEmpty ? (
             <>
@@ -600,7 +116,7 @@ const AddAssetModal = ({
                   src={tokenData.logoURL}
                   boxSize="50px"
                   borderRadius="50%"
-                  backgroundImage={`url(/static/small-white-circle.png)`}
+                  backgroundImage={`url(${SmallWhiteCircle})`}
                   backgroundSize="100% auto"
                 />
               ) : null}
@@ -616,7 +132,7 @@ const AddAssetModal = ({
             </>
           ) : null}
 
-          <Center px={4} mt={isEmpty ? 4 : 0} width="100%">
+          <Center p={4} mt={isEmpty ? 4 : 0} width="100%">
             <Input
               width="100%"
               textAlign="center"
@@ -660,15 +176,29 @@ const AddAssetModal = ({
 
           {tokenData?.symbol ? (
             <>
-              <ModalDivider mt={4} />
-              <AssetSettings
-                comptrollerAddress={comptrollerAddress}
-                tokenData={tokenData}
-                closeModal={onClose}
-                poolName={poolName}
-                poolID={poolID}
-                existingAssets={existingAssets}
-              />
+              <Box
+                display="flex"
+                height="100%"
+                width="100%"
+                flexDirection="column"
+                justifyContent="flex-start"
+                alignContent="flex-start"
+                // bg="green"
+              >
+                <AssetSettings
+                  mode="Adding"
+                  comptrollerAddress={comptrollerAddress}
+                  tokenData={tokenData}
+                  tokenAddress={tokenAddress}
+                  poolOracleAddress={poolOracleAddress}
+                  oracleModel={oracleModel}
+                  oracleData={oracleData}
+                  closeModal={onClose}
+                  poolName={poolName}
+                  poolID={poolID}
+                  existingAssets={existingAssets}
+                />
+              </Box>
             </>
           ) : null}
         </Column>

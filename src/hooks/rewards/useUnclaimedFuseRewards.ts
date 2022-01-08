@@ -1,8 +1,6 @@
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
-import {
-  createRewardsDistributor,
-} from "utils/createComptroller";
+import { createRewardsDistributor } from "utils/createComptroller";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {
@@ -26,9 +24,9 @@ export function useUnclaimedFuseRewards() {
       // fetchTokenBalance(tokenAddress, rari.web3, addressToCheck)
 
       const rewardsDistributorsByFusePool =
-        await fuse.contracts.FusePoolLensSecondary.methods
-          .getRewardsDistributorsBySupplier(address)
-          .call();
+        await fuse.contracts.FusePoolLensSecondary.getRewardsDistributorsBySupplier(
+          address
+        ).call();
 
       return rewardsDistributorsByFusePool ?? [];
     }
@@ -83,8 +81,8 @@ export function useUnclaimedFuseRewards() {
             rewardsDistributorAddress,
             fuse
           );
-          const rewardToken = await instance.methods.rewardToken().call();
-          const _markets = await instance.methods.getAllMarkets().call();
+          const rewardToken = await instance.callStatic.rewardToken();
+          const _markets = await instance.callStatic.getAllMarkets();
 
           //   const markets = _markets.length
           //     ? await Promise.all(
@@ -143,9 +141,10 @@ export function useUnclaimedFuseRewards() {
     "unclaimed for " + address,
     async () => {
       const unclaimedResults =
-        await fuse.contracts.FusePoolLensSecondary.methods
-          .getUnclaimedRewardsByDistributors(address, uniqueRDs)
-          .call();
+        await fuse.contracts.FusePoolLensSecondary.getUnclaimedRewardsByDistributors(
+          address,
+          uniqueRDs
+        ).call();
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 

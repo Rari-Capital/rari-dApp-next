@@ -80,9 +80,8 @@ const AddRewardsDistributorModal = ({
       const validAddress = utils.getAddress(address);
       if (!!validAddress && isRewardsDistributorAddress) {
         const rd = createRewardsDistributor(address, fuse);
-        rd.methods
+        rd.callStatic
           .rewardToken()
-          .call()
           .then((tokenAddr: string) => setRewardToken(tokenAddr));
       }
 
@@ -178,7 +177,7 @@ const AddRewardsDistributorModal = ({
     }
 
     // Add distributor to pool Comptroller
-    await comptroller.methods
+    await comptroller
       ._addRewardsDistributor(rDAddress)
       .send({ from: userAddress });
 

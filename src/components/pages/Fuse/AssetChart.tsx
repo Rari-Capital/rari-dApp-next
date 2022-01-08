@@ -1,6 +1,9 @@
 /*  This is a dynamically imported component on client-side only */
+import dynamic from "next/dynamic";
 
-import Chart from "react-apexcharts";
+// import Chart from "react-apexcharts";
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
 import { useTranslation } from 'next-i18next';
 import { FuseUtilizationChartOptions } from "utils/chartOptions";
 

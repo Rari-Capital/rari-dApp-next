@@ -23,10 +23,13 @@ import { ModalDivider } from "components/shared/Modal";
 import DashboardBox from "components/shared/DashboardBox";
 import { Column, RowOrColumn, Center, Row } from "lib/chakraUtils";
 import { SliderWithLabel } from "components/shared/SliderWithLabel";
-import AddAssetModal, { AssetSettings } from "./Modals/AddAssetModal";
+
+// Components
+import AddAssetModal from "./Modals/AddAssetModal/AddAssetModal";
+// import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 
 // React
-import { useQueryClient } from "react-query";
+import { useQueryClient, useQuery } from "react-query";
 import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 
 // Components
@@ -48,7 +51,6 @@ import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 
 // Utils
 import { createComptroller } from "utils/createComptroller";
@@ -71,7 +73,9 @@ import {
 import { useTokenBalance } from "hooks/useTokenBalance";
 import AddRewardsDistributorModal from "./Modals/AddRewardsDistributorModal";
 import EditRewardsDistributorModal from "./Modals/EditRewardsDistributorModal";
-import { useIsUpgradeable } from "hooks/fuse/edit/useIsUpgradable";
+import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
+import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
+import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => {};
@@ -102,12 +106,27 @@ export enum ComptrollerErrorCodes {
   SUPPLY_ABOVE_MAX,
 }
 
+export const useIsUpgradeable = (comptrollerAddress: string) => {
+  const { fuse } = useRari();
+
+  const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
+    const comptroller = createComptroller(comptrollerAddress, fuse);
+
+    const isUpgradeable: boolean =
+      await comptroller.callStatic.adminHasRights();
+
+    return isUpgradeable;
+  });
+
+  return data;
+};
+
 export async function testForComptrollerErrorAndSend(
   txObject: any,
   caller: string,
   failMessage: string
 ) {
-  let response = await txObject({ from: caller });
+  let response = await txObject.call({ from: caller });
 
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
   if (response[0] !== "0") {
@@ -152,12 +171,25 @@ const FusePoolEditPage = memo(() => {
 
   const data = useFusePoolData(poolId);
 
+  // Maps underlying to oracle
+  const oraclesMap = useOraclesForPool(
+    data?.oracle,
+    data?.assets?.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ??
+      []
+  );
+
+  // console.log({ oraclesMap });
+
+  console.log({ data });
+
   // RewardsDistributor stuff
   const poolIncentives = usePoolIncentives(data?.comptroller);
   const rewardsDistributors = useRewardsDistributorsForPool(data?.comptroller);
   const [rewardsDistributor, setRewardsDistributor] = useState<
     RewardsDistributor | undefined
   >();
+
+  // console.log({ poolIncentives, rewardsDistributors });
 
   const handleRewardsRowClick = useCallback(
     (rD: RewardsDistributor) => {
@@ -172,6 +204,8 @@ const FusePoolEditPage = memo(() => {
       {data ? (
         <AddAssetModal
           comptrollerAddress={data.comptroller}
+          poolOracleAddress={data.oracle}
+          oracleModel={data.oracleModel}
           existingAssets={data.assets}
           poolName={data.name}
           poolID={poolId}
@@ -206,6 +240,7 @@ const FusePoolEditPage = memo(() => {
         mx="auto"
         width={isMobile ? "100%" : "1150px"}
         px={isMobile ? 4 : 0}
+        // bg="pink"
       >
         <FuseStatsBar />
 
@@ -245,6 +280,8 @@ const FusePoolEditPage = memo(() => {
                   <AssetConfiguration
                     openAddAssetModal={authedOpenModal}
                     assets={data.assets}
+                    poolOracleAddress={data.oracle}
+                    oracleModel={data.oracleModel}
                     comptrollerAddress={data.comptroller}
                     poolID={poolId}
                     poolName={data.name}
@@ -789,6 +826,7 @@ const ColoredAssetSettings = ({
       poolID={poolID}
       tokenData={tokenData}
       cTokenAddress={cTokenAddress}
+      mode="Editing"
     />
   ) : (
     <Center expand>

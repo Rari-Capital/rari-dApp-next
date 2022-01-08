@@ -5,6 +5,7 @@ import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 import { useRari } from "../context/RariContext";
 
 import { Contract } from "ethers";
+import { ChainID } from "esm/utils/networks";
 
 export const ETH_TOKEN_DATA = {
   symbol: "ETH",
@@ -43,8 +44,18 @@ export const useTokenDataWithContract = (address: string) => {
   return { tokenData, contract };
 };
 
-export const fetchTokenData = async (address: string): Promise<TokenData> => {
+export const fetchTokenData = async (
+  address: string,
+  chainId = 1
+): Promise<TokenData> => {
   let data;
+  let _chainid = chainId;
+  if (chainId === 31337) {
+    _chainid = ChainID.ETHEREUM;
+  }
+
+  // console.log('fetchTokenData',{address, chainId, _chainid})
+
 
   if (address !== ETH_TOKEN_DATA.address) {
     try {
@@ -52,10 +63,8 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
       // just fetch this data from the live site in development:
       let url =
         (process.env.NODE_ENV === "development"
-          ? "https://app.rari.capital"
-          : "") +
-        "/api/tokenData?address=" +
-        address;
+          ? "https://rari-git-l2tokendata-rari-capital.vercel.app"
+          : "") + `/api/tokenData?address=${address}&chainId=${_chainid}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),
@@ -83,9 +92,14 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
 export const useTokenData = (
   address: string | undefined
 ): TokenData | undefined => {
-  const { data: tokenData } = useQuery(address + " tokenData", async () => {
-    return !!address ? await fetchTokenData(address) : undefined;
-  });
+  const { chainId } = useRari();
+
+  const { data: tokenData } = useQuery(
+    `Chain: ${chainId} Address: ${address} tokenData`,
+    async () => {
+      return !!address ? await fetchTokenData(address, chainId) : undefined;
+    }
+  );
   return tokenData;
 };
 

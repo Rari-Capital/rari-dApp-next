@@ -129,9 +129,8 @@ const AmountSelect = ({
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
-
     try {
+      const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
       _setAmount(bigAmount);
     } catch (e) {
       // If the number was invalid, set the amount to null to disable confirming:

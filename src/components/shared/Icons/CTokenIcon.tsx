@@ -3,12 +3,14 @@ import { useTokenData } from "hooks/useTokenData";
 
 export const CTokenIcon = ({
   address,
+  chainId = 1,
   ...avatarProps
 }: {
   address: string;
+  chainId?: number;
   [key: string]: any;
 }) => {
-  const tokenData = useTokenData(address);
+  const tokenData = useTokenData(address, chainId);
 
   return (
     <Avatar

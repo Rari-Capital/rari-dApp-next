@@ -27,7 +27,7 @@ import {
 } from "../utils/web3Providers";
 
 import { Web3Provider } from "@ethersproject/providers";
-import { isSupportedChainId } from "esm/utils/networks";
+import { ChainID, isSupportedChainId } from "esm/utils/networks";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
@@ -177,8 +177,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
       console.log({ chainId });
 
+      let _chainId = chainId === ChainID.ETHEREUM_TESTNET ? ChainID.ETHEREUM : chainId
+
       const rariInstance = new Vaults(provider);
-      const fuseInstance = initFuseWithProviders(provider, chainId);
+      const fuseInstance = initFuseWithProviders(provider, _chainId);
 
       console.log({ fuseInstance });
 

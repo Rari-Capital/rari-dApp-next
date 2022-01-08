@@ -66,14 +66,9 @@ export const PendingAdminAlert = ({
     setIsAccepting(true);
 
     try {
-      await testForComptrollerErrorAndSend(
-        unitroller._acceptAdmin(),
-        address,
-        ""
-      );
-
+      const tx = await unitroller._acceptAdmin({ from: address });
+      await tx.wait(1);
       LogRocket.track("Fuse-AcceptAdmin");
-
       queryClient.refetchQueries();
       setIsAccepting(false);
     } catch (e) {

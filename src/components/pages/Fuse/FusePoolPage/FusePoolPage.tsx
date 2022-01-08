@@ -237,7 +237,10 @@ const CollateralRatioBar = ({
   const ratio = useMemo(() => {
     const mB = parseFloat(maxBorrow.toString());
     const bUSD = parseFloat(borrowUSD.toString());
-    return BigNumber.from(Math.floor((bUSD / mB) * 100));
+    if (!maxBorrow.isZero) {
+      return borrowUSD.mul(100).div(maxBorrow);
+    }
+    return constants.Zero;
   }, [maxBorrow, borrowUSD]);
 
   useEffect(() => {
@@ -474,9 +477,9 @@ const AssetSupplyRow = ({
 
     let call;
     if (asset.membership) {
-      call = comptroller.methods.exitMarket(asset.cToken);
+      call = comptroller.exitMarket(asset.cToken);
     } else {
-      call = comptroller.methods.enterMarkets([asset.cToken]);
+      call = comptroller.enterMarkets([asset.cToken]);
     }
 
     let response = await call.call({ from: address });

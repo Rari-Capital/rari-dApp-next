@@ -39,7 +39,7 @@ const VaultCard = ({ vault }: { vault: GetVaultsResult_Vault }) => {
         {/* Title */}
         <HStack flexBasis="35%" flexGrow={0} w="100%" h="100%" bg="">
           {/* <Text>{vault.underlyingSymbol}</Text> */}
-          <CTokenIcon address={vault.underlying} />
+          <CTokenIcon address={vault.underlying} chainId={42} />
           <Heading size="lg">{vault.underlyingSymbol} Vault</Heading>
         </HStack>
         <ModalDivider />

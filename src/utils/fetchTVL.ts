@@ -2,12 +2,22 @@
 import { Vaults, Fuse } from "../esm/index";
 
 // Ethers
-import { BigNumber as EthersBigNumber, constants } from "ethers";
+import { BigNumber as EthersBigNumber, constants, Contract } from "ethers";
+
+// import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { chooseBestWeb3Provider } from "./web3Providers";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
+  console.log("fetchFuseTVL", {
+    fuse,
+    Contract,
+    provider: chooseBestWeb3Provider(),
+  });
+
   const res =
     await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-      true
+      true,
+      { gasLimit: 100000000000000000000000000 }
     );
 
   const { 2: suppliedETHPerPool } = res;
@@ -29,9 +39,9 @@ export const fetchFuseTVLBorrowsAndSupply = async (
   blockNum?: number
 ) => {
   const { 2: suppliedETHPerPool, 3: borrowedETHPerPool } =
-    await fuse.contracts.FusePoolLens.methods
-      .getPublicPoolsWithData()
-      .call({ gas: 1e18 }, blockNum);
+    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData({
+      gasLimit: "1000000000000000000",
+    });
 
   let totalSuppliedETH = suppliedETHPerPool
     .reduce((a: number, b: string) => a + parseInt(b), 0)
