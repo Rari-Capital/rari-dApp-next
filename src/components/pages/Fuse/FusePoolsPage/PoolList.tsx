@@ -1,4 +1,4 @@
-import { Text } from "@chakra-ui/layout";
+import { Box, Center, Heading, Text } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/spinner";
 import { ModalDivider } from "components/shared/Modal";
 import PoolRow from "./PoolRow";
@@ -15,6 +15,8 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
+
+  const loading = !pools;
 
   return (
     <Column
@@ -62,28 +64,32 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
         mainAxisAlignment="flex-start"
         crossAxisAlignment="center"
         width="100%"
+        h="100%"
       >
-        {pools ? (
-          pools.map((pool, index) => {
-            return (
-              <PoolRow
-                key={pool.id}
-                poolNumber={pool.id}
-                name={filterPoolName(pool.name)}
-                tvl={pool.suppliedUSD}
-                borrowed={pool.borrowedUSD}
-                tokens={pool.underlyingTokens.map((address, index) => ({
-                  symbol: pool.underlyingSymbols[index],
-                  address,
-                }))}
-                noBottomDivider={index === pools.length - 1}
-                isWhitelisted={pool.whitelistedAdmin}
-                comptroller={pool.comptroller}
-              />
-            );
-          })
-        ) : (
-          <Spinner my={8} />
+        {pools?.map((pool, index) => {
+          return (
+            <PoolRow
+              key={pool.id}
+              poolNumber={pool.id}
+              name={filterPoolName(pool.name)}
+              tvl={pool.suppliedUSD}
+              borrowed={pool.borrowedUSD}
+              tokens={pool.underlyingTokens.map((address, index) => ({
+                symbol: pool.underlyingSymbols[index],
+                address,
+              }))}
+              noBottomDivider={index === pools.length - 1}
+              isWhitelisted={pool.whitelistedAdmin}
+              comptroller={pool.comptroller}
+            />
+          );
+        })}
+        {!!pools && !pools.length && (
+          <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
+            <Center>
+              <Spinner my={8} />
+            </Center>
+          </Box>
         )}
       </Column>
     </Column>
