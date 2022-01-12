@@ -50,8 +50,8 @@ Here's the symbols we currently support: " !"#$%&'()*+,-./0123456789:;<=>?@ABCDE
 */
 @font-face {
   font-family: "Avenir Next";
-  src: url('/static/fonts/AvenirNext-Bold.woff2') format("woff2"),
-    url('/static/fonts/AvenirNext-Bold.woff2')  format("woff");
+  src: url("/static/fonts/AvenirNext-Bold.woff2") format("woff2"),
+    url("/static/fonts/AvenirNext-Bold.woff2") format("woff");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -59,8 +59,8 @@ Here's the symbols we currently support: " !"#$%&'()*+,-./0123456789:;<=>?@ABCDE
 
 @font-face {
   font-family: "Avenir Next";
-  src: url('/static/fonts/AvenirNext-Regular.woff2')  format("woff2"),
-    url('/static/fonts/AvenirNext-Regular.woff2')  format("woff");
+  src: url("/static/fonts/AvenirNext-Regular.woff2") format("woff2"),
+    url("/static/fonts/AvenirNext-Regular.woff2") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -211,12 +211,11 @@ img:not([src]) {
   }
 }
 
-
 li .dot .selected {
   background: green !important;
 }
 
 /* Needed to remove ugly blue boxes: https://github.com/chakra-ui/chakra-ui/issues/708 */
 *:focus {
-  box-shadow:  none !important;
+  box-shadow: none !important;
 }
