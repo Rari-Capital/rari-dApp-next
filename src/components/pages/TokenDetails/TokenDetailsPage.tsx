@@ -44,16 +44,18 @@ const useBestCTokensForUnderlying = (tokenAddress: string) => {
     fetchBestCTokensForUnderlying
   );
 
-  const { bestSupplyAPY, bestBorrowAPR }: GQLBestCTokenForUnderlyings =
+  const { bestSupplyAPY, bestBorrowAPR, bestLTV }: GQLBestCTokenForUnderlyings =
     data ?? {
       bestSupplyAPY: [],
       bestBorrowAPR: [],
+      bestLTV: [],
     };
 
   const bestSupplyCToken = bestSupplyAPY?.[0];
   const bestBorrowCToken = bestBorrowAPR?.[0];
+  const bestLTVCToken = bestLTV?.[0];
 
-  const ret = { bestSupplyCToken, bestBorrowCToken };
+  const ret = { bestSupplyCToken, bestBorrowCToken, bestLTVCToken };
   return ret;
 };
 
@@ -61,9 +63,8 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
   const isMobile = useIsSmallScreen();
   const { fuse } = useRari();
 
-  const { bestSupplyCToken, bestBorrowCToken } = useBestCTokensForUnderlying(
-    token.address
-  );
+  const { bestSupplyCToken, bestBorrowCToken, bestLTVCToken } =
+    useBestCTokensForUnderlying(token.address);
 
   const isVaultCreated = useIsVaultCreated(token.address);
   const { deployVault, isDeploying } = useDeployVault();
@@ -181,7 +182,21 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 }
               />
 
-              <CTokenBox title={"Highest LTV"} subtitle={"60%"} href="#" />
+              <CTokenBox
+                title={"Highest LTV"}
+                subtitle={
+                  !!bestLTVCToken?.collateralFactor
+                    ? `${(
+                        parseFloat(bestLTVCToken.collateralFactor) / 1e16
+                      ).toFixed()}%`
+                    : undefined
+                }
+                href={
+                  bestLTVCToken
+                    ? `/fuse/pool/${bestLTVCToken.pool.index}`
+                    : "#"
+                }
+              />
             </VStack>
           </DashboardBox>
 

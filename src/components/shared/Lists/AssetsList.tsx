@@ -184,10 +184,10 @@ export const AssetRow = ({
                 {asset.totalLiquidityUSD &&
                   smallUsdFormatter(asset.totalLiquidityUSD).substring(0, 15)}
               </Text>
-              {/* <Text fontWeight="" fontSize="sm">
+              <Text fontWeight="" fontSize="sm">
                 {(asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}
                 {asset.symbol}
-              </Text> */}
+              </Text>
             </Stack>
           </Td>
           {/* Price

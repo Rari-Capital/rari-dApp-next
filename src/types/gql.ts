@@ -16,6 +16,7 @@ export interface GQLCToken {
   fuseFee: string;
   reserveFactor: string;
   underlyingBalance: string;
+  collateralFactor: string;
   underlying?: GQLUnderlyingAsset;
   pool?: GQLFusePool;
 }

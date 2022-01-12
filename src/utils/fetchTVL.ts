@@ -14,23 +14,29 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
     provider: chooseBestWeb3Provider(),
   });
 
-  const res =
-    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-      true,
-      { gasLimit: 100000000000000000000000000 }
+  try {
+    console.log("Trying FusePoolLens pools call");
+    const res =
+      await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+        true
+      );
+
+    console.log("Tried FusePoolLens pools call", { res });
+
+    const { 2: suppliedETHPerPool } = res;
+
+    const totalSuppliedETH = EthersBigNumber.from(
+      EthersBigNumber.from(
+        suppliedETHPerPool
+          .reduce((a: number, b: string) => a + parseInt(b), 0)
+          .toString()
+      )
     );
 
-  const { 2: suppliedETHPerPool } = res;
-
-  const totalSuppliedETH = EthersBigNumber.from(
-    EthersBigNumber.from(
-      suppliedETHPerPool
-        .reduce((a: number, b: string) => a + parseInt(b), 0)
-        .toString()
-    )
-  );
-
-  return totalSuppliedETH;
+    return totalSuppliedETH;
+  } catch (err: any) {
+    console.error("Error retrieving fuseTVL: " + err.message);
+  }
 };
 
 // Todo - delete this and just make `fetchFuseTVL` do this stuff
@@ -93,9 +99,8 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
   // });
 
   const ethUSDBN = ethPriceBN.div(constants.WeiPerEther);
-
   const ethTVL = ethTVLInETH.mul(ethUSDBN);
-  const fuseTVL = fuseTVLInETH.mul(ethUSDBN);
+  const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethUSDBN);
 
   return {
     stableTVL,
@@ -110,6 +115,7 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
 export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) => {
   try {
     const tvls = await perPoolTVL(Vaults, fuse);
+    console.log({ tvls });
 
     return tvls.stableTVL
       .add(tvls.yieldTVL)
