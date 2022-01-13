@@ -234,6 +234,7 @@ export const useGetOracleOptions = (
         fuse,
         "ChainlinkPriceOracle"
       );
+
       const oraclePrice = await oracleContract.callStatic.price(tokenAddress);
 
       // If price is zero, this means theres no pricefeed for the asset so return null

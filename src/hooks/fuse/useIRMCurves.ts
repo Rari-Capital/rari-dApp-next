@@ -25,7 +25,13 @@ const useIRMCurves = ({
     async () => {
       const IRM = await fuse.identifyInterestRateModel(interestRateModel);
 
-      console.log({ IRM });
+      console.log({
+        IRM,
+        interestRateModel,
+        reserveFactor,
+        adminFee,
+        web3Provider: chooseBestWeb3Provider(),
+      });
 
       if (IRM === null) {
         return null;

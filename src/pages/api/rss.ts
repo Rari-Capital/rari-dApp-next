@@ -345,8 +345,9 @@ export default async (request: NowRequest, response: NowResponse) => {
 
         // console.time(asset.underlyingSymbol);
         fetch(
-          `http://${process.env.VERCEL_URL ?? `app.rari.capital`}/api/rss?address=` +
-            asset.underlyingToken
+          `http://${
+            process.env.VERCEL_URL ?? `app.rari.capital`
+          }/api/rss?address=` + asset.underlyingToken
         )
           .then((res) => res.json())
           .then((rss) => {
@@ -358,7 +359,6 @@ export default async (request: NowRequest, response: NowResponse) => {
             if (completed === assets.length) {
               resolve(true);
             }
-
           })
           .catch((err) => {
             console.error(err);
@@ -373,9 +373,9 @@ export default async (request: NowRequest, response: NowResponse) => {
 
     const upgradeable = await weightedCalculation(async () => {
       const { 0: admin, 1: upgradeable } =
-        await fuse.contracts.FusePoolLens.methods
-          .getPoolOwnership(comptroller)
-          .call({ gas: 1e18 });
+        await fuse.contracts.FusePoolLens.getPoolOwnership(comptroller).call({
+          gas: 1e18,
+        });
 
       // Rari Controlled Multisig
       if (
@@ -405,8 +405,9 @@ export default async (request: NowRequest, response: NowResponse) => {
 
       // Ex: 8
       const liquidationIncentive =
-        (parseInt((await comptrollerContract
-          .liquidationIncentiveMantissa()).toString())) /
+        parseInt(
+          (await comptrollerContract.liquidationIncentiveMantissa()).toString()
+        ) /
           1e16 -
         100;
 
