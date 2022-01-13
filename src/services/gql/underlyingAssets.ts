@@ -3,6 +3,7 @@ import {
   SEARCH_FOR_TOKEN,
   SEARCH_FOR_TOKENS_BY_ADDRESSES,
 } from "gql/searchTokens";
+import { GET_UNDERLYING_ASSETS_PAGINATED } from "gql/underlyingAssets/getUnderlyingAssetsPaginated";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
 import { GQLSearchReturn } from "types/search";
 import { makeGqlRequest } from "utils/gql";
@@ -12,6 +13,19 @@ export const queryAllUnderlyingAssets = async (): Promise<
   SubgraphUnderlyingAsset[]
 > => {
   const { underlyingAssets } = await makeGqlRequest(GET_ALL_UNDERLYING_ASSETS);
+  return underlyingAssets;
+};
+
+export const queryUnderlyingAssetsPaginated = async (
+  offset?: number,
+  limit?: number,
+  orderBy?: string,
+  orderDir?: "asc" | "desc"
+): Promise<SubgraphUnderlyingAsset[]> => {
+  const { underlyingAssets } = await makeGqlRequest(
+    GET_UNDERLYING_ASSETS_PAGINATED,
+    { offset, limit, orderBy, orderDir }
+  );
   return underlyingAssets;
 };
 

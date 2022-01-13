@@ -14,33 +14,97 @@ import { Column, Row, useIsMobile } from "lib/chakraUtils";
 
 // Types
 import { RariApiTokenData, TokensDataMap } from "types/tokens";
-import { queryAllUnderlyingAssets } from "services/gql";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { fetchTokensAPIDataAsMap } from "utils/services";
 import { useSortableList } from "hooks/useSortableList";
 import { SortableTableHeader } from "./Common";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { smallUsdFormatter } from "utils/bigUtils";
+import useInfiniteScroll from "react-infinite-scroll-hook";
+import { queryUnderlyingAssetsPaginated } from "services/gql/underlyingAssets";
+import { fetchTokensAPIDataAsMap } from "utils/services";
+import usePagination from "hooks/usePagination";
+import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExplorer/TokenExplorer";
+import { useEffect, useState } from "react";
 
-export const AllAssetsList = ({
-  assets,
-  tokensData,
-}: {
+interface AllSubgraphUnderlyingAssets {
   assets: SubgraphUnderlyingAsset[];
   tokensData: TokensDataMap;
-}) => {
+}
+// Fetchers
+
+const useUnderlyingAssetsPaginated = (
+  offset: number,
+  limit: number,
+  orderBy: string = "address",
+  orderDir: "asc" | "desc" = "asc"
+) => {
+  const { data, error } = useSWR(
+    `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit}`,
+    async (): Promise<AllSubgraphUnderlyingAssets> => {
+      const underlyingAssets = await queryUnderlyingAssetsPaginated(
+        offset,
+        limit,
+        orderBy,
+        orderDir
+      );
+      const addrs = underlyingAssets.map((asset) => asset.address);
+      const tokensData = await fetchTokensAPIDataAsMap(addrs);
+
+      return {
+        assets: underlyingAssets,
+        tokensData,
+      };
+    }
+  );
+  return (
+    data ?? {
+      assets: [],
+      tokensData: {},
+    }
+  );
+};
+
+export const AllAssetsList = () => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
-  const {
-    sorted: sortedAssets,
-    handleSortClick,
-    sortBy,
-    sortDir,
-  } = useSortableList(assets);
+  const [underlyingAssets, setUnderlyingAssets] = useState<
+    SubgraphUnderlyingAsset[]
+  >([]);
+
+  // Total amount
+  const { data: count } = useUnderlyingAssetsCount();
+
+  // GQL Pagination logic
+  const { page, limit, offset, hasMore, setPage, setLimit, setOffset } =
+    usePagination(count);
+
+  // Query GQL
+  const { assets, tokensData } = useUnderlyingAssetsPaginated(offset, limit);
+
+  useEffect(() => {
+    setUnderlyingAssets([...underlyingAssets, ...assets]);
+  }, [assets]);
+  //
+  const { handleSortClick, sortBy, sortDir } = useSortableList(assets);
+
+  const [sentryRef, { rootRef }] = useInfiniteScroll({
+    loading: true,
+    hasNextPage: hasMore,
+    onLoadMore: () => setPage(page + 1),
+    // When there is an error, we stop infinite loading.
+    // It can be reactivated by setting "error" state as undefined.
+    // disabled: !!error,
+    // `rootMargin` is passed to `IntersectionObserver`.
+    // We can use it to trigger 'onLoadMore' when the sentry comes near to become
+    // visible, instead of becoming fully visible on the screen.
+    rootMargin: "0px 0px 400px 0px",
+  });
+
+  console.log({ page, limit, offset, assets, underlyingAssets, hasMore });
 
   return (
     <Box h="400px" w="100%" overflowY="scroll">
-      {!sortedAssets.length ? (
+      {!underlyingAssets.length ? (
         <Box w="100%" h="50px">
           <Center>
             <Spinner my={8} />
@@ -90,8 +154,8 @@ export const AllAssetsList = ({
               )}
             </Tr>
           </Thead>
-          <Tbody>
-            {sortedAssets.map((underlyingAsset) => {
+          <Tbody ref={rootRef}>
+            {underlyingAssets.map((underlyingAsset) => {
               return (
                 <>
                   <AssetRow
@@ -103,6 +167,9 @@ export const AllAssetsList = ({
                 </>
               );
             })}
+            <Box w="100%" h="30px" bg="pink" ref={sentryRef}>
+              <Spinner />
+            </Box>
           </Tbody>
         </Table>
       )}

@@ -7,7 +7,7 @@ const SUBGRAPH_V2 =
 const SUBGRAPH_V4 =
   "https://api.studio.thegraph.com/query/853/fuse-zacel/0.4.1";
 const SUBGRAPH_V5 =
-  "https://api.studio.thegraph.com/query/853/fuse-zacel/0.5.89";
+  "https://api.studio.thegraph.com/query/853/fuse-zacel/0.5.91";
 
 // VAULTS
 const VAULTS_SUBGRAPH =
