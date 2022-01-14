@@ -1,6 +1,7 @@
 import { Fuse } from "../esm";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { ChainID } from "esm/utils/networks";
 
 export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
 export const providerURL = `http://127.0.0.1:8545/`;
@@ -26,9 +27,16 @@ export const initFuseWithProviders = (
 ): Fuse => {
   const fuse = new Fuse(provider, chainId);
 
+  let url =
+    chainId === ChainID.ARBITRUM_TESTNET
+      ? "https://arb-rinkeby.g.alchemy.com/v2/PkZ7ilUhTBT6tHUsgToel62IOcuyKcwb"
+      : alchemyURL;
+
+  console.log({ url });
+
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
-    new JsonRpcProvider(alchemyURL)
+    new JsonRpcProvider(url)
   );
 
   return fuse;

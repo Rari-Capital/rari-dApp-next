@@ -6,6 +6,7 @@ import { BigNumber as EthersBigNumber, constants, Contract } from "ethers";
 
 // import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { chooseBestWeb3Provider } from "./web3Providers";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
   console.log("fetchFuseTVL", {
@@ -33,7 +34,9 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
       )
     );
 
-    return totalSuppliedETH;
+    // console.log("Tried FusePoolLens pools call 2 ", { totalSuppliedETH });
+
+    return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
     console.error("Error retrieving fuseTVL: " + err.message);
   }
@@ -70,23 +73,23 @@ export const fetchFuseTVLBorrowsAndSupply = async (
 };
 
 export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
-  const [
-    stableTVL,
-    yieldTVL,
-    ethTVLInETH,
-    daiTVL,
-    ethPriceBN,
-    stakedTVL,
-    fuseTVLInETH,
-  ] = await Promise.all([
-    Vaults.pools.stable.balances.getTotalSupply(),
-    Vaults.pools.yield.balances.getTotalSupply(),
-    Vaults.pools.ethereum.balances.getTotalSupply(),
-    Vaults.pools.dai.balances.getTotalSupply(),
-    Vaults.getEthUsdPriceBN(),
-    Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
-    fetchFuseTVL(fuse),
-  ]);
+  // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, ethPriceBN, stakedTVL] =
+  //   await Promise.all([
+  //     Vaults.pools.stable.balances.getTotalSupply(),
+  //     Vaults.pools.yield.balances.getTotalSupply(),
+  //     Vaults.pools.ethereum.balances.getTotalSupply(),
+  //     Vaults.pools.dai.balances.getTotalSupply(),
+  //     Vaults.getEthUsdPriceBN(),
+  //     Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
+  //   ]);
+
+  const ethUSDBN = getEthUsdPriceBN();
+
+  // console.log("PER POOL TVL");
+
+  const fuseTVLInETH = await fetchFuseTVL(fuse);
+
+  // console.log("PER POOL TVL", { fuseTVLInETH });
 
   // console.log({
   //   stableTVL,
@@ -98,17 +101,17 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
   //   fuseTVLInETH,
   // });
 
-  const ethUSDBN = ethPriceBN.div(constants.WeiPerEther);
-  const ethTVL = ethTVLInETH.mul(ethUSDBN);
+  // const ethUSDBN = (ethPriceBN ?? constants.Zero).div(constants.WeiPerEther);
+  // const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethUSDBN);
   const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethUSDBN);
 
   return {
-    stableTVL,
-    yieldTVL,
-    ethTVL,
-    daiTVL,
+    // stableTVL,
+    // yieldTVL,
+    // ethTVL,
+    // daiTVL,
     fuseTVL,
-    stakedTVL,
+    // stakedTVL,
   };
 };
 
@@ -117,12 +120,14 @@ export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) => {
     const tvls = await perPoolTVL(Vaults, fuse);
     console.log({ tvls });
 
-    return tvls.stableTVL
-      .add(tvls.yieldTVL)
-      .add(tvls.ethTVL)
-      .add(tvls.daiTVL)
-      .add(tvls.stakedTVL)
-      .add(tvls.fuseTVL);
+    return tvls.fuseTVL;
+
+    // return tvls.stableTVL
+    //   .add(tvls.yieldTVL)
+    //   .add(tvls.ethTVL)
+    //   .add(tvls.daiTVL)
+    //   .add(tvls.stakedTVL)
+    //   .add(tvls.fuseTVL);
   } catch (err) {
     console.log({ err });
     return constants.Zero;
