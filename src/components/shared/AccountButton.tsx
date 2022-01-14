@@ -35,6 +35,7 @@ import MoonpayModal from "components/pages/MoonpayModal";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { HamburgerIcon } from "@chakra-ui/icons";
+import SwitchNetworkButton from "./SwitchNetworkButton";
 
 export const AccountButton = memo(() => {
   const {
@@ -121,18 +122,7 @@ const Buttons = ({
             <Center expand>{t("Buy Crypto")}</Center>
           </DashboardBox> */}
 
-          <DashboardBox
-            ml={1}
-            as="button"
-            height="40px"
-            flexShrink={0}
-            width="95px"
-            fontSize="15px"
-            onClick={openClaimRGTModal}
-            fontWeight="bold"
-          >
-            <Center expand>{t("Claim RGT")}</Center>
-          </DashboardBox>
+          <SwitchNetworkButton />
         </>
       )}
 
