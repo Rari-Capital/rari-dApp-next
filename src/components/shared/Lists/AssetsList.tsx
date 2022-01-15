@@ -24,6 +24,8 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import usePagination from "hooks/usePagination";
 import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExplorer/TokenExplorer";
 import { useEffect, useState } from "react";
+import { useTokensDataAsMap } from "hooks/useTokenData";
+import { useQuery } from "react-query";
 
 interface AllSubgraphUnderlyingAssets {
   assets: SubgraphUnderlyingAsset[];
@@ -37,28 +39,16 @@ const useUnderlyingAssetsPaginated = (
   orderBy: string = "address",
   orderDir: "asc" | "desc" = "asc"
 ) => {
-  const { data, error } = useSWR(
+  return useQuery(
     `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit}`,
-    async (): Promise<AllSubgraphUnderlyingAssets> => {
+    async (): Promise<SubgraphUnderlyingAsset[]> => {
       const underlyingAssets = await queryUnderlyingAssetsPaginated(
         offset,
         limit,
         orderBy,
         orderDir
       );
-      const addrs = underlyingAssets.map((asset) => asset.address);
-      const tokensData = await fetchTokensAPIDataAsMap(addrs);
-
-      return {
-        assets: underlyingAssets,
-        tokensData,
-      };
-    }
-  );
-  return (
-    data ?? {
-      assets: [],
-      tokensData: {},
+      return underlyingAssets;
     }
   );
 };
@@ -71,6 +61,8 @@ export const AllAssetsList = () => {
     SubgraphUnderlyingAsset[]
   >([]);
 
+  const [tokensData, setTokensData] = useState<TokensDataMap>({});
+
   // Total amount
   const { data: count } = useUnderlyingAssetsCount();
 
@@ -79,28 +71,46 @@ export const AllAssetsList = () => {
     usePagination(count);
 
   // Query GQL
-  const { assets, tokensData } = useUnderlyingAssetsPaginated(offset, limit);
+  const { data: newAssets, isLoading } = useUnderlyingAssetsPaginated(
+    offset,
+    limit
+  );
+
+  const newTokensData = useTokensDataAsMap(
+    newAssets?.map(({ id }) => id) ?? []
+  );
+
+  // useEffect(() => {
+  //   setTokensData({ ...tokensData, ...newTokensData });
+  // }, [newTokensData]);
 
   useEffect(() => {
-    setUnderlyingAssets([...underlyingAssets, ...assets]);
-  }, [assets]);
+    console.log("assets changed");
+    // Append to array in state and set it
+    const allAssets = [...underlyingAssets, ...(newAssets ?? [])];
+    setUnderlyingAssets(allAssets);
+  }, [newAssets]);
+
   //
-  const { handleSortClick, sortBy, sortDir } = useSortableList(assets);
+  const { handleSortClick, sortBy, sortDir } = useSortableList(newAssets);
+
+  const handleLoadMore = () => {
+    console.log("LOADING MORE...");
+    setPage(page + 1);
+  };
 
   const [sentryRef, { rootRef }] = useInfiniteScroll({
-    loading: true,
+    loading: isLoading,
     hasNextPage: hasMore,
-    onLoadMore: () => setPage(page + 1),
+    onLoadMore: handleLoadMore,
     // When there is an error, we stop infinite loading.
     // It can be reactivated by setting "error" state as undefined.
-    // disabled: !!error,
+    disabled: false,
     // `rootMargin` is passed to `IntersectionObserver`.
     // We can use it to trigger 'onLoadMore' when the sentry comes near to become
     // visible, instead of becoming fully visible on the screen.
     rootMargin: "0px 0px 400px 0px",
   });
-
-  console.log({ page, limit, offset, assets, underlyingAssets, hasMore });
 
   return (
     <Box h="400px" w="100%" overflowY="scroll">
@@ -111,67 +121,71 @@ export const AllAssetsList = () => {
           </Center>
         </Box>
       ) : (
-        <Table variant="unstyled">
-          <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
-            <Tr>
-              <SortableTableHeader
-                text="Asset"
-                sortDir={sortDir}
-                handleSortClick={() => handleSortClick("symbol")}
-                isActive={sortBy === "symbol"}
-              />
+        <>
+          <Table variant="unstyled">
+            <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
+              <Tr>
+                <SortableTableHeader
+                  text="Asset"
+                  sortDir={sortDir}
+                  handleSortClick={() => handleSortClick("symbol")}
+                  isActive={sortBy === "symbol"}
+                />
 
-              {isMobile ? null : (
-                <>
-                  <SortableTableHeader
-                    text="Total Supplied"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalSupplyUSD")}
-                    isActive={sortBy === "totalSupplyUSD"}
-                  />
+                {isMobile ? null : (
+                  <>
+                    <SortableTableHeader
+                      text="Total Supplied"
+                      sortDir={sortDir}
+                      handleSortClick={() => handleSortClick("totalSupplyUSD")}
+                      isActive={sortBy === "totalSupplyUSD"}
+                    />
 
-                  <SortableTableHeader
-                    text="Total Borrowed"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalBorrowUSD")}
-                    isActive={sortBy === "totalBorrowUSD"}
-                  />
+                    <SortableTableHeader
+                      text="Total Borrowed"
+                      sortDir={sortDir}
+                      handleSortClick={() => handleSortClick("totalBorrowUSD")}
+                      isActive={sortBy === "totalBorrowUSD"}
+                    />
 
-                  <SortableTableHeader
-                    text="Total Liquidity"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalLiquidityUSD")}
-                    isActive={sortBy === "totalLiquidityUSD"}
-                  />
-                  {/* 
+                    <SortableTableHeader
+                      text="Total Liquidity"
+                      sortDir={sortDir}
+                      handleSortClick={() =>
+                        handleSortClick("totalLiquidityUSD")
+                      }
+                      isActive={sortBy === "totalLiquidityUSD"}
+                    />
+                    {/* 
                 <SortableTableHeader
                   text="Price"
                   sortDir={sortDir}
                   handleSortClick={() => handleSortClick("price")}
                   isActive={sortBy === "price"}
                 /> */}
-                </>
-              )}
-            </Tr>
-          </Thead>
-          <Tbody ref={rootRef}>
-            {underlyingAssets.map((underlyingAsset) => {
-              return (
-                <>
-                  <AssetRow
-                    asset={underlyingAsset}
-                    tokenData={tokensData[underlyingAsset.id]}
-                    key={underlyingAsset.symbol}
-                  />
-                  <ModalDivider />
-                </>
-              );
-            })}
-            <Box w="100%" h="30px" bg="pink" ref={sentryRef}>
-              <Spinner />
-            </Box>
-          </Tbody>
-        </Table>
+                  </>
+                )}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {underlyingAssets.map((underlyingAsset) => {
+                return (
+                  <>
+                    <AssetRow
+                      asset={underlyingAsset}
+                      tokenData={tokensData[underlyingAsset.id]}
+                      key={underlyingAsset.symbol}
+                    />
+                    <ModalDivider />
+                  </>
+                );
+              })}
+              <Tr w="100%" h="20px" bg="pink" ref={sentryRef}>
+                <Spinner />
+              </Tr>
+            </Tbody>
+          </Table>
+        </>
       )}
     </Box>
   );

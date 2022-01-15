@@ -2,13 +2,10 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Box, Center, Flex, Img, Spacer, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  getChainMetadata,
-  getSupportedChains,
-  useRari,
-} from "context/RariContext";
+import { useRari } from "context/RariContext";
 
 import DashboardBox from "./DashboardBox";
+import { getChainMetadata, getSupportedChains } from "constants/networks";
 
 const SwitchNetworkButton: React.FC = () => {
   const [dropdownOpened, setDropdownOpened] = useState(false);
