@@ -21,8 +21,6 @@ import { Button } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { MobileNavModal } from "./MobileNavModal";
 
-
-
 export const HeaderHeightWithTopPadding = new PixelSize(
   38 + DASHBOARD_BOX_SPACING.asNumber()
 );
@@ -79,17 +77,18 @@ export const NewHeader = () => {
               ml={2}
               links={PRODUCTS_DROPDOWN_ITEMS}
             />
-            <DropDownLink
-              name={t("Governance")}
-              links={GOVERNANCE_DROPDOWN_ITEMS}
-            />
+            <HeaderLink name={t("Explore")} route="/explore" />
+
             <DropDownLink
               name={t("Tools")}
               ml={2}
               links={UTILS_DROPDOWN_ITEMS}
             />
 
-            <HeaderLink name={t("Explore")} route="/explore" ml={5} />
+            <DropDownLink
+              name={t("Governance")}
+              links={GOVERNANCE_DROPDOWN_ITEMS}
+            />
           </Row>
         )}
 

@@ -36,18 +36,30 @@ export interface DropDownLinkInterface {
   route: string;
 }
 
+function getHeaderLinkStyleProps(isOnThisRoute: boolean) {
+  return {
+    p: 2,
+    px: 3,
+    mx: 3,
+    fontWeight: "bold",
+    color: isOnThisRoute ? "white" : "#818181",
+    bg: isOnThisRoute ? "#1F1F1F" : "transparent",
+    _hover: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
+    _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
+    _focus: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
+  };
+}
+
 // Normal Header Link
 export const HeaderLink = ({
   name,
   route,
-  ml,
   noUnderline,
   ...props
 }: {
   name: string;
   route: string;
   noUnderline?: boolean;
-  ml?: number | string;
   [x: string]: any;
 }) => {
   const router = useRouter();
@@ -60,35 +72,20 @@ export const HeaderLink = ({
     <AppLink
       href={route}
       isExternal
-      ml={ml ?? 0}
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
+      {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
-      <Text
-        fontWeight={isOnThisRoute ? "bold" : "normal"}
-        textDecoration="underline"
-        color={isOnThisRoute ? "purple" : "white"}
-        {...props}
-      >
-        {name}
-      </Text>
+      <Text {...props}>{name}</Text>
     </AppLink>
   ) : (
     <AppLink
       href={route}
-      ml={ml ?? 0}
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
+      {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
-      <Text
-        fontWeight={isOnThisRoute ? "bold" : "normal"}
-        textDecor={isOnThisRoute ? "underline" : ""}
-        textDecorationThickness="1.5px"
-        color={isOnThisRoute ? "#7065F2" : "white"}
-        {...props}
-      >
-        {name}
-      </Text>
+      <Text {...props}>{name}</Text>
     </AppLink>
   );
 };
@@ -111,35 +108,30 @@ export const DropDownLink = ({
   ml?: number | string;
 }) => {
   const router = useRouter();
+  const path = router.asPath;
 
-  const isOnThisRoute = useMemo(
-    () =>
-      links.find((l) => {
-        if (l.type === MenuItemType.LINK) {
-          
-          return splitHairs(router.asPath).includes(
-            splitHairs(l.link!.route)[0]
-          );
-        } else if (l.type === MenuItemType.MENUGROUP) return false;
-      }),
-    [links, router]
-  );
+  const isOnThisRoute = useMemo(() => {
+    const splitPath = splitHairs(path);
+    const dropdownRoutes = links
+      .filter((link) => link.type === MenuItemType.LINK)
+      .map((link) => link.link?.route)
+      .filter((route) => !!route);
+    return dropdownRoutes.some((route) => {
+      if (route) {
+        const splitRoute = splitHairs(route);
+        return splitPath.includes(splitRoute[0]);
+      }
+      return false;
+    });
+  }, [links, path]);
 
   return (
     <Box ml={ml ?? 0} color="white" zIndex={10}>
       <Menu isLazy={false}>
         <MenuButton
-          p={2}
-          bg="none"
           as={Button}
           rightIcon={<ChevronDownIcon />}
-          fontWeight={isOnThisRoute ? "bold" : "normal"}
-          textDecor={isOnThisRoute ? "underline" : ""}
-          textDecorationThickness="1.5px"
-          color={isOnThisRoute ? "#7065F2" : "white"}
-          _hover={{ bg: "none", textDecoration: "underline" }}
-          _active={{ bg: "grey.100" }}
-          _focus={{ bg: "grey.200" }}
+          {...getHeaderLinkStyleProps(isOnThisRoute)}
         >
           {name}
         </MenuButton>
