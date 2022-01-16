@@ -1,16 +1,26 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Box, Center, Flex, Img, Spacer, Text } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  Center,
+  Flex,
+  Img,
+  Menu,
+  MenuButton,
+  MenuList,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
+import { useMemo } from "react";
 
 import { useRari } from "context/RariContext";
 
 import DashboardBox from "./DashboardBox";
 import { getChainMetadata, getSupportedChains } from "constants/networks";
 
-const SwitchNetworkButton: React.FC = () => {
-  const [dropdownOpened, setDropdownOpened] = useState(false);
-  const { switchNetwork, chainId } = useRari();
-  const supportedChains = useMemo(() => getSupportedChains(), []);
+const SwitchNetworkButton: React.FC<
+  React.ComponentProps<typeof DashboardBox>
+> = ({ ...props }) => {
+  const { chainId } = useRari();
 
   let chainMetadata;
   if (chainId) {
@@ -21,18 +31,14 @@ const SwitchNetworkButton: React.FC = () => {
     <DashboardBox
       position="relative"
       ml={1}
-      as="button"
+      as={MenuButton}
       height="40px"
       px={4}
       flexShrink={0}
       fontSize={15}
-      tabIndex={0}
-      onClick={() => {
-        setDropdownOpened(!dropdownOpened);
-      }}
-      onBlur={() => setDropdownOpened(false)}
       fontWeight="bold"
       cursor="pointer"
+      {...props}
     >
       <Center expand>
         {chainMetadata ? (
@@ -55,16 +61,29 @@ const SwitchNetworkButton: React.FC = () => {
         )}
         <ChevronDownIcon ml={3} mr={1} />
       </Center>
-      {dropdownOpened && (
-        <DashboardBox
-          position="absolute"
-          width="175%"
-          left={0}
-          top="50px"
-          textAlign="left"
-          p={4}
-          cursor="default"
-        >
+    </DashboardBox>
+  );
+};
+
+const SwitchNetworkMenu: React.FC = () => {
+  const { switchNetwork, chainId } = useRari();
+  const supportedChains = useMemo(() => getSupportedChains(), []);
+
+  let chainMetadata;
+  if (chainId) {
+    chainMetadata = getChainMetadata(chainId);
+  }
+
+  return (
+    <Menu>
+      <MenuButton as={SwitchNetworkButton} />
+      <MenuList
+        minWidth="150%"
+        bg="transparent"
+        borderColor="transparent"
+        pt={1}
+      >
+        <DashboardBox textAlign="left" p={4}>
           <Text fontWeight="normal" color="grey" mb={2} cursor="default">
             Select a network
           </Text>
@@ -107,9 +126,9 @@ const SwitchNetworkButton: React.FC = () => {
             </Flex>
           ))}
         </DashboardBox>
-      )}
-    </DashboardBox>
+      </MenuList>
+    </Menu>
   );
 };
 
-export default SwitchNetworkButton;
+export default SwitchNetworkMenu;
