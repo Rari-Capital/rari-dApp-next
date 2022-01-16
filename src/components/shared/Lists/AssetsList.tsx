@@ -78,10 +78,6 @@ export const AllAssetsList = () => {
     handleLoadMore,
   } = usePagination(count);
 
-  useEffect(() => {
-    console.log({ offset, limit, page, hasMore });
-  }, [offset, limit, page, hasMore]);
-
   // // Query GQL
   const { data: newAssets, isLoading } = useUnderlyingAssetsPaginated(
     offset,
@@ -95,7 +91,6 @@ export const AllAssetsList = () => {
 
   // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
   const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
-
   useEffect(() => {
     fetchTokensAPIDataAsMap(newAssetsUnderlyings).then((newTokensData) => {
       const allTokensData = {
@@ -107,19 +102,27 @@ export const AllAssetsList = () => {
   }, [flag]);
 
   useEffect(() => {
-    console.log("assets changed");
     // Append to array in state and set it
     const allAssets = [...underlyingAssets, ...(newAssets ?? [])];
+    console.log(
+      "assets changed",
+      underlyingAssets.length,
+      newAssets?.length,
+      allAssets.length
+    );
+
     setUnderlyingAssets(allAssets);
   }, [newAssets]);
 
   const loadMore = () => {
-    console.log("LOADING MORE...");
+    console.log("LOADING MORE ASSETS...");
     handleLoadMore();
   };
 
+  console.log({ hasMore });
+
   const [sentryRef, { rootRef }] = useInfiniteScroll({
-    loading: false,
+    loading: isLoading,
     hasNextPage: hasMore,
     onLoadMore: loadMore,
     // When there is an error, we stop infinite loading.
@@ -184,7 +187,7 @@ export const AllAssetsList = () => {
                 )}
               </Tr>
             </Thead>
-            <Tbody>
+            <Tbody ref={rootRef}>
               {underlyingAssets.map((underlyingAsset) => {
                 return (
                   <>
@@ -197,9 +200,11 @@ export const AllAssetsList = () => {
                   </>
                 );
               })}
-              <Tr w="100%" h="20px" bg="pink" ref={sentryRef}>
-                <Spinner />
-              </Tr>
+              {hasMore && (
+                <Tr w="100%" h="20px" bg="pink" ref={sentryRef}>
+                  <Spinner />
+                </Tr>
+              )}
             </Tbody>
           </Table>
         </>
