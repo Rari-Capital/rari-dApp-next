@@ -35,7 +35,7 @@ import MoonpayModal from "components/pages/MoonpayModal";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import SwitchNetworkButton from "./SwitchNetworkButton";
+import SwitchNetworkMenu from "./SwitchNetworkMenu";
 
 export const AccountButton = memo(() => {
   const {
@@ -122,7 +122,7 @@ const Buttons = ({
             <Center expand>{t("Buy Crypto")}</Center>
           </DashboardBox> */}
 
-          <SwitchNetworkButton />
+          <SwitchNetworkMenu />
         </>
       )}
 
