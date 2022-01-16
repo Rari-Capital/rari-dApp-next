@@ -9,8 +9,7 @@ export const providerURL = `http://127.0.0.1:8545/`;
 export function chooseBestWeb3Provider(
   chainId = 1
 ): JsonRpcProvider | Web3Provider {
-
-  let providerURL = getChainMetadata(chainId).rpcUrl ?? alchemyURL
+  let providerURL = getChainMetadata(chainId).rpcUrl ?? alchemyURL;
 
   const isClient = typeof window === "object";
   if (!isClient) {

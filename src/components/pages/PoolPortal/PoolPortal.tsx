@@ -68,7 +68,7 @@ import { getSDKPool, Pool } from "utils/poolUtils";
 import { tokens } from "utils/tokenUtils";
 import { fetchRGTAPR } from "utils/fetchPoolAPY";
 import { formatBalanceBN } from "utils/format";
-import { HeaderHeightWithTopPadding } from "components/shared/Header2/NewHeader2";
+import { HeaderHeightWithTopPadding } from "components/shared/Header2/NewHeader";
 
 const millisecondsPerDay = 86400000;
 const blocksPerDay = 6500;

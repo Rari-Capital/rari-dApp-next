@@ -134,6 +134,7 @@ export interface TokensDataMap {
 }
 
 export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
+  
   // Query against all addresses
   const tokensData = useQueries(
     addresses.map((address: string) => {

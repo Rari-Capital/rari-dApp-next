@@ -124,10 +124,6 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
     comptroller!
   );
 
-  if (hasIncentives) {
-    console.log({ incentives, incentivesWithRates });
-  }
-
   return {
     hasIncentives,
     incentives: incentivesWithRates,
