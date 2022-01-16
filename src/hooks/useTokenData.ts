@@ -56,7 +56,6 @@ export const fetchTokenData = async (
 
   // console.log('fetchTokenData',{address, chainId, _chainid})
 
-
   if (address !== ETH_TOKEN_DATA.address) {
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,
@@ -135,6 +134,7 @@ export interface TokensDataMap {
 }
 
 export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
+  // Query against all addresses
   const tokensData = useQueries(
     addresses.map((address: string) => {
       return {
@@ -146,11 +146,17 @@ export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
 
   return useMemo(() => {
     const ret: TokensDataMap = {};
-    if (!tokensData.length) return {};
+
+    // If there is no return, return
+    if (!tokensData.length) return ret;
+
+    // For each tokenData Query
     tokensData.forEach(({ data }) => {
-      const _data = data as TokenData;
-      if (_data && _data.address) {
-        ret[_data.address] = _data;
+      const tokenData = data as TokenData;
+
+      // If we have the tokenData, then add it to the hasmap
+      if (tokenData && tokenData.address) {
+        ret[tokenData.address] = tokenData;
       }
     });
 

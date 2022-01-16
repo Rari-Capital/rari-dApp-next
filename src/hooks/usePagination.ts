@@ -12,8 +12,8 @@ const usePagination = (max?: number) => {
   }, [max, offset, limit]);
 
   useEffect(() => {
-    if (hasMore) setOffset(page * limit);
-  }, [page, hasMore]);
+    setOffset(page * limit);
+  }, [page]);
 
   const handleLoadMore = useCallback(() => {
     setPage(page + 1);

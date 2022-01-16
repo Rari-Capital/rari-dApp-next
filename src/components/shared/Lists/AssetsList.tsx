@@ -23,7 +23,7 @@ import { queryUnderlyingAssetsPaginated } from "services/gql/underlyingAssets";
 import { fetchTokensAPIDataAsMap } from "utils/services";
 import usePagination from "hooks/usePagination";
 import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExplorer/TokenExplorer";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTokensDataAsMap } from "hooks/useTokenData";
 import { useQuery } from "react-query";
 
@@ -67,22 +67,44 @@ export const AllAssetsList = () => {
   const { data: count } = useUnderlyingAssetsCount();
 
   // GQL Pagination logic
-  const { page, limit, offset, hasMore, setPage, setLimit, setOffset } =
-    usePagination(count);
+  const {
+    page,
+    limit,
+    offset,
+    hasMore,
+    setPage,
+    setLimit,
+    setOffset,
+    handleLoadMore,
+  } = usePagination(count);
 
-  // Query GQL
+  useEffect(() => {
+    console.log({ offset, limit, page, hasMore });
+  }, [offset, limit, page, hasMore]);
+
+  // // Query GQL
   const { data: newAssets, isLoading } = useUnderlyingAssetsPaginated(
     offset,
     limit
   );
 
-  const newTokensData = useTokensDataAsMap(
-    newAssets?.map(({ id }) => id) ?? []
+  const newAssetsUnderlyings = useMemo(
+    () => newAssets?.map(({ id }) => id) ?? [],
+    [newAssets]
   );
 
-  // useEffect(() => {
-  //   setTokensData({ ...tokensData, ...newTokensData });
-  // }, [newTokensData]);
+  // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
+  const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
+
+  useEffect(() => {
+    fetchTokensAPIDataAsMap(newAssetsUnderlyings).then((newTokensData) => {
+      const allTokensData = {
+        ...tokensData,
+        ...newTokensData,
+      };
+      setTokensData(allTokensData);
+    });
+  }, [flag]);
 
   useEffect(() => {
     console.log("assets changed");
@@ -91,18 +113,15 @@ export const AllAssetsList = () => {
     setUnderlyingAssets(allAssets);
   }, [newAssets]);
 
-  //
-  const { handleSortClick, sortBy, sortDir } = useSortableList(newAssets);
-
-  const handleLoadMore = () => {
+  const loadMore = () => {
     console.log("LOADING MORE...");
-    setPage(page + 1);
+    handleLoadMore();
   };
 
   const [sentryRef, { rootRef }] = useInfiniteScroll({
-    loading: isLoading,
+    loading: false,
     hasNextPage: hasMore,
-    onLoadMore: handleLoadMore,
+    onLoadMore: loadMore,
     // When there is an error, we stop infinite loading.
     // It can be reactivated by setting "error" state as undefined.
     disabled: false,
@@ -127,34 +146,32 @@ export const AllAssetsList = () => {
               <Tr>
                 <SortableTableHeader
                   text="Asset"
-                  sortDir={sortDir}
-                  handleSortClick={() => handleSortClick("symbol")}
-                  isActive={sortBy === "symbol"}
+                  sortDir={undefined}
+                  handleSortClick={() => null}
+                  isActive={false}
                 />
 
                 {isMobile ? null : (
                   <>
                     <SortableTableHeader
                       text="Total Supplied"
-                      sortDir={sortDir}
-                      handleSortClick={() => handleSortClick("totalSupplyUSD")}
-                      isActive={sortBy === "totalSupplyUSD"}
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
                     />
 
                     <SortableTableHeader
                       text="Total Borrowed"
-                      sortDir={sortDir}
-                      handleSortClick={() => handleSortClick("totalBorrowUSD")}
-                      isActive={sortBy === "totalBorrowUSD"}
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
                     />
 
                     <SortableTableHeader
                       text="Total Liquidity"
-                      sortDir={sortDir}
-                      handleSortClick={() =>
-                        handleSortClick("totalLiquidityUSD")
-                      }
-                      isActive={sortBy === "totalLiquidityUSD"}
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
                     />
                     {/* 
                 <SortableTableHeader
