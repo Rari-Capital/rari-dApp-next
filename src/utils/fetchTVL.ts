@@ -16,15 +16,17 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
   });
 
   try {
-    console.log("Trying FusePoolLens pools call");
+    console.log("1 - Trying FusePoolLens pools call");
     const res =
       await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
         true
       );
 
-    console.log("Tried FusePoolLens pools call", { res });
+    console.log("2 - Tried FusePoolLens pools call", { res });
 
     const { 2: suppliedETHPerPool } = res;
+
+    console.log("3 - Tried FusePoolLens pools call", { suppliedETHPerPool });
 
     const totalSuppliedETH = EthersBigNumber.from(
       EthersBigNumber.from(
@@ -39,6 +41,7 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
     return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
     console.error("Error retrieving fuseTVL: " + err.message);
+    return constants.Zero;
   }
 };
 
@@ -89,7 +92,7 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
 
   const fuseTVLInETH = await fetchFuseTVL(fuse);
 
-  // console.log("PER POOL TVL", { fuseTVLInETH });
+  console.log("PER POOL TVL", { fuseTVLInETH });
 
   // console.log({
   //   stableTVL,

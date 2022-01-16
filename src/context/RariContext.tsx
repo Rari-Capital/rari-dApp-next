@@ -34,13 +34,10 @@ async function launchModalLazy(
   t: (text: string, extra?: any) => string,
   cacheProvider: boolean = true
 ) {
-  const [WalletConnectProvider, Authereum, Fortmatic, Web3Modal] =
-    await Promise.all([
-      import("@walletconnect/web3-provider"),
-      import("authereum"),
-      import("fortmatic"),
-      import("web3modal"),
-    ]);
+  const [WalletConnectProvider, Web3Modal] = await Promise.all([
+    import("@walletconnect/web3-provider"),
+    import("web3modal"),
+  ]);
 
   const providerOptions = {
     injected: {
@@ -58,25 +55,6 @@ async function launchModalLazy(
       },
       display: {
         description: t("Scan with a wallet to connect"),
-      },
-    },
-    fortmatic: {
-      package: Fortmatic.default,
-      options: {
-        key: process.env.REACT_APP_FORTMATIC_KEY,
-      },
-      display: {
-        description: t("Connect with your {{provider}} account", {
-          provider: "Fortmatic",
-        }),
-      },
-    },
-    authereum: {
-      package: Authereum.default,
-      display: {
-        description: t("Connect with your {{provider}} account", {
-          provider: "Authereum",
-        }),
       },
     },
   };

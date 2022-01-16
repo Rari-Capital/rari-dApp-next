@@ -44,7 +44,7 @@ function getHeaderLinkStyleProps(isOnThisRoute: boolean) {
     fontWeight: "bold",
     color: isOnThisRoute ? "white" : "#818181",
     bg: isOnThisRoute ? "#1F1F1F" : "transparent",
-    _hover: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
+    _hover: { bg: isOnThisRoute ? "#1F1F1F" : "#272727" },
     _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
     _focus: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
   };

@@ -68,7 +68,6 @@ export const AllAssetsList = () => {
 
   // GQL Pagination logic
   const {
-    page,
     limit,
     offset,
     hasMore,
@@ -93,45 +92,25 @@ export const AllAssetsList = () => {
   const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
   useEffect(() => {
     fetchTokensAPIDataAsMap(newAssetsUnderlyings).then((newTokensData) => {
-      const allTokensData = {
-        ...tokensData,
-        ...newTokensData,
-      };
-      setTokensData(allTokensData);
+      setTokensData(Object.assign(tokensData, newTokensData));
     });
   }, [flag]);
 
   useEffect(() => {
     // Append to array in state and set it
-    const allAssets = [...underlyingAssets, ...(newAssets ?? [])];
-    console.log(
-      "assets changed",
-      underlyingAssets.length,
-      newAssets?.length,
-      allAssets.length
-    );
-
-    setUnderlyingAssets(allAssets);
+    setUnderlyingAssets([...underlyingAssets, ...(newAssets ?? [])]);
   }, [newAssets]);
 
   const loadMore = () => {
-    console.log("LOADING MORE ASSETS...");
     handleLoadMore();
   };
-
-  console.log({ hasMore });
 
   const [sentryRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
     hasNextPage: hasMore,
     onLoadMore: loadMore,
-    // When there is an error, we stop infinite loading.
-    // It can be reactivated by setting "error" state as undefined.
     disabled: false,
-    // `rootMargin` is passed to `IntersectionObserver`.
-    // We can use it to trigger 'onLoadMore' when the sentry comes near to become
-    // visible, instead of becoming fully visible on the screen.
-    rootMargin: "0px 0px 400px 0px",
+    rootMargin: "0px 0px 200px 0px",
   });
 
   return (
@@ -176,13 +155,6 @@ export const AllAssetsList = () => {
                       handleSortClick={() => undefined}
                       isActive={false}
                     />
-                    {/* 
-                <SortableTableHeader
-                  text="Price"
-                  sortDir={sortDir}
-                  handleSortClick={() => handleSortClick("price")}
-                  isActive={sortBy === "price"}
-                /> */}
                   </>
                 )}
               </Tr>

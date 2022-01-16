@@ -9,7 +9,7 @@ import { SmallLogo } from "components/shared/Logos";
 import { useRari } from "context/RariContext";
 import { useTranslation } from "next-i18next";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { DropDownLink, HeaderLink, MenuItemType } from "./HeaderLink";
+import { DropDownLink, HeaderLink } from "./HeaderLink";
 import HeaderSearchbar from "./HeaderSearchbar";
 import AppLink from "../AppLink";
 import {
@@ -17,7 +17,6 @@ import {
   PRODUCTS_DROPDOWN_ITEMS,
   UTILS_DROPDOWN_ITEMS,
 } from "constants/nav";
-import { Button } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { MobileNavModal } from "./MobileNavModal";
 
@@ -69,7 +68,6 @@ export const NewHeader = () => {
             // transform="translate(0px, 7px)"
             height="100%"
           >
-            {/* <HeaderLink name={t("Home")} route="/" /> */}
 
             {/* Dropdown  */}
             <DropDownLink

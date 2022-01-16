@@ -50,7 +50,7 @@ interface ChainMetadata {
     },
     [ChainID.ARBITRUM_TESTNET]: {
       chainId: ChainID.ARBITRUM_TESTNET,
-      name: "Arbitrum Testnet",
+      name: "Arbi Rinkeby",
       imageUrl: "/static/networks/arbitrum.svg",
       supported: true,
       rpcUrl:

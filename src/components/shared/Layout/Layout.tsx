@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 import { Column } from "lib/chakraUtils";
-import NewHeader from "../Header2/NewHeader2";
+import NewHeader from "../Header2/NewHeader";
 import Footer from "./Footer";
 
 const Layout = ({ children }) => {
