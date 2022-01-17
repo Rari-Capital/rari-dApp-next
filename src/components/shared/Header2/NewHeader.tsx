@@ -1,5 +1,5 @@
 import { PixelSize, Row } from "lib/chakraUtils";
-import { Icon, useDisclosure } from "@chakra-ui/react";
+import { Flex, Icon, useDisclosure } from "@chakra-ui/react";
 
 //  Components
 import DashboardBox, { DASHBOARD_BOX_SPACING } from "../DashboardBox";
@@ -44,7 +44,7 @@ export const NewHeader = () => {
         px={4}
         height="38px"
         my={4}
-        mainAxisAlignment="space-around"
+        mainAxisAlignment="space-between"
         crossAxisAlignment="center"
         overflowX="visible"
         overflowY="visible"
@@ -68,7 +68,6 @@ export const NewHeader = () => {
             // transform="translate(0px, 7px)"
             height="100%"
           >
-
             {/* Dropdown  */}
             <DropDownLink
               name={t("Products")}
@@ -91,21 +90,23 @@ export const NewHeader = () => {
         )}
 
         {!isMobile && <HeaderSearchbar />}
-        <AccountButton />
-        {isMobile && (
-          <DashboardBox
-            ml={1}
-            as="button"
-            height="40px"
-            flexShrink={0}
-            width="50px"
-            fontSize="15px"
-            onClick={openNavModal}
-            fontWeight="bold"
-          >
-            <Icon as={HamburgerIcon} />
-          </DashboardBox>
-        )}
+        <Flex>
+          <AccountButton />
+          {isMobile && (
+            <DashboardBox
+              ml={3}
+              as="button"
+              height="40px"
+              flexShrink={0}
+              width="50px"
+              fontSize="15px"
+              onClick={openNavModal}
+              fontWeight="bold"
+            >
+              <Icon as={HamburgerIcon} />
+            </DashboardBox>
+          )}
+        </Flex>
       </Row>
 
       <MobileNavModal
