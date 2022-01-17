@@ -9,11 +9,11 @@ export const providerURL = `http://127.0.0.1:8545/`;
 export function chooseBestWeb3Provider(
   chainId = 1
 ): JsonRpcProvider | Web3Provider {
-  let providerURL = getChainMetadata(chainId).rpcUrl ?? alchemyURL;
+  let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
 
   const isClient = typeof window === "object";
   if (!isClient) {
-    return new JsonRpcProvider(alchemyURL);
+    return new JsonRpcProvider(providerURL);
   }
 
   if (window.ethereum) {
@@ -30,7 +30,7 @@ export const initFuseWithProviders = (
   chainId = 1
 ): Fuse => {
   const fuse = new Fuse(provider, chainId);
-  let lensProvider = getChainMetadata(chainId).rpcUrl ?? alchemyURL;
+  let lensProvider = getChainMetadata(chainId).rpcUrl ?? "";
 
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(

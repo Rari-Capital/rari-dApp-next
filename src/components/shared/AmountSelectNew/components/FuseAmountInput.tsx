@@ -13,7 +13,7 @@ import { formatEther } from "@ethersproject/units";
 import { useRari } from "context/RariContext";
 import { useCallback } from "react";
 import { useState } from "react";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 
 // Utils
 import { Row } from "lib/chakraUtils";
@@ -148,10 +148,13 @@ export const TokenNameAndMaxButton = ({
       if (maxBN!.isNeg() || maxBN!.isZero()) {
         updateAmount("");
       } else {
-        const str = formatEther(BigNumber.from(maxBN)
-          .div(10).pow(asset.underlyingDecimals))
+        const str = formatEther(
+          BigNumber.from(maxBN).div(10).pow(asset.underlyingDecimals)
+        )
           // Remove trailing zeroes
           .replace(/\.?0+$/, "");
+
+        console.log({ maxBN, str });
 
         updateAmount(str);
       }
@@ -233,7 +236,6 @@ const AssetsDropDown = ({
   currentAsset: USDPricedFuseAssetWithTokenData;
   updateAsset: (assetAddress: string) => any;
 }) => {
-
   const handleClick = useCallback(
     (asset: USDPricedFuseAssetWithTokenData) => {
       updateAsset(asset.underlyingToken);
@@ -243,7 +245,7 @@ const AssetsDropDown = ({
 
   return (
     <Menu>
-      <MenuButton as={Button} bg=""  rightIcon={<ChevronDownIcon />}>
+      <MenuButton as={Button} bg="" rightIcon={<ChevronDownIcon />}>
         <AssetNameAndIcon asset={currentAsset} />
       </MenuButton>
       <MenuList maxHeight="200px" overflowY="scroll">

@@ -135,6 +135,7 @@ export const APYWithRefreshMovingStat = React.memo(
     });
 
     useEffect(() => {
+      console.log({ data });
       if (data) {
         setCurrentStat(data);
       }
@@ -143,7 +144,7 @@ export const APYWithRefreshMovingStat = React.memo(
     return (
       <CaptionedStat
         {...statProps}
-        stat={!data ? loadingPlaceholder : formattedStat}
+        stat={data === undefined ? loadingPlaceholder : formattedStat}
       />
     );
   }

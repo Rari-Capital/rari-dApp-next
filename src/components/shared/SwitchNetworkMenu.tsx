@@ -27,6 +27,8 @@ const SwitchNetworkButton: React.FC<
     chainMetadata = getChainMetadata(chainId);
   }
 
+  console.log({ chainMetadata, chainId });
+
   return (
     <DashboardBox
       position="relative"
@@ -41,7 +43,6 @@ const SwitchNetworkButton: React.FC<
       {...props}
       border="1px solid"
       borderColor={chainMetadata?.color}
-      borderStyle={{ opacity: 0.1 }}
     >
       <Center expand={true}>
         {chainMetadata ? (

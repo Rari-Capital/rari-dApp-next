@@ -2,41 +2,35 @@
 import { Vaults, Fuse } from "../esm/index";
 
 // Ethers
-import { BigNumber as EthersBigNumber, constants, Contract } from "ethers";
+import {
+  BigNumber,
+  BigNumber as EthersBigNumber,
+  constants,
+  Contract,
+} from "ethers";
 
-// import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { chooseBestWeb3Provider } from "./web3Providers";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
-  console.log("fetchFuseTVL", {
-    fuse,
-    Contract,
-    provider: chooseBestWeb3Provider(),
-  });
-
   try {
-    console.log("1 - Trying FusePoolLens pools call");
     const res =
       await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
         true
       );
 
-    console.log("2 - Tried FusePoolLens pools call", { res });
+    const { 2: poolsData } = res;
 
-    const { 2: suppliedETHPerPool } = res;
-
-    console.log("3 - Tried FusePoolLens pools call", { suppliedETHPerPool });
-
-    const totalSuppliedETH = EthersBigNumber.from(
-      EthersBigNumber.from(
-        suppliedETHPerPool
-          .reduce((a: number, b: string) => a + parseInt(b), 0)
-          .toString()
-      )
+    const suppliedETHPerPool = poolsData.map(
+      (poolData: any) => poolData.totalSupply
     );
 
-    // console.log("Tried FusePoolLens pools call 2 ", { totalSuppliedETH });
+    const totalSuppliedETH = suppliedETHPerPool.reduce(
+      (a: BigNumber, b: BigNumber) => a.add(b),
+      constants.Zero
+    );
+
+    console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
 
     return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
@@ -51,9 +45,9 @@ export const fetchFuseTVLBorrowsAndSupply = async (
   blockNum?: number
 ) => {
   const { 2: suppliedETHPerPool, 3: borrowedETHPerPool } =
-    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsWithData({
-      gasLimit: "1000000000000000000",
-    });
+    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+      true
+    );
 
   let totalSuppliedETH = suppliedETHPerPool
     .reduce((a: number, b: string) => a + parseInt(b), 0)
@@ -63,7 +57,6 @@ export const fetchFuseTVLBorrowsAndSupply = async (
     .reduce((a: number, b: string) => a + parseInt(b), 0)
     .toFixed(2);
 
-  console.log({ totalSuppliedETH, totalBorrowedETH });
 
   let totalSuppliedETHBN = EthersBigNumber.from(totalSuppliedETH);
 
@@ -86,7 +79,7 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
   //     Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
   //   ]);
 
-  const ethUSDBN = getEthUsdPriceBN();
+  const ethUSDBN =  await getEthUsdPriceBN();
 
   // console.log("PER POOL TVL");
 

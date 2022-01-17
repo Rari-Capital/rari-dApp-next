@@ -122,6 +122,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
+  console.log({ chainId });
   // Check the user's network:
   useEffect(() => {
     Promise.all([

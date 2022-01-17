@@ -51,12 +51,17 @@ import { memo, useState } from "react";
 // Utils
 import { shortAddress } from "utils/shortAddress";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import { shortUsdFormatter } from "utils/bigUtils";
+import {
+  shortUsdFormatter,
+  smallStringUsdFormatter,
+  smallUsdFormatter,
+} from "utils/bigUtils";
 
 // Ethers
 import { utils, BigNumber } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
-
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { formatUnits } from "ethers/lib/utils";
 
 const FusePoolInfoPage = memo(() => {
   const { isAuthed } = useRari();
@@ -496,14 +501,24 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         p={4}
         mt={3}
       >
-        <CaptionedStat
-          stat={selectedAsset.totalSupplyUSD.toString()}
-          statSize="lg"
-          captionSize="xs"
-          caption={t("Total Supplied")}
-          crossAxisAlignment="center"
-          captionFirst={true}
-        />
+        <SimpleTooltip
+          label={`${formatUnits(
+            selectedAsset.totalSupply,
+            selectedAsset.underlyingDecimals
+          )} ${selectedAsset.underlyingSymbol}`}
+          placement="top"
+        >
+          <CaptionedStat
+            stat={smallStringUsdFormatter(
+              parseFloat(selectedAsset.totalSupplyUSD.toString())
+            )}
+            statSize="lg"
+            captionSize="xs"
+            caption={t("Total Supplied")}
+            crossAxisAlignment="center"
+            captionFirst={true}
+          />
+        </SimpleTooltip>
 
         {isMobile ? null : (
           <CaptionedStat

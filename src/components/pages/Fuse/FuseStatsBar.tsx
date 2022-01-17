@@ -24,12 +24,11 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
 
   const { t } = useTranslation();
 
-  const { isAuthed, fuse, rari } = useRari();
+  const { isAuthed, fuse, chainId } = useRari();
 
   const { data: totalBorrowAndSupply } = useFuseTotalBorrowAndSupply();
 
   const tvl = useFuseTVL();
-  console.log({ tvl });
 
   return (
     <RowOrColumn
@@ -137,7 +136,7 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
               loadingPlaceholder="$?"
               apyInterval={100}
               fetch={() => fetchFuseNumberTVL(fuse)}
-              queryKey={"fuseTVL"}
+              queryKey={"fuseTVL chainId " + chainId}
               apy={0.15}
               statSize="3xl"
               captionSize="xs"

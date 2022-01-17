@@ -71,6 +71,7 @@ import AppLink from "components/shared/AppLink";
 import { EditIcon } from "@chakra-ui/icons";
 import { getSymbol } from "utils/symbolUtils";
 import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
+import { formatUnits } from "ethers/lib/utils";
 
 const FuseRewardsBanner = ({
   rewardTokensData,
@@ -322,6 +323,7 @@ const SupplyList = ({
   const suppliedAssets = assets.filter(
     (asset) => asset.supplyBalanceUSD.toNumber() > 1
   );
+
   const nonSuppliedAssets = assets.filter(
     (asset) => asset.supplyBalanceUSD.toNumber() < 1
   );
@@ -616,15 +618,6 @@ const AssetSupplyRow = ({
               {symbol}
             </Text>
           </Row>
-          {/* <Row
-            mainAxisAlignment="flex-start"
-            crossAxisAlignment="center"
-            width="100%"
-          >
-            <Text fontSize="sm" ml={2} flexShrink={0}>
-            {shortUsdFormatter(asset.liquidityUSD)}
-            </Text>
-          </Row> */}
         </Column>
 
         {/* APY */}
@@ -789,6 +782,7 @@ const AssetSupplyRow = ({
           })}
         </Column> */}
 
+        {/* Balance */}
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-end"
@@ -805,14 +799,10 @@ const AssetSupplyRow = ({
           </Text>
 
           <Text fontSize="sm">
-            {smallUsdFormatter(
-              parseFloat(
-                asset.supplyBalance
-                  .div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                  .toString()
-              )
-            ).replace("$", "")}{" "}
-            {symbol}
+            {parseFloat(
+              formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+            ).toFixed(2)}
+            {" " + symbol}
           </Text>
         </Column>
 

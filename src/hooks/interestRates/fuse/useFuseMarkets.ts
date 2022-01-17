@@ -34,8 +34,7 @@ export default function useFuseMarkets() {
               const poolData = (await fetchFusePoolData(
                 pool.id.toString(), // type incorrectly believes pool.id to be number
                 address,
-                fuse,
-                rari
+                fuse
               )) as FusePoolData;
 
               // add market info

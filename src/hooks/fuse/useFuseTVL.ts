@@ -8,22 +8,19 @@ import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 export const fetchFuseNumberTVL = async (fuse: Fuse) => {
   const tvlETH = await fetchFuseTVL(fuse);
-  console.log("fetchFuseNumberTVL", { tvlETH });
 
   const ethPrice: number = fromWei(await getEthUsdPriceBN()) as any;
-  console.log("fetchFuseNumberTVL", { ethPrice });
 
   const ans =
     (parseInt((tvlETH ?? BigNumber.from(0)).toString()) / 1e18) * ethPrice;
-  console.log("fetchFuseNumberTVL", { ans });
 
   return ans;
 };
 
 export const useFuseTVL = () => {
-  const { fuse } = useRari();
+  const { fuse, chainId } = useRari();
 
-  return useQuery("fuseTVL", async () => {
+  return useQuery("fuseTVL chain " + chainId, async () => {
     return fetchFuseNumberTVL(fuse);
   });
 };

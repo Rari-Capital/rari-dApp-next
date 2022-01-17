@@ -5,6 +5,8 @@ import {
   Text,
   SimpleGrid,
   useBreakpointValue,
+  VStack,
+  chakra,
 } from "@chakra-ui/react";
 import { Column, Row } from "lib/chakraUtils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
@@ -46,8 +48,9 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import { TokensDataMap } from "types/tokens";
 import { SubgraphPool } from "pages/api/explore";
 import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
-import FuseAssetBoxNew from "../ExplorePage/ExploreFuseBox";
-import { HoverCard } from "../ExplorePage/ExplorePage";
+import { useRari } from "context/RariContext";
+import { useMemo } from "react";
+import { getChainMetadata } from "esm/utils/networks";
 
 // Fetcher
 const homepagePoolsFetcher = async (
@@ -63,7 +66,13 @@ const homepagePoolsFetcher = async (
 };
 
 const Home = () => {
-  // const { isAuthed } = useRari();
+  const { chainId } = useRari();
+
+  const chainMetadata = useMemo(
+    () => getChainMetadata(chainId ?? 1),
+    [chainId]
+  );
+
   const isMobile = useIsSmallScreen();
   const { getNumberTVL } = useTVLFetchers();
 
@@ -153,7 +162,7 @@ const Home = () => {
               //     key={i}
               //   />
               // </HoverCard>
-                <HomeFuseCard
+              <HomeFuseCard
                 pool={pools?.find((p) => parseInt(p.index) == constantPool.id)}
                 tokensData={tokensData}
                 key={i}
@@ -234,20 +243,33 @@ const Home = () => {
                 }}
                 p={5}
               >
-                <APYWithRefreshMovingStat
-                  formatStat={smallStringUsdFormatter}
-                  fetchInterval={40000}
-                  loadingPlaceholder="$?"
-                  apyInterval={100}
-                  fetch={getNumberTVL}
-                  queryKey={"totalValueLocked"}
-                  apy={0.15}
-                  statSize="3xl"
-                  captionSize="md"
-                  caption={"in TVL across all products"}
-                  crossAxisAlignment="flex-start"
-                  captionFirst={false}
-                />
+                <VStack align={"flex-start"}>
+                  <APYWithRefreshMovingStat
+                    formatStat={smallStringUsdFormatter}
+                    fetchInterval={40000}
+                    loadingPlaceholder="$?"
+                    apyInterval={100}
+                    fetch={getNumberTVL}
+                    queryKey={"totalValueLocked"}
+                    apy={0.15}
+                    statSize="3xl"
+                    captionSize="md"
+                    caption={""}
+                    crossAxisAlignment="flex-start"
+                    // captionFirst={false}
+                  />
+                  <Text
+                    textTransform="uppercase"
+                    letterSpacing="wide"
+                    color="#858585"
+                    marginTop={0}
+                  >
+                    in TVL across{" "}
+                    <chakra.span color={chainMetadata.color}>
+                      {chainMetadata.name}
+                    </chakra.span>
+                  </Text>
+                </VStack>
                 <Text fontSize={isMobile ? "sm" : "lg"} fontWeight="bold">
                   Discover infinite possibilities across the Rari Capital
                   Ecosystem

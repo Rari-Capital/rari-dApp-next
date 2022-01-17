@@ -199,10 +199,10 @@ export const SettingsModal = ({
             width="100%"
             height="51px"
             mb={4}
-            textColor="black"
+            innerTextColor="black"
           >
             Claim Rewards
-            </GlowingButton>
+          </GlowingButton>
 
           <Button
             bg={"whatsapp.500"}

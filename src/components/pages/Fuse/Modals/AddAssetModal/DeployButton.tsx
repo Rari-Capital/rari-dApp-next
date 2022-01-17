@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 // Components
 import TransactionStepper from "components/shared/TransactionStepper";
 import { Column } from "lib/chakraUtils";
-import { useIsMediumScreen } from "../../FuseTabBar";
 import { useAddAssetContext } from "context/AddAssetContext";
 import { utils } from "ethers";
 

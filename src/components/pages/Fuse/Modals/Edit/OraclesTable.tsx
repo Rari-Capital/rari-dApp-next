@@ -11,7 +11,7 @@ import {
   Th,
   Td,
 } from "@chakra-ui/react";
-import { CTokenIcon } from "components/shared/CTokenIcon";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 import { useIdentifyOracle } from "hooks/fuse/useOracleData";
 import { shortAddress } from "utils/shortAddress";
 

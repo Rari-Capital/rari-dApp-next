@@ -76,6 +76,7 @@ import EditRewardsDistributorModal from "./Modals/EditRewardsDistributorModal";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
+import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => {};
@@ -171,6 +172,10 @@ const FusePoolEditPage = memo(() => {
 
   const data = useFusePoolData(poolId);
 
+  const { fuse } = useRari();
+  const comptroller = createComptroller(data?.comptroller ?? "", fuse);
+  console.log({ comptroller });
+
   // Maps underlying to oracle
   const oraclesMap = useOraclesForPool(
     data?.oracle,
@@ -179,8 +184,6 @@ const FusePoolEditPage = memo(() => {
   );
 
   // console.log({ oraclesMap });
-
-  console.log({ data });
 
   // RewardsDistributor stuff
   const poolIncentives = usePoolIncentives(data?.comptroller);
@@ -730,17 +733,22 @@ const AssetConfiguration = ({
   comptrollerAddress,
   poolName,
   poolID,
+  poolOracleAddress,
+  oracleModel,
 }: {
   openAddAssetModal: () => any;
   assets: USDPricedFuseAsset[];
   comptrollerAddress: string;
   poolName: string;
   poolID: string;
+  poolOracleAddress: string;
+  oracleModel: string | undefined;
 }) => {
   const isMobile = useIsSemiSmallScreen();
 
   const { t } = useTranslation();
-
+  const { fuse } = useRari();
+  const oracleData = useOracleData(poolOracleAddress, fuse, oracleModel);
   const [selectedAsset, setSelectedAsset] = useState(assets[0]);
 
   return (
@@ -798,6 +806,9 @@ const AssetConfiguration = ({
         cTokenAddress={selectedAsset.cToken}
         poolName={poolName}
         poolID={poolID}
+        poolOracleAddress={poolOracleAddress}
+        oracleModel={oracleModel}
+        oracleData={oracleData}
       />
     </Column>
   );
@@ -809,24 +820,34 @@ const ColoredAssetSettings = ({
   poolID,
   comptrollerAddress,
   cTokenAddress,
+  poolOracleAddress,
+  oracleModel,
+  oracleData,
 }: {
   tokenAddress: string;
   poolName: string;
   poolID: string;
   comptrollerAddress: string;
   cTokenAddress: string;
+  poolOracleAddress: string;
+  oracleModel: string | undefined;
+  oracleData: OracleDataType | undefined;
 }) => {
   const tokenData = useTokenData(tokenAddress);
 
   return tokenData ? (
     <AssetSettings
+      mode="Editing"
+      tokenAddress={tokenAddress}
+      poolOracleAddress={poolOracleAddress}
+      oracleModel={oracleModel}
+      oracleData={oracleData}
       closeModal={noop}
       comptrollerAddress={comptrollerAddress}
       poolName={poolName}
       poolID={poolID}
       tokenData={tokenData}
       cTokenAddress={cTokenAddress}
-      mode="Editing"
     />
   ) : (
     <Center expand>

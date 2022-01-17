@@ -60,15 +60,19 @@ const useOraclesForPool = (
       [oracleAddr: string]: string[];
     } = {};
 
-    Object.entries(tokenToOracleMap).map(
-      ([underlying, oracleAddr]: [string, string]) => {
-        if (!map[oracleAddr]) {
-          map[oracleAddr] = [underlying];
-        } else {
-          map[oracleAddr] = [...map[oracleAddr], underlying];
-        }
-      }
-    );
+    // TODO - bring back
+    // if (!!Object.keys(tokenToOracleMap).length) {
+    //   Object.entries(tokenToOracleMap).map(
+    //     ([underlying, oracleAddr]: [string, string]) => {
+    //       if (!map[oracleAddr]) {
+    //         map[oracleAddr] = [underlying];
+    //       } else {
+    //         map[oracleAddr] = [...map[oracleAddr], underlying];
+    //       }
+    //     }
+    //   );
+    // }
+
     return map;
   }, [tokenToOracleMap]);
 

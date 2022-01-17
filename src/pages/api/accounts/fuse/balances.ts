@@ -83,7 +83,6 @@ export default async function handler(
             poolIndex.toString(),
             userAddress,
             fuse,
-            rari,
             blockNum
           )
         )

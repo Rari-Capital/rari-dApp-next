@@ -10,11 +10,12 @@ export declare enum ChainID {
 }
 interface ChainMetadata {
     chainId: number;
-    color: string;
     name: string;
     imageUrl?: string;
     supported: boolean;
     rpcUrl: string;
+    blockExplorerURL: string;
+    color: string;
 }
 export declare const chainMetadata: {
     1: {
@@ -23,6 +24,7 @@ export declare const chainMetadata: {
         imageUrl: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     3: {
@@ -30,6 +32,7 @@ export declare const chainMetadata: {
         name: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     4: {
@@ -37,6 +40,7 @@ export declare const chainMetadata: {
         name: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     5: {
@@ -44,6 +48,7 @@ export declare const chainMetadata: {
         name: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     42: {
@@ -51,6 +56,7 @@ export declare const chainMetadata: {
         name: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     42161: {
@@ -59,6 +65,7 @@ export declare const chainMetadata: {
         imageUrl: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     421611: {
@@ -67,6 +74,7 @@ export declare const chainMetadata: {
         imageUrl: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
     10: {
@@ -75,6 +83,7 @@ export declare const chainMetadata: {
         imageUrl: string;
         supported: boolean;
         rpcUrl: string;
+        blockExplorerURL: string;
         color: string;
     };
 };

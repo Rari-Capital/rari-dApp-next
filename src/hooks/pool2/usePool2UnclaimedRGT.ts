@@ -25,7 +25,7 @@ export const usePool2UnclaimedRGT = () => {
     address + " pool2Unclaimed RGT " + chainId,
     async () => {
       if (chainId !== ChainID.ETHEREUM) return 0;
-      await fetchPool2UnclaimedRGT({ rari, address });
+      return await fetchPool2UnclaimedRGT({ rari, address });
     }
   );
 

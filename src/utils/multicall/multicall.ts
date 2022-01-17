@@ -6,11 +6,11 @@ export const createMultiCall = (
 ) => new Contract(MULTICALL_ADDRESS, MULTICALL_ABI, ethersProvider);
 
 export const sendWithMultiCall = async (
-  web3: Web3,
+  provider:  JsonRpcProvider | Web3Provider,
   encodedCalls: any,
   address: string
 ) => {
-  const multicall = createMultiCall(web3);
+  const multicall = createMultiCall(provider);
 
   console.log("sendWithMultiCall", { encodedCalls, multicall });
 

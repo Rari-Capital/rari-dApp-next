@@ -60,7 +60,6 @@ export const AllAssetsList = () => {
   const [underlyingAssets, setUnderlyingAssets] = useState<
     SubgraphUnderlyingAsset[]
   >([]);
-
   const [tokensData, setTokensData] = useState<TokensDataMap>({});
 
   // Total amount
@@ -260,7 +259,8 @@ export const AssetRow = ({
                   smallUsdFormatter(asset.totalLiquidityUSD).substring(0, 15)}
               </Text>
               <Text fontWeight="" fontSize="sm">
-                {(asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}
+                {asset.totalLiquidity &&
+                  (asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}
                 {asset.symbol}
               </Text>
             </Stack>

@@ -91,6 +91,7 @@
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^11.0.4",
     "@testing-library/user-event": "^12.1.6",
+    "@types/color-hash": "^1.0.2",
     "@types/cors": "^2.8.12",
     "@types/ioredis": "^4.26.7",
     "@types/jest": "^26.0.13",

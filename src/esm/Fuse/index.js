@@ -514,7 +514,7 @@ export default class Fuse {
                 catch (err) {
                     console.error(err);
                 }
-                console.log("4. deployCEther");
+                console.log("4. deployCEther", { constructorData, collateralFactor });
                 const receipt = yield comptroller._deployMarket(true, constructorData, collateralFactor);
                 console.log("5. receipt");
                 const saltsHash = utils.solidityKeccak256(["address", "address", "uint"], [

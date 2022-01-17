@@ -15,6 +15,7 @@ import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/toast";
 import { TokenData } from "hooks/useTokenData";
 import { formatUnits, parseUnits } from "@ethersproject/units";
+import { BigNumber, constants } from "ethers";
 
 const MarketCapConfigurator = ({
   comptrollerAddress,
@@ -39,7 +40,8 @@ const MarketCapConfigurator = ({
   const { data: supplyCap } = useQuery(
     "Get " + mode + " cap for: " + tokenData.symbol,
     async () => {
-      let cap;
+      // no cap frfr
+      let cap: BigNumber = constants.Zero;
       if (cTokenAddress) {
         if (mode === "Supply") {
           cap = await comptroller.supplyCaps(cTokenAddress);
@@ -48,8 +50,8 @@ const MarketCapConfigurator = ({
         if (mode === "Borrow") {
           cap = await comptroller.borrowCaps(cTokenAddress);
         }
-        return formatUnits(cap, tokenData.decimals ?? 18);
       }
+      return cap;
     }
   );
 
@@ -128,9 +130,9 @@ const MarketCapConfigurator = ({
             extAlign="center"
             mb={newSupplyCap !== "" ? 5 : 0}
             placeholder={
-              supplyCap > 0
-                ? parseInt(supplyCap).toLocaleString() + " " + tokenSymbol
-                : t(`${tokenSymbol} Cap`)
+              supplyCap?.gt(0)
+                ? formatUnits(supplyCap, tokenData.decimals) + tokenSymbol
+                : t(`${tokenSymbol} Borrow Cap`)
             }
             type="number"
             size="sm"
@@ -158,12 +160,16 @@ const MarketCapConfigurator = ({
                 </Text>
                 <Box height="100%" width="40%">
                   <Text opacity="0.5" textAlign="end">
-                    {tokenSymbol} {parseInt(newSupplyCap).toLocaleString()}
+                    {tokenSymbol}{" "}
+                    {formatUnits(
+                      supplyCap ?? constants.Zero,
+                      tokenData.decimals
+                    )}
                   </Text>
                 </Box>
               </Box>
 
-              {supplyCap === "0" ? null : (
+              {supplyCap?.isZero() ? null : (
                 <Box
                   display="flex"
                   justifyContent="space-between"
@@ -174,7 +180,11 @@ const MarketCapConfigurator = ({
                   </Text>
                   <Box height="100%" width="40%">
                     <Text opacity="0.5" textAlign="end">
-                      {tokenSymbol} {parseInt(supplyCap).toLocaleString()}
+                      {tokenSymbol}{" "}
+                      {formatUnits(
+                        supplyCap ?? constants.Zero,
+                        tokenData.decimals
+                      )}
                     </Text>
                   </Box>
                 </Box>

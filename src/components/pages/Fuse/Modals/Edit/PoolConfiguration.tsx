@@ -15,23 +15,23 @@ import {
   testForComptrollerErrorAndSend,
 } from "../../FusePoolEditPage";
 import AssetSettings from "../AddAssetModal/AssetSettings";
-import { useParams } from "react-router";
 import { useQueryClient } from "react-query";
 import { useToast } from "@chakra-ui/toast";
-import { useExtraPoolInfo } from "../../FusePoolInfoPage";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 import { createComptroller, createUnitroller } from "utils/createComptroller";
 import LogRocket from "logrocket";
 import { handleGenericError } from "utils/errorHandling";
 import BigNumber from "bignumber.js";
-import { CTokenAvatarGroup } from "components/shared/CTokenIcon";
+import { CTokenAvatarGroup } from "components/shared/Icons/CTokenIcon";
 import { WhitelistInfo } from "../../FusePoolCreatePage";
 import { Input } from "@chakra-ui/input";
 import { SliderWithLabel } from "components/shared/SliderWithLabel";
 import { Switch } from "@chakra-ui/switch";
+import { useRouter } from "next/router";
+import { useExtraPoolInfo2 } from "hooks/fuse/info/useExtraPoolInfo";
+import { utils } from "ethers";
 
 const formatPercentage = (value: number) => value.toFixed(0) + "%";
-
 
 const PoolConfiguration = ({
   assets,
@@ -43,14 +43,15 @@ const PoolConfiguration = ({
   oracleAddress: string;
 }) => {
   const { t } = useTranslation();
-  const { poolId } = useParams();
+  const router = useRouter();
+  const poolId = parseInt(router.query.poolId as string);
 
   const { fuse, address } = useRari();
 
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const data = useExtraPoolInfo(comptrollerAddress, oracleAddress);
+  const data = useExtraPoolInfo2(comptrollerAddress, oracleAddress);
 
   // Maps underlying to oracle
   const oraclesMap = useOraclesForPool(
@@ -162,7 +163,7 @@ const PoolConfiguration = ({
   const updateAdmin = async () => {
     const unitroller = createUnitroller(comptrollerAddress, fuse);
 
-    if (!fuse.web3.utils.isAddress(admin)) {
+    if (!utils.isAddress(admin)) {
       handleGenericError({ message: "This is not a valid address." }, toast);
       return;
     }
@@ -423,7 +424,6 @@ const PoolConfiguration = ({
 
             {/* OraclesTable */}
             <OraclesTable oraclesMap={oraclesMap} data={data} />
-
           </Column>
         </Column>
       ) : (

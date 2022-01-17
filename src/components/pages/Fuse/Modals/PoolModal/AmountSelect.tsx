@@ -1072,6 +1072,14 @@ async function fetchMaxAmount(
   asset: USDPricedFuseAsset,
   comptrollerAddress: string
 ) {
+  console.log({
+    fuse,
+    address,
+    asset,
+    comptrollerAddress,
+    mode,
+  });
+
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
@@ -1098,32 +1106,32 @@ async function fetchMaxAmount(
   }
 
   if (mode === Mode.BORROW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    try {
+      const maxBorrow =
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxBorrow(
+          address,
+          asset.cToken
+        );
 
-    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(
-      address,
-      asset.cToken
-    );
-
-    if (err !== 0) {
-      return maxBorrow.mul(utils.parseUnits("0.75"))
-    } else {
+      const amount = maxBorrow.mul(utils.parseUnits("0.75"));
+      console.log({ amount });
+      return amount;
+    } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
   }
 
   if (mode === Mode.WITHDRAW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    try {
+      const maxRedeem =
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxRedeem(
+          address,
+          asset.cToken
+        );
 
-    const { 0: err, 1: maxRedeem } = await comptroller.callStatic.getMaxRedeem(
-      address,
-      asset.cToken
-    );
-
-    if (err !== 0) {
-      return BigNumber.from(maxRedeem);
-    } else {
-      throw new Error("Could not fetch your max withdraw amount! Code: " + err);
+      return maxRedeem;
+    } catch (err) {
+      throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
   }
 }

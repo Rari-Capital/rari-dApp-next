@@ -4,7 +4,7 @@ import DashboardBox from "components/shared/DashboardBox";
 import { ModalDivider } from "components/shared/Modal";
 import { useRari } from "context/RariContext";
 import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
-import { useIsUpgradeable } from "hooks/useIsUpgradable";
+import { useIsUpgradeable } from "hooks/fuse/edit/useIsUpgradable";
 import { useTokenData } from "hooks/useTokenData";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import { ConfigRow } from "../../FusePoolEditPage";
 import AssetSettings from "../AddAssetModal/AssetSettings";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
-const noop = () => {};  
+const noop = () => {};
 
 const AssetConfiguration = ({
   openAddAssetModal,

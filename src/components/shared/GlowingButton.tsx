@@ -8,13 +8,13 @@ export const GlowingButton = ({
   leftIcon,
   disabled,
   label,
-  textColor = "#000000",
+  innerTextColor = "#000000",
   ...boxProps
 }: BoxProps & {
   leftIcon?: ReactElement;
   label?: string;
   onClick: () => any;
-  textColor: string;
+  innerTextColor?: string;
   disabled?: boolean;
 }) => {
   return (
@@ -32,7 +32,7 @@ export const GlowingButton = ({
         _disabled={{ cursor: "not-allowed" }}
         fontSize={boxProps.fontSize ?? "xl"}
         label={label}
-        color={textColor}
+        color={innerTextColor}
       >
         {children}
       </Button>
