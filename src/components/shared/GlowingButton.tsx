@@ -8,18 +8,19 @@ export const GlowingButton = ({
   leftIcon,
   disabled,
   label,
+  textColor = "#000000",
   ...boxProps
 }: BoxProps & {
   leftIcon?: ReactElement;
-  label?: string
+  label?: string;
   onClick: () => any;
+  textColor: string;
   disabled?: boolean;
 }) => {
   return (
     <GlowingBox {...boxProps}>
       <Button
         bg="#FFFFFF"
-        color="#000000"
         borderRadius="7px"
         fontWeight="bold"
         width="100%"
@@ -31,6 +32,7 @@ export const GlowingButton = ({
         _disabled={{ cursor: "not-allowed" }}
         fontSize={boxProps.fontSize ?? "xl"}
         label={label}
+        color={textColor}
       >
         {children}
       </Button>
