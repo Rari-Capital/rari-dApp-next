@@ -1,12 +1,14 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
+import { ChainID } from "esm/utils/networks";
 
 export const useHasSushiswapRewardsStarted = () => {
-  const { rari } = useRari();
+  const { rari, chainId } = useRari();
 
   const { data: hasStarted } = useQuery(
-    "hasSushiswapRewardsStarted",
+    "hasSushiswapRewardsStarted" + chainId,
     async () => {
+      if (chainId !== ChainID.ETHEREUM) return false;
       const block = await rari.provider.getBlockNumber();
 
       const startingBlock =

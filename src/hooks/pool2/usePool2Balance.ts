@@ -1,7 +1,8 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import { Vaults, Fuse } from '../../esm/index';
+import { Vaults, Fuse } from "../../esm/index";
 import { fromWei } from "utils/ethersUtils";
+import { ChainID } from "esm/utils/networks";
 
 export const fetchPool2Balance = async ({
   rari,
@@ -39,13 +40,14 @@ export const fetchPool2Balance = async ({
 };
 
 export const usePool2Balance = () => {
-  const { rari, fuse, address } = useRari();
+  const { rari, fuse, address, chainId } = useRari();
 
   const { data: balance } = useQuery(
-    address + " pool2Balance",
+    address + " pool2Balance " + chainId,
     async () => {
-      return await fetchPool2Balance({ rari, fuse, address })
-    }  
+      if (chainId !== ChainID.ETHEREUM) return undefined;
+      return await fetchPool2Balance({ rari, fuse, address });
+    }
   );
 
   return balance;

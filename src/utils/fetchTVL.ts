@@ -92,7 +92,7 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
 
   const fuseTVLInETH = await fetchFuseTVL(fuse);
 
-  console.log("PER POOL TVL", { fuseTVLInETH });
+  // console.log("PER POOL TVL", { fuseTVLInETH });
 
   // console.log({
   //   stableTVL,

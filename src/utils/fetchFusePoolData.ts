@@ -134,7 +134,6 @@ export const fetchFusePoolData = async (
   poolId: string | undefined,
   address: string,
   fuse: Fuse,
-  rari?: Vaults,
   blockNum: string | number = "latest",
   dev?: boolean
 ): Promise<FusePoolData | undefined> => {
@@ -149,12 +148,16 @@ export const fetchFusePoolData = async (
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
 
+  console.log('{fetchFusePoolData}')
+
   let assets: USDPricedFuseAsset[] = (
     await fuse.contracts.FusePoolLens.callStatic.getPoolAssetsWithData(
       comptroller,
       { from: address }
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
+
+  console.log({assets})
 
   let totalLiquidityUSD = constants.Zero;
 

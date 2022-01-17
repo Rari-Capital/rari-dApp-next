@@ -1,7 +1,8 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 import { fromWei } from "utils/ethersUtils";
-import { Vaults } from "../../esm/index"
+import { Vaults } from "../../esm/index";
+import { ChainID } from "esm/utils/networks";
 
 export const fetchPool2UnclaimedRGT = async ({
   rari,
@@ -18,11 +19,14 @@ export const fetchPool2UnclaimedRGT = async ({
 };
 
 export const usePool2UnclaimedRGT = () => {
-  const { rari, address } = useRari();
+  const { rari, address, chainId } = useRari();
 
   const { data: earned } = useQuery(
-    address + " pool2Unclaimed RGT",
-    async () => await fetchPool2UnclaimedRGT({ rari, address })
+    address + " pool2Unclaimed RGT " + chainId,
+    async () => {
+      if (chainId !== ChainID.ETHEREUM) return 0;
+      await fetchPool2UnclaimedRGT({ rari, address });
+    }
   );
 
   return earned;

@@ -27,8 +27,11 @@ import {
 } from "../utils/web3Providers";
 
 import { Web3Provider } from "@ethersproject/providers";
-import { ChainID, isSupportedChainId } from "esm/utils/networks";
-import { getChainMetadata } from "constants/networks";
+import {
+  ChainID,
+  isSupportedChainId,
+  getChainMetadata,
+} from "esm/utils/networks";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
@@ -158,6 +161,8 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
 
       const rariInstance = new Vaults(provider);
+      console.log({ _chainId });
+
       const fuseInstance = initFuseWithProviders(provider, _chainId);
 
       console.log({ fuseInstance });
@@ -188,7 +193,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (cacheProvider: boolean = true) => {
       try {
         setIsAttemptingLogin(true);
+        console.log("login 0");
         const providerWeb3Modal = await launchModalLazy(t, cacheProvider);
+        console.log("login 1");
         setWeb3ModalProvider(providerWeb3Modal);
         setRariAndAddressFromModal(providerWeb3Modal);
         setIsAttemptingLogin(false);

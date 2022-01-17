@@ -350,7 +350,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
   const selectedTokenData = useTokenData(selectedAsset.underlyingToken);
   const selectedAssetUtilization =
     // @ts-ignore
-    selectedAsset.totalSupply === "0"
+    selectedAsset.totalSupply.isZero()
       ? 0
       : selectedAsset.totalBorrow.div(selectedAsset.totalSupply).mul(100);
 

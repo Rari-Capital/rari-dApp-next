@@ -28,7 +28,8 @@ import Pool2Row from "./Pool2Row";
 import { smallUsdFormatter } from "utils/bigUtils";
 import TranchesRow from "./TranchesRow";
 import { FusePoolData } from "utils/fetchFusePoolData";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
+import { BigNumber, constants } from "ethers";
 
 const StatsTotalSection = ({
   setNetDeposits,
@@ -78,16 +79,17 @@ const StatsTotalSection = ({
 
   // Total Deposits
   const totalDepositsUSD = useMemo(() => {
-    const { totalSupplyBalanceUSD: fuseTotal } =
-      fusePoolsData?.reduce(
-        (a: any, b:any) => {
-          return {
-            totalSupplyBalanceUSD:
-              a.totalSupplyBalanceUSD.add(b.totalSupplyBalanceUSD).toString(),
-          };
-        },
-        { totalSupplyBalanceUSD: "0" }
-      ) ?? ({ totalSupplyBalanceUSD: "0" });
+    console.log({ fusePoolsData });
+    const { totalSupplyBalanceUSD: fuseTotal } = fusePoolsData?.reduce(
+      (a: any, b: any) => {
+        return {
+          totalSupplyBalanceUSD: a.totalSupplyBalanceUSD.add(
+            b.totalSupplyBalanceUSD
+          ),
+        };
+      },
+      { totalSupplyBalanceUSD: constants.Zero }
+    ) ?? { totalSupplyBalanceUSD: constants.Zero };
 
     const vaultTotal = totals?.balance ?? 0;
 
@@ -102,16 +104,16 @@ const StatsTotalSection = ({
 
   // Total debt - todo: refactor into the `useFusePoolsData` hook
   const totalDebtUSD = useMemo(() => {
-    const { totalBorrowBalanceUSD } =
-      fusePoolsData?.reduce(
-        (a: any, b: any) => {
-          return {
-            totalBorrowBalanceUSD:
-              a.totalBorrowBalanceUSD.add(b.totalBorrowBalanceUSD).toString(),
-          };
-        },
-        { totalBorrowBalanceUSD: 0 }
-      ) ?? ({ totalBorrowBalanceUSD: 0 });
+    const { totalBorrowBalanceUSD } = fusePoolsData?.reduce(
+      (a: any, b: any) => {
+        return {
+          totalBorrowBalanceUSD: a.totalBorrowBalanceUSD
+            .add(b.totalBorrowBalanceUSD)
+            .toString(),
+        };
+      },
+      { totalBorrowBalanceUSD: 0 }
+    ) ?? { totalBorrowBalanceUSD: 0 };
     return totalBorrowBalanceUSD;
   }, [fusePoolsData]);
 

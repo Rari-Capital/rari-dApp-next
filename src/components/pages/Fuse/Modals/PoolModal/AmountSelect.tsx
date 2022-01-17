@@ -55,6 +55,7 @@ import {
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
+import { formatUnits } from "ethers/lib/utils";
 
 enum UserAction {
   NO_ACTION,
@@ -126,11 +127,13 @@ const AmountSelect = ({
 
   const updateAmount = (newAmount: string) => {
     if (newAmount.startsWith("-")) return;
+    console.log({ newAmount });
 
     _setUserEnteredAmount(newAmount);
 
     try {
       const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
+      console.log({ bigAmount });
       _setAmount(bigAmount);
     } catch (e) {
       // If the number was invalid, set the amount to null to disable confirming:
@@ -908,7 +911,7 @@ const TokenNameAndMaxButton = ({
       if (maxBN!.lt(constants.Zero) || maxBN!.isZero()) {
         updateAmount("");
       } else {
-        const str = maxBN.div(asset.underlyingDecimals).toString();
+        const str = formatUnits(maxBN, asset.underlyingDecimals);
 
         updateAmount(str);
       }
@@ -1103,7 +1106,7 @@ async function fetchMaxAmount(
     );
 
     if (err !== 0) {
-      return maxBorrow.mul(utils.parseUnits("0.75")).toString();
+      return maxBorrow.mul(utils.parseUnits("0.75"))
     } else {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }

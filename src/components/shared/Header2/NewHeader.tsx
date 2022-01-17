@@ -83,10 +83,10 @@ export const NewHeader = () => {
               links={UTILS_DROPDOWN_ITEMS}
             />
 
-            <DropDownLink
+            {/* <DropDownLink
               name={t("Governance")}
               links={GOVERNANCE_DROPDOWN_ITEMS}
-            />
+            /> */}
           </Row>
         )}
 

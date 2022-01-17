@@ -1,7 +1,7 @@
 import { Fuse } from "../esm";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { getChainMetadata } from "constants/networks";
+import { ChainID, getChainMetadata } from "esm/utils/networks";
 
 export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
 export const providerURL = `http://127.0.0.1:8545/`;
@@ -30,13 +30,11 @@ export const initFuseWithProviders = (
   chainId = 1
 ): Fuse => {
   const fuse = new Fuse(provider, chainId);
-
   let lensProvider = getChainMetadata(chainId).rpcUrl ?? alchemyURL;
 
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
     new JsonRpcProvider(lensProvider)
   );
-
   return fuse;
 };

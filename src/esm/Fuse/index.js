@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 // Ethers
 import { BigNumber, Contract, utils, ContractFactory, constants, } from "ethers";
-import FUSE_ADDRESSES from "./addresses";
+import FUSE_ADDRESSES from "./addresses/index";
 // ABIs
 import fusePoolDirectoryAbi from "./contracts/abi/FusepoolDirectory.json";
 import fusePoolLensAbi from "./contracts/abi/FusePoolLens.json";
@@ -34,9 +34,10 @@ export default class Fuse {
         this.provider = web3Provider;
         this.constants = constants;
         // Set the addresses based on ChainId
-        this.addresses = isSupportedChainId(chainId)
-            ? FUSE_ADDRESSES[chainId]
-            : FUSE_ADDRESSES[1];
+        if (!isSupportedChainId(chainId)) {
+            throw new Error(`unsupported chainid: ${chainId}`);
+        }
+        this.addresses = FUSE_ADDRESSES[chainId];
         this.compoundContracts = Compound.contracts;
         this.oracleContracts = Oracle.contracts;
         this.contracts = {
@@ -470,7 +471,7 @@ export default class Fuse {
                         : null, options);
             });
         };
-        this.deployCEther = function (conf, supportMarket, collateralFactor, reserveFactor, adminFee, options, implementationAddress) {
+        this.deployCEther = function (conf, collateralFactor, reserveFactor, adminFee, implementationAddress, options) {
             return __awaiter(this, void 0, void 0, function* () {
                 // Deploy CEtherDelegate implementation contract if necessary
                 if (!implementationAddress) {
@@ -479,7 +480,7 @@ export default class Fuse {
                     implementationAddress = cEtherDelegateDeployed.address;
                 }
                 // Deploy CEtherDelegator proxy contract
-                let deployArgs = [
+                const deployArgs = [
                     conf.comptroller,
                     conf.interestRateModel,
                     conf.name,
@@ -489,8 +490,9 @@ export default class Fuse {
                     reserveFactor ? reserveFactor.toString() : 0,
                     adminFee ? adminFee.toString() : 0,
                 ];
+                console.log("1. deployCEther", { deployArgs });
                 const abiCoder = new utils.AbiCoder();
-                var constructorData = abiCoder.encode([
+                const constructorData = abiCoder.encode([
                     "address",
                     "address",
                     "string",
@@ -500,12 +502,21 @@ export default class Fuse {
                     "uint256",
                     "uint256",
                 ], deployArgs);
-                var comptroller = new Contract(conf.comptroller, JSON.parse(this.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi), this.provider.getSigner());
-                var errorCode = yield comptroller._deployMarket("0x0000000000000000000000000000000000000000", constructorData, collateralFactor);
-                if (errorCode != constants.Zero)
-                    throw ("Failed to deploy market with error code: " +
-                        Fuse.COMPTROLLER_ERROR_CODES[errorCode]);
-                const receipt = yield comptroller._deployMarket("0x0000000000000000000000000000000000000000", constructorData, collateralFactor);
+                console.log("2. deployCEther", { constructorData });
+                const comptroller = new Contract(conf.comptroller, JSON.parse(this.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi), this.provider.getSigner());
+                console.log("3. deployCEther", { comptroller });
+                try {
+                    const errorCode = yield comptroller.callStatic._deployMarket(true, constructorData, collateralFactor);
+                    if (errorCode != constants.Zero)
+                        throw ("Failed to deploy market with error code: " +
+                            Fuse.COMPTROLLER_ERROR_CODES[errorCode]);
+                }
+                catch (err) {
+                    console.error(err);
+                }
+                console.log("4. deployCEther");
+                const receipt = yield comptroller._deployMarket(true, constructorData, collateralFactor);
+                console.log("5. receipt");
                 const saltsHash = utils.solidityKeccak256(["address", "address", "uint"], [
                     conf.comptroller,
                     "0x0000000000000000000000000000000000000000",

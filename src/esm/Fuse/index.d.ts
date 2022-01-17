@@ -1,6 +1,6 @@
 import { Contract, constants } from "ethers";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { FuseAddresses } from "./addresses";
+import { FuseAddresses } from "./addresses/index";
 import { ChainID } from "../utils/networks";
 declare type MinifiedContracts = {
     [key: string]: {

@@ -1,49 +1,45 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Center,
-  Flex,
-  Img,
-  Menu,
-  MenuButton,
-  MenuList,
-  Spacer,
-  Text,
-} from "@chakra-ui/react";
-import { useMemo } from "react";
+import { Box, Center, Flex, Img, Spacer, Text } from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useRari } from "context/RariContext";
 
 import DashboardBox from "./DashboardBox";
 import { getChainMetadata, getSupportedChains } from "esm/utils/networks";
 
-const SwitchNetworkButton: React.FC<
-  React.ComponentProps<typeof DashboardBox>
-> = ({ ...props }) => {
-  const { chainId } = useRari();
+const SwitchNetworkButton: React.FC = () => {
+  const [dropdownOpened, setDropdownOpened] = useState(false);
+  const { switchNetwork, chainId } = useRari();
+  const supportedChains = useMemo(() => getSupportedChains(), []);
 
   let chainMetadata;
   if (chainId) {
     chainMetadata = getChainMetadata(chainId);
   }
 
+  console.log({ chainMetadata });
+
   return (
     <DashboardBox
       position="relative"
       ml={1}
-      as={MenuButton}
+      as="button"
       height="40px"
+      w="80%"
       px={4}
       flexShrink={0}
       fontSize={15}
+      tabIndex={0}
+      onClick={() => {
+        setDropdownOpened(!dropdownOpened);
+      }}
+      onBlur={() => setDropdownOpened(false)}
       fontWeight="bold"
       cursor="pointer"
-      {...props}
       border="1px solid"
       borderColor={chainMetadata?.color}
-      borderStyle={{ opacity: 0.1 }}
     >
-      <Center expand={true}>
+      <Center expand>
         {chainMetadata ? (
           <>
             {chainMetadata.imageUrl && (
@@ -51,7 +47,7 @@ const SwitchNetworkButton: React.FC<
                 width="20px"
                 height="20px"
                 margin={1}
-                mr={3}
+                mr={1}
                 borderRadius="50%"
                 src={chainMetadata.imageUrl}
                 alt=""
@@ -64,35 +60,21 @@ const SwitchNetworkButton: React.FC<
         )}
         <ChevronDownIcon ml={3} mr={1} />
       </Center>
-    </DashboardBox>
-  );
-};
-
-const SwitchNetworkMenu: React.FC = () => {
-  const { switchNetwork, chainId } = useRari();
-  const supportedChains = useMemo(() => getSupportedChains(), []);
-
-  let chainMetadata;
-  if (chainId) {
-    chainMetadata = getChainMetadata(chainId);
-  }
-
-  return (
-    <Menu>
-      <MenuButton as={SwitchNetworkButton} />
-      <MenuList
-        minWidth="125%"
-        bg="transparent"
-        borderColor="transparent"
-        pt={1}
-      >
-        <DashboardBox textAlign="left" p={4}>
+      {dropdownOpened && (
+        <DashboardBox
+          position="absolute"
+          width="100%"
+          left={0}
+          top="50px"
+          textAlign="left"
+          p={4}
+          cursor="default"
+        >
           <Text fontWeight="normal" color="grey" mb={2} cursor="default">
             Select a network
           </Text>
           {supportedChains.map((chainMetadata) => (
             <Flex
-              key={chainMetadata.chainId}
               cursor="pointer"
               alignItems="center"
               my={1}
@@ -130,9 +112,9 @@ const SwitchNetworkMenu: React.FC = () => {
             </Flex>
           ))}
         </DashboardBox>
-      </MenuList>
-    </Menu>
+      )}
+    </DashboardBox>
   );
 };
 
-export default SwitchNetworkMenu;
+export default SwitchNetworkButton;

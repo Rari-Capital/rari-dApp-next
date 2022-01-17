@@ -41,7 +41,7 @@ function getHeaderLinkStyleProps(isOnThisRoute: boolean) {
     p: 2,
     px: 3,
     mx: 3,
-    fontWeight: "bold",
+    fontWeight: "normal",
     color: isOnThisRoute ? "white" : "#818181",
     bg: isOnThisRoute ? "#1F1F1F" : "transparent",
     _hover: { bg: isOnThisRoute ? "#1F1F1F" : "#272727" },
