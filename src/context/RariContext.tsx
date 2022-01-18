@@ -131,13 +131,11 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     ]).then(([netId, network]) => {
       const { chainId } = network;
       console.log("Network ID: " + netId, "Chain ID: " + chainId);
-      setChainId(chainId);
 
       // // Don't show "wrong network" toasts if dev
       // if (process.env.NODE_ENV === "development") {
       //   return;
       // }
-
       if (!isSupportedChainId(chainId)) {
         setTimeout(() => {
           toast({
@@ -150,6 +148,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
           });
         }, 1500);
       }
+      setChainId(chainId);
     });
   }, [fuse, toast]);
 
@@ -158,15 +157,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (modalProvider) => {
       const provider = new Web3Provider(modalProvider);
       const { chainId } = await provider.getNetwork();
-
       let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
-
       const rariInstance = new Vaults(provider);
-      console.log({ _chainId });
 
       const fuseInstance = initFuseWithProviders(provider, _chainId);
-
-      console.log({ fuseInstance });
 
       setRari(rariInstance);
       setFuse(fuseInstance);
@@ -210,12 +204,12 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const refetchAccountData = useCallback(() => {
-    console.log("New account, clearing the queryClient!");
+    console.log("New account, clearing the queryClient! ChainId: ", chainId);
 
     setRariAndAddressFromModal(web3ModalProvider);
 
     queryClient.clear();
-  }, [setRariAndAddressFromModal, web3ModalProvider, queryClient]);
+  }, [setRariAndAddressFromModal, web3ModalProvider, queryClient, chainId]);
 
   const logout = useCallback(() => {
     setWeb3ModalProvider((past: any) => {
@@ -235,7 +229,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (web3ModalProvider !== null && web3ModalProvider.on) {
       web3ModalProvider.on("accountsChanged", refetchAccountData);
-      web3ModalProvider.on("chainChanged", refetchAccountData);
+      web3ModalProvider.on("chainChanged", () => {
+        refetchAccountData();
+      });
     }
 
     return () => {
@@ -249,9 +245,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // Based on Metamask-recommended code at
   // https://docs.metamask.io/guide/rpc-api.html#usage-with-wallet-switchethereumchain
   // TODO(nathanhleung) handle all possible errors
-  const switchNetwork = async function (chainId: ChainID) {
-    const hexChainId = chainId.toString(16);
-    const chainMetadata = getChainMetadata(chainId);
+  const switchNetwork = async function (newChainId: ChainID) {
+    if (chainId == newChainId) return;
+    const hexChainId = newChainId.toString(16);
+    const chainMetadata = getChainMetadata(newChainId);
 
     try {
       await window.ethereum.request({

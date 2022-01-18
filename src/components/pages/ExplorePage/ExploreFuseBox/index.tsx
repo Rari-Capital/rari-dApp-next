@@ -23,6 +23,7 @@ import {
   useTokenData,
   useTokensDataAsMap,
 } from "hooks/useTokenData";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
 export enum ExploreGridBoxMetric {
   TOTAL_BORROWS,
@@ -80,6 +81,7 @@ export const FuseAssetBoxNew = ({
       className="no-underline"
       w="100%"
       h="100%"
+      flexBasis="30%"
     >
       <Column
         w="100%"
@@ -165,39 +167,7 @@ export const FuseAssetBoxNew = ({
 export default FuseAssetBoxNew;
 
 const FusePoolBadge = ({ pool }: { pool: SubgraphPool | undefined }) => {
-  const underlyingAssets: string[] | undefined = pool?.underlyingAssets.map(
-    ({ id }) => id
-  );
-
-  const tokensData = useTokensDataAsMap(underlyingAssets);
-
-  return (
-    <Avatar h="100%" w="100%" bg="" src="static/icons/fuse-glow.svg">
-      <AvatarGroup max={4} mb={2} spacing="2">
-        <AvatarBadge
-          borderColor="transparent"
-          bg="purple"
-          boxSize=".5em"
-          mb={1}
-          mr={3}
-        />
-        <AvatarBadge
-          borderColor="transparent"
-          bg="pink"
-          boxSize=".5em"
-          mb={1}
-          mr={3}
-        />
-        <AvatarBadge
-          borderColor="transparent"
-          bg="lime"
-          boxSize=".5em"
-          mb={1}
-          mr={3}
-        />
-      </AvatarGroup>
-    </Avatar>
-  );
+  return <CTokenIcon address={pool?.assets[0].underlying.id ?? ""} />;
 };
 
 const LeftSide = ({

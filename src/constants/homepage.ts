@@ -109,7 +109,7 @@ export interface HomepageOpportunity {
 export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.EarnPage,
-    title: "Earn Vaults",
+    title: "Vaults v1",
     subtitle: "Sustainable yield made easy",
     bgColor: "#6041FC",
     icon: "/static/icons/earn-glow.svg",

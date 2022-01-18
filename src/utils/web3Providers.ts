@@ -27,11 +27,10 @@ export function chooseBestWeb3Provider(
 
 export const initFuseWithProviders = (
   provider = chooseBestWeb3Provider(),
-  chainId = 1
+  chainId: ChainID = 1
 ): Fuse => {
   const fuse = new Fuse(provider, chainId);
   let lensProvider = getChainMetadata(chainId).rpcUrl ?? "";
-
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
     new JsonRpcProvider(lensProvider)

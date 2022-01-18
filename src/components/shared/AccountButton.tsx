@@ -9,9 +9,6 @@ import {
   Link,
   Text,
   Spinner,
-  Avatar,
-  Box,
-  Icon,
   Stack,
 } from "@chakra-ui/react";
 
@@ -27,14 +24,14 @@ import { useTranslation } from "next-i18next";
 import { MODAL_PROPS, ModalDivider, ModalTitleWithCloseButton } from "./Modal";
 import { LanguageSelect } from "./TranslateButton";
 
-import { GlowingButton } from "./GlowingButton";
+import { DarkGlowingButton, GlowingButton } from "./GlowingButton";
 import { ClaimRGTModal } from "./ClaimRGTModal";
 // import version from "utils/version";
 
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { HamburgerIcon } from "@chakra-ui/icons";
 import SwitchNetworkMenu from "./SwitchNetworkMenu";
+import { useClaimable } from "hooks/rewards/useClaimable";
 
 export const AccountButton = memo(() => {
   const {
@@ -52,6 +49,8 @@ export const AccountButton = memo(() => {
   } = useDisclosure();
 
   const authedOpenClaimRGTModal = useAuthedCallback(openClaimRGTModal);
+
+
 
   return (
     <>
@@ -75,7 +74,6 @@ export const AccountButton = memo(() => {
 
 const Buttons = ({
   openModal,
-  openClaimRGTModal,
 }: {
   openModal: () => any;
   openClaimRGTModal: () => any;
@@ -92,6 +90,8 @@ const Buttons = ({
     } else login();
   }, [isAuthed, login, openModal]);
 
+  const { hasClaimableRewards } = useClaimable()
+
   return (
     <Row mainAxisAlignment="center" crossAxisAlignment="center">
       {isMobile ? null : (
@@ -101,15 +101,7 @@ const Buttons = ({
       )}
 
       {/* Connect + Account button */}
-      <DashboardBox
-        ml={isMobile ? 0 : 4}
-        as="button"
-        height="40px"
-        flexShrink={0}
-        flexGrow={0}
-        width="133px"
-        onClick={handleAccountButtonClick}
-      >
+      <ButtonOrGlowButton onClick={handleAccountButtonClick} glow={!hasClaimableRewards} >
         <Row
           expand
           mainAxisAlignment="space-around"
@@ -141,10 +133,44 @@ const Buttons = ({
             </Center>
           )}
         </Row>
-      </DashboardBox>
+      </ButtonOrGlowButton>
     </Row>
   );
 };
+
+const ButtonOrGlowButton = ({ children, onClick, glow }: { children: any, onClick: () => any, glow: boolean }) => {
+
+  return !!glow ? <DarkGlowingButton
+    label={''}
+    onClick={onClick}
+    height="40px"
+    flexShrink={0}
+    flexGrow={0}
+    width="133px"
+    fontSize="15px"
+    fontWeight="bold"
+    ml={{ base: 0, sm: 4 }}
+    opacity={0.9}
+    _hover={{
+      opacity: 1
+    }}
+
+  >
+    {children}
+  </DarkGlowingButton> : <DashboardBox
+    as="button"
+    height="40px"
+    flexShrink={0}
+    flexGrow={0}
+    width="133px"
+    onClick={onClick}
+    ml={{ base: 0, sm: 4 }}
+    opacity={0.9}
+    _hover={{
+      opacity: 1
+    }}
+  >{children}</DashboardBox>
+}
 
 export const SettingsModal = ({
   isOpen,

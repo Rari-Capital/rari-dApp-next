@@ -16,7 +16,6 @@ import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
 
 // Ethers
-
 export interface FusePool {
   name: string;
   creator: string;
@@ -149,14 +148,14 @@ export interface UseFusePoolsReturn {
 
 // returns impersonal data about fuse pools ( can filter by your supplied/created pools )
 export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
-  const { fuse, rari, address } = useRari();
+  const { fuse, rari, address, chainId } = useRari();
 
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
   const isNonWhitelistedPools = filter === "unverified-pools";
 
   const { data: _pools } = useQuery(
-    address + " fusePoolList" + (filter ?? ""),
+    `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
     async () => await fetchPools({ rari, fuse, address, filter })
   );
 
@@ -171,7 +170,7 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
       return poolSort(pools);
     }
 
-    if (isMyPools || isCreatedPools || isNonWhitelistedPools)  {
+    if (isMyPools || isCreatedPools || isNonWhitelistedPools) {
       return poolSort(pools);
     }
 

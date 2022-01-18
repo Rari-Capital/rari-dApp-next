@@ -30,7 +30,7 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
       constants.Zero
     );
 
-    console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
+    // console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
 
     return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
@@ -69,13 +69,12 @@ export const fetchFuseTVLBorrowsAndSupply = async (
 };
 
 export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
-  // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, ethPriceBN, stakedTVL] =
+  // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, stakedTVL] =
   //   await Promise.all([
   //     Vaults.pools.stable.balances.getTotalSupply(),
   //     Vaults.pools.yield.balances.getTotalSupply(),
   //     Vaults.pools.ethereum.balances.getTotalSupply(),
   //     Vaults.pools.dai.balances.getTotalSupply(),
-  //     Vaults.getEthUsdPriceBN(),
   //     Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
   //   ]);
 
@@ -111,12 +110,10 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
   };
 };
 
-export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) => {
+export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) : Promise<BigNumber> => {
   try {
     const tvls = await perPoolTVL(Vaults, fuse);
-    console.log({ tvls });
-
-    return tvls.fuseTVL;
+    return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
 
     // return tvls.stableTVL
     //   .add(tvls.yieldTVL)

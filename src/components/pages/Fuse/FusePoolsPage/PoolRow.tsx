@@ -43,7 +43,7 @@ export const PoolRow = ({
 
   const { hasIncentives } = poolIncentives;
   if (hasIncentives) {
-    console.log({ poolNumber, poolIncentives });
+    // console.log({ poolNumber, poolIncentives });
   }
 
   return (

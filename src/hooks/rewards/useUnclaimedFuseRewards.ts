@@ -15,18 +15,18 @@ export interface RewardsDistributorToPoolsMap {
  * **/
 
 export function useUnclaimedFuseRewards() {
-  const { fuse, address } = useRari();
+  const { fuse, address, chainId } = useRari();
 
   // 1. Fetch all Fuse Pools User has supplied to + their Rewards Distribs.
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
-    "unclaimedRewards for " + address,
+    "unclaimedRewards for " + address + " " + chainId,
     async () => {
       // fetchTokenBalance(tokenAddress, rari.web3, addressToCheck)
 
       const rewardsDistributorsByFusePool =
-        await fuse.contracts.FusePoolLensSecondary.getRewardsDistributorsBySupplier(
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
           address
-        ).call();
+        );
 
       return rewardsDistributorsByFusePool ?? [];
     }
@@ -73,7 +73,7 @@ export function useUnclaimedFuseRewards() {
 
   // 3a. Query all individual RewardsDistributors for their rewardTokens
   const { data: _rewardsDistributors, error: _rdError } = useQuery(
-    "rewardsDistributor data for " + address,
+    "rewardsDistributor data for " + address + " " + chainId,
     async () => {
       const rewardDistributors = await Promise.all(
         uniqueRDs.map(async (rewardsDistributorAddress) => {
@@ -138,13 +138,13 @@ export function useUnclaimedFuseRewards() {
 
   //  4.  getUnclaimedRewardsByDistributors
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
-    "unclaimed for " + address,
+    "unclaimed for " + address +  ' ' + chainId,
     async () => {
       const unclaimedResults =
-        await fuse.contracts.FusePoolLensSecondary.getUnclaimedRewardsByDistributors(
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,
           uniqueRDs
-        ).call();
+        );
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 

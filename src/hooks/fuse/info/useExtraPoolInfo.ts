@@ -12,7 +12,7 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
     const whitelist: any[] = [];
 
     const { 0: admin, 1: upgradeable } =
-      await fuse.contracts.FusePoolLensSecondary.getPoolOwnership(
+      await fuse.contracts.FusePoolLensSecondary.callStatic.getPoolOwnership(
         comptrollerAddress
       );
 
@@ -50,7 +50,6 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
   return data;
 };
 
-
 export const useExtraPoolInfo2 = (
   comptrollerAddress: string,
   oracleAddress: string
@@ -78,13 +77,13 @@ export const useExtraPoolInfo2 = (
       adminHasRights,
       pendingAdmin,
     ] = await Promise.all([
-      fuse.contracts.FusePoolLensSecondary.methods
-        .getPoolOwnership(comptrollerAddress)
-        .call({ gas: 1e18 }),
+      fuse.contracts.FusePoolLensSecondary.callStatic.getPoolOwnership(
+        comptrollerAddress
+      ),
 
-      comptroller.methods.closeFactorMantissa().call(),
+      comptroller.callStatic.closeFactorMantissa(),
 
-      comptroller.methods.liquidationIncentiveMantissa().call(),
+      comptroller.callStatic.liquidationIncentiveMantissa(),
 
       (() => {
         try {
@@ -113,7 +112,7 @@ export const useExtraPoolInfo2 = (
       whitelist: whitelist as string[],
       isPowerfulAdmin:
         admin.toLowerCase() === address.toLowerCase() && upgradeable,
-      closeFactor, 
+      closeFactor,
       liquidationIncentive,
       adminHasRights,
       pendingAdmin,

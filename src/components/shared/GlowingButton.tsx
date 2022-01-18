@@ -42,6 +42,7 @@ export const GlowingButton = ({
 
 export const DarkGlowingButton = ({
   label,
+  children,
   onClick,
   leftIcon,
   disabled,
@@ -50,9 +51,10 @@ export const DarkGlowingButton = ({
 }: BoxProps & {
   leftIcon?: ReactElement;
   onClick: () => any;
-  label: string;
+  label?: string;
   disabled?: boolean;
   bg?: any;
+  children?: any;
 }) => {
   return (
     <DarkGlowingBox {...boxProps}>
@@ -73,6 +75,7 @@ export const DarkGlowingButton = ({
         fontSize={boxProps.fontSize ?? "xl"}
       >
         {label}
+        {children}
       </Button>
     </DarkGlowingBox>
   );

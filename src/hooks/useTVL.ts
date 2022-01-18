@@ -9,8 +9,9 @@ export const useTVLFetchers = () => {
   const getTVL = useCallback(() => fetchTVL(rari, fuse), [rari, fuse]);
 
   const getNumberTVL = useCallback(async () => {
-    return parseFloat(fromWei(await getTVL()));
+     return parseFloat((await getTVL()).toString());
   }, [rari, getTVL]);
+  
 
   return { getNumberTVL, getTVL };
 };

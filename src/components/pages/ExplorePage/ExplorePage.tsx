@@ -401,15 +401,15 @@ const ExplorePage = () => {
       </Collapse>
 
       {/* Top Fuse Pools */}
-      <Row
+      <HStack
         mainAxisAlignment="flex-start"
         crossAxisAlignment="flex-start"
         w="100%"
         h="100%"
-        bg=""
         px={8}
         py={4}
         my={3}
+       
       >
         <Column
           mainAxisAlignment="flex-start"
@@ -434,22 +434,21 @@ const ExplorePage = () => {
             alignItems="flex-start"
             w="100%"
             h="100%"
-            expand={true}
             py={4}
           >
-            <HoverCard w="100%" h="100%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[0]}
                 // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[1]}
                 // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[2]}
                 // tokensData={topFusePoolsTokensData}
@@ -457,7 +456,7 @@ const ExplorePage = () => {
             </HoverCard>
           </HStack>
         </Column>
-      </Row>
+      </HStack>
 
       {/* Token Explorer */}
       <HStack
