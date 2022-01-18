@@ -5,5 +5,7 @@ export const useIsSmallScreen = () => {
     base: true,
     sm: true,
     md: false,
-  })
+    lg: false, 
+    xl: false
+  }, 'lg') ?? false
 };

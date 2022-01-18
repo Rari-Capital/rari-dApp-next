@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FlexProps, Flex } from "@chakra-ui/react";
+import { FlexProps, Flex, useBreakpointValue } from "@chakra-ui/react";
 
 /* Typings */
 
@@ -23,9 +23,9 @@ export type CrossAxisAlignmentStrings =
 export type CrossAxisAlignment =
   | CrossAxisAlignmentStrings
   | {
-      md: CrossAxisAlignmentStrings;
-      base: CrossAxisAlignmentStrings;
-    };
+    md: CrossAxisAlignmentStrings;
+    base: CrossAxisAlignmentStrings;
+  };
 
 export class PixelMeasurement {
   size: number;
@@ -370,9 +370,11 @@ export function useLockedViewHeight({
  * Returns whether the width of the window makes it likely a mobile device.
  * */
 export function useIsMobile() {
-  const { width } = useWindowSize();
-
-  return width < 768;
+  return useBreakpointValue({
+    base: true,
+    sm: true,
+    md: false,
+  }, 'md') ?? false
 }
 
 /**
