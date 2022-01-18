@@ -59,6 +59,15 @@ Here's the symbols we currently support: " !"#$%&'()*+,-./0123456789:;<=>?@ABCDE
 
 @font-face {
   font-family: "Avenir Next";
+  src: url("/static/fonts/AvenirNext-DemiBold.woff2") format("woff2"),
+    url("/static/fonts/AvenirNext-DemiBold.woff2") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir Next";
   src: url("/static/fonts/AvenirNext-Regular.woff2") format("woff2"),
     url("/static/fonts/AvenirNext-Regular.woff2") format("woff");
   font-weight: normal;
