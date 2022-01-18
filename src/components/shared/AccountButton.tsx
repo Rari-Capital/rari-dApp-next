@@ -101,7 +101,7 @@ const Buttons = ({
       )}
 
       {/* Connect + Account button */}
-      <ButtonOrGlowButton onClick={handleAccountButtonClick} glow={!hasClaimableRewards} >
+      <ButtonOrGlowButton onClick={handleAccountButtonClick} glow={hasClaimableRewards} >
         <Row
           expand
           mainAxisAlignment="space-around"

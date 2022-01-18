@@ -1,7 +1,10 @@
-import { useWindowSize } from "lib/chakraUtils";
+import { useBreakpointValue } from "@chakra-ui/react";
 
 export const useIsSemiSmallScreen = () => {
-  const { width } = useWindowSize();
-
-  return width < 1180;
+  return useBreakpointValue({
+    base: true,
+    sm: true,
+    md: true,
+    lg: false,
+  })
 };

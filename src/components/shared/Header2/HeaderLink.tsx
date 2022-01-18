@@ -127,7 +127,7 @@ export const DropDownLink = ({
 
   return (
     <Box ml={ml ?? 0} color="white" zIndex={10}>
-      <Menu isLazy={false}>
+      <Menu isLazy={true}>
         <MenuButton
           as={Button}
           rightIcon={<ChevronDownIcon />}
