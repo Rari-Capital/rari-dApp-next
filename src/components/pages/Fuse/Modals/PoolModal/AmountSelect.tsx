@@ -13,7 +13,7 @@ import {
   Tabs,
   Spinner,
 } from "@chakra-ui/react";
-import { Row, Column, Center, useIsMobile } from "lib/chakraUtils";
+import { Row, Column, Center } from "lib/chakraUtils";
 import DashboardBox from "../../../../shared/DashboardBox";
 import { ModalDivider } from "../../../../shared/Modal";
 import { SwitchCSS } from "../../../../shared/SwitchCSS";
@@ -56,6 +56,7 @@ import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
 import { formatUnits } from "ethers/lib/utils";
+import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 enum UserAction {
   NO_ACTION,
@@ -205,7 +206,7 @@ const AmountSelect = ({
     depositOrWithdrawAlert = null;
   }
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsSmallScreen();
 
   const length = depositOrWithdrawAlert?.length ?? 0;
   let depositOrWithdrawAlertFontSize;

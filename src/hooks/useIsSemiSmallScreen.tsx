@@ -6,5 +6,5 @@ export const useIsSemiSmallScreen = () => {
     sm: true,
     md: true,
     lg: false,
-  })
+  }, 'md') ?? false
 };
