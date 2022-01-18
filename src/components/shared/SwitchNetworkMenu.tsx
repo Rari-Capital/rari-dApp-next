@@ -38,7 +38,7 @@ const SwitchNetworkButton: React.FC<
       px={4}
       flexShrink={0}
       fontSize={15}
-      fontWeight="bold"
+      fontWeight={600}
       cursor="pointer"
       {...props}
       border="1px solid"
@@ -117,7 +117,7 @@ const SwitchNetworkMenu: React.FC = () => {
                   alt=""
                 />
               )}
-              {chainMetadata.name}
+              <Text fontWeight={600}>{chainMetadata.name}</Text>
               <Spacer />
               {chainId === chainMetadata.chainId && (
                 <Box

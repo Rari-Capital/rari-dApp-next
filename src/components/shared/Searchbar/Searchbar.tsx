@@ -115,7 +115,7 @@ const Searchbar = ({
           }
           _placeholder={{
             color: "grey",
-            fontWeight: "bold",
+            fontWeight: 600,
             fontSize: smaller
               ? "sm"
               : {
