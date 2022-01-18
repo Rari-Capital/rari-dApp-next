@@ -63,7 +63,7 @@ export const fetchTokenData = async (
       let url =
         (process.env.NODE_ENV === "development"
           ? "https://rari-git-l2tokendata-rari-capital.vercel.app"
-          : "") + `/api/tokenData?address=${address}&chainId=${_chainid}`;
+          : "https://rari-git-l2tokendata-rari-capital.vercel.app") + `/api/tokenData?address=${address}&chainId=${_chainid}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),
