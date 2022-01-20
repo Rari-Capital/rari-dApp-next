@@ -6,9 +6,9 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 
 const adFetcher = async (
   ...addresses: string[]
-): Promise<{ asset: SubgraphCToken; tokensData: TokensDataMap }> => {
+): Promise<{ asset: SubgraphCToken | undefined; tokensData: TokensDataMap }> => {
   const asset = await queryTopFuseAsset("supplyAPY", "desc", addresses);
-  const tokensData = await fetchTokensAPIDataAsMap([asset.underlying.address]);
+  const tokensData = await fetchTokensAPIDataAsMap([asset?.underlying.address ?? ""]);
   return {
     asset,
     tokensData,

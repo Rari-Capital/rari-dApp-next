@@ -38,12 +38,15 @@ const useUnderlyingAssetsPaginated = (
   offset: number,
   limit: number,
   orderBy: string = "address",
-  orderDir: "asc" | "desc" = "asc"
+  orderDir: "asc" | "desc" = "asc",
 ) => {
+  const { chainId } = useRari();
   return useQuery(
-    `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit}`,
+    `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit} chainId ${chainId}`,
     async (): Promise<SubgraphUnderlyingAsset[]> => {
+      if (!chainId) return []
       const underlyingAssets = await queryUnderlyingAssetsPaginated(
+        chainId,
         offset,
         limit,
         orderBy,
@@ -89,7 +92,7 @@ export const AllAssetsList = () => {
   // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
   const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
   useEffect(() => {
-    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId ?? 1).then((newTokensData) => {
+    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId).then((newTokensData) => {
       setTokensData(Object.assign(tokensData, newTokensData));
     });
   }, [flag, chainId]);
@@ -110,6 +113,10 @@ export const AllAssetsList = () => {
     disabled: false,
     rootMargin: "0px 0px 200px 0px",
   });
+
+  useEffect(() => {
+    setUnderlyingAssets([])
+  }, [chainId])
 
   return (
     <Box h="400px" w="100%" overflowY="scroll">

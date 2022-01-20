@@ -19,13 +19,14 @@ import SearchResults from "./SearchResults";
 
 // Fetchers
 const searchFetcher = async (
+  chainId: number,
   text: string,
   ...addresses: string[]
 ): Promise<APISearchReturn | undefined> => {
-  let url = `/api/search`;
+  let url = `/api/search?chainId=${chainId}`;
 
   if (!text && !addresses.length) return undefined;
-  if (text) url += `?text=${text}`;
+  if (text) url += `&text=${text}`;
   if (addresses.length) {
     for (let i = 0; i < addresses.length; i++) {
       url += `${url.includes("?") ? "&" : "?"}address=${addresses[i]}`;
@@ -47,14 +48,14 @@ const Searchbar = ({
   smaller?: boolean;
   [x: string]: any;
 }) => {
-  const { isAuthed } = useRari();
+  const { isAuthed, chainId } = useRari();
   const isMobile = useIsMobile();
 
   const [val, setVal] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
   const [balances, balancesToSearchWith] = useAccountBalances();
 
-  const debouncedSearch = useDebounce([val, ...balancesToSearchWith], 200);
+  const debouncedSearch = useDebounce([chainId, val, ...balancesToSearchWith], 200);
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,
@@ -119,10 +120,10 @@ const Searchbar = ({
             fontSize: smaller
               ? "sm"
               : {
-                  base: "sm",
-                  sm: "sm",
-                  md: "md",
-                },
+                base: "sm",
+                sm: "sm",
+                md: "md",
+              },
             width: "100%",
           }}
           _focus={{ borderColor: "grey" }}

@@ -17,8 +17,9 @@ export const fetchTokenAPIData = async (
 // Returns a hashmap of Token API Data for easy lookups
 export const fetchTokensAPIDataAsMap = async (
   addresses: string[],
-  chainId: ChainID
+  chainId?: ChainID | undefined
 ): Promise<TokensDataMap> => {
+  if (!chainId) return {};
   const uniqueAddresses = Array.from(new Set(addresses));
 
   const tokenDatas = await fetchTokensAPIData(uniqueAddresses, chainId);

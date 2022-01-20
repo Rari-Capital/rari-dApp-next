@@ -34,10 +34,10 @@ const fetchUnderlyingAssetWithPools = async (tokenAddress: string, chainId: Chai
   return underlyingAsset;
 };
 
-const useSubgraphPoolsForToken = (tokenAddress: string) => {
+const useSubgraphPoolsForToken = (tokenAddress?: string) => {
   const { chainId } = useRari();
   const { data, error } = useSWR(
-    [tokenAddress.toLowerCase(), chainId, "pools"],
+    [tokenAddress?.toLowerCase(), chainId, "pools"],
     fetchUnderlyingAssetWithPools
   );
 
@@ -48,7 +48,7 @@ const useSubgraphPoolsForToken = (tokenAddress: string) => {
 const FusePoolListForToken = ({ token }: { token: TokenData }) => {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const pools = useSubgraphPoolsForToken(token.address);
+  const pools = useSubgraphPoolsForToken(token?.address);
 
   const underlyingAssets = useMemo(() => {
     const tokens = new Set<string>();

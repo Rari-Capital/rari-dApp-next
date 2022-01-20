@@ -19,6 +19,7 @@ import { fetchTokenDataWithCache } from 'utils/services';
 import { MarketInfo } from "hooks/interestRates/types";
 import { MergedPool } from "hooks/fuse/useFusePools";
 import { useTranslation } from "react-i18next";
+import { chain } from "mathjs";
 
 export enum InterestRatesTableOptions {
   Lending = "lending",
@@ -92,7 +93,7 @@ export default function InterestRatesView() {
       const tokenDataList: TokenData[] = [];
       await Promise.all(
         tokenAddresses.map(async (address) => {
-          tokenDataList.push(await fetchTokenDataWithCache(address));
+          tokenDataList.push(await fetchTokenDataWithCache(address, 1));
         })
       );
 

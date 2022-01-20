@@ -1,3 +1,4 @@
+import { ChainID } from "esm/utils/networks";
 import { GET_ALL_UNDERLYING_ASSETS } from "gql/getAllUnderlyingAssets";
 import {
   SEARCH_FOR_TOKEN,
@@ -17,6 +18,7 @@ export const queryAllUnderlyingAssets = async (): Promise<
 };
 
 export const queryUnderlyingAssetsPaginated = async (
+  chainId: ChainID,
   offset?: number,
   limit?: number,
   orderBy?: string,
@@ -24,23 +26,34 @@ export const queryUnderlyingAssetsPaginated = async (
 ): Promise<SubgraphUnderlyingAsset[]> => {
   const { underlyingAssets } = await makeGqlRequest(
     GET_UNDERLYING_ASSETS_PAGINATED,
-    { offset, limit, orderBy, orderDir }
+    { offset, limit, orderBy, orderDir },
+    chainId
   );
   return underlyingAssets;
 };
 
 // Searches for an UnderlyingAsset by its underlying symbol
 export const querySearchForToken = async (
-  text: string
+  text: string,
+  chainId: ChainID
 ): Promise<GQLSearchReturn> =>
-  await makeGqlRequest(SEARCH_FOR_TOKEN, {
-    search: text.toUpperCase(),
-  });
+  await makeGqlRequest(
+    SEARCH_FOR_TOKEN,
+    {
+      search: text.toUpperCase(),
+    },
+    chainId
+  );
 
 // Searches for UnderlyingAssets by their addresses
 export const querySearchForTokenByAddresses = async (
-  addresses: string[]
+  addresses: string[],
+  chainId: ChainID
 ): Promise<GQLSearchReturn> =>
-  await makeGqlRequest(SEARCH_FOR_TOKENS_BY_ADDRESSES, {
-    addresses,
-  });
+  await makeGqlRequest(
+    SEARCH_FOR_TOKENS_BY_ADDRESSES,
+    {
+      addresses,
+    },
+    chainId
+  );

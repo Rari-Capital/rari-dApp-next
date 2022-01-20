@@ -26,21 +26,24 @@ import {
   GET_BEST_CTOKENS_FOR_UNDERLYING,
   GQLBestCTokenForUnderlyings,
 } from "gql/ctokens/getBestCTokensForUnderlying";
-import AvatarWithBadge from "components/shared/Icons/AvatarWithBadge";
+import { ChainID } from "esm/utils/networks";
 
-const fetchBestCTokensForUnderlying = async (tokenAddress: string) => {
+const fetchBestCTokensForUnderlying = async (tokenAddress: string, chainId?: ChainID) => {
   const data: GQLBestCTokenForUnderlyings = await makeGqlRequest(
     GET_BEST_CTOKENS_FOR_UNDERLYING,
     {
       tokenAddress,
-    }
+    },
+    chainId
   );
   return data;
 };
 
 const useBestCTokensForUnderlying = (tokenAddress: string) => {
+  const { chainId } = useRari();
+
   const { data, error } = useSWR(
-    [tokenAddress.toLowerCase(), "best"],
+    [tokenAddress.toLowerCase(), chainId, "best"],
     fetchBestCTokensForUnderlying
   );
 
@@ -88,7 +91,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
         isRow={!isMobile}
         width="100%"
         h="100%"
-        // bg="red"
+      // bg="red"
       >
         {/* Column 1 */}
         <Column
@@ -130,9 +133,9 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
               transform: "scale(1.02)",
               cursor: "pointer",
             }}
-            // onClick={() =>
-            //   isVaultCreated ? undefined : deployVault(token.address)
-            // }
+          // onClick={() =>
+          //   isVaultCreated ? undefined : deployVault(token.address)
+          // }
           >
             <Center h="100%">
               {isVaultCreated ? (
@@ -187,8 +190,8 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 subtitle={
                   !!bestLTVCToken?.collateralFactor
                     ? `${(
-                        parseFloat(bestLTVCToken.collateralFactor) / 1e16
-                      ).toFixed()}%`
+                      parseFloat(bestLTVCToken.collateralFactor) / 1e16
+                    ).toFixed()}%`
                     : undefined
                 }
                 href={
@@ -253,7 +256,7 @@ const Header = ({
           mainAxisAlignment="flex-start"
           crossAxisAlignment="center"
           flexBasis={"75%"}
-          //   bg="purple"
+        //   bg="purple"
         >
           <Image
             src={

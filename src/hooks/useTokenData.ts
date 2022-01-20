@@ -44,10 +44,21 @@ export const useTokenDataWithContract = (address: string) => {
   return { tokenData, contract };
 };
 
+const EMPTY_TOKEN_DATA: TokenData = {
+  name: "",
+  address: "",
+  symbol: "",
+  decimals: 18,
+  color: "",
+  overlayTextColor: "",
+  logoURL: "",
+};
+
 export const fetchTokenData = async (
   address: string,
-  chainId = 1
+  chainId?: number
 ): Promise<TokenData> => {
+  if (!chainId) return EMPTY_TOKEN_DATA;
   let data;
   let _chainid = chainId;
   if (chainId === 31337) {
@@ -67,15 +78,7 @@ export const fetchTokenData = async (
         address: address,
       };
     } catch (e) {
-      data = {
-        name: null,
-        address: null,
-        symbol: null,
-        decimals: null,
-        color: null,
-        overlayTextColor: null,
-        logoURL: null,
-      };
+      data = EMPTY_TOKEN_DATA;
     }
   } else {
     console.log("eth2 address", address);
@@ -131,12 +134,13 @@ export interface TokensDataMap {
 }
 
 export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
+  const { chainId } = useRari();
   // Query against all addresses
   const tokensData = useQueries(
     addresses.map((address: string) => {
       return {
-        queryKey: address + " tokenData",
-        queryFn: async () => await fetchTokenData(address),
+        queryKey: address + " tokenData  " + chainId,
+        queryFn: async () => await fetchTokenData(address, chainId),
       };
     })
   );

@@ -17,49 +17,49 @@ export const getExploreData = async (): Promise<APIExploreData> => {
   const data: APIExploreData = await axios.get("/api/explore");
   return data;
 
-  try {
-    const { data }: { data: GQLExploreData } = await makeGqlRequest(
-      GET_EXPLORE_DATA
-    );
+  // try {
+  //   const { data }: { data: GQLExploreData } = await makeGqlRequest(
+  //     GET_EXPLORE_DATA
+  //   );
 
-    console.log({ data });
+  //   console.log({ data });
 
-    const topEarningFuseAsset = data.topEarningFuseAsset[0];
-    const mostPopularFuseAsset = data.mostPopularFuseAsset[0];
-    const mostBorrowedFuseAsset = data.mostBorrowedFuseAsset[0];
-    const topEarningFuseStable = data.topEarningFuseStable[0];
-    const cheapestStableBorrow = data.cheapestStableBorrow[0];
+  //   const topEarningFuseAsset = data.topEarningFuseAsset[0];
+  //   const mostPopularFuseAsset = data.mostPopularFuseAsset[0];
+  //   const mostBorrowedFuseAsset = data.mostBorrowedFuseAsset[0];
+  //   const topEarningFuseStable = data.topEarningFuseStable[0];
+  //   const cheapestStableBorrow = data.cheapestStableBorrow[0];
 
-    const addresses = [];
-    addresses.push(
-      topEarningFuseStable.underlying.address,
-      topEarningFuseAsset.underlying.address,
-      mostPopularFuseAsset.underlying.address,
-      mostBorrowedFuseAsset.underlying.address,
-      cheapestStableBorrow.underlying.address
-    );
+  //   const addresses = [];
+  //   addresses.push(
+  //     topEarningFuseStable.underlying.address,
+  //     topEarningFuseAsset.underlying.address,
+  //     mostPopularFuseAsset.underlying.address,
+  //     mostBorrowedFuseAsset.underlying.address,
+  //     cheapestStableBorrow.underlying.address
+  //   );
 
-    //   Get tokensdata
-    const tokensData: TokensDataMap = await fetchTokensAPIDataAsMap(addresses);
+  //   //   Get tokensdata
+  //   const tokensData: TokensDataMap = await fetchTokensAPIDataAsMap(addresses);
 
-    const results = {
-      topEarningFuseStable,
-      topEarningFuseAsset,
-      mostPopularFuseAsset,
-      mostBorrowedFuseAsset,
-      cheapestStableBorrow,
-    };
+  //   const results = {
+  //     topEarningFuseStable,
+  //     topEarningFuseAsset,
+  //     mostPopularFuseAsset,
+  //     mostBorrowedFuseAsset,
+  //     cheapestStableBorrow,
+  //   };
 
-    const returnObj: APIExploreData = {
-      results,
-      tokensData,
-    };
+  //   const returnObj: APIExploreData = {
+  //     results,
+  //     tokensData,
+  //   };
 
-    return returnObj;
-  } catch (err) {
-    console.error(err);
+  //   return returnObj;
+  // } catch (err) {
+  //   console.error(err);
 
-    const results: APIExploreData = await axios.get("/api/explore");
-    return results;
-  }
+  //   const results: APIExploreData = await axios.get("/api/explore");
+  //   return results;
+  // }
 };

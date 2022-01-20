@@ -225,9 +225,9 @@ const ExplorePage = () => {
 
   // Data
   // Fetchers
-  const { data, error } = useSWR("/api/explore", exploreFetcher);
-  const { data: topFusePools } = useSWR(["topFusePools", chainId], topFusePoolsFetcher);
-  const { results, tokensData } = data ?? {};
+  const { data, error } = useSWR("/api/explore?chainId=" + chainId, exploreFetcher);
+  const { data: topFusePools } = useSWR([chainId, "topFusePools"], topFusePoolsFetcher);
+  const { results } = data ?? {};
   const { pools: topPools, tokensData: topFusePoolsTokensData } =
     topFusePools ?? { pools: [], tokensData: {} };
 
@@ -311,7 +311,7 @@ const ExplorePage = () => {
                 data={topEarningFuseStable}
                 tokenData={
                   topEarningFuseStable
-                    ? tokensData?.[topEarningFuseStable?.underlying.address]
+                    ? topFusePoolsTokensData?.[topEarningFuseStable?.underlying.address]
                     : undefined
                 }
                 heading="Top Stable Lend"
@@ -322,7 +322,7 @@ const ExplorePage = () => {
                 data={cheapestStableBorrow}
                 tokenData={
                   cheapestStableBorrow
-                    ? tokensData?.[cheapestStableBorrow?.underlying.address]
+                    ? topFusePoolsTokensData?.[cheapestStableBorrow?.underlying.address]
                     : undefined
                 }
                 heading="Top Stable Borrow"
@@ -334,7 +334,7 @@ const ExplorePage = () => {
                 data={mostPopularFuseAsset}
                 tokenData={
                   mostPopularFuseAsset
-                    ? tokensData?.[mostPopularFuseAsset?.underlying.address]
+                    ? topFusePoolsTokensData?.[mostPopularFuseAsset?.underlying.address]
                     : undefined
                 }
                 heading="Most Supplied"
