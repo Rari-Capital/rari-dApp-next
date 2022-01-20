@@ -1,4 +1,5 @@
 // Logos
+import { ChainID } from "esm/utils/networks";
 import { FusePoolMetric } from "utils/fetchFusePoolData";
 import { Pool } from "utils/poolUtils";
 
@@ -9,80 +10,80 @@ export interface HomepageFusePool {
   subtitle?: string | null;
 }
 
-export const HOMEPAGE_FUSE_POOLS: HomepageFusePool[] = [
-  {
-    id: 0,
-    // title: "Pool 1",
-    // subtitle: "Pool 1",
-  },
-  {
-    id: 8,
-    // title: "Pool 2",
-    // subtitle: "Pool 2",
-  },
+export const HOMEPAGE_FUSE_POOLS: { [chainId: number]: HomepageFusePool[] } = {
+  [ChainID.ETHEREUM]: [
+    {
+      id: 0,
+    },
+    {
+      id: 8,
+    },
 
-  {
-    id: 6,
-    // title: "Pool 4",
-    // subtitle: "Pool 4",
-  },
-  {
-    id: 18,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 9,
-    // title: "Pool 1",
-    // subtitle: "Pool 1",
-  },
-  {
-    id: 3,
-    // title: "Pool 2",
-    // subtitle: "Pool 2",
-  },
+    {
+      id: 6,
+    },
+    {
+      id: 18,
+    },
+    {
+      id: 9,
+    },
+    {
+      id: 3,
+    },
 
-  {
-    id: 24,
-    // title: "Pool 4",
-    // subtitle: "Pool 4",
-  },
-  {
-    id: 21,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 23,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 11,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 5,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 14,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 13,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-  {
-    id: 19,
-    // title: "Pool 5",
-    // subtitle: "Pool 5",
-  },
-];
+    {
+      id: 24,
+    },
+    {
+      id: 21,
+    },
+    {
+      id: 23,
+    },
+    {
+      id: 11,
+    },
+    {
+      id: 5,
+    },
+    {
+      id: 14,
+    },
+    {
+      id: 13,
+    },
+    {
+      id: 19,
+    },
+  ],
+  [ChainID.ARBITRUM]: [
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+    {
+      id: 0,
+    },
+  ],
+};
 
 /* Opportunities */
 export enum HomepageOpportunityType {

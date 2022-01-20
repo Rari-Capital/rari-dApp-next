@@ -16,6 +16,7 @@ import { SubgraphPool } from "pages/api/explore";
 import { TokensDataMap } from "types/tokens";
 import { isMobile } from "web3modal";
 import { useIsMobile } from "lib/chakraUtils";
+import { useRari } from "context/RariContext";
 
 const HomeFuseCard = ({
   pool,
@@ -24,9 +25,11 @@ const HomeFuseCard = ({
   pool: SubgraphPool | undefined;
   tokensData: TokensDataMap;
 }) => {
+  const { chainId } = useRari();
+
   const { title, subtitle }: HomepageFusePool = useMemo(() => {
     if (!pool) return { title: null, subtitle: null, id: -1 };
-    return HOMEPAGE_FUSE_POOLS.find((p) => p.id == parseInt(pool.index))!;
+    return HOMEPAGE_FUSE_POOLS[chainId ?? 1].find((p) => p.id == parseInt(pool.index))!;
   }, [pool]);
 
   const isMobile = useIsMobile();

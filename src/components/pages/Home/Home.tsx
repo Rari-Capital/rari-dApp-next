@@ -77,7 +77,7 @@ const Home = () => {
   const { getNumberTVL } = useTVLFetchers();
 
   const { data } = useSWR(
-    [chainId, ...HOMEPAGE_FUSE_POOLS.map((pool) => pool.id)],
+    [chainId, ...HOMEPAGE_FUSE_POOLS[chainId ?? 1].map((pool) => pool.id)],
     homepagePoolsFetcher
   );
 
@@ -151,7 +151,7 @@ const Home = () => {
       // px="20%"
       >
         <Marquee gradient={false} style={{ padding: "10px" }}>
-          {HOMEPAGE_FUSE_POOLS.map((constantPool, i) => (
+          {HOMEPAGE_FUSE_POOLS[chainId ?? 1].map((constantPool, i) => (
             // <HoverCard w="100%" h="100%" mx={4}>
             //   <FuseAssetBoxNew
             //     pool={pools?.find(
