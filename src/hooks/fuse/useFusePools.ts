@@ -68,13 +68,11 @@ const poolSort = (pools: MergedPool[]) => {
 };
 
 export const fetchPools = async ({
-  rari,
   fuse,
   address,
   filter,
   blockNum,
 }: {
-  rari: Vaults;
   fuse: Fuse;
   address: string;
   filter: string | null;
@@ -148,7 +146,7 @@ export interface UseFusePoolsReturn {
 
 // returns impersonal data about fuse pools ( can filter by your supplied/created pools )
 export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
-  const { fuse, rari, address, chainId } = useRari();
+  const { fuse, address, chainId } = useRari();
 
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
@@ -156,7 +154,7 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
 
   const { data: _pools } = useQuery(
     `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
-    async () => await fetchPools({ rari, fuse, address, filter })
+    async () => await fetchPools({ fuse, address, filter })
   );
 
   const pools = _pools ?? [];

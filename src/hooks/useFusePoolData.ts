@@ -14,7 +14,7 @@ export const useFusePoolData = (
   poolId: string | undefined,
   dev?: boolean
 ): FusePoolData | undefined => {
-  const { fuse, rari, address } = useRari();
+  const { fuse, address } = useRari();
 
   const { data } = useQuery(poolId + " poolData " + address, () => {
     return fetchFusePoolData(poolId, address, fuse, undefined , dev);

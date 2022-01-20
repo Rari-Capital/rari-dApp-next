@@ -14,7 +14,7 @@ import { useQueryClient } from "react-query";
 import { useTranslation } from "next-i18next";
 import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
-import { Vaults, Fuse } from "../esm";
+import { Fuse } from "../esm";
 
 import LogRocket from "logrocket";
 import { useToast } from "@chakra-ui/react";
@@ -81,7 +81,6 @@ async function launchModalLazy(
 }
 
 export interface RariContextData {
-  rari: Vaults;
   fuse: Fuse;
   web3ModalProvider: any | null;
   isAuthed: boolean;
@@ -104,9 +103,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const { address: requestedAddress } = router.query;
 
   // Rari and Fuse get initally set already
-  const [rari, setRari] = useState<Vaults>(
-    () => new Vaults(chooseBestWeb3Provider())
-  );
+
   const [fuse, setFuse] = useState<Fuse>(() => initFuseWithProviders());
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState<boolean>(false);
@@ -157,14 +154,11 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       const provider = new Web3Provider(modalProvider);
       const { chainId } = await provider.getNetwork();
       let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
-      const rariInstance = new Vaults(provider);
-
       const fuseInstance = initFuseWithProviders(provider, _chainId);
 
-      setRari(rariInstance);
       setFuse(fuseInstance);
 
-      rariInstance.provider.listAccounts().then((addresses: string[]) => {
+      fuseInstance.provider.listAccounts().then((addresses: string[]) => {
         if (addresses.length === 0) {
           console.log("Address array was empty. Reloading!");
           router.reload();
@@ -180,7 +174,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
         setAddress(requestedAddress ?? address);
       });
     },
-    [setRari, setAddress, requestedAddress]
+    [setAddress, requestedAddress]
   );
 
   const login = useCallback(
@@ -204,9 +198,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
   const refetchAccountData = useCallback(() => {
     console.log("New account, clearing the queryClient! ChainId: ", chainId);
-
     setRariAndAddressFromModal(web3ModalProvider);
-
     queryClient.clear();
   }, [setRariAndAddressFromModal, web3ModalProvider, queryClient, chainId]);
 
@@ -249,8 +241,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     const hexChainId = newChainId.toString(16);
     const chainMetadata = getChainMetadata(newChainId);
 
+    if (typeof window === undefined) return
     try {
-      await window.ethereum.request({
+      await window.ethereum!.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
       });
@@ -258,7 +251,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
         try {
-          await window.ethereum.request({
+          await window.ethereum!.request({
             method: "wallet_addEthereumChain",
             params: [
               {
@@ -281,7 +274,6 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(
     () => ({
       web3ModalProvider,
-      rari,
       fuse,
       isAuthed: address !== EmptyAddress,
       login,
@@ -291,7 +283,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       chainId,
       switchNetwork,
     }),
-    [rari, web3ModalProvider, login, logout, address, fuse, isAttemptingLogin]
+    [web3ModalProvider, login, logout, address, fuse, isAttemptingLogin]
   );
 
   return <RariContext.Provider value={value}>{children}</RariContext.Provider>;

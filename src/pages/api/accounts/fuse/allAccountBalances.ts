@@ -50,12 +50,10 @@ export default async function handler(
 
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);
-      const rari = new Vaults(web3);
       const fuse = initFuseWithProviders(web3);
 
       // Get all fuse pools this user is active in
       const pools = await fetchPools({
-        rari,
         fuse,
         address,
         filter: "my-pools",

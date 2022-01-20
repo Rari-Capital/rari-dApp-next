@@ -1,10 +1,12 @@
 import { ChainID } from "esm/utils/networks";
+import useVaultsSDK from "hooks/vaults/useVaultsSDK";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
 
 export function useUnclaimedRGT() {
-  const { rari, address, chainId } = useRari();
+  const { address, chainId } = useRari();
+  const { rari } = useVaultsSDK();
 
   const { data: unclaimedRGT } = useQuery(
     address + " unclaimed RGT chain " + chainId,

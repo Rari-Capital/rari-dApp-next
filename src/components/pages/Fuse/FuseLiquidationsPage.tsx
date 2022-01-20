@@ -34,6 +34,7 @@ import { filterOnlyObjectProperties, FuseAsset } from "utils/fetchFusePoolData";
 // Ethers
 import { fromWei } from "utils/ethersUtils";
 import { constants, utils } from "ethers";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 const FuseLiquidationsPage = memo(() => {
   const { isAuthed } = useRari();
@@ -113,7 +114,7 @@ export type LiquidatablePositions = {
 };
 
 const LiquidatablePositionsList = () => {
-  const { fuse, rari } = useRari();
+  const { fuse } = useRari();
   const { t } = useTranslation();
 
   const [showAtRiskPositions, setShowAtRiskPositions] = useState(false);
@@ -127,7 +128,7 @@ const LiquidatablePositionsList = () => {
             showAtRiskPositions ? utils.parseUnits((1.1).toString()) : constants.WeiPerEther
           )
           .call(),
-        rari.getEthUsdPriceBN(),
+        getEthUsdPriceBN()
       ]);
 
       const ethPrice: number = parseFloat(fromWei(ethPriceBN));

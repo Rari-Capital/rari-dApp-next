@@ -405,7 +405,7 @@ const AssetConfig = () => {
               return (
                 <option
                   className="black-bg-option"
-                  value={value.toLowerCase()}
+                  value={`${value}`}
                   key={key}
                 >
                   {key}

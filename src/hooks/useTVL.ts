@@ -1,10 +1,11 @@
 import { useCallback } from "react";
-import { fromWei } from "utils/ethersUtils";
 import { useRari } from "../context/RariContext";
 import { fetchTVL } from "../utils/fetchTVL";
+import useVaultsSDK from "./vaults/useVaultsSDK";
 
 export const useTVLFetchers = () => {
-  const { rari, fuse } = useRari();
+  const { fuse } = useRari();
+  const { rari } = useVaultsSDK();
 
   const getTVL = useCallback(() => fetchTVL(rari, fuse), [rari, fuse]);
 

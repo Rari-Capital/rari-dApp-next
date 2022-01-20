@@ -25,15 +25,18 @@ import { MODAL_PROPS, ModalDivider, ModalTitleWithCloseButton } from "./Modal";
 import { LanguageSelect } from "./TranslateButton";
 
 import { DarkGlowingButton, GlowingButton } from "./GlowingButton";
-import { ClaimRGTModal } from "./ClaimRGTModal";
 // import version from "utils/version";
 
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import SwitchNetworkMenu from "./SwitchNetworkMenu";
 import { useClaimable } from "hooks/rewards/useClaimable";
+import { ClaimRGTModal } from "./ClaimRGTModal";
 
 export const AccountButton = memo(() => {
+
+  const { hasClaimableRewards } = useClaimable()
+
   const {
     isOpen: isSettingsModalOpen,
     onOpen: openSettingsModal,
@@ -50,23 +53,23 @@ export const AccountButton = memo(() => {
 
   const authedOpenClaimRGTModal = useAuthedCallback(openClaimRGTModal);
 
-
-
   return (
     <>
+      <ClaimRGTModal
+        isOpen={isClaimRGTModalOpen}
+        onClose={closeClaimRGTModal}
+      />
+
+
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={closeSettingsModal}
         openClaimRGTModal={openClaimRGTModal}
-      />
-      <ClaimRGTModal
-        isOpen={isClaimRGTModalOpen}
-        onClose={closeClaimRGTModal}
-        defaultMode="private"
+        hasClaimableRewards={hasClaimableRewards}
       />
       <Buttons
         openModal={authedOpenSettingsModal}
-        openClaimRGTModal={authedOpenClaimRGTModal}
+        hasClaimableRewards={hasClaimableRewards}
       />
     </>
   );
@@ -74,9 +77,10 @@ export const AccountButton = memo(() => {
 
 const Buttons = ({
   openModal,
+  hasClaimableRewards
 }: {
   openModal: () => any;
-  openClaimRGTModal: () => any;
+  hasClaimableRewards: boolean;
 }) => {
   const { address, isAuthed, login, isAttemptingLogin } = useRari();
 
@@ -90,7 +94,6 @@ const Buttons = ({
     } else login();
   }, [isAuthed, login, openModal]);
 
-  const { hasClaimableRewards } = useClaimable()
 
   return (
     <Row mainAxisAlignment="center" crossAxisAlignment="center">
@@ -176,10 +179,12 @@ export const SettingsModal = ({
   isOpen,
   onClose,
   openClaimRGTModal,
+  hasClaimableRewards
 }: {
   isOpen: boolean;
   onClose: () => any;
   openClaimRGTModal: () => any;
+  hasClaimableRewards: boolean;
 }) => {
   const { t } = useTranslation();
 
@@ -219,16 +224,37 @@ export const SettingsModal = ({
           crossAxisAlignment="center"
           p={4}
         >
-          <GlowingButton
-            label={t("Claim RGT")}
-            onClick={onClaimRGT}
-            width="100%"
-            height="51px"
-            mb={4}
-            innerTextColor="black"
-          >
-            Claim Rewards
-          </GlowingButton>
+
+          {!hasClaimableRewards ?
+            <Button
+              bg={"white"}
+              opacity={0.8}
+              width="100%"
+              height="45px"
+              fontSize="xl"
+              borderRadius="7px"
+              fontWeight="bold"
+              onClick={onClaimRGT}
+              _hover={{}}
+              _active={{}}
+              mb={4}
+              color={"black"}
+            >
+              Claim Rewards
+            </Button>
+            : (
+              <GlowingButton
+                label={t("Claim RGT")}
+                onClick={onClaimRGT}
+                width="100%"
+                height="51px"
+                mb={4}
+                innerTextColor="black"
+              >
+                Claim Rewards
+              </GlowingButton>
+            )}
+
 
           <Button
             bg={"whatsapp.500"}

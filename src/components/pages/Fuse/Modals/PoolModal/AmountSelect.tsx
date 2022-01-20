@@ -237,15 +237,15 @@ const AmountSelect = ({
         asset.cToken,
         isETH
           ? JSON.parse(
-              fuse.compoundContracts[
-                "contracts/CEtherDelegate.sol:CEtherDelegate"
-              ].abi
-            )
+            fuse.compoundContracts[
+              "contracts/CEtherDelegate.sol:CEtherDelegate"
+            ].abi
+          )
           : JSON.parse(
-              fuse.compoundContracts[
-                "contracts/CErc20Delegate.sol:CErc20Delegate"
-              ].abi
-            ),
+            fuse.compoundContracts[
+              "contracts/CErc20Delegate.sol:CErc20Delegate"
+            ].abi
+          ),
         fuse.provider.getSigner()
       );
 
@@ -493,7 +493,7 @@ const AmountSelect = ({
                     color={tokenData?.color ?? "#FFF"}
                     displayAmount={userEnteredAmount}
                     updateAmount={updateAmount}
-                    disabled={isBorrowPaused}
+                    disabled={mode === Mode.BORROW && isBorrowPaused}
                   />
                   <TokenNameAndMaxButton
                     comptrollerAddress={comptrollerAddress}
@@ -556,8 +556,8 @@ const AmountSelect = ({
               // If the size is small, this means the text is large and we don't want the font size scale animation.
               className={
                 isMobile ||
-                depositOrWithdrawAlertFontSize === "14px" ||
-                depositOrWithdrawAlertFontSize === "15px"
+                  depositOrWithdrawAlertFontSize === "14px" ||
+                  depositOrWithdrawAlertFontSize === "15px"
                   ? "confirm-button-disable-font-size-scale"
                   : ""
               }
@@ -702,7 +702,7 @@ const StatsColumn = ({
   const updatedAsset = updatedAssets ? updatedAssets[index] : null;
 
   // Calculate Old and new Borrow Limits
-  const borrowLimit = useBorrowLimit(assets, {});
+  const borrowLimit = useBorrowLimit(assets);
   const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
   });
@@ -730,10 +730,15 @@ const StatsColumn = ({
   const parsedUpdatedBorrowLimit = utils.formatEther(
     updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
   );
+
+  const parsedDebtBalance = asset
+    ?
+    asset.borrowBalanceUSD.toString()
+    : "0.00";
   const parsedUpdatedDebtBalance = updatedAsset
     ? utils.formatEther(
-        updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)
-      )
+      updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)
+    )
     : "0.00";
 
   return (
@@ -762,16 +767,19 @@ const StatsColumn = ({
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {utils.commify(
-                utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+                parseFloat(
+                  utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+                ).toFixed(2)
               )}
               {isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
                   {utils.commify(
-                    utils.formatUnits(
-                      updatedAsset.supplyBalance,
-                      updatedAsset.underlyingDecimals
-                    )
+                    parseFloat(
+                      utils.formatUnits(
+                        updatedAsset.supplyBalance,
+                        updatedAsset.underlyingDecimals
+                      )).toFixed(2)
                   )}
                 </>
               ) : null}{" "}
@@ -824,18 +832,15 @@ const StatsColumn = ({
                   utils.formatEther(borrowLimit.div(constants.WeiPerEther))
                 )
               )}
-              {isSupplyingOrWithdrawing ? (
-                <>
-                  {" → "}{" "}
-                  {"$" +
-                    utils.commify(
-                      parsedUpdatedBorrowLimit.slice(
-                        0,
-                        parsedUpdatedBorrowLimit.indexOf(".") + 3
-                      )
-                    )}
-                </>
-              ) : null}{" "}
+
+              {" → "}{" "}
+              {"$" +
+                utils.commify(
+                  parsedUpdatedBorrowLimit.slice(
+                    0,
+                    parsedUpdatedBorrowLimit.indexOf(".") + 3
+                  )
+                )}
             </Text>
           </Row>
 
@@ -850,19 +855,22 @@ const StatsColumn = ({
               fontSize={!isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {
-                "$" + utils.formatEther(asset.borrowBalanceUSD) //smallUsdFormatter(
+                "$" +
+                utils.commify(
+                  parsedDebtBalance
+                ) // smallUsdFormatter(
               }
               {!isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
                   {
                     "$" +
-                      utils.commify(
-                        parsedUpdatedDebtBalance.slice(
-                          0,
-                          parsedUpdatedDebtBalance.indexOf(".") + 3
-                        )
-                      ) // smallUsdFormatter(
+                    utils.commify(
+                      parsedUpdatedDebtBalance.slice(
+                        0,
+                        parsedUpdatedDebtBalance.indexOf(".") + 3
+                      )
+                    ) // smallUsdFormatter(
                   }
                 </>
               ) : null}
@@ -873,8 +881,9 @@ const StatsColumn = ({
         <Center expand>
           <Spinner />
         </Center>
-      )}
-    </DashboardBox>
+      )
+      }
+    </DashboardBox >
   );
 };
 
@@ -1115,8 +1124,7 @@ async function fetchMaxAmount(
         );
 
       const amount = maxBorrow.mul(utils.parseUnits("0.75"));
-      console.log({ amount });
-      return amount;
+      return amount.div(BigNumber.from(10).pow(asset.underlyingDecimals));
     } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }

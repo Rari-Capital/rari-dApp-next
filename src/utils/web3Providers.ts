@@ -16,9 +16,7 @@ export function chooseBestWeb3Provider(
     return new JsonRpcProvider(providerURL);
   }
 
-  if (window.ethereum) {
-    return new Web3Provider(window.ethereum);
-  } else if (window.web3) {
+ if (window.web3) {
     return new Web3Provider(window.web3.currentProvider);
   } else {
     return new JsonRpcProvider(providerURL);

@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-// Hooks
-import { useRari } from "context/RariContext";
-
 // ABIs
 import LendingPool from "./LendingPool";
 
@@ -15,12 +12,13 @@ import { Vaults } from "../../../esm/index"
 
 // Ethers
 import { Contract } from "@ethersproject/contracts";
+import useVaultsSDK from "hooks/vaults/useVaultsSDK";
 
 // address for WETH
 const WETH_TOKEN_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 
 export default function useReserves() {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
 
   // state for reserves (list & borrowing/lending rate data)
   const [reserves, setReserves] = useState<MarketInfo[]>([]);

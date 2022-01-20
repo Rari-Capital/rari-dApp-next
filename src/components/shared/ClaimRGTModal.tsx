@@ -27,15 +27,14 @@ import {
 import DashboardBox from "./DashboardBox";
 import {
   TokenData,
-  useTokenData,
   useTokensDataAsMap,
 } from "hooks/useTokenData";
-import { createRewardsDistributor } from "utils/createComptroller";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { claimRewardsFromRewardsDistributors } from "utils/rewards";
 import { SimpleTooltip } from "./SimpleTooltip";
 
 import { useQueryClient } from "react-query";
+import useVaultsSDK from "hooks/vaults/useVaultsSDK";
 
 export type ClaimMode = "pool2" | "private" | "yieldagg" | "fuse";
 
@@ -265,7 +264,8 @@ const ClaimableRow = ({
   pools?: number[];
   [x: string]: any;
 }) => {
-  const { rari, address } = useRari();
+  const { address } = useRari();
+  const { rari } = useVaultsSDK();
 
   const isClaimingToken = claimingToken === unclaimed.rewardToken;
 

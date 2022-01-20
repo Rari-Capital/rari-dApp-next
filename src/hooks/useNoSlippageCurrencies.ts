@@ -1,10 +1,10 @@
 import { useQuery } from "react-query";
 import { Pool } from "../utils/poolUtils";
-import { useRari } from "../context/RariContext";
 import { getSDKPool } from "../utils/poolUtils";
+import useVaultsSDK from "./vaults/useVaultsSDK";
 
 export const useNoSlippageCurrencies = (pool: Pool) => {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
 
   const { data } = useQuery(pool + " noSlippageCurrencies", async () => {
     let noSlippageCurrencies: string[];

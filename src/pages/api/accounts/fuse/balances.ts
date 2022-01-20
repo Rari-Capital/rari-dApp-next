@@ -68,7 +68,6 @@ export default async function handler(
 
       // Get all fuse pools this user is active in
       const pools = await fetchPools({
-        rari,
         fuse,
         address,
         filter: "my-pools",

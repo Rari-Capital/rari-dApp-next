@@ -108,18 +108,18 @@ export interface HomepageOpportunity {
 
 export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
-    type: HomepageOpportunityType.EarnPage,
-    title: "Vaults v1",
-    subtitle: "Sustainable yield made easy",
-    bgColor: "#6041FC",
-    icon: "/static/icons/earn-glow.svg",
-  },
-  {
     type: HomepageOpportunityType.FusePage,
     title: "Fuse",
     subtitle: "The first open interest rate market protocol",
     bgColor: "#E6303A",
     icon: "/static/icons/fuse-glow.svg",
+  },
+  {
+    type: HomepageOpportunityType.EarnPage,
+    title: "Vaults v1",
+    subtitle: "Sustainable yield made easy",
+    bgColor: "#6041FC",
+    icon: "/static/icons/earn-glow.svg",
   },
   {
     type: HomepageOpportunityType.EarnVault,
@@ -155,20 +155,6 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
     icon: "/static/icons/olympus-pool.svg",
     fusePoolId: 18,
     fuseMetric: FusePoolMetric.TotalSuppliedUSD,
-  },
-  {
-    type: HomepageOpportunityType.Pool2Page,
-    title: "Pool2",
-    subtitle: "Rewards for Rari Capital LPs",
-    bgColor: "#00BBA8",
-    icon: "/static/icons/pool2-glow.svg",
-  },
-  {
-    type: HomepageOpportunityType.TranchesPage,
-    title: "Tranches",
-    subtitle: "Tranche yields across Earn Pools",
-    bgColor: "#F45C30",
-    icon: "/static/icons/tranches-glow.svg",
   },
 ];
 

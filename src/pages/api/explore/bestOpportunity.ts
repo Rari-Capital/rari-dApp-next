@@ -74,11 +74,9 @@ export default async function handler(
       // Get Underlying Assets from subgraph
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);
-      const rari = new Vaults(web3);
       const fuse = initFuseWithProviders(web3);
 
       const fusePools = await fetchPools({
-        rari,
         fuse,
         address: EmptyAddress,
         filter: "",

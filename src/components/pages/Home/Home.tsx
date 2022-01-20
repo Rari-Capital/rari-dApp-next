@@ -36,7 +36,6 @@ import {
   HOMEPAGE_OPPORTUNIES,
   HOMEPAGE_EARN_VAULTS,
 } from "constants/homepage";
-import { SaffronProvider } from "../Tranches/SaffronContext";
 // import { SearchIcon } from "@chakra-ui/icons";
 import DashboardBox from "components/shared/DashboardBox";
 import AppLink from "components/shared/AppLink";
@@ -89,7 +88,6 @@ const Home = () => {
   const sliceNum = useBreakpointValue({ sm: 4, md: 4, lg: 6, xl: 8 });
 
   return (
-    <SaffronProvider>
       <Column
         mainAxisAlignment="flex-start"
         crossAxisAlignment="center"
@@ -201,7 +199,7 @@ const Home = () => {
             </Row>
 
             <SimpleGrid
-              columns={{ sm: 1, md: 2, lg: 3, xl: 4 }}
+              columns={{ sm: 1, md: 2, lg: 3, xl: 3 }}
               spacing="32px"
               w="100%"
               mt={5}
@@ -337,7 +335,6 @@ const Home = () => {
 
         {/* Explore Today */}
       </Column>
-    </SaffronProvider>
   );
 };
 

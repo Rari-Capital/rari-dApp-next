@@ -16,13 +16,11 @@ export const useBorrowLimit = (
         asset.membership
       ) {
         _maxBorrow = _maxBorrow.add(
-          asset.supplyBalanceUSD
-            .mul(asset.collateralFactor)
-            .div(constants.WeiPerEther)
+          asset.supplyBalanceUSD.mul(asset.collateralFactor)
         );
       }
     }
-    return _maxBorrow;
+    return _maxBorrow.div(constants.WeiPerEther);
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 
   return maxBorrow;

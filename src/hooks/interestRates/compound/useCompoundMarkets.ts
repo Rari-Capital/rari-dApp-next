@@ -1,8 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 
-// Hooks
-import { useRari } from "context/RariContext";
-
 // ABIs
 import CErc20 from "./CErc20";
 
@@ -14,6 +11,7 @@ import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
 // Ethers
 import { Contract } from 'ethers'
+import useVaultsSDK from "hooks/vaults/useVaultsSDK";
 
 type CTokenData = {
   cTokenAddress: string; // address of underlying token
@@ -44,7 +42,7 @@ const CTOKEN_LIST = [
 ];
 
 export default function useCompoundMarkets() {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
 
   // holds all cToken markets
   const [markets, setMarkets] = useState<MarketInfo[]>([]);

@@ -235,14 +235,7 @@ const CollateralRatioBar = ({
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = useMemo(() => {
-    const mB = parseFloat(maxBorrow.toString());
-    const bUSD = parseFloat(borrowUSD.toString());
-    if (!maxBorrow.isZero) {
-      return borrowUSD.mul(100).div(maxBorrow);
-    }
-    return constants.Zero;
-  }, [maxBorrow, borrowUSD]);
+  const ratio = useMemo(() => !maxBorrow.isZero() ? borrowUSD.mul(100).div(maxBorrow) : constants.Zero, [maxBorrow, borrowUSD]);
 
   useEffect(() => {
     if (ratio.gt(95)) {
@@ -338,7 +331,7 @@ const SupplyList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Supply Balance:")} {smallUsdFormatter(supplyBalanceUSD)}
+        {"Supply Balance: " + smallUsdFormatter(supplyBalanceUSD)}
       </Heading>
       <ModalDivider />
 
@@ -768,7 +761,7 @@ const BorrowList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Borrow Balance:")} {smallUsdFormatter(borrowBalanceUSD)}
+        {"Borrow Balance: " + smallUsdFormatter(borrowBalanceUSD)}
       </Heading>
       <ModalDivider />
 
