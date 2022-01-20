@@ -13,6 +13,8 @@ import { ETH_TOKEN_DATA } from "./useTokenData";
 // Ethers
 import { Contract, BigNumber as EthersBigNumber, constants } from "ethers";
 
+import { providers } from "@0xsequence/multicall"
+
 export const fetchTokenBalance = async (
   tokenAddress: string | undefined,
   fuse: Fuse,
@@ -57,25 +59,26 @@ export function useTokenBalance(
   );
 }
 
-export function useTokenBalances(tokenAddresses: string[]): number[] {
-  const { fuse, address, chainId } = useRari();
 
-  const balances = useQueries(
-    tokenAddresses.map((tokenAddress: string) => {
-      return {
-        queryKey: tokenAddress + " balance " + chainId,
-        queryFn: () => {
-          return fetchTokenBalance(tokenAddress, fuse, address, chainId);
-        },
-      };
-    })
-  );
+export const useTokenBalances = (tokenAddresses: string[]): number[] => {
+  //TODO BalancesContext calls this multiple times with empty tokenAddresses array
+  const { fuse, address } = useRari();
 
-  return useMemo(() => {
-    return balances.map((bal) => {
-      return bal.data
-        ? parseFloat((bal.data as EthersBigNumber).toString())
-        : 0;
-    });
-  }, [balances]);
+  const multiCallProvider = new providers.MulticallProvider(fuse.provider)
+  return useQuery<number[]>(
+    address + ' balancesMulticall ' + tokenAddresses.join(' '),
+    () => {
+      return Promise.all<number>(
+        tokenAddresses.map( (tokenAddress: string) => {
+          if(tokenAddress === ETH_TOKEN_DATA.address)
+            return fuse.provider.getBalance(address)
+          
+          let contract = new Contract(tokenAddress, ERC20ABI as any, multiCallProvider)
+          return contract.balanceOf(address)
+            .then((balance: number) => parseFloat(balance.toString()))
+            .catch((_err: any) => { })
+        })
+      )
+    }
+  ).data || []
 }
