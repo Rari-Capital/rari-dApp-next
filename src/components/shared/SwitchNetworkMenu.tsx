@@ -20,7 +20,7 @@ import { getChainMetadata, getSupportedChains } from "esm/utils/networks";
 const SwitchNetworkButton: React.FC<
   React.ComponentProps<typeof DashboardBox>
 > = ({ ...props }) => {
-  const { chainId } = useRari();
+  const { chainId, switchingNetwork } = useRari();
 
   let chainMetadata;
   if (chainId) {
@@ -47,7 +47,7 @@ const SwitchNetworkButton: React.FC<
     // borderColor={chainMetadata?.color}
     >
       <Center expand={true}>
-        {chainMetadata ? (
+        {switchingNetwork ? "Switching..." : chainMetadata ? (
           <>
             {chainMetadata.imageUrl && (
               <Img

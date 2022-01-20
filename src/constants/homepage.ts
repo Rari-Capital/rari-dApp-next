@@ -11,7 +11,7 @@ export interface HomepageFusePool {
 
 export const HOMEPAGE_FUSE_POOLS: HomepageFusePool[] = [
   {
-    id: 18,
+    id: 0,
     // title: "Pool 1",
     // subtitle: "Pool 1",
   },
@@ -27,7 +27,7 @@ export const HOMEPAGE_FUSE_POOLS: HomepageFusePool[] = [
     // subtitle: "Pool 4",
   },
   {
-    id: 7,
+    id: 18,
     // title: "Pool 5",
     // subtitle: "Pool 5",
   },

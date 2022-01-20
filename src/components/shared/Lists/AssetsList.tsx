@@ -26,6 +26,7 @@ import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExpl
 import { useEffect, useMemo, useState } from "react";
 import { useTokensDataAsMap } from "hooks/useTokenData";
 import { useQuery } from "react-query";
+import { useRari } from "context/RariContext";
 
 interface AllSubgraphUnderlyingAssets {
   assets: SubgraphUnderlyingAsset[];
@@ -56,6 +57,7 @@ const useUnderlyingAssetsPaginated = (
 export const AllAssetsList = () => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const { chainId } = useRari();
 
   const [underlyingAssets, setUnderlyingAssets] = useState<
     SubgraphUnderlyingAsset[]
@@ -70,9 +72,6 @@ export const AllAssetsList = () => {
     limit,
     offset,
     hasMore,
-    setPage,
-    setLimit,
-    setOffset,
     handleLoadMore,
   } = usePagination(count);
 
@@ -90,10 +89,10 @@ export const AllAssetsList = () => {
   // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
   const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
   useEffect(() => {
-    fetchTokensAPIDataAsMap(newAssetsUnderlyings).then((newTokensData) => {
+    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId ?? 1).then((newTokensData) => {
       setTokensData(Object.assign(tokensData, newTokensData));
     });
-  }, [flag]);
+  }, [flag, chainId]);
 
   useEffect(() => {
     // Append to array in state and set it
@@ -230,8 +229,7 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalSupply &&
-                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${
-                    asset.symbol
+                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
                   }`}
               </Text>
             </Stack>
@@ -245,8 +243,7 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalBorrow &&
-                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${
-                    asset.symbol
+                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
                   }`}
               </Text>
             </Stack>

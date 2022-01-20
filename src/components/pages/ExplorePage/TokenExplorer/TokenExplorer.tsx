@@ -1,18 +1,16 @@
 import React from "react";
 import { AllAssetsList } from "components/shared/Lists/AssetsList";
 import { Box, Heading, HStack } from "@chakra-ui/layout";
-import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { TokensDataMap } from "types/tokens";
-import { queryAllUnderlyingAssets } from "services/gql";
-import { fetchTokensAPIDataAsMap } from "utils/services";
 import useSWR, { SWRResponse } from "swr";
-import { gql } from "graphql-request";
 import { makeGqlRequest } from "utils/gql";
 import { GET_UNDERLYING_ASSETS_COUNT } from "gql/underlyingAssets/getUnderlyingAssetsCount";
+import { ChainID } from "esm/utils/networks";
+import { useRari } from "context/RariContext";
 
 export const useUnderlyingAssetsCount = (): SWRResponse<number, any> => {
-  return useSWR("allAssetsCount", async () => {
-    const data = await makeGqlRequest(GET_UNDERLYING_ASSETS_COUNT);
+  const { chainId } = useRari()
+  return useSWR("allAssetsCount " + chainId, async () => {
+    const data = await makeGqlRequest(GET_UNDERLYING_ASSETS_COUNT, {}, chainId);
     const count = data.utility.underlyingCount;
     return count;
   });

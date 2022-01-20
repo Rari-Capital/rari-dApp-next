@@ -21,8 +21,6 @@ export function useUnclaimedFuseRewards() {
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
     "unclaimedRewards for " + address + " " + chainId,
     async () => {
-      // fetchTokenBalance(tokenAddress, rari.web3, addressToCheck)
-
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
           address

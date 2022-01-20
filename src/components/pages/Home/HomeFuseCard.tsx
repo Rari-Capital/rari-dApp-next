@@ -65,6 +65,7 @@ const HomeFuseCard = ({
     >
       <DashboardBox
         height={{
+          base: "150px",
           sm: "150px",
           lg: "150px",
         }}

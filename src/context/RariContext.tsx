@@ -90,6 +90,7 @@ export interface RariContextData {
   isAttemptingLogin: boolean;
   chainId: number | undefined;
   switchNetwork: (newChainId: number) => void;
+  switchingNetwork: boolean;
 }
 
 export const EmptyAddress = "0x0000000000000000000000000000000000000000";
@@ -107,6 +108,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const [fuse, setFuse] = useState<Fuse>(() => initFuseWithProviders());
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState<boolean>(false);
+  const [switchingNetwork, setSwitchingNetwork] = useState<boolean>(false);
 
   const [address, setAddress] = useState<string>(EmptyAddress);
 
@@ -155,8 +157,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       const { chainId } = await provider.getNetwork();
       let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
       const fuseInstance = initFuseWithProviders(provider, _chainId);
+      setSwitchingNetwork(false)
 
       setFuse(fuseInstance);
+
 
       fuseInstance.provider.listAccounts().then((addresses: string[]) => {
         if (addresses.length === 0) {
@@ -243,6 +247,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
     if (typeof window === undefined) return
     try {
+      setSwitchingNetwork(true)
       await window.ethereum!.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
@@ -282,8 +287,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       isAttemptingLogin,
       chainId,
       switchNetwork,
+      switchingNetwork
     }),
-    [web3ModalProvider, login, logout, address, fuse, isAttemptingLogin]
+    [web3ModalProvider, login, logout, address, fuse, isAttemptingLogin, switchNetwork, switchingNetwork]
   );
 
   return <RariContext.Provider value={value}>{children}</RariContext.Provider>;

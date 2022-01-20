@@ -3,18 +3,19 @@ import {
   MenuItemType,
 } from "components/shared/Header2/HeaderLink";
 
-export const  PRODUCTS_DROPDOWN_ITEMS: MenuItemInterface[] = [
+export const PRODUCTS_DROPDOWN_ITEMS: MenuItemInterface[] = [
   { type: MenuItemType.LINK, link: { name: "Fuse", route: "/fuse" } },
-  { type: MenuItemType.LINK, link: { name: "Vaults", route: "/vaults" } },
-  { type: MenuItemType.LINK, link: { name: "Pool2", route: "/pool2" } },
-  { type: MenuItemType.LINK, link: { name: "Tranches", route: "/tranches" } },
-  { type: MenuItemType.LINK, link: { name: "Overview", route: "/overview" } },
+  // { type: MenuItemType.LINK, link: { name: "Vaults", route: "/vaults" } },
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Legacy Portal", route: "https://v2.rari.capital" },
+  },
   {
     type: MenuItemType.MENUGROUP,
     title: "Vaults",
     links: [
-      { name: "DAI", route: "/pools/dai" },
-      { name: "USDC", route: "/pools/usdc" },
+      { name: "DAI", route: "https://v2.rari.capital/pools/dai" },
+      { name: "USDC", route: "https://v2.rari.capital/pools/usdc" },
     ],
   },
 ];
@@ -31,13 +32,12 @@ export const GOVERNANCE_DROPDOWN_ITEMS: MenuItemInterface[] = [
 ];
 
 export const UTILS_DROPDOWN_ITEMS: MenuItemInterface[] = [
-    {
-      type: MenuItemType.LINK,
-      link: { name: "Positions", route: "/positions" },
-    },
-    {
-      type: MenuItemType.LINK,
-      link: { name: "Interest Rates", route: "/utils/interest-rates" },
-    },
-  ];
-  
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Positions", route: "/positions" },
+  },
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Interest Rates", route: "/utils/interest-rates" },
+  },
+];

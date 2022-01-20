@@ -36,7 +36,7 @@ import { makeGqlRequest } from "utils/gql";
 import { GET_TOP_FUSE_POOLS } from "gql/fusePools/getTopFusePools";
 import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 import { fetchTokensAPIDataAsMap } from "utils/services";
-import { RariApiTokenData, TokensDataMap } from "types/tokens";
+import { TokensDataMap } from "types/tokens";
 
 import ExploreFuseCard from "./ExploreFuseBox";
 
@@ -45,6 +45,8 @@ import { GET_RECOMMENDED_POOLS } from "gql/fusePools/getRecommendedPools";
 import { GET_UNDERLYING_ASSETS_WITH_POOLS } from "gql/fusePools/getUnderlyingAssetsWithPools";
 import TokenExplorer from "./TokenExplorer";
 import AppLink from "components/shared/AppLink";
+import { ChainID } from "esm/utils/networks";
+import { useRari } from "context/RariContext";
 
 // Fetchers
 const exploreFetcher = async (route: string): Promise<APIExploreData> => {
@@ -54,18 +56,22 @@ const exploreFetcher = async (route: string): Promise<APIExploreData> => {
   return data;
 };
 
-const topFusePoolsFetcher = async (): Promise<{
+const topFusePoolsFetcher = async (chainId: ChainID): Promise<{
   pools: SubgraphPool[];
   tokensData: TokensDataMap;
 }> => {
   // const data = await getExploreData();
   const { pools }: { pools: SubgraphPool[] } = await makeGqlRequest(
-    GET_TOP_FUSE_POOLS
+    GET_TOP_FUSE_POOLS,
+    {},
+    chainId
   );
   const tokenAddresses = getUniqueTokensForFusePools(pools);
   const tokensData = await fetchTokensAPIDataAsMap([
     ...Array.from(tokenAddresses),
-  ]);
+  ],
+    chainId
+  );
 
   return { pools, tokensData };
 };
@@ -87,16 +93,17 @@ interface RecommendedPoolsReturn {
 }
 
 const recommendedPoolsFetcher = async (
-  ...tokenAddresses: string[]
+  chainId: number, ...tokenAddresses: string[]
 ): Promise<RecommendedPoolsReturn> => {
-  const tokensData = await fetchTokensAPIDataAsMap(tokenAddresses);
+  const tokensData = await fetchTokensAPIDataAsMap(tokenAddresses, chainId);
 
   // Get all pools where any of these tokens exist
   const { underlyingAssets } = await makeGqlRequest(
     GET_UNDERLYING_ASSETS_WITH_POOLS,
     {
       tokenAddresses,
-    }
+    },
+    chainId
   );
 
   const underlyingAssetsMap: {
@@ -119,7 +126,8 @@ const recommendedPoolsFetcher = async (
     {
       poolIds: uniquePools,
       tokenIds: tokenAddresses,
-    }
+    },
+    chainId
   );
 
   let poolsMap: {
@@ -190,7 +198,8 @@ const recommendedPoolsFetcher = async (
 };
 
 const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
-  const { data } = useSWR([...tokens], recommendedPoolsFetcher);
+  const { chainId } = useRari();
+  const { data } = useSWR([chainId, ...tokens], recommendedPoolsFetcher);
   return (
     data ?? {
       recommended: {},
@@ -201,8 +210,9 @@ const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
 };
 
 const ExplorePage = () => {
-  const { getNumberTVL } = useTVLFetchers();
-  const { t } = useTranslation();
+  // const { getNumberTVL } = useTVLFetchers();
+  // const { t } = useTranslation();
+  const { chainId } = useRari();
 
   const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 10, lg: 10 });
   const isMobile =
@@ -216,7 +226,7 @@ const ExplorePage = () => {
   // Data
   // Fetchers
   const { data, error } = useSWR("/api/explore", exploreFetcher);
-  const { data: topFusePools } = useSWR("topFusePools", topFusePoolsFetcher);
+  const { data: topFusePools } = useSWR(["topFusePools", chainId], topFusePoolsFetcher);
   const { results, tokensData } = data ?? {};
   const { pools: topPools, tokensData: topFusePoolsTokensData } =
     topFusePools ?? { pools: [], tokensData: {} };
@@ -355,13 +365,13 @@ const ExplorePage = () => {
             crossAxisAlignment="flex-start"
             w="100%"
             h="100%"
-            // bg="coral"
+          // bg="coral"
           >
             <Row
               mainAxisAlignment="flex-start"
               crossAxisAlignment="flex-end"
               w="100%"
-              // h="20px"
+            // h="20px"
             >
               <Heading>Recommended</Heading>
               <Text ml={3} color="grey">
@@ -409,20 +419,20 @@ const ExplorePage = () => {
         px={8}
         py={4}
         my={3}
-       
+
       >
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           w="100%"
           h="100%"
-          // bg="coral"
+        // bg="coral"
         >
           <Row
             mainAxisAlignment="flex-start"
             crossAxisAlignment="flex-end"
             w="100%"
-            // h="20px"
+          // h="20px"
           >
             <Heading>Top Fuse Pools</Heading>
             <Text ml={3} color="grey">
@@ -439,19 +449,19 @@ const ExplorePage = () => {
             <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[0]}
-                // tokensData={topFusePoolsTokensData}
+              // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
             <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[1]}
-                // tokensData={topFusePoolsTokensData}
+              // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
             <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
               <ExploreFuseCard
                 pool={topPools[2]}
-                // tokensData={topFusePoolsTokensData}
+              // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
           </HStack>
