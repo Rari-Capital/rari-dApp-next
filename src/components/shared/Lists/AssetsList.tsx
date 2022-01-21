@@ -2,20 +2,17 @@ import { Text } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/spinner";
 import { Avatar, Center, Stack } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
-import { ModalDivider } from "components/shared/Modal";
 import { Box, Table, Tbody, Td, Thead, Tr } from "@chakra-ui/react";
 
 // Hooks
-import useSWR from "swr";
 import { useTranslation } from "next-i18next";
 
 // Utils
-import { Column, Row, useIsMobile } from "lib/chakraUtils";
+import { Row, useIsMobile } from "lib/chakraUtils";
 
 // Types
 import { RariApiTokenData, TokensDataMap } from "types/tokens";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { useSortableList } from "hooks/useSortableList";
 import { SortableTableHeader } from "./Common";
 import { smallUsdFormatter } from "utils/bigUtils";
 import useInfiniteScroll from "react-infinite-scroll-hook";
@@ -24,7 +21,6 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import usePagination from "hooks/usePagination";
 import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExplorer/TokenExplorer";
 import { useEffect, useMemo, useState } from "react";
-import { useTokensDataAsMap } from "hooks/useTokenData";
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 
@@ -38,13 +34,13 @@ const useUnderlyingAssetsPaginated = (
   offset: number,
   limit: number,
   orderBy: string = "address",
-  orderDir: "asc" | "desc" = "asc",
+  orderDir: "asc" | "desc" = "asc"
 ) => {
   const { chainId } = useRari();
   return useQuery(
     `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit} chainId ${chainId}`,
     async (): Promise<SubgraphUnderlyingAsset[]> => {
-      if (!chainId) return []
+      if (!chainId) return [];
       const underlyingAssets = await queryUnderlyingAssetsPaginated(
         chainId,
         offset,
@@ -71,12 +67,7 @@ export const AllAssetsList = () => {
   const { data: count } = useUnderlyingAssetsCount();
 
   // GQL Pagination logic
-  const {
-    limit,
-    offset,
-    hasMore,
-    handleLoadMore,
-  } = usePagination(count);
+  const { limit, offset, hasMore, handleLoadMore } = usePagination(count);
 
   // // Query GQL
   const { data: newAssets, isLoading } = useUnderlyingAssetsPaginated(
@@ -92,9 +83,11 @@ export const AllAssetsList = () => {
   // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
   const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
   useEffect(() => {
-    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId).then((newTokensData) => {
-      setTokensData(Object.assign(tokensData, newTokensData));
-    });
+    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId).then(
+      (newTokensData) => {
+        setTokensData(Object.assign(tokensData, newTokensData));
+      }
+    );
   }, [flag, chainId]);
 
   useEffect(() => {
@@ -115,8 +108,8 @@ export const AllAssetsList = () => {
   });
 
   useEffect(() => {
-    setUnderlyingAssets([])
-  }, [chainId])
+    setUnderlyingAssets([]);
+  }, [chainId]);
 
   return (
     <Box h="400px" w="100%" overflowY="scroll">
@@ -129,7 +122,23 @@ export const AllAssetsList = () => {
       ) : (
         <>
           <Table variant="unstyled">
-            <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
+            <Thead
+              position="sticky"
+              top={0}
+              left={0}
+              zIndex={10}
+              background="black"
+              // Simulates a border-bottom while respecting z-index
+              _after={{
+                content: `""`,
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "1px",
+                backgroundColor: "rgba(255,255,255,0.1)",
+              }}
+            >
               <Tr>
                 <SortableTableHeader
                   text="Asset"
@@ -167,14 +176,11 @@ export const AllAssetsList = () => {
             <Tbody ref={rootRef}>
               {underlyingAssets.map((underlyingAsset) => {
                 return (
-                  <>
-                    <AssetRow
-                      asset={underlyingAsset}
-                      tokenData={tokensData[underlyingAsset.id]}
-                      key={underlyingAsset.symbol}
-                    />
-                    <ModalDivider />
-                  </>
+                  <AssetRow
+                    asset={underlyingAsset}
+                    tokenData={tokensData[underlyingAsset.id]}
+                    key={underlyingAsset.symbol}
+                  />
                 );
               })}
               {hasMore && (
@@ -211,6 +217,7 @@ export const AssetRow = ({
       as={Tr}
       className="hover-row no-underline"
       width="100%"
+      borderBottom="1px solid rgba(255,255,255,0.1)"
       {...rowProps}
     >
       {/* Pool */}
@@ -240,7 +247,8 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalSupply &&
-                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
+                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${
+                    asset.symbol
                   }`}
               </Text>
             </Stack>
@@ -254,7 +262,8 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalBorrow &&
-                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
+                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${
+                    asset.symbol
                   }`}
               </Text>
             </Stack>

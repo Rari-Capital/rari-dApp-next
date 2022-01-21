@@ -14,12 +14,20 @@ export const SortableTableHeader = ({
 }) => {
   return (
     <Th
-      fontSize="sm"
-      _hover={{ cursor: "pointer", textDecoration: "underline" }}
+      fontSize="initial"
+      fontWeight="normal"
+      color="rgba(255,255,255,0.5)"
+      textTransform="none"
+      letterSpacing={0}
+      borderBottomWidth={1}
+      borderBottomStyle="solid"
+      borderBottomColor="rgba(255,255,255,0.1)"
+      cursor="pointer"
+      userSelect="none"
       onClick={handleSortClick}
     >
       <Stack direction="row">
-        <Text fontWeight="bold">{text}</Text>
+        <Text>{text}</Text>
         <Icon as={getSortIcon(isActive, sortDir)} />
       </Stack>
     </Th>
