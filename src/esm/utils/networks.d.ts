@@ -6,7 +6,8 @@ export declare enum ChainID {
     KOVAN = 42,
     ARBITRUM = 42161,
     ARBITRUM_TESTNET = 421611,
-    OPTIMISM = 10
+    OPTIMISM = 10,
+    HARDHAT = 31337
 }
 interface ChainMetadata {
     chainId: number;
@@ -78,6 +79,15 @@ export declare const chainMetadata: {
         color: string;
     };
     10: {
+        chainId: ChainID;
+        name: string;
+        imageUrl: string;
+        supported: boolean;
+        rpcUrl: string;
+        blockExplorerURL: string;
+        color: string;
+    };
+    31337: {
         chainId: ChainID;
         name: string;
         imageUrl: string;
