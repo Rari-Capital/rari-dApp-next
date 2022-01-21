@@ -368,7 +368,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
       return { borrowerRates: null, supplierRates: null };
     }
 
-    return convertIRMtoCurve(interestRateModel, fuse);
+    return convertIRMtoCurve(interestRateModel);
   });
 
   const isMobile = useIsMobile();
@@ -526,9 +526,9 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
               selectedAsset.totalSupplyUSD.toString() === "0"
                 ? "0%"
                 : selectedAsset.totalBorrowUSD
-                    .div(selectedAsset.totalSupplyUSD)
-                    .mul(100)
-                    .toString() + "%"
+                  .div(selectedAsset.totalSupplyUSD)
+                  .mul(100)
+                  .toString() + "%"
             }
             statSize="lg"
             captionSize="xs"
@@ -551,16 +551,17 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
   );
 };
 
-export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
+export const convertIRMtoCurve = (interestRateModel: any) => {
   let borrowerRates = [];
   let supplierRates = [];
+  // fuse.web3.utils.toBN((i * 1e16).toString())
   for (var i = 0; i <= 100; i++) {
     const supplyLevel =
       (Math.pow(
-        (interestRateModel.getSupplyRate(utils.parseUnits(i.toString(), 16)) /
+        (interestRateModel.getSupplyRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
           1e18) *
-          (4 * 60 * 24) +
-          1,
+        (4 * 60 * 24) +
+        1,
         365
       ) -
         1) *
@@ -568,10 +569,10 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
 
     const borrowLevel =
       (Math.pow(
-        (interestRateModel.getBorrowRate(utils.parseUnits(i.toString(), 16)) /
+        (interestRateModel.getBorrowRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
           1e18) *
-          (4 * 60 * 24) +
-          1,
+        (4 * 60 * 24) +
+        1,
         365
       ) -
         1) *
