@@ -423,7 +423,6 @@ const AssetSettings = ({
     increaseActiveStep("All Done!");
   };
 
-  console.log(oracleAddress)
   // Deploy Asset!
   const deploy = async () => {
     let oracleAddressToUse = oracleAddress;

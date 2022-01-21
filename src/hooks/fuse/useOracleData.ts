@@ -276,7 +276,6 @@ export const useGetOracleOptions = (
       ).data.data },
     { refetchOnMount: false }
   );
-  console.log({liquidity}, tokenAddress)
 
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
