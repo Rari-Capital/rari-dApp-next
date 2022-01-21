@@ -1,5 +1,5 @@
 import { SearchIcon } from "@chakra-ui/icons";
-import { Button, Collapse } from "@chakra-ui/react";
+import { Box, Button, Collapse } from "@chakra-ui/react";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/input";
 import { Spinner } from "@chakra-ui/spinner";
 import AppLink from "../AppLink";
@@ -10,7 +10,7 @@ import useSWR from "swr";
 
 // Utils
 import axios from "axios";
-import { Column, useIsMobile } from "lib/chakraUtils";
+import { Column, Row, useIsMobile } from "lib/chakraUtils";
 import { APISearchReturn } from "types/search";
 import { useMemo, useState } from "react";
 import { useAccountBalances } from "context/BalancesContext";
@@ -23,6 +23,7 @@ const searchFetcher = async (
   text: string,
   ...addresses: string[]
 ): Promise<APISearchReturn | undefined> => {
+  console.log({chainId, text, addresses});
   let url = `/api/search?chainId=${chainId}`;
 
   if (!text && !addresses.length) return undefined;
@@ -55,13 +56,17 @@ const Searchbar = ({
   const [focused, setFocused] = useState<boolean>(false);
   const [balances, balancesToSearchWith] = useAccountBalances();
 
-  const debouncedSearch = useDebounce([chainId, val, ...balancesToSearchWith], 200);
+  const debouncedSearch = useMemo(() => {
+return [chainId, val, ...balancesToSearchWith]
+  }, [chainId, val, balancesToSearchWith.length]) 
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
+
+  // console.log({debouncedSearch, data, balances})
 
   const hasResults = useMemo(() => {
     if (!data) return false;
@@ -137,8 +142,15 @@ const Searchbar = ({
           onBlur={() => setTimeout(() => setFocused(false), 500)}
           {...inputProps}
         />
+                                    <Box
+                  borderRadius="50%"
+                  backgroundColor="green.200"
+                  height="8px"
+                  width="8px"
+                  mr={3}
+                />
         {!smaller && (
-          <Column
+          <Row
             mainAxisAlignment="center"
             crossAxisAlignment="center"
             h="100%"
@@ -147,13 +159,15 @@ const Searchbar = ({
             zIndex="5"
             right="0"
             mr={1}
+            bg="pink"
           >
+
             <AppLink href="/explore">
               <Button colorScheme="green" _hover={{ transform: "scale(1.04)" }}>
                 Explore
               </Button>
             </AppLink>
-          </Column>
+          </Row>
         )}
       </InputGroup>
       <Collapse in={shouldShowDropdown} unmountOnExit style={{ width: "100%" }}>

@@ -157,10 +157,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       const { chainId } = await provider.getNetwork();
       let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
       const fuseInstance = initFuseWithProviders(provider, _chainId);
+      setChainId(_chainId)
       setSwitchingNetwork(false)
 
       setFuse(fuseInstance);
-
 
       fuseInstance.provider.listAccounts().then((addresses: string[]) => {
         if (addresses.length === 0) {
@@ -221,10 +221,12 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     setAddress(EmptyAddress);
   }, [setWeb3ModalProvider, refetchAccountData]);
 
+  // when web3ModalProvider changes
   useEffect(() => {
     if (web3ModalProvider !== null && web3ModalProvider.on) {
       web3ModalProvider.on("accountsChanged", refetchAccountData);
       web3ModalProvider.on("chainChanged", () => {
+        console.log("chain Changed")
         refetchAccountData();
       });
     }
@@ -271,9 +273,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
         }
       }
       // handle other "switch" errors
-    } finally {
-      refetchAccountData();
-    }
+    } 
+    // finally {
+    //   refetchAccountData();
+    // }
   };
 
   const value = useMemo(

@@ -297,7 +297,7 @@ const ExplorePage = () => {
             flex={0}
           >
             <AppLink href={"/vaults"}>
-              <Image h="100%" w="100%" src="static/ad.png" />
+              <Image h="100%" w="100%" src="static/arbitrum_banner.png" />
             </AppLink>
           </DashboardBox>
         </Box>

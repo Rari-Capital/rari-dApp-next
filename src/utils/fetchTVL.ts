@@ -39,14 +39,16 @@ export const perPoolTVL = async (
   fuse: Fuse,
   chainId: ChainID
 ) => {
-  // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, stakedTVL] =
-  //   await Promise.all([
-  //     Vaults.pools.stable.balances.getTotalSupply(),
-  //     Vaults.pools.yield.balances.getTotalSupply(),
-  //     Vaults.pools.ethereum.balances.getTotalSupply(),
-  //     Vaults.pools.dai.balances.getTotalSupply(),
-  //     Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
-  //   ]);
+  const [stableTVL, yieldTVL, ethTVLInETH, daiTVL] =
+    await Promise.all([
+      Vaults.pools.stable.balances.getTotalSupply(),
+      Vaults.pools.yield.balances.getTotalSupply(),
+      Vaults.pools.ethereum.balances.getTotalSupply(),
+      Vaults.pools.dai.balances.getTotalSupply(),
+    ]);
+
+    const stakedTVL = 
+      chainId === 1 ? Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(): constants.Zero;
 
   const ethUSDBN = await getEthUsdPriceBN();
 
@@ -67,16 +69,16 @@ export const perPoolTVL = async (
   // });
 
   // const ethUSDBN = (ethPriceBN ?? constants.Zero).div(constants.WeiPerEther);
-  // const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethUSDBN);
+  const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethUSDBN);
   const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethUSDBN);
 
   return {
-    // stableTVL,
-    // yieldTVL,
-    // ethTVL,
-    // daiTVL,
+    stableTVL,
+    yieldTVL,
+    ethTVL,
+    daiTVL,
     fuseTVL,
-    // stakedTVL,
+    stakedTVL,
   };
 };
 
@@ -92,12 +94,12 @@ export const fetchTVL = async (
     console.log("fetchTVL", { fuse, tvls });
     return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
 
-    // return tvls.stableTVL
-    //   .add(tvls.yieldTVL)
-    //   .add(tvls.ethTVL)
-    //   .add(tvls.daiTVL)
-    //   .add(tvls.stakedTVL)
-    //   .add(tvls.fuseTVL);
+    return tvls.stableTVL
+      .add(tvls.yieldTVL)
+      .add(tvls.ethTVL)
+      .add(tvls.daiTVL)
+      .add(tvls.stakedTVL)
+      .add(tvls.fuseTVL);
   } catch (err) {
     console.log({ err });
     return constants.Zero;

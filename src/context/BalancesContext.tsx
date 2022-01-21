@@ -65,7 +65,7 @@ export const useAccountBalances = (): [any, string[]] => {
   const significantTokens: string[] = useMemo(
     () =>
       Object.keys(balances)
-        .filter((address) => balances[address] >= 0.1)
+        .filter((address) => balances[address] >= 0.001)
         .sort(function (a, b) {
           return balances[b] - balances[a];
         }),

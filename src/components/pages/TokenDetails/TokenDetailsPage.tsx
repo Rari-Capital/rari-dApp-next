@@ -123,7 +123,9 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           bg=""
           ml={3}
         >
-          <AppLink
+
+          {/* Inactive: Vaults */}
+          {/* <AppLink
             href={`/vaults/${token.address}`}
             as={DashboardBox}
             h="130px"
@@ -153,7 +155,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 </VStack>
               )}
             </Center>
-          </AppLink>
+          </AppLink> */}
 
           <DashboardBox h="100%" w="100%" px={5} py={3} flexGrow={1} mt={2}>
             <Heading mb={2}>{"Lend & Borrow"}</Heading>

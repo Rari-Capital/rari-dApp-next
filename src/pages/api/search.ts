@@ -26,6 +26,8 @@ export default async function handler(
   if (req.method === "GET") {
     const { text, address, chainId: _chainId } = req.query;
 
+    console.log({text, address, _chainId});
+
     let chainId = parseInt(_chainId as string);
 
     // // If no search, return
@@ -75,12 +77,6 @@ export default async function handler(
         if (!balanceTokens.length) return res.json(DEFAULT_SEARCH_RETURN);
         gqlsearchResults = balanceTokens;
       }
-
-      // // We are now going to fetch the tokenData and Fuse Pool Data
-      // const [tokensDataMap] = await Promise.all([
-      //   fetchTokensAPIDataAsMap(gqlsearchResults.map((asset) => asset.id), chainId),
-      // ]);
-
       /** Get Fuse Data **/
 
       // Maps a Fuse Pool's address to an array of its underlyingToken Addresses
