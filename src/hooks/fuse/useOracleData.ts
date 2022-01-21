@@ -95,8 +95,6 @@ export const useGetOracleOptions = (
   const { defaultOracle, oracleContract, adminOverwrite } = oracleData ?? {};
   const oracleAddress = oracleContract?.options?.address ?? undefined;
 
-  console.log({ fuse, defaultOracle, isValidAddress, oracleAddress });
-
   // If the pool has a default price oracle (RariMasterPriceOracle), query that oracle's price for this token.
   // If it has an available price, we can let the user choose "Default Price Oracle"
   // We should also set this value initially if it is available and if "Current_Price_Oracle" is null.
@@ -295,10 +293,10 @@ export const useGetOracleOptions = (
         ? null
         : ''
 
-  // const SushiSwap_Oracle =
-  //       (SushiPairs === null || SushiPairs === undefined || SushiPairs.length === 0 || SushiError )
-  //       ? null
-  //       : ''
+  const SushiSwap_Oracle =
+        (SushiPairs === null || SushiPairs === undefined || SushiPairs.length === 0 || SushiError )
+        ? null
+        : ''
 
   // If tokenAddress is not a valid address return null.
   // If tokenAddress is valid and oracle admin can overwrite or if admin can't overwrite but there's no preset, return all options
@@ -313,7 +311,7 @@ export const useGetOracleOptions = (
         Chainlink_Oracle,
         Uniswap_V3_Oracle,
         Uniswap_V2_Oracle,
-        // SushiSwap_Oracle,
+        SushiSwap_Oracle,
         Custom_Oracle: " ",
       }
     : { Current_Price_Oracle };
@@ -375,7 +373,6 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
          }`,
         }
       );
-
       return pairs !== undefined &&
         pairs.data !== undefined &&
         pairs.data.data.pairs !== undefined
