@@ -252,14 +252,14 @@ export const useGetOracleOptions = (
   // TODO:
   const { data: liquidity, error } = useQuery(
     `UniswapV3 pool liquidity for ${tokenAddress} on ChainID: ${chainId}`,
-    async () =>
-      chainId === ChainID.ETHEREUM &&
-      (
+    async () => {
+      const tokenAddressFormatted = tokenAddress.toLowerCase()
+      return (
         await axios.post(
           "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
           {
             query: `{
-            token(id:"${tokenAddress.toLocaleLowerCase()}") {
+            token(id:"${tokenAddressFormatted}") {
               whitelistPools {
                 id,
                 feeTier,
@@ -279,14 +279,15 @@ export const useGetOracleOptions = (
           }`,
           }
         )
-      ).data.data.pairs,
+      ).data.data },
     { refetchOnMount: false }
   );
+  console.log({liquidity}, tokenAddress)
 
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info
-  const Uniswap_V3_Oracle = !liquidity?.data?.token || error ? null : "";
+  const Uniswap_V3_Oracle = !liquidity?.token?.whitelistPools || error ? null : "";
 
   const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
     useSushiOrUniswapV2Pairs(tokenAddress);
@@ -294,10 +295,10 @@ export const useGetOracleOptions = (
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info
-  // const Uniswap_V2_Oracle =
-  //       (UniV2Pairs === null || UniV2Pairs === undefined || UniV2Pairs.length === 0 || univ2Error )
-  //       ? null
-  //       : ''
+  const Uniswap_V2_Oracle =
+        (UniV2Pairs === null || UniV2Pairs === undefined || UniV2Pairs.length === 0 || univ2Error )
+        ? null
+        : ''
 
   // const SushiSwap_Oracle =
   //       (SushiPairs === null || SushiPairs === undefined || SushiPairs.length === 0 || SushiError )
@@ -316,7 +317,7 @@ export const useGetOracleOptions = (
         Rari_MasterPriceOracle,
         Chainlink_Oracle,
         Uniswap_V3_Oracle,
-        // Uniswap_V2_Oracle,
+        Uniswap_V2_Oracle,
         // SushiSwap_Oracle,
         Custom_Oracle: " ",
       }

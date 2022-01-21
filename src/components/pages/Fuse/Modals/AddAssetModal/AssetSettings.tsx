@@ -339,13 +339,6 @@ const AssetSettings = ({
   };
 
   // Deploy Oracle
-  const deployUniV2Oracle = async () =>
-    await fuse.deployPriceOracle(
-      "UniswapTwapPriceOracleV2",
-      { baseToken: uniV3BaseTokenAddress },
-      { from: address }
-    );
-
   const addOraclesToMasterPriceOracle = async (oracleAddressToUse: string) => {
     /** Configure the pool's MasterPriceOracle  **/
     increaseActiveStep("Configuring your Fuse pool's Master Price Oracle");
@@ -457,9 +450,11 @@ const AssetSettings = ({
     increaseActiveStep("All Done!");
   };
 
+  console.log(oracleAddress)
   // Deploy Asset!
   const deploy = async () => {
     let oracleAddressToUse = oracleAddress;
+
     try {
       preDeployValidate(oracleAddressToUse);
     } catch (err) {
@@ -493,15 +488,6 @@ const AssetSettings = ({
           console.log("postDeploy", { oracleAddressToUse });
         }
         _retryFlag = 3;
-      }
-
-      /** IF UNISWAP V2 ORACLE **/
-      if (_retryFlag === 3) {
-        setNeedsRetry(false);
-        if (activeOracleModel === "Uniswap_V2_Oracle") {
-          oracleAddressToUse = await deployUniV2Oracle();
-        }
-        _retryFlag = 4;
       }
 
       /**  CONFIGURE MASTERPRICEORACLE **/

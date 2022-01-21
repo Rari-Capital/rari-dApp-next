@@ -289,7 +289,7 @@ const OracleConfig = () => {
             {/* <option disabled={true}>Loading...</option> */}
           </Select>
 
-          {activeOracleModel.length > 0 ? (
+          {activeOracleModel.length > 0 && activeOracleModel !== "Uniswap_V2_Oracle" ? (
             <Input
               mt={2}
               mb={2}

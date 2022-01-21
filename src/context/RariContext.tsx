@@ -155,7 +155,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (modalProvider) => {
       const provider = new Web3Provider(modalProvider);
       const { chainId } = await provider.getNetwork();
-      let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
+      let _chainId = chainId === 31337 ? ChainID.HARDHAT : chainId;
       const fuseInstance = initFuseWithProviders(provider, _chainId);
       setChainId(_chainId)
       setSwitchingNetwork(false)

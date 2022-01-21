@@ -1,5 +1,6 @@
 // Chakra and UI
-import { Button, Text, Select, Checkbox } from "@chakra-ui/react";
+import { Button, Text, Select, Checkbox, Link } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Row } from "lib/chakraUtils";
 import { DASHBOARD_BOX_PROPS } from "../../../../../shared/DashboardBox";
 import { QuestionIcon } from "@chakra-ui/icons";
@@ -15,6 +16,7 @@ import { useAddAssetContext } from "context/AddAssetContext";
 
 // Utils
 import { smallUsdFormatter, shortUsdFormatter } from "utils/bigUtils";
+import { useRari } from "context/RariContext";
 
 const UniswapV2OrSushiPriceOracleConfigurator = ({
   type,
@@ -24,6 +26,7 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Either SushiSwap or Uniswap V2
   type: string;
 }) => {
+  const { fuse, address } = useRari();
   const { t } = useTranslation();
 
   // This will be used to index whitelistPools array (fetched from the graph.)
@@ -36,7 +39,12 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Will store oracle response. This helps us know if its safe to add it to Master Price Oracle
   const [checkedStepTwo, setCheckedStepTwo] = useState<boolean>(false);
 
-  const { tokenAddress, setOracleAddress, setUniV3BaseTokenAddress } =
+  const { 
+    tokenAddress, 
+    setOracleAddress, 
+    setUniV3BaseTokenAddress,
+    uniV3BaseTokenAddress
+  } =
     useAddAssetContext();
 
   // Get pair options from sushiswap and uniswap
@@ -54,8 +62,19 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
     setActivePair(value);
     setOracleAddress(pair.id);
     setUniV3BaseTokenAddress(
-      pair.token1.id === tokenAddress ? pair.token0.id : pair.token1.id
+      pair.id === tokenAddress ? pair.token0.id : pair.token1.id
     );
+  };
+
+  // Deploy Oracle
+  const deployUniV2Oracle = async () => {
+    console.log('uy')
+    const addressToUse = await fuse.deployPriceOracle(
+      "UniswapTwapPriceOracleV2",
+      { baseToken: uniV3BaseTokenAddress },
+      { from: address }
+    )
+    setOracleAddress(addressToUse)
   };
 
   // If pairs are still being fetched, if theres and error or if there are none, return nothing.
@@ -83,11 +102,18 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
           width="260px"
           my={3}
         >
-          <Button colorScheme="teal">Check</Button>
+          {/* <Button colorScheme="teal">Check</Button> */}
 
           <Text fontSize="xs" align="center">
-            After deploying your oracle, you have to wait about 15 - 25 minutes
-            for the oracle to be set.
+            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. 
+            
+            <br/>
+            
+            To visit Rari Capital's TWAP bot repository click 
+             
+             <Link> here   <ExternalLinkIcon mx='2px' /> </Link> 
+
+             Once your bot is up and running contact us to add it to our Grafana and redundancy bots list. 
           </Text>
         </Row>
       ) : null}
@@ -164,6 +190,16 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
           </h1>
         </Row>
       ) : null}
+
+      {activePool.length > 0 ? (
+        <Button
+          onClick={() => deployUniV2Oracle()}
+        >
+          Deploy!
+        </Button>
+        ) : null
+
+      }
     </>
   );
 };
