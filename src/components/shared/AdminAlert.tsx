@@ -3,7 +3,6 @@ import { Button } from "@chakra-ui/button";
 import { Box, HStack } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/toast";
-import { testForComptrollerErrorAndSend } from "components/pages/Fuse/FusePoolEditPage";
 import { useRari } from "context/RariContext";
 import { useIsComptrollerPendingAdmin } from "hooks/fuse/useIsComptrollerAdmin";
 import LogRocket from "logrocket";

@@ -1,6 +1,6 @@
 // Chakra and UI
 import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/modal";
-import { CloseButton } from "@chakra-ui/react";
+import { CloseButton, VStack } from "@chakra-ui/react";
 import { ModalDivider, MODAL_PROPS } from "../../../../shared/Modal";
 import { Column, Center } from "lib/chakraUtils";
 import SmallWhiteCircle from "../../../../../static/small-white-circle.png";
@@ -25,6 +25,8 @@ import { ETH_TOKEN_DATA, useTokenData } from "hooks/useTokenData";
 
 // Components
 import AssetSettings from "./AssetSettings";
+import { ChainID } from "esm/utils/networks";
+import AppLink from "components/shared/AppLink";
 
 const AddAssetModal = ({
   isOpen,
@@ -46,7 +48,7 @@ const AddAssetModal = ({
   onClose: () => any; // Modal config.
 }) => {
   const { t } = useTranslation();
-  const { fuse } = useRari();
+  const { fuse, chainId } = useRari();
 
   // Will change with user's input
   const [tokenAddress, _setTokenAddress] = useState<string>("");
@@ -78,28 +80,34 @@ const AddAssetModal = ({
         maxHeight="100%"
         overflowY="scroll"
       >
-        <Box
-          d="flex"
-          flexDirection="row"
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-          px={3}
-        >
-          <Box flexBasis="10%" />
-
-          <Heading my={4} ml="auto" fontSize="27px" textAlign="center">
-            {t("Add Asset")}
-          </Heading>
-
+        <VStack align={"center"}>
           <Box
-            marginLeft="auto"
-            onClick={onClose}
-            _hover={{ color: "white", transform: "scale(1.2);" }}
+            d="flex"
+            flexDirection="row"
+            width="100%"
+            justifyContent="center"
+            alignItems="center"
+            px={3}
           >
-            <CloseButton />
+            <Box flexBasis="10%" />
+
+            <Heading my={4} ml="auto" fontSize="27px" textAlign="center">
+              {t("Add Asset")}
+            </Heading>
+
+            <Box
+              marginLeft="auto"
+              onClick={onClose}
+              _hover={{ color: "white", transform: "scale(1.2);" }}
+            >
+              <CloseButton />
+            </Box>
+
           </Box>
-        </Box>
+          {chainId === ChainID.ARBITRUM && <AppLink href={`https://arbiscan.io/tokens`} isExternal={true}>
+            Arbitrum Token List
+          </AppLink>}
+        </VStack>
 
         <ModalDivider />
 
@@ -183,7 +191,7 @@ const AddAssetModal = ({
                 flexDirection="column"
                 justifyContent="flex-start"
                 alignContent="flex-start"
-                // bg="green"
+              // bg="green"
               >
                 <AssetSettings
                   mode="Adding"
@@ -203,7 +211,7 @@ const AddAssetModal = ({
           ) : null}
         </Column>
       </ModalContent>
-    </Modal>
+    </Modal >
   );
 };
 

@@ -14,7 +14,6 @@ import {
   SaveButton,
   testForComptrollerErrorAndSend,
 } from "../../FusePoolEditPage";
-import AssetSettings from "../AddAssetModal/AssetSettings";
 import { useQueryClient } from "react-query";
 import { useToast } from "@chakra-ui/toast";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
@@ -64,7 +63,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistEnforcement(enforce),
+        comptroller.callStatic._setWhitelistEnforcement(enforce),
+        comptroller._setWhitelistEnforcement(enforce),
         address,
         ""
       );
@@ -84,7 +84,11 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistStatuses(
+        comptroller.callStatic._setWhitelistStatuses(
+          newList,
+          Array(newList.length).fill(true)
+        ),
+        comptroller._setWhitelistStatuses(
           newList,
           Array(newList.length).fill(true)
         ),
@@ -106,7 +110,11 @@ const PoolConfiguration = ({
     const whitelist = data!.whitelist;
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistStatuses(
+        comptroller.callStatic._setWhitelistStatuses(
+          whitelist,
+          whitelist.map((user: string) => user !== removeUser)
+        ),
+        comptroller._setWhitelistStatuses(
           whitelist,
           whitelist.map((user: string) => user !== removeUser)
         ),
@@ -129,7 +137,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        unitroller.methods._toggleAdminRights(false),
+        unitroller.callStatic._toggleAdminRights(false),
+        unitroller._toggleAdminRights(false),
         address,
         ""
       );
@@ -147,7 +156,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        unitroller.methods._acceptAdmin(),
+        unitroller.callStatic._acceptAdmin(),
+        unitroller._acceptAdmin(),
         address,
         ""
       );
@@ -170,7 +180,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        unitroller.methods._setPendingAdmin(admin),
+        unitroller.callStatic._setPendingAdmin(admin),
+        unitroller._setPendingAdmin(admin),
         address,
         ""
       );
@@ -216,7 +227,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setCloseFactor(bigCloseFactor),
+        comptroller.callStatic._setCloseFactor(bigCloseFactor),
+        comptroller._setCloseFactor(bigCloseFactor),
         address,
         ""
       );
@@ -241,7 +253,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller.callStatic._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller._setLiquidationIncentive(bigLiquidationIncentive),
         address,
         ""
       );
@@ -406,7 +419,7 @@ const PoolConfiguration = ({
               <Text fontWeight="bold">{t("Liquidation Incentive")}:</Text>
 
               {data &&
-              scaleLiquidationIncentive(data.liquidationIncentive) !==
+                scaleLiquidationIncentive(data.liquidationIncentive) !==
                 liquidationIncentive ? (
                 <SaveButton onClick={updateLiquidationIncentive} />
               ) : null}

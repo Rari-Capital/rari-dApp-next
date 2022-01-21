@@ -249,7 +249,7 @@ const Home = () => {
                   loadingPlaceholder="$?"
                   apyInterval={100}
                   fetch={getNumberTVL}
-                  queryKey={"totalValueLocked"}
+                  queryKey={"totalValueLocked-" + chainId}
                   apy={0.15}
                   statSize="3xl"
                   captionSize="md"

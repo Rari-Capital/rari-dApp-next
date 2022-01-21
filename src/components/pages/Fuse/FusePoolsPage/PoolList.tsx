@@ -113,8 +113,8 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
           })
         ) : (
           <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
-            <Center>
-              <Text>No Pools.</Text>
+            <Center my={4}>
+              <Spinner />
             </Center>
           </Box>
         )}

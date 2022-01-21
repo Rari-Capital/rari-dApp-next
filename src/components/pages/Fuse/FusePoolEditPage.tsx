@@ -79,7 +79,7 @@ import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
-const noop = () => {};
+const noop = () => { };
 
 const formatPercentage = (value: number) => value.toFixed(0) + "%";
 
@@ -123,14 +123,15 @@ export const useIsUpgradeable = (comptrollerAddress: string) => {
 };
 
 export async function testForComptrollerErrorAndSend(
+  callStaticTxObject: Promise<any>,
   txObject: any,
   caller: string,
   failMessage: string
 ) {
-  let response = await txObject.call({ from: caller });
+  let response = await callStaticTxObject
 
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
-  if (response[0] !== "0") {
+  if (!!response[0] && response[0].toString() !== "0") {
     const err = new Error(
       failMessage + " Code: " + ComptrollerErrorCodes[response]
     );
@@ -139,7 +140,7 @@ export async function testForComptrollerErrorAndSend(
     throw err;
   }
 
-  return txObject.send({ from: caller });
+  return txObject;
 }
 
 const FusePoolEditPage = memo(() => {
@@ -180,7 +181,7 @@ const FusePoolEditPage = memo(() => {
   const oraclesMap = useOraclesForPool(
     data?.oracle,
     data?.assets?.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ??
-      []
+    []
   );
 
   // console.log({ oraclesMap });
@@ -243,7 +244,7 @@ const FusePoolEditPage = memo(() => {
         mx="auto"
         width={isMobile ? "100%" : "1150px"}
         px={isMobile ? 4 : 0}
-        // bg="pink"
+      // bg="pink"
       >
         <FuseStatsBar />
 
@@ -424,7 +425,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistEnforcement(enforce),
+        comptroller.callStatic._setWhitelistEnforcement(enforce),
+        comptroller._setWhitelistEnforcement(enforce),
         address,
         ""
       );
@@ -444,7 +446,11 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistStatuses(
+        comptroller.callStatic._setWhitelistStatuses(
+          newList,
+          Array(newList.length).fill(true)
+        ),
+        comptroller._setWhitelistStatuses(
           newList,
           Array(newList.length).fill(true)
         ),
@@ -466,7 +472,11 @@ const PoolConfiguration = ({
     const whitelist = data!.whitelist;
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setWhitelistStatuses(
+        comptroller.callStatic._setWhitelistStatuses(
+          whitelist,
+          whitelist.map((user) => user !== removeUser)
+        ),
+        comptroller._setWhitelistStatuses(
           whitelist,
           whitelist.map((user) => user !== removeUser)
         ),
@@ -494,7 +504,8 @@ const PoolConfiguration = ({
     try {
       // TODO: Revoke admin rights on all the cTokens!
       await testForComptrollerErrorAndSend(
-        unitroller.methods._renounceAdminRights(),
+        unitroller.callStatic._renounceAdminRights(),
+        unitroller._renounceAdminRights(),
         address,
         ""
       );
@@ -538,7 +549,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setCloseFactor(bigCloseFactor),
+        comptroller.callStatic._setCloseFactor(bigCloseFactor),
+        comptroller._setCloseFactor(bigCloseFactor),
         address,
         ""
       );
@@ -561,7 +573,8 @@ const PoolConfiguration = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.methods._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller.callStatic._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller._setLiquidationIncentive(bigLiquidationIncentive),
         address,
         ""
       );
@@ -702,7 +715,7 @@ const PoolConfiguration = ({
               <Text fontWeight="bold">{t("Liquidation Incentive")}:</Text>
 
               {data &&
-              scaleLiquidationIncentive(data.liquidationIncentive) !==
+                scaleLiquidationIncentive(data.liquidationIncentive) !==
                 liquidationIncentive ? (
                 <SaveButton onClick={updateLiquidationIncentive} />
               ) : null}

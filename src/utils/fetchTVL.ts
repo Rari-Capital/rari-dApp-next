@@ -4,15 +4,15 @@ import { Vaults, Fuse } from "../esm/index";
 // Ethers
 import {
   BigNumber,
-  BigNumber as EthersBigNumber,
   constants,
-  Contract,
 } from "ethers";
 
-import { chooseBestWeb3Provider } from "./web3Providers";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { ChainID } from "esm/utils/networks";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
+  
+
   try {
     const res =
       await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
@@ -39,36 +39,8 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
   }
 };
 
-// Todo - delete this and just make `fetchFuseTVL` do this stuff
-export const fetchFuseTVLBorrowsAndSupply = async (
-  fuse: Fuse,
-  blockNum?: number
-) => {
-  const { 2: suppliedETHPerPool, 3: borrowedETHPerPool } =
-    await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-      true
-    );
 
-  let totalSuppliedETH = suppliedETHPerPool
-    .reduce((a: number, b: string) => a + parseInt(b), 0)
-    .toFixed(2);
-
-  let totalBorrowedETH = borrowedETHPerPool
-    .reduce((a: number, b: string) => a + parseInt(b), 0)
-    .toFixed(2);
-
-
-  let totalSuppliedETHBN = EthersBigNumber.from(totalSuppliedETH);
-
-  const totalBorrowedETHBN = EthersBigNumber.from(totalBorrowedETH);
-
-  return {
-    totalSuppliedETH: totalSuppliedETHBN,
-    totalBorrowedETH: totalBorrowedETHBN,
-  };
-};
-
-export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
+export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse, chainId: ChainID) => {
   // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, stakedTVL] =
   //   await Promise.all([
   //     Vaults.pools.stable.balances.getTotalSupply(),
@@ -110,9 +82,10 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse) => {
   };
 };
 
-export const fetchTVL = async (Vaults: Vaults, fuse: Fuse) : Promise<BigNumber> => {
+export const fetchTVL = async (Vaults: Vaults, fuse: Fuse, chainId?: ChainID)  : Promise<BigNumber> => {
+  if (!chainId) return constants.Zero;
   try {
-    const tvls = await perPoolTVL(Vaults, fuse);
+    const tvls = await perPoolTVL(Vaults, fuse, chainId);
     return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
 
     // return tvls.stableTVL

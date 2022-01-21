@@ -137,6 +137,7 @@ const AssetConfig = () => {
 
     try {
       await testForComptrollerErrorAndSend(
+        comptroller.callStatic._setCollateralFactor(cTokenAddress, bigCollateralFactor),
         comptroller._setCollateralFactor(cTokenAddress, bigCollateralFactor),
         address,
         ""
@@ -262,8 +263,8 @@ const AssetConfig = () => {
           </SimpleTooltip>
 
           {cTokenData !== undefined &&
-          mode === "Editing" &&
-          collateralFactor !==
+            mode === "Editing" &&
+            collateralFactor !==
             scaleCollateralFactor(cTokenData?.collateralFactorMantissa) ? (
             <SaveButton ml={3} onClick={updateCollateralFactor} />
           ) : null}
@@ -277,9 +278,9 @@ const AssetConfig = () => {
             max={
               liquidationIncentiveMantissa
                 ? // 100% CF - Liquidation Incentive (ie: 8%) - 5% buffer
-                  100 -
-                  (liquidationIncentiveMantissa.toString() / 1e16 - 100) -
-                  5
+                100 -
+                (liquidationIncentiveMantissa.toString() / 1e16 - 100) -
+                5
                 : 90
             }
           />
@@ -322,7 +323,7 @@ const AssetConfig = () => {
           </SimpleTooltip>
 
           {cTokenData &&
-          reserveFactor !==
+            reserveFactor !==
             scaleReserveFactor(cTokenData.reserveFactorMantissa) ? (
             <SaveButton ml={3} onClick={updateReserveFactor} />
           ) : null}
@@ -349,7 +350,7 @@ const AssetConfig = () => {
           </SimpleTooltip>
 
           {cTokenData &&
-          adminFee !== scaleAdminFee(cTokenData.adminFeeMantissa) ? (
+            adminFee !== scaleAdminFee(cTokenData.adminFeeMantissa) ? (
             <SaveButton ml={3} onClick={updateAdminFee} />
           ) : null}
 
@@ -415,7 +416,7 @@ const AssetConfig = () => {
           </Select>
 
           {cTokenData &&
-          cTokenData.interestRateModelAddress.toLowerCase() !==
+            cTokenData.interestRateModelAddress.toLowerCase() !==
             interestRateModel.toLowerCase() ? (
             <SaveButton
               height="40px"
