@@ -78,8 +78,6 @@ export const useOracleData = (
         console.error(err);
       }
 
-      console.log({ admin, adminOverwrite, oracleContract, defaultOracle });
-
       return { admin, adminOverwrite, oracleContract, defaultOracle };
     }
   );
@@ -122,10 +120,8 @@ export const useGetOracleOptions = (
       // Call the defaultOracle's price to make sure we have a price for this token
       try {
         const price = await oracleContract.callStatic.price(tokenAddress);
-        console.log("Default_Price_Oracle", { price });
         if (parseFloat(price) > 0) return defaultOracle;
       } catch (err) {
-        console.log("Default_Price_Oracle: could not fetch price");
         console.error(err);
         return null;
       }
@@ -282,7 +278,6 @@ export const useGetOracleOptions = (
       ).data.data },
     { refetchOnMount: false }
   );
-  console.log({liquidity}, tokenAddress)
 
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''

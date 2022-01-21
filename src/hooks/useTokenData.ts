@@ -81,7 +81,6 @@ export const fetchTokenData = async (
       data = EMPTY_TOKEN_DATA;
     }
   } else {
-    console.log("eth2 address", address);
     data = ETH_TOKEN_DATA;
   }
 

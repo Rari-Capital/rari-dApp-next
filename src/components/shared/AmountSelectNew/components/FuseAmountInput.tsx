@@ -154,7 +154,6 @@ export const TokenNameAndMaxButton = ({
           // Remove trailing zeroes
           .replace(/\.?0+$/, "");
 
-        console.log({ maxBN, str });
 
         updateAmount(str);
       }

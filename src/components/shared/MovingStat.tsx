@@ -135,7 +135,6 @@ export const APYWithRefreshMovingStat = React.memo(
     });
 
     useEffect(() => {
-      console.log({ data });
       if (data) {
         setCurrentStat(data);
       }

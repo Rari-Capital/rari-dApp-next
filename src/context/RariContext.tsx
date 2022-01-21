@@ -120,7 +120,6 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  console.log({ chainId });
   // Check the user's network:
   useEffect(() => {
     Promise.all([
@@ -185,9 +184,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (cacheProvider: boolean = true) => {
       try {
         setIsAttemptingLogin(true);
-        console.log("login 0");
         const providerWeb3Modal = await launchModalLazy(t, cacheProvider);
-        console.log("login 1");
         setWeb3ModalProvider(providerWeb3Modal);
         setRariAndAddressFromModal(providerWeb3Modal);
         setIsAttemptingLogin(false);

@@ -12,8 +12,6 @@ export const sendWithMultiCall = async (
 ) => {
   const multicall = createMultiCall(provider);
 
-  console.log("sendWithMultiCall", { encodedCalls, multicall });
-
   const returnDatas = await multicall.methods
     .aggregate(encodedCalls)
     .send({ from: address });

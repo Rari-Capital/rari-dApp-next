@@ -128,13 +128,11 @@ const AmountSelect = ({
 
   const updateAmount = (newAmount: string) => {
     if (newAmount.startsWith("-")) return;
-    console.log({ newAmount });
 
     _setUserEnteredAmount(newAmount);
 
     try {
       const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
-      console.log({ bigAmount });
       _setAmount(bigAmount);
     } catch (e) {
       // If the number was invalid, set the amount to null to disable confirming:
@@ -222,7 +220,6 @@ const AmountSelect = ({
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
-      console.log("Inside onConfirm");
 
       const isETH = asset.underlyingToken === ETH_TOKEN_DATA.address;
 
@@ -251,9 +248,7 @@ const AmountSelect = ({
 
       if (mode === Mode.SUPPLY || mode === Mode.REPAY) {
         // if not eth check if amounti is approved for thsi token
-        console.log("inside if 1.", { isETH });
         if (!isETH) {
-          console.log("shouldnt be here babe");
           const token = new Contract(
             asset.underlyingToken,
             JSON.parse(
@@ -277,29 +272,23 @@ const AmountSelect = ({
 
         // if ur suplying, then
         if (mode === Mode.SUPPLY) {
-          console.log("Inside supply");
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
-            console.log("enable as collateral");
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            console.log("HELLO");
             await comptroller.enterMarkets([asset.cToken]);
-            console.log("HEYYY");
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
           if (isETH) {
             const call = cToken.mint; //
-            console.log(cToken, cToken.mint);
 
             if (
               // If they are supplying their whole balance:
               amount === (await fuse.provider.getBalance(address))
             ) {
               // full balance of ETH
-              console.log("NOOO");
 
               // Subtract gas for max ETH
               const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
@@ -318,8 +307,6 @@ const AmountSelect = ({
               });
             } else {
               // custom amount of ETH
-              console.log("hey", { amount }, call);
-
               await call({ value: amount });
             }
           } else {
@@ -406,7 +393,6 @@ const AmountSelect = ({
       // Wait 2 seconds for refetch and then close modal.
       // We do this instead of waiting the refetch because some refetches take a while or error out and we want to close now.
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("made it");
       onClose();
     } catch (e) {
       handleGenericError(e, toast);
@@ -1013,7 +999,6 @@ export async function testForCTokenErrorAndSend(
   failMessage: string
 ) {
   let response = await txObjectStaticCall(txArgs);
-  console.log(response);
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string of a number.
   if (response.toString() !== "0") {
     response = parseInt(response);
@@ -1082,13 +1067,6 @@ async function fetchMaxAmount(
   asset: USDPricedFuseAsset,
   comptrollerAddress: string
 ) {
-  console.log({
-    fuse,
-    address,
-    asset,
-    comptrollerAddress,
-    mode,
-  });
 
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(

@@ -212,7 +212,6 @@ const AssetSettings = ({
         })
         .then((priceForAsset: string) => {
           // 3.) Check for price
-          console.log({ priceForAsset });
           setPriceForAsset(parseFloat(priceForAsset));
         })
         .catch((err: any) => {
@@ -317,13 +316,6 @@ const AssetSettings = ({
 
     // alert("deploying univ3twapOracle");
 
-    console.log("deployUniV3Oracle", {
-      feeTier,
-      uniV3BaseTokenAddress,
-      address,
-      deployPriceOracle: fuse.deployPriceOracle,
-    });
-
     // Deploy UniV3 oracle
     const oracleAddressToUse = await fuse.deployPriceOracle(
       "UniswapV3TwapPriceOracleV2",
@@ -332,8 +324,6 @@ const AssetSettings = ({
     );
 
     // alert("finished univ3twapOracle " + oracleAddressToUse);
-
-    console.log({ oracleAddressToUse });
 
     return oracleAddressToUse;
   };
@@ -370,13 +360,6 @@ const AssetSettings = ({
     );
 
     const tokenHasOraclesInPool = hasOracles.some((x) => !!x);
-
-    console.log("poop", {
-      hasOracles,
-      tokenArray,
-      oracleAddress,
-      tokenHasOraclesInPool,
-    });
 
     // if (!tokenHasOraclesInPool) {
     const tx = await poolOracleContract.add(tokenArray, oracleAddress, {
@@ -426,16 +409,6 @@ const AssetSettings = ({
       decimals: 8,
     };
 
-    console.log("Inside client, deployAssetToPool", {
-      conf,
-      collateralFactor,
-      reserveFactor,
-      adminFee,
-      bigCollateralFactor,
-      bigReserveFactor,
-      bigAdminFee,
-      address,
-    });
 
     await fuse.deployAsset(
       conf,
@@ -450,7 +423,6 @@ const AssetSettings = ({
     increaseActiveStep("All Done!");
   };
 
-  console.log(oracleAddress)
   // Deploy Asset!
   const deploy = async () => {
     let oracleAddressToUse = oracleAddress;
@@ -472,9 +444,7 @@ const AssetSettings = ({
       if (_retryFlag === 1) {
         setNeedsRetry(false);
         if (activeOracleModel === "Uniswap_V3_Oracle") {
-          console.log("preCheck");
           await checkUniV3Oracle();
-          console.log("postCheck");
         }
         _retryFlag = 2; // set it to two after we fall through step 1
       }
@@ -483,9 +453,7 @@ const AssetSettings = ({
       if (_retryFlag === 2) {
         setNeedsRetry(false);
         if (activeOracleModel === "Uniswap_V3_Oracle") {
-          console.log("predeploy");
           oracleAddressToUse = await deployUniV3Oracle();
-          console.log("postDeploy", { oracleAddressToUse });
         }
         _retryFlag = 3;
       }
@@ -501,13 +469,6 @@ const AssetSettings = ({
       if (_retryFlag === 4) {
         const shouldAddToMasterPriceOracle =
           !isTokenETHOrWETH(tokenAddress) && oracleAddress !== defaultOracle;
-        console.log({
-          _retryFlag,
-          oracleModel,
-          oracleAddress,
-          defaultOracle,
-          shouldAddToMasterPriceOracle,
-        });
         setNeedsRetry(false);
         if (
           shouldAddToMasterPriceOracle

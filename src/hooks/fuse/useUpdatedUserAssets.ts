@@ -22,7 +22,6 @@ const useUpdatedUserAssets = ({
   index: number;
   amount: BigNumber;
 }) => {
-  console.log({ mode, index, assets, amount });
 
   const { fuse } = useRari();
 
@@ -169,8 +168,6 @@ export const useUpdatedUserAssetsForBorrowAndLend = ({
   lendAmount: BigNumber;
   borrowAmount: BigNumber;
 }) => {
-  console.log({ assets, lendIndex, borrowIndex, lendAmount, borrowAmount });
-
   const updatedAssetsLend: USDPricedFuseAsset[] | undefined =
     useUpdatedUserAssets({
       mode: AmountSelectMode.LEND,

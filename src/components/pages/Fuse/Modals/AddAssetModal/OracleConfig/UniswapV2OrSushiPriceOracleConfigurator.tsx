@@ -57,7 +57,6 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Will update active pair, set oracle address and base token.
   const updateInfo = (value: string) => {
     const pair = Pairs[value];
-    console.log({value})
     setActiveUniSwapPair(value);
     setOracleAddress("");
     setUniV3BaseTokenAddress(

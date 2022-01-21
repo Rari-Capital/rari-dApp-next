@@ -67,7 +67,6 @@ export default async function handler(
   if (req.method === "GET") {
     // Get Underlying Assets from subgraph
     let chainId = parseInt(req.query.chainId as string) ?? ChainID.ETHEREUM;
-    console.log("EXPLORE", { chainId });
     try {
       const [
         topEarningFuseStable,

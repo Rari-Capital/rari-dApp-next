@@ -9,7 +9,6 @@ const UniswapV2TwapInfoForBot = () => {
     const [pairAddress, setPairAddress] = useState("")
     const { fuse, address } = useRari()
     const { oracleAddress, uniV3BaseTokenAddress, setOracleAddress, tokenAddress, activeUniSwapPair  } = useAddAssetContext()
-    console.log({oracleAddress})
 
     // Get pair options from sushiswap and uniswap
     const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
@@ -23,7 +22,6 @@ const UniswapV2TwapInfoForBot = () => {
             { from: address }
         )
         setPairAddress(UniV2Pairs[activeUniSwapPair].id)
-        console.log(addressToUse)
         setOracleAddress(addressToUse)
     };
 

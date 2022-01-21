@@ -63,9 +63,9 @@ const FusePoolCreatePage = memo(() => {
         width={isMobile ? "100%" : "1150px"}
         px={isMobile ? 4 : 0}
       >
-        <FuseStatsBar />
+        {/* <FuseStatsBar />
 
-        <FuseTabBar />
+        <FuseTabBar /> */}
 
         <PoolConfiguration />
       </Column>
