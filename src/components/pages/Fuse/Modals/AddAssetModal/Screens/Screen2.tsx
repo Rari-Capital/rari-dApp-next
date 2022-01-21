@@ -13,6 +13,7 @@ import { useQuery } from "react-query";
 import { createOracle } from "utils/createComptroller";
 import { Spinner } from "@chakra-ui/spinner";
 import { useAddAssetContext } from "context/AddAssetContext";
+import UniswapV2TwapInfoForBot from "../OracleConfig/UniswapV2TwapInfoForBot";
 
 const Screen2 = ({ mode }: { mode: string }) => {
   const {
@@ -64,6 +65,7 @@ const Screen2 = ({ mode }: { mode: string }) => {
   const hasDefaultOraclePriceAndHasntEdited =
     hasDefaultOracle && hasPriceForAsset && oracleAddress === defaultOracle;
 
+    console.log({activeOracleModel, oracleAddress, activeUniSwapPair})
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -128,6 +130,17 @@ const Screen2 = ({ mode }: { mode: string }) => {
             crossAxisAlignment="center"
           >
             <BaseTokenOracleConfig />
+          </Column>
+        ) : null}
+        {activeOracleModel === "Uniswap_V2_Oracle" && activeUniSwapPair !== ""  && uniV3BaseTokenAddress !== "" ? (
+          <Column
+            width="50%"
+            minW="50%"
+            height="100%"
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
+          >
+            <UniswapV2TwapInfoForBot />
           </Column>
         ) : null}
       </Row>

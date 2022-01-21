@@ -29,10 +29,6 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   const { fuse, address } = useRari();
   const { t } = useTranslation();
 
-  // This will be used to index whitelistPools array (fetched from the graph.)
-  // It also helps us know if user has selected anything or not. If they have, detail fields are shown.
-  const [activePool, setActivePair] = useState<string>("");
-
   // Checks if user has started the TWAP bot.
   const [checked, setChecked] = useState<boolean>(false);
 
@@ -43,7 +39,9 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
     tokenAddress, 
     setOracleAddress, 
     setUniV3BaseTokenAddress,
-    uniV3BaseTokenAddress
+    uniV3BaseTokenAddress,
+    setActiveUniSwapPair,
+    activeUniSwapPair
   } =
     useAddAssetContext();
 
@@ -59,23 +57,15 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Will update active pair, set oracle address and base token.
   const updateInfo = (value: string) => {
     const pair = Pairs[value];
-    setActivePair(value);
-    setOracleAddress(pair.id);
+    console.log({value})
+    setActiveUniSwapPair(value);
+    setOracleAddress("");
     setUniV3BaseTokenAddress(
       pair.id === tokenAddress ? pair.token0.id : pair.token1.id
     );
   };
 
-  // Deploy Oracle
-  const deployUniV2Oracle = async () => {
-    console.log('uy')
-    const addressToUse = await fuse.deployPriceOracle(
-      "UniswapTwapPriceOracleV2",
-      { baseToken: uniV3BaseTokenAddress },
-      { from: address }
-    )
-    setOracleAddress(addressToUse)
-  };
+  
 
   // If pairs are still being fetched, if theres and error or if there are none, return nothing.
   if (Pairs === undefined || Error || Pairs === null) return null;
@@ -89,13 +79,19 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
         my={3}
       >
         <Checkbox isChecked={checked} onChange={() => setChecked(!checked)}>
-          <Text fontSize="xs" align="center">
-            Using this type of oracle requires you to run a TWAP bot.
+          <Text fontSize="xs" align="left">
+          
+            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. 
+            <br/>
           </Text>
         </Checkbox>
       </Row>
 
       {checked ? (
+        <>
+        <Text fontSize="xs" align="left">
+          We'll help you set up the oracle.
+        </Text>
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
@@ -105,20 +101,10 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
           {/* <Button colorScheme="teal">Check</Button> */}
 
           <Text fontSize="xs" align="center">
-            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. 
-            
-            <br/>
-            
-            To visit Rari Capital's TWAP bot repository click 
-             
-             <Link> here   <ExternalLinkIcon mx='2px' /> </Link> 
-
-             Once your bot is up and running contact us to add it to our Grafana and redundancy bots list. 
+            1) Select the uniswap pair you'd like to use:
           </Text>
         </Row>
-      ) : null}
-
-      {true ? (
+      
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
@@ -142,9 +128,9 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             _focus={{ outline: "none" }}
             width="180px"
             placeholder={
-              activePool.length === 0 ? t("Choose Pool") : activePool
+              activeUniSwapPair.length === 0 ? t("Choose Pool") : activeUniSwapPair
             }
-            value={activePool}
+            value={activeUniSwapPair}
             disabled={!checked}
             onChange={(event) => {
               updateInfo(event.target.value);
@@ -169,9 +155,10 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
               : null}
           </Select>
         </Row>
+        </>
       ) : null}
 
-      {activePool.length > 0 ? (
+      {activeUniSwapPair.length > 0 ? (
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
@@ -184,22 +171,12 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             </Text>
           </SimpleTooltip>
           <h1>
-            {activePool !== ""
-              ? smallUsdFormatter(Pairs[activePool].totalSupply)
+            {activeUniSwapPair !== ""
+              ? smallUsdFormatter(Pairs[activeUniSwapPair].totalSupply)
               : null}
           </h1>
         </Row>
       ) : null}
-
-      {activePool.length > 0 ? (
-        <Button
-          onClick={() => deployUniV2Oracle()}
-        >
-          Deploy!
-        </Button>
-        ) : null
-
-      }
     </>
   );
 };

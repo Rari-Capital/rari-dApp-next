@@ -490,6 +490,10 @@ const AssetSettings = ({
         _retryFlag = 3;
       }
 
+      if (activeOracleModel === "Uniswap_V2_Oracle") {
+        _retryFlag = 4;
+      }
+
       /**  CONFIGURE MASTERPRICEORACLE **/
       // You dont need to configure if your asset is ETH / WETH
       // You dont need to configure if a default oracle is available and you have chosen it

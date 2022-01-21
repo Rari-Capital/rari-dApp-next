@@ -133,7 +133,6 @@ const OracleConfig = () => {
       activeUniSwapPair === "" &&
       (activeOracleModel === "Custom_Oracle" ||
         activeOracleModel === "Uniswap_V3_Oracle" ||
-        activeOracleModel === "Uniswap_V2_Oracle" ||
         activeOracleModel === "SushiSwap_Oracle") &&
       !inputTouched
     )
