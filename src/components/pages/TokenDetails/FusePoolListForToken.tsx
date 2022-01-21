@@ -26,14 +26,19 @@ import { GET_UNDERLYING_ASSET_WITH_POOLS } from "gql/underlyingAssets/getUnderly
 import { ChainID } from "esm/utils/networks";
 import { useRari } from "context/RariContext";
 
-const thStyle = {
-  fontSize: "initial",
-  fontWeight: "normal",
-  color: "rgba(255,255,255,0.5)",
-  textTransform: "none",
-  letterSpacing: 0,
-  cursor: "pointer",
-  userSelect: "none",
+const PoolTh: React.FC<React.ComponentProps<typeof Th>> = (props) => {
+  return (
+    <Th
+      fontSize="initial"
+      fontWeight="normal"
+      color="rgba(255,255,255,0.5)"
+      textTransform="none"
+      letterSpacing={0}
+      cursor="pointer"
+      userSelect="none"
+      {...props}
+    />
+  );
 };
 
 const fetchUnderlyingAssetWithPools = async (
@@ -122,11 +127,11 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
           }}
         >
           <Tr>
-            <Th style={thStyle}>Fuse Pool</Th>
-            <Th style={thStyle}>Asset Liquidity</Th>
-            <Th style={thStyle}>Lend APY</Th>
-            <Th style={thStyle}>Borrow APR</Th>
-            <Th style={thStyle} position="relative">
+            <PoolTh>Fuse Pool</PoolTh>
+            <PoolTh>Asset Liquidity</PoolTh>
+            <PoolTh>Lend APY</PoolTh>
+            <PoolTh>Borrow APR</PoolTh>
+            <PoolTh position="relative">
               <HStack alignContent="flex-end">
                 <Text>Borrow Against</Text>
                 <ViewIcon
@@ -150,8 +155,8 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
                   setFilteredTokens={setFilteredTokens}
                 />
               )}
-            </Th>
-            <Th style={thStyle} />
+            </PoolTh>
+            <PoolTh />
           </Tr>
         </Thead>
         <Tbody w="100%">
