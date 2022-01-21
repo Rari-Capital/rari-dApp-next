@@ -21,6 +21,7 @@ export const useFuseTVL = () => {
   const { fuse, chainId } = useRari();
 
   return useQuery("fuseTVL chain " + chainId, async () => {
+    if (!chainId) return undefined;
     return fetchFuseNumberTVL(fuse);
   });
 };

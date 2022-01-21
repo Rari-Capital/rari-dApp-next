@@ -2,17 +2,12 @@
 import { Vaults, Fuse } from "../esm/index";
 
 // Ethers
-import {
-  BigNumber,
-  constants,
-} from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { ChainID } from "esm/utils/networks";
 
 export const fetchFuseTVL = async (fuse: Fuse) => {
-  
-
   try {
     const res =
       await fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
@@ -39,8 +34,11 @@ export const fetchFuseTVL = async (fuse: Fuse) => {
   }
 };
 
-
-export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse, chainId: ChainID) => {
+export const perPoolTVL = async (
+  Vaults: Vaults,
+  fuse: Fuse,
+  chainId: ChainID
+) => {
   // const [stableTVL, yieldTVL, ethTVLInETH, daiTVL, stakedTVL] =
   //   await Promise.all([
   //     Vaults.pools.stable.balances.getTotalSupply(),
@@ -50,7 +48,7 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse, chainId: ChainID) =
   //     Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(),
   //   ]);
 
-  const ethUSDBN =  await getEthUsdPriceBN();
+  const ethUSDBN = await getEthUsdPriceBN();
 
   // console.log("PER POOL TVL");
 
@@ -82,10 +80,16 @@ export const perPoolTVL = async (Vaults: Vaults, fuse: Fuse, chainId: ChainID) =
   };
 };
 
-export const fetchTVL = async (Vaults: Vaults, fuse: Fuse, chainId?: ChainID)  : Promise<BigNumber> => {
+export const fetchTVL = async (
+  Vaults: Vaults,
+  fuse: Fuse,
+  chainId?: ChainID
+): Promise<BigNumber> => {
+  console.log("fetchTVL", { chainId });
   if (!chainId) return constants.Zero;
   try {
     const tvls = await perPoolTVL(Vaults, fuse, chainId);
+    console.log("fetchTVL", { fuse, tvls });
     return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
 
     // return tvls.stableTVL
