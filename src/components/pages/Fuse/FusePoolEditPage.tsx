@@ -246,9 +246,9 @@ const FusePoolEditPage = memo(() => {
         px={isMobile ? 4 : 0}
       // bg="pink"
       >
-        {/* <FuseStatsBar />
+        <FuseStatsBar />
 
-        <FuseTabBar /> */}
+        <FuseTabBar />
 
         <RowOrColumn
           width="100%"
