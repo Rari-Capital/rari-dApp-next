@@ -65,6 +65,7 @@ const Screen2 = ({ mode }: { mode: string }) => {
   const hasDefaultOraclePriceAndHasntEdited =
     hasDefaultOracle && hasPriceForAsset && oracleAddress === defaultOracle;
 
+    console.log({activeOracleModel, oracleAddress, activeUniSwapPair})
   return (
     <Column
       mainAxisAlignment="flex-start"

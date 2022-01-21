@@ -208,6 +208,7 @@ export default class Fuse {
                         // Input validation
                         if (!conf.uniswapV2Factory)
                             conf.uniswapV2Factory = this.addresses.UNISWAP_V2_FACTORY_ADDRESS;
+                        console.log(this.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS);
                         // Check for existing oracle
                         oracleFactoryContract = new Contract(this.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS, this.oracleContracts.UniswapTwapPriceOracleV2Factory.abi, this.provider.getSigner());
                         console.log({ oracleFactoryContract });

@@ -176,16 +176,6 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
           </h1>
         </Row>
       ) : null}
-
-      {activePool.length > 0 ? (
-        <Button
-          onClick={() => deployUniV2Oracle()}
-        >
-          Deploy!
-        </Button>
-        ) : null
-
-      }
     </>
   );
 };
