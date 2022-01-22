@@ -458,7 +458,7 @@ const AssetSettings = ({
         _retryFlag = 3;
       }
 
-      if (activeOracleModel === "Uniswap_V2_Oracle") {
+      if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
         _retryFlag = 4;
       }
 

@@ -3,12 +3,13 @@ import { useRari } from "context/RariContext";
 import { Column, Row } from "lib/chakraUtils";
 import { Button, Text } from "@chakra-ui/react";
 import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useCheckUniV2Oracle from "hooks/fuse/useCheckUniV2Oracle";
 
 const UniswapV2TwapInfoForBot = () => {
     const [pairAddress, setPairAddress] = useState("")
     const { fuse, address } = useRari()
-    const { oracleAddress, uniV3BaseTokenAddress, setOracleAddress, tokenAddress, activeUniSwapPair  } = useAddAssetContext()
+    const { oracleAddress, uniV3BaseTokenAddress, activeOracleModel, setOracleAddress, tokenAddress, activeUniSwapPair  } = useAddAssetContext()
 
     // Get pair options from sushiswap and uniswap
     const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
@@ -21,9 +22,12 @@ const UniswapV2TwapInfoForBot = () => {
             { baseToken: uniV3BaseTokenAddress },
             { from: address }
         )
-        setPairAddress(UniV2Pairs[activeUniSwapPair].id)
+        const id = activeOracleModel === "Uniswap_V2_Oracle" ? UniV2Pairs[activeUniSwapPair].id  : SushiPairs[activeUniSwapPair].id
+        setPairAddress(id)
         setOracleAddress(addressToUse)
     };
+
+    const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress)
 
     return (
         
@@ -85,6 +89,9 @@ const UniswapV2TwapInfoForBot = () => {
                 </>
 
             : null}
+            <Button>
+                {isItReady?.toString()}
+            </Button>
       </Column>
     )
 }

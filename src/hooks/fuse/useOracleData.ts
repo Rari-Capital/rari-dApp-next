@@ -331,6 +331,7 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
   const { data: UniV2Pairs, error: univ2Error } = useQuery(
     "UniswapV2 pairs for  " + tokenAddress,
     async () => {
+      if (chainId != ChainID.ETHEREUM) return null
       const lowerCaseAddress = tokenAddress.toLocaleLowerCase()
       const pairs = await axios.post(
         "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
@@ -359,8 +360,6 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
     },
     { refetchOnMount: false }
   );
-
-  console.log({UniV2Pairs})
 
   const { data: SushiPairs, error: SushiError } = useQuery(
     "SushiSwap pairs for  " + tokenAddress + " " + chainId,

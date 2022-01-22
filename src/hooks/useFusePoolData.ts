@@ -38,6 +38,7 @@ export const useFusePoolsData = (poolIds: number[]): FusePoolData[] | null => {
     })
   );
 
+  console.log(poolsData)
   // Get Fuse Pools Data
   const fusePoolsData: FusePoolData[] | null = useMemo(() => {
     // todo - use type FusePoolData

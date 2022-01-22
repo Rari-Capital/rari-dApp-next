@@ -173,8 +173,14 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             {activeUniSwapPair !== ""
               ? smallUsdFormatter(Pairs[activeUniSwapPair].totalSupply)
               : null}
+               <Link href={`https://analytics-arbitrum.sushi.com/pairs/${Pairs[activeUniSwapPair].id}`} isExternal>
+                <ExternalLinkIcon />
+          
+              </Link>
           </h1>
+         
         </Row>
+
       ) : null}
     </>
   );

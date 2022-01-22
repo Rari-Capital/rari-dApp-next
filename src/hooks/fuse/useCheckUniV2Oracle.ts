@@ -1,27 +1,38 @@
 import { Contract } from "@ethersproject/contracts"
 import { useRari } from "context/RariContext"
+import { ChainID } from "esm/utils/networks"
 import { useQuery } from "react-query"
 import UniswapV2OracleAbi  from '../../esm/Fuse/contracts/abi/UniswapTwapPriceOracleV2Root.json'
 
-const useCheckUniV2Oracle = (address: string) => {
-    const { fuse } = useRari()
+const useCheckUniV2Oracle = (underlying: string, baseToken: string) => {
+    const { fuse, chainId } = useRari()
 
-    const { data: isItReady, error } = useQuery("", async () => {
+    const { data: isItReady, error } = useQuery(`Checking Twap Oracle for ${underlying} ${baseToken} ${fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS} `, async () => {
+        
+        // Its interpreted as sushiswap on arbitrum. 
         const OracleContract = new Contract(
-            address,
+            fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS,
             UniswapV2OracleAbi,
             fuse.provider
         )
+        const we = await OracleContract.callStatic.observationCount()
+        console.log({we})
 
-        const isItReady = await OracleContract.price(
-            '0x6b175474e89094c44da98b954eedeac495271d0f', // will be underlying
-            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // will be base token
-            fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS
+        const isItReady = await OracleContract.callStatic.price(
+            underlying, // will be underlying
+            baseToken, // will be base token
+            fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS
         )
-    })
 
-    console.log(isItReady)
+        return !!isItReady
+    }, {
+        // Refetch the data every second
+        refetchInterval: 1000,
+      })
 
+    console.log({isItReady})
+
+    return isItReady
 
 }
 

@@ -127,7 +127,8 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       fuse.provider.getNetwork(),
     ]).then(([netId, network]) => {
       const { chainId } = network;
-      console.log("Network ID: " + netId, "Chain ID: " + chainId);
+      const _chainId = chainId === 33137 ? ChainID.ETHEREUM : chainId
+    console.log("Network ID: " + netId, "Chain ID: " + _chainId);
 
       // // Don't show "wrong network" toasts if dev
       // if (process.env.NODE_ENV === "development") {

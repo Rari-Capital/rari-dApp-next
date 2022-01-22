@@ -131,7 +131,7 @@ const Screen2 = ({ mode }: { mode: string }) => {
             <BaseTokenOracleConfig />
           </Column>
         ) : null}
-        {activeOracleModel === "Uniswap_V2_Oracle" && activeUniSwapPair !== ""  && uniV3BaseTokenAddress !== "" ? (
+        {activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle" && activeUniSwapPair !== ""  && uniV3BaseTokenAddress !== "" ? (
           <Column
             width="50%"
             minW="50%"
