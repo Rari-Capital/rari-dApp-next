@@ -209,11 +209,11 @@ export default class Fuse {
                             conf.uniswapV2Factory = this.addresses.UNISWAP_V2_FACTORY_ADDRESS;
                         // Check for existing oracle
                         oracleFactoryContract = new Contract(this.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS, this.oracleContracts.UniswapTwapPriceOracleV2Factory.abi, this.provider.getSigner());
-                        deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                        deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         // Deploy if oracle does not exist
                         if (deployedPriceOracle === "0x0000000000000000000000000000000000000000") {
-                            yield oracleFactoryContract.deploy(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
-                            deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                            yield oracleFactoryContract.deploy(conf.uniswapV2Factory, conf.baseToken);
+                            deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         }
                         return deployedPriceOracle;
                     // TODO : Delete all these after the tests gets moved into the contracts repo

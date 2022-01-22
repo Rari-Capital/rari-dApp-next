@@ -248,9 +248,15 @@ export const useGetOracleOptions = (
     `UniswapV3 pool liquidity for ${tokenAddress} on ChainID: ${chainId}`,
     async () => {
       const tokenAddressFormatted = tokenAddress.toLowerCase()
+      
+      // TODO: Config file
+      const graphUrl = chainId === ChainID.ETHEREUM ? 
+        "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3" 
+        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal/graphql"
+
       return (
         await axios.post(
-          "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+          graphUrl,
           {
             query: `{
             token(id:"${tokenAddressFormatted}") {
@@ -273,7 +279,8 @@ export const useGetOracleOptions = (
           }`,
           }
         )
-      ).data.data },
+      ).data.data 
+    },
     { refetchOnMount: false }
   );
 
@@ -320,14 +327,16 @@ export const useGetOracleOptions = (
 };
 
 export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
+  const { chainId } = useRari()
   const { data: UniV2Pairs, error: univ2Error } = useQuery(
     "UniswapV2 pairs for  " + tokenAddress,
     async () => {
+      const lowerCaseAddress = tokenAddress.toLocaleLowerCase()
       const pairs = await axios.post(
         "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
         {
           query: `{
-          pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${tokenAddress.toLocaleLowerCase()}" } ) {
+          pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${lowerCaseAddress}", totalSupply_gt: 10000 } ) {
             id,
            token0 {
              id,
@@ -345,17 +354,23 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
       return pairs !== undefined &&
         pairs.data !== undefined &&
         pairs.data.data.pairs !== undefined
-        ? pairs.data.data.pairs.filter((pair: any) => pair.totalSupply > 10000)
+        ? pairs.data.data.pairs
         : null;
     },
     { refetchOnMount: false }
   );
 
+  console.log({UniV2Pairs})
+
   const { data: SushiPairs, error: SushiError } = useQuery(
-    "SushiSwap pairs for  " + tokenAddress,
+    "SushiSwap pairs for  " + tokenAddress + " " + chainId,
     async () => {
-      const pairs = await axios.post(
-        "https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork",
+      const graphUrl = chainId === ChainID.ETHEREUM 
+        ? "https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork"
+        : "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange"
+      
+        const pairs = await axios.post(
+        graphUrl,
         {
           query: `{
           pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${tokenAddress.toLocaleLowerCase()}" } ) {
