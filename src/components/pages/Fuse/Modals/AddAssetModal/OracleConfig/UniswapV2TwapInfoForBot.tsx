@@ -3,12 +3,11 @@ import { useRari } from "context/RariContext";
 import { Column, Row } from "lib/chakraUtils";
 import { Button, Text, useClipboard, Box } from "@chakra-ui/react";
 import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
-import { useEffect, useState } from "react";
-import useCheckUniV2Oracle from "hooks/fuse/useCheckUniV2Oracle";
+import { useState } from "react";
 import { shortAddress } from "utils/shortAddress";
 
 const UniswapV2TwapInfoForBot = () => {
-    const [pairAddress, setPairAddress] = useState("")
+    const [ pairAddress, setPairAddress ] = useState("")
     const { fuse, address } = useRari()
     const { 
         oracleAddress, 
@@ -38,7 +37,6 @@ const UniswapV2TwapInfoForBot = () => {
         setOracleAddress(addressToUse)
     };
 
-    const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress)
     const rootPriceOracle = fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS 
     
     const { hasCopied: copiedRoot, onCopy: onCopyRoot } = useClipboard(rootPriceOracle ?? "");
@@ -99,9 +97,6 @@ const UniswapV2TwapInfoForBot = () => {
                             addressToCopy={uniV3BaseTokenAddress}
                             />   
                     </Box>
-                    <Button>
-                        {isItReady?.toString()}
-                    </Button>
                 </>
 
             : null}
