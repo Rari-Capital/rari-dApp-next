@@ -15,14 +15,14 @@ const useCheckUniV2Oracle = (underlying: string, baseToken: string) => {
             UniswapV2OracleAbi,
             fuse.provider
         )
-        const we = await OracleContract.callStatic.observationCount()
-        console.log({we})
-
+            console.log('before')
         const isItReady = await OracleContract.callStatic.price(
             underlying, // will be underlying
             baseToken, // will be base token
             fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS
         )
+
+        console.log({isItReady})
 
         return !!isItReady
     }, {

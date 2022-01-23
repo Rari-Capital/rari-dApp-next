@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // Chakra and UI
 import { Column, Row } from "lib/chakraUtils";
 import { Alert, Text, AlertIcon } from "@chakra-ui/react";
@@ -16,6 +18,10 @@ import { useAddAssetContext } from "context/AddAssetContext";
 import UniswapV2TwapInfoForBot from "../OracleConfig/UniswapV2TwapInfoForBot";
 
 const Screen2 = ({ mode }: { mode: string }) => {
+  // Only for UNIV2
+    // Checks if user has started the TWAP bot.
+  const [checked, setChecked] = useState<boolean>(false);
+
   const {
     feeTier,
     poolOracleModel,
@@ -69,6 +75,7 @@ const Screen2 = ({ mode }: { mode: string }) => {
     <Column
       mainAxisAlignment="flex-start"
       crossAxisAlignment="flex-start"
+      id="HUGECOLUMN"
       h="100%"
       w="100%"
       // bg="aqua"
@@ -105,7 +112,7 @@ const Screen2 = ({ mode }: { mode: string }) => {
         w="100%"
       >
         <Column
-          mainAxisAlignment="flex-start"
+          mainAxisAlignment={checked ? "space-evenly" : "center"}
           crossAxisAlignment={
             shouldShowUniV3BaseTokenOracleForm ? "flex-start" : "center"
           }
@@ -117,8 +124,10 @@ const Screen2 = ({ mode }: { mode: string }) => {
               ? "50%"
               : "100%"
           }
+          id="LMAO"
+          padding="15px"
         >
-          <OracleConfig />
+          <OracleConfig checked={checked} setChecked={setChecked} />
         </Column>
         {shouldShowUniV3BaseTokenOracleForm ? (
           <Column
@@ -136,6 +145,9 @@ const Screen2 = ({ mode }: { mode: string }) => {
             width="50%"
             minW="50%"
             height="100%"
+            padding="15px"
+            justifyContent="space-evenly"
+            id="OUTER"
             mainAxisAlignment="center"
             crossAxisAlignment="center"
           >

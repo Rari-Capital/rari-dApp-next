@@ -7,7 +7,7 @@ import { QuestionIcon } from "@chakra-ui/icons";
 import { SimpleTooltip } from "../../../../../shared/SimpleTooltip";
 
 // React
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
 // Hooks
@@ -20,17 +20,18 @@ import { useRari } from "context/RariContext";
 
 const UniswapV2OrSushiPriceOracleConfigurator = ({
   type,
+  checked,
+  setChecked
 }: {
   // Asset's Address. i.e DAI, USDC
 
   // Either SushiSwap or Uniswap V2
   type: string;
+  checked:boolean,
+  setChecked: Dispatch<SetStateAction<boolean>>
 }) => {
   const { fuse, address } = useRari();
   const { t } = useTranslation();
-
-  // Checks if user has started the TWAP bot.
-  const [checked, setChecked] = useState<boolean>(false);
 
   // Will store oracle response. This helps us know if its safe to add it to Master Price Oracle
   const [checkedStepTwo, setCheckedStepTwo] = useState<boolean>(false);
@@ -71,20 +72,20 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
 
   return (
     <>
+    { !checked ?
       <Row
         crossAxisAlignment="center"
         mainAxisAlignment="space-between"
         width="260px"
-        my={3}
+        mt={2}
       >
         <Checkbox isChecked={checked} onChange={() => setChecked(!checked)}>
-          <Text fontSize="xs" align="left">
-          
-            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. 
-            <br/>
+          <Text fontSize="10px" align="center">
+            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. Click to continue.
           </Text>
         </Checkbox>
-      </Row>
+      </Row> : null
+    }
 
       {checked ? (
         <>
