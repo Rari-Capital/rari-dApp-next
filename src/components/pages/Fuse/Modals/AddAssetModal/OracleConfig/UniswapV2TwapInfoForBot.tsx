@@ -1,7 +1,7 @@
 import { useAddAssetContext } from "context/AddAssetContext"
 import { useRari } from "context/RariContext";
 import { Column, Row } from "lib/chakraUtils";
-import { Button, Text } from "@chakra-ui/react";
+import { Button, Text, useClipboard, Box } from "@chakra-ui/react";
 import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
 import { useEffect, useState } from "react";
 import useCheckUniV2Oracle from "hooks/fuse/useCheckUniV2Oracle";
@@ -19,6 +19,8 @@ const UniswapV2TwapInfoForBot = () => {
         activeUniSwapPair,
         tokenData
     } = useAddAssetContext()
+
+    
 
     // Get pair options from sushiswap and uniswap
     const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
@@ -38,6 +40,10 @@ const UniswapV2TwapInfoForBot = () => {
 
     const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress)
     const rootPriceOracle = fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS 
+    
+    const { hasCopied: copiedRoot, onCopy: onCopyRoot } = useClipboard(rootPriceOracle ?? "");
+    const { hasCopied: copiedBase, onCopy: onCopyBase } = useClipboard(uniV3BaseTokenAddress ?? "");
+    const { hasCopied: copiedPair, onCopy: onCopyPair } = useClipboard(pairAddress ?? "");
     return (
         <>
           
@@ -71,45 +77,28 @@ const UniswapV2TwapInfoForBot = () => {
                     <Text fontSize="xs" align="center">
                         3) Use the information below to configure your TWAP bot. 
                     </Text>
-                    <Row
-                        crossAxisAlignment="center"
-                        mainAxisAlignment="space-between"
+                    <Box
                         width="100%"
-                        my={3}
                     >
-                        <Text fontSize="s" align="center">
-                            Root price oracle contract address:
-                        </Text>
-                        <Text fontSize="xs" align="center">
-                            {shortAddress(rootPriceOracle)}
-                        </Text>
-                    </Row>
-                    <Row
-                        crossAxisAlignment="center"
-                        mainAxisAlignment="space-between"
-                        width="260px"
-                        my={3}
-                    >
-                        <Text fontSize="s" align="center">
-                            Pair address:
-                        </Text>
-                        <Text fontSize="xs" align="center">
-                            {shortAddress(pairAddress)}
-                        </Text>
-                    </Row>
-                    <Row
-                        crossAxisAlignment="center"
-                        mainAxisAlignment="space-between"
-                        width="260px"
-                        my={3}
-                    >
-                        <Text fontSize="s" align="center">
-                            Pair's base token address:
-                        </Text>
-                        <Text fontSize="xs" align="center">
-                            {shortAddress(uniV3BaseTokenAddress)}
-                        </Text>
-                    </Row>
+                        <TwapBotConfigRow 
+                            label={"Root oracle contract address:"}
+                            onCopy={onCopyRoot}
+                            hasCopied={copiedRoot}
+                            addressToCopy={rootPriceOracle}
+                            />
+                        <TwapBotConfigRow 
+                            label={"Pair address:"}
+                            onCopy={onCopyPair}
+                            hasCopied={copiedPair}
+                            addressToCopy={pairAddress}
+                            />
+                        <TwapBotConfigRow 
+                            label={"Pair's base token address:"}
+                            onCopy={onCopyBase}
+                            hasCopied={copiedBase}
+                            addressToCopy={uniV3BaseTokenAddress}
+                            />   
+                    </Box>
                     <Button>
                         {isItReady?.toString()}
                     </Button>
