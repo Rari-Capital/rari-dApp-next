@@ -1,9 +1,20 @@
-import { useAddAssetContext } from "context/AddAssetContext"
-import { useRari } from "context/RariContext";
-import { Column, Row } from "lib/chakraUtils";
-import { Button, Text, useClipboard, Box } from "@chakra-ui/react";
-import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
 import { useState } from "react";
+
+// Context
+    // Fuse
+import { useAddAssetContext } from "context/AddAssetContext"   
+    // Rari 
+import { useRari } from "context/RariContext";
+
+// Chakra UI
+import { Button, Text, useClipboard, Box } from "@chakra-ui/react";
+import { CopyIcon } from '@chakra-ui/icons'
+import { Column, Row } from "lib/chakraUtils";
+
+// Hooks
+import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
+
+// Utils
 import { shortAddress } from "utils/shortAddress";
 
 const UniswapV2TwapInfoForBot = () => {
