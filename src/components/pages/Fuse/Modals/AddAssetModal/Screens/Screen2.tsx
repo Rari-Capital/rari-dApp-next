@@ -17,11 +17,18 @@ import { Spinner } from "@chakra-ui/spinner";
 import { useAddAssetContext } from "context/AddAssetContext";
 import UniswapV2TwapInfoForBot from "../OracleConfig/UniswapV2TwapInfoForBot";
 
-const Screen2 = ({ mode }: { mode: string }) => {
+const Screen2 = ({ 
+  mode,
+  checked,
+  setChecked
+}: { 
+  mode: string,
+  checked: boolean,
+  setChecked: any
+}) => {
   // Only for UNIV2
     // Checks if user has started the TWAP bot.
-  const [checked, setChecked] = useState<boolean>(false);
-
+  
   const {
     feeTier,
     poolOracleModel,

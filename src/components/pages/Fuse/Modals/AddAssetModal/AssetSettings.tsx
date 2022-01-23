@@ -103,6 +103,8 @@ const AssetSettings = ({
   const [isBorrowPaused, setIsBorrowPaused] = useState(false);
   const [collateralFactor, setCollateralFactor] = useState(50);
 
+  const [checked, setChecked] = useState<boolean>(false);
+
   const [interestRateModel, setInterestRateModel] = useState(
     fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
       .JumpRateModel_Cream_Stables_Majors
@@ -591,7 +593,7 @@ const AssetSettings = ({
   if (mode === "Editing")
     return (
       <AddAssetContext.Provider value={args2}>
-        <AssetConfig />
+        <AssetConfig checked={checked} setChecked={setChecked}/>
       </AddAssetContext.Provider>
     );
 
@@ -650,7 +652,7 @@ const AssetSettings = ({
               justifyContent="center"
               // bg="aqua"
             >
-              <Screen2 mode="Adding" />
+              <Screen2 mode="Adding" checked={checked} setChecked={setChecked}/>
             </Row>
           ) : (
             <Screen3 />
