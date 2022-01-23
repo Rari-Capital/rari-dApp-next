@@ -366,7 +366,7 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
     async () => {
       const graphUrl = chainId === ChainID.ETHEREUM 
         ? "https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork"
-        : "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange"
+        : "https://api.thegraph.com/subgraphs/name/simplefi-finance/sushiswap-arbitrum"
       
         const pairs = await axios.post(
         graphUrl,
