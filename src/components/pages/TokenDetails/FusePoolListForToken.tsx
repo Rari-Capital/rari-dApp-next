@@ -23,18 +23,21 @@ import { shortAddress } from "utils/shortAddress";
 import { makeGqlRequest } from "utils/gql";
 import useSWR from "swr";
 import { GET_UNDERLYING_ASSET_WITH_POOLS } from "gql/underlyingAssets/getUnderlyingAssetWithPools";
+import { ChainID } from "esm/utils/networks";
+import { useRari } from "context/RariContext";
 
-const fetchUnderlyingAssetWithPools = async (tokenAddress: string) => {
+const fetchUnderlyingAssetWithPools = async (tokenAddress: string, chainId: ChainID) => {
   const { underlyingAsset }: { underlyingAsset: GQLUnderlyingAsset } =
     await makeGqlRequest(GET_UNDERLYING_ASSET_WITH_POOLS, {
       tokenAddress,
-    });
+    }, chainId);
   return underlyingAsset;
 };
 
-const useSubgraphPoolsForToken = (tokenAddress: string) => {
+const useSubgraphPoolsForToken = (tokenAddress?: string) => {
+  const { chainId } = useRari();
   const { data, error } = useSWR(
-    [tokenAddress.toLowerCase(), "pools"],
+    [tokenAddress?.toLowerCase(), chainId, "pools"],
     fetchUnderlyingAssetWithPools
   );
 
@@ -45,7 +48,7 @@ const useSubgraphPoolsForToken = (tokenAddress: string) => {
 const FusePoolListForToken = ({ token }: { token: TokenData }) => {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const pools = useSubgraphPoolsForToken(token.address);
+  const pools = useSubgraphPoolsForToken(token?.address);
 
   const underlyingAssets = useMemo(() => {
     const tokens = new Set<string>();
@@ -67,8 +70,8 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
     const poolUnderlyingsMap: { [id: string]: string[] } = {};
     pools.forEach(
       (pool) =>
-        (poolUnderlyingsMap[pool.id] =
-          pool.underlyingAssets?.map(({ id }) => id) ?? [])
+      (poolUnderlyingsMap[pool.id] =
+        pool.underlyingAssets?.map(({ id }) => id) ?? [])
     );
     return poolUnderlyingsMap;
   }, [pools]);

@@ -10,7 +10,7 @@ import { APYWithRefreshMovingStat } from "components/shared/MovingStat";
 import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
 
 // Hooks
-import { fetchFuseNumberTVL } from "hooks/fuse/useFuseTVL";
+import { fetchFuseNumberTVL, useFuseTVL } from "hooks/fuse/useFuseTVL";
 import { useRari } from "context/RariContext";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { useFuseTotalBorrowAndSupply } from "hooks/fuse/useFuseTotalBorrowAndSupply";
@@ -24,9 +24,11 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
 
   const { t } = useTranslation();
 
-  const { isAuthed, fuse, rari } = useRari();
+  const { isAuthed, fuse, chainId } = useRari();
 
   const { data: totalBorrowAndSupply } = useFuseTotalBorrowAndSupply();
+
+  const tvl = useFuseTVL();
 
   return (
     <RowOrColumn
@@ -133,8 +135,8 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
               fetchInterval={40000}
               loadingPlaceholder="$?"
               apyInterval={100}
-              fetch={() => fetchFuseNumberTVL(rari, fuse)}
-              queryKey={"fuseTVL"}
+              fetch={() => fetchFuseNumberTVL(fuse)}
+              queryKey={"fuseTVL chainId " + chainId}
               apy={0.15}
               statSize="3xl"
               captionSize="xs"

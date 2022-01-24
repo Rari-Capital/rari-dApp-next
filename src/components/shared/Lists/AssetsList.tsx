@@ -14,97 +14,177 @@ import { Column, Row, useIsMobile } from "lib/chakraUtils";
 
 // Types
 import { RariApiTokenData, TokensDataMap } from "types/tokens";
-import { queryAllUnderlyingAssets } from "services/gql";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { fetchTokensAPIDataAsMap } from "utils/services";
 import { useSortableList } from "hooks/useSortableList";
 import { SortableTableHeader } from "./Common";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { smallUsdFormatter } from "utils/bigUtils";
+import useInfiniteScroll from "react-infinite-scroll-hook";
+import { queryUnderlyingAssetsPaginated } from "services/gql/underlyingAssets";
+import { fetchTokensAPIDataAsMap } from "utils/services";
+import usePagination from "hooks/usePagination";
+import { useUnderlyingAssetsCount } from "components/pages/ExplorePage/TokenExplorer/TokenExplorer";
+import { useEffect, useMemo, useState } from "react";
+import { useTokensDataAsMap } from "hooks/useTokenData";
+import { useQuery } from "react-query";
+import { useRari } from "context/RariContext";
 
-export const AllAssetsList = ({
-  assets,
-  tokensData,
-}: {
+interface AllSubgraphUnderlyingAssets {
   assets: SubgraphUnderlyingAsset[];
   tokensData: TokensDataMap;
-}) => {
+}
+// Fetchers
+
+const useUnderlyingAssetsPaginated = (
+  offset: number,
+  limit: number,
+  orderBy: string = "address",
+  orderDir: "asc" | "desc" = "asc",
+) => {
+  const { chainId } = useRari();
+  return useQuery(
+    `Underlying Assets ${orderDir} by ${orderBy} offset ${offset} limit ${limit} chainId ${chainId}`,
+    async (): Promise<SubgraphUnderlyingAsset[]> => {
+      if (!chainId) return []
+      const underlyingAssets = await queryUnderlyingAssetsPaginated(
+        chainId,
+        offset,
+        limit,
+        orderBy,
+        orderDir
+      );
+      return underlyingAssets;
+    }
+  );
+};
+
+export const AllAssetsList = () => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const { chainId } = useRari();
 
+  const [underlyingAssets, setUnderlyingAssets] = useState<
+    SubgraphUnderlyingAsset[]
+  >([]);
+  const [tokensData, setTokensData] = useState<TokensDataMap>({});
+
+  // Total amount
+  const { data: count } = useUnderlyingAssetsCount();
+
+  // GQL Pagination logic
   const {
-    sorted: sortedAssets,
-    handleSortClick,
-    sortBy,
-    sortDir,
-  } = useSortableList(assets);
+    limit,
+    offset,
+    hasMore,
+    handleLoadMore,
+  } = usePagination(count);
+
+  // // Query GQL
+  const { data: newAssets, isLoading } = useUnderlyingAssetsPaginated(
+    offset,
+    limit
+  );
+
+  const newAssetsUnderlyings = useMemo(
+    () => newAssets?.map(({ id }) => id) ?? [],
+    [newAssets]
+  );
+
+  // We use this to compare changes on `newAssetsUnderlyings` for the below useEffect
+  const flag = useMemo(() => newAssetsUnderlyings[0], [newAssetsUnderlyings]);
+  useEffect(() => {
+    fetchTokensAPIDataAsMap(newAssetsUnderlyings, chainId).then((newTokensData) => {
+      setTokensData(Object.assign(tokensData, newTokensData));
+    });
+  }, [flag, chainId]);
+
+  useEffect(() => {
+    // Append to array in state and set it
+    setUnderlyingAssets([...underlyingAssets, ...(newAssets ?? [])]);
+  }, [newAssets]);
+
+  const loadMore = () => {
+    handleLoadMore();
+  };
+
+  const [sentryRef, { rootRef }] = useInfiniteScroll({
+    loading: isLoading,
+    hasNextPage: hasMore,
+    onLoadMore: loadMore,
+    disabled: false,
+    rootMargin: "0px 0px 200px 0px",
+  });
+
+  useEffect(() => {
+    setUnderlyingAssets([])
+  }, [chainId])
 
   return (
     <Box h="400px" w="100%" overflowY="scroll">
-      {!sortedAssets.length ? (
+      {!underlyingAssets.length ? (
         <Box w="100%" h="50px">
           <Center>
             <Spinner my={8} />
           </Center>
         </Box>
       ) : (
-        <Table variant="unstyled">
-          <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
-            <Tr>
-              <SortableTableHeader
-                text="Asset"
-                sortDir={sortDir}
-                handleSortClick={() => handleSortClick("symbol")}
-                isActive={sortBy === "symbol"}
-              />
-
-              {isMobile ? null : (
-                <>
-                  <SortableTableHeader
-                    text="Total Supplied"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalSupplyUSD")}
-                    isActive={sortBy === "totalSupplyUSD"}
-                  />
-
-                  <SortableTableHeader
-                    text="Total Borrowed"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalBorrowUSD")}
-                    isActive={sortBy === "totalBorrowUSD"}
-                  />
-
-                  <SortableTableHeader
-                    text="Total Liquidity"
-                    sortDir={sortDir}
-                    handleSortClick={() => handleSortClick("totalLiquidityUSD")}
-                    isActive={sortBy === "totalLiquidityUSD"}
-                  />
-                  {/* 
+        <>
+          <Table variant="unstyled">
+            <Thead position="sticky" top={0} left={0} bg="#121212" zIndex={10}>
+              <Tr>
                 <SortableTableHeader
-                  text="Price"
-                  sortDir={sortDir}
-                  handleSortClick={() => handleSortClick("price")}
-                  isActive={sortBy === "price"}
-                /> */}
-                </>
+                  text="Asset"
+                  sortDir={undefined}
+                  handleSortClick={() => null}
+                  isActive={false}
+                />
+
+                {isMobile ? null : (
+                  <>
+                    <SortableTableHeader
+                      text="Total Supplied"
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
+                    />
+
+                    <SortableTableHeader
+                      text="Total Borrowed"
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
+                    />
+
+                    <SortableTableHeader
+                      text="Total Liquidity"
+                      sortDir={undefined}
+                      handleSortClick={() => undefined}
+                      isActive={false}
+                    />
+                  </>
+                )}
+              </Tr>
+            </Thead>
+            <Tbody ref={rootRef}>
+              {underlyingAssets.map((underlyingAsset) => {
+                return (
+                  <>
+                    <AssetRow
+                      asset={underlyingAsset}
+                      tokenData={tokensData[underlyingAsset.id]}
+                      key={underlyingAsset.symbol}
+                    />
+                    <ModalDivider />
+                  </>
+                );
+              })}
+              {hasMore && (
+                <Tr w="100%" h="20px" bg="pink" ref={sentryRef}>
+                  <Spinner />
+                </Tr>
               )}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {sortedAssets.map((underlyingAsset) => {
-              return (
-                <>
-                  <AssetRow
-                    asset={underlyingAsset}
-                    tokenData={tokensData[underlyingAsset.id]}
-                    key={underlyingAsset.symbol}
-                  />
-                  <ModalDivider />
-                </>
-              );
-            })}
-          </Tbody>
-        </Table>
+            </Tbody>
+          </Table>
+        </>
       )}
     </Box>
   );
@@ -156,8 +236,7 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalSupply &&
-                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${
-                    asset.symbol
+                  `${(asset.totalSupply / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
                   }`}
               </Text>
             </Stack>
@@ -171,8 +250,7 @@ export const AssetRow = ({
               </Text>
               <Text fontWeight="" fontSize="sm">
                 {asset.totalBorrow &&
-                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${
-                    asset.symbol
+                  `${(asset.totalBorrow / 10 ** asset.decimals).toFixed(2)} ${asset.symbol
                   }`}
               </Text>
             </Stack>
@@ -184,10 +262,11 @@ export const AssetRow = ({
                 {asset.totalLiquidityUSD &&
                   smallUsdFormatter(asset.totalLiquidityUSD).substring(0, 15)}
               </Text>
-              {/* <Text fontWeight="" fontSize="sm">
-                {(asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}
+              <Text fontWeight="" fontSize="sm">
+                {asset.totalLiquidity &&
+                  (asset.totalLiquidity / 10 ** asset.decimals).toFixed(2)}{" "}
                 {asset.symbol}
-              </Text> */}
+              </Text>
             </Stack>
           </Td>
           {/* Price

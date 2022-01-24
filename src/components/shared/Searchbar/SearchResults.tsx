@@ -1,5 +1,6 @@
 import { Avatar, Text } from "@chakra-ui/react";
-import { ETH_TOKEN_DATA } from "hooks/useTokenData";
+import { useRari } from "context/RariContext";
+import { ETH_TOKEN_DATA, useTokensDataAsMap } from "hooks/useTokenData";
 import { Column, Row } from "lib/chakraUtils";
 import { DEFAULT_SEARCH_RETURN } from "pages/api/search";
 import React, { useCallback } from "react";
@@ -22,7 +23,8 @@ const SearchResults = ({
   smaller: boolean;
   balances?: { [address: string]: number };
 }) => {
-  const { tokens, fuse, tokensData, fuseTokensMap } = results;
+  const { tokens, fuse, fuseTokensMap } = results;
+  const tokensData = useTokensDataAsMap(tokens.map((asset) => asset.id))
 
   const renderFuseOpportunities = useCallback(() => {
     // Which token do we want to display for this fuse pool in the Searchbar?
@@ -39,7 +41,7 @@ const SearchResults = ({
       // Alternate between logos
       return tokensData[
         intersection[i % intersection.length] ??
-          supportedUnderlyings[i % supportedUnderlyings.length]
+        supportedUnderlyings[i % supportedUnderlyings.length]
       ];
     };
 

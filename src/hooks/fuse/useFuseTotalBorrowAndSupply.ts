@@ -1,21 +1,20 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import { Vaults, Fuse } from "../../esm/index"
+import { Fuse } from "../../esm/index"
 import { fromWei } from "utils/ethersUtils";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 export const fetchFuseTotalBorrowAndSupply = async ({
-  rari,
   fuse,
   address,
 }: {
-  rari: Vaults;
   fuse: Fuse;
   address: string;
 }) => {
   const [{ 0: supplyETH, 1: borrowETH }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.callStatic.getUserSummary(address),
 
-    fromWei(await rari.getEthUsdPriceBN()) as any,
+    fromWei(await getEthUsdPriceBN()) as any,
   ]);
 
   return {
@@ -25,11 +24,11 @@ export const fetchFuseTotalBorrowAndSupply = async ({
 };
 
 export const useFuseTotalBorrowAndSupply = () => {
-  const { rari, fuse, address } = useRari();
+  const { fuse, address } = useRari();
 
   const { data, isLoading, isError } = useQuery(
     address + " totalBorrowAndSupply",
-    async () => fetchFuseTotalBorrowAndSupply({ rari, fuse, address })
+    async () => fetchFuseTotalBorrowAndSupply({ fuse, address })
   );
 
   return { data, isLoading, isError };

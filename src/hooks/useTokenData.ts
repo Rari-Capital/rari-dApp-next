@@ -5,6 +5,7 @@ import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 import { useRari } from "../context/RariContext";
 
 import { Contract } from "ethers";
+import { ChainID } from "esm/utils/networks";
 
 export const ETH_TOKEN_DATA = {
   symbol: "ETH",
@@ -43,37 +44,43 @@ export const useTokenDataWithContract = (address: string) => {
   return { tokenData, contract };
 };
 
-export const fetchTokenData = async (address: string): Promise<TokenData> => {
+const EMPTY_TOKEN_DATA: TokenData = {
+  name: "",
+  address: "",
+  symbol: "",
+  decimals: 18,
+  color: "",
+  overlayTextColor: "",
+  logoURL: "",
+};
+
+export const fetchTokenData = async (
+  address: string,
+  chainId?: number
+): Promise<TokenData> => {
+  if (!chainId) return EMPTY_TOKEN_DATA;
   let data;
+  let _chainId = chainId;
+  if (chainId === 31337) {
+    _chainId = 1;
+  }
+
+  // console.log('fetchTokenData',{address, chainId, _chainid})
 
   if (address !== ETH_TOKEN_DATA.address) {
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
-      let url =
-        (process.env.NODE_ENV === "development"
-          ? "https://app.rari.capital"
-          : "") +
-        "/api/tokenData?address=" +
-        address;
+      let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address}&chainId=${_chainId}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),
         address: address,
       };
     } catch (e) {
-      data = {
-        name: null,
-        address: null,
-        symbol: null,
-        decimals: null,
-        color: null,
-        overlayTextColor: null,
-        logoURL: null,
-      };
+      data = EMPTY_TOKEN_DATA;
     }
   } else {
-    console.log("eth2 address", address);
     data = ETH_TOKEN_DATA;
   }
 
@@ -83,9 +90,14 @@ export const fetchTokenData = async (address: string): Promise<TokenData> => {
 export const useTokenData = (
   address: string | undefined
 ): TokenData | undefined => {
-  const { data: tokenData } = useQuery(address + " tokenData", async () => {
-    return !!address ? await fetchTokenData(address) : undefined;
-  });
+  const { chainId } = useRari();
+
+  const { data: tokenData } = useQuery(
+    `Chain: ${chainId} Address: ${address} tokenData`,
+    async () => {
+      return !!address ? await fetchTokenData(address, chainId) : undefined;
+    }
+  );
   return tokenData;
 };
 
@@ -121,22 +133,30 @@ export interface TokensDataMap {
 }
 
 export const useTokensDataAsMap = (addresses: string[] = []): TokensDataMap => {
+  const { chainId } = useRari();
+  // Query against all addresses
   const tokensData = useQueries(
     addresses.map((address: string) => {
       return {
-        queryKey: address + " tokenData",
-        queryFn: async () => await fetchTokenData(address),
+        queryKey: address + " tokenData  " + chainId,
+        queryFn: async () => await fetchTokenData(address, chainId),
       };
     })
   );
 
   return useMemo(() => {
     const ret: TokensDataMap = {};
-    if (!tokensData.length) return {};
+
+    // If there is no return, return
+    if (!tokensData.length) return ret;
+
+    // For each tokenData Query
     tokensData.forEach(({ data }) => {
-      const _data = data as TokenData;
-      if (_data && _data.address) {
-        ret[_data.address] = _data;
+      const tokenData = data as TokenData;
+
+      // If we have the tokenData, then add it to the hasmap
+      if (tokenData && tokenData.address) {
+        ret[tokenData.address] = tokenData;
       }
     });
 

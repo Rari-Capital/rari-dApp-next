@@ -2,6 +2,7 @@ import { NextPage } from "next";
 import FusePoolpage from "components/pages/Fuse/FusePoolPage";
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { Heading } from "@chakra-ui/layout";
 
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
@@ -19,7 +20,8 @@ export const getStaticPaths = async () => {
 };
 
 const FusePage: NextPage = () => {
-  return <FusePoolpage />;
+  // return <Heading>
+  return <FusePoolpage />
 };
 
 export default FusePage;

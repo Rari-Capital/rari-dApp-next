@@ -45,50 +45,53 @@ const FuseTabBar = () => {
         crossAxisAlignment="center"
         p={4}
       >
-        <ButtonGroup size="sm" isAttached variant="outline" height="35px">
-          <DashboardBox height="35px">
-            <Row
-              pl={2}
-              expand
-              crossAxisAlignment="center"
-              mainAxisAlignment="flex-start"
-              fontWeight="bold"
-            >
-              <Text flexShrink={0}>{t("Search") + ":"}</Text>
+        {(router.pathname === "/fuse" || !!filter) && (
+          <ButtonGroup size="sm" isAttached variant="outline" height="35px">
+            <DashboardBox height="35px">
+              <Row
+                pl={2}
+                expand
+                crossAxisAlignment="center"
+                mainAxisAlignment="flex-start"
+                fontWeight="bold"
+              >
+                <Text flexShrink={0}>{t("Search") + ":"}</Text>
 
-              <Input
-                // value={filter ?? ""}
-                value={val}
-                onChange={({ target: { value } }) => {
-                  setVal(value);
-                }}
-                width="185px"
-                height="100%"
-                ml={2}
-                placeholder={t("Try searching for USDC")}
-                variant="filled"
-                size="sm"
-                _placeholder={{ color: "#e0e0e0" }}
-                _focus={{ bg: "#282727" }}
-                _hover={{ bg: "#282727" }}
-                bg="#282727"
-                borderRadius={filter ? "0px" : "0px 9px 9px 0px"}
-              />
-            </Row>
-          </DashboardBox>
-          {filter ? (
-            <DashboardBox
-              bg="#282727"
-              ml={-1}
-              _hover={{ cursor: "pointer" }}
-              onClick={() => setVal("")}
-            >
-              <Center expand pr={2} fontWeight="bold">
-                <DeleteIcon mb="2px" />
-              </Center>
+                <Input
+                  // value={filter ?? ""}
+                  value={val}
+                  onChange={({ target: { value } }) => {
+                    setVal(value);
+                  }}
+                  width="185px"
+                  height="100%"
+                  ml={2}
+                  placeholder={t("Try searching for USDC")}
+                  variant="filled"
+                  size="sm"
+                  _placeholder={{ color: "#e0e0e0" }}
+                  _focus={{ bg: "#282727" }}
+                  _hover={{ bg: "#282727" }}
+                  bg="#282727"
+                  borderRadius={filter ? "0px" : "0px 9px 9px 0px"}
+                />
+              </Row>
             </DashboardBox>
-          ) : null}
-        </ButtonGroup>
+
+            {filter ? (
+              <DashboardBox
+                bg="#282727"
+                ml={-1}
+                _hover={{ cursor: "pointer" }}
+                onClick={() => setVal("")}
+              >
+                <Center expand pr={2} fontWeight="bold">
+                  <DeleteIcon mb="2px" />
+                </Center>
+              </DashboardBox>
+            ) : null}
+          </ButtonGroup>
+        )}
 
         <TabLink route="/fuse" text={t("Verified Pools")} />
         <TabLink
@@ -105,11 +108,7 @@ const FuseTabBar = () => {
             />
           </>
         )}
-        <TabLink route="/fuse/liquidations" text={t("Liquidations")} />
-        <TabExternalLink
-          route="https://rari.grafana.net/goto/61kctV_Gk"
-          text={t("Metrics")}
-        />
+
 
         {poolId ? (
           <>
@@ -144,7 +143,7 @@ const FuseTabBar = () => {
           </>
         ) : null}
 
-        {/* <NewPoolButton /> */}
+        <NewPoolButton />
       </RowOrColumn>
     </DashboardBox>
   );
@@ -208,7 +207,7 @@ const NewPoolButton = () => {
       //   ? activeStyle
       //   : noop)}
     >
-      <AppLink href={`/fuse/new-pool`} className="no-underline">
+      <AppLink href={`/fuse/create`} className="no-underline">
         <Center expand pl={2} pr={3} fontWeight="bold">
           <SmallAddIcon mr={1} /> {t("New Pool")}
         </Center>

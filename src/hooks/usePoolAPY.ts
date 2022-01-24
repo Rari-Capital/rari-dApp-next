@@ -1,21 +1,19 @@
 import { useQuery, useQueries, UseQueryResult } from "react-query";
 import { Pool } from "../utils/poolUtils";
-import { useRari } from "../context/RariContext";
 
 import { fetchRGTAPR, fetchPoolAPY } from "../utils/fetchPoolAPY";
 import { useMemo } from "react";
 import { PoolInterface } from "constants/pools";
+import useVaultsSDK from "./vaults/useVaultsSDK";
 
 export const useRGTAPR = () => {
-  const { rari } = useRari();
-
+  const { rari } = useVaultsSDK();
   const { data: rgtAPR } = useQuery("rgtAPR", async () => fetchRGTAPR(rari));
-
   return rgtAPR;
 };
 
 export const usePoolAPY = (pool: Pool | undefined) => {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
   const { data: poolAPY } = useQuery(pool + " apy", () => {
     return fetchPoolAPY(rari, pool);
   });
@@ -25,7 +23,7 @@ export const usePoolAPY = (pool: Pool | undefined) => {
 
 // Fetch APYs for all pools
 export const usePoolsAPY = (pools: PoolInterface[]) => {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
 
   const poolAPYs: UseQueryResult[] = useQueries(
     pools.map(({ type: poolType }) => {

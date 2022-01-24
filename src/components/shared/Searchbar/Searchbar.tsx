@@ -1,5 +1,5 @@
 import { SearchIcon } from "@chakra-ui/icons";
-import { Button, Collapse } from "@chakra-ui/react";
+import { Box, Button, Collapse } from "@chakra-ui/react";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/input";
 import { Spinner } from "@chakra-ui/spinner";
 import AppLink from "../AppLink";
@@ -10,7 +10,7 @@ import useSWR from "swr";
 
 // Utils
 import axios from "axios";
-import { Column, useIsMobile } from "lib/chakraUtils";
+import { Column, Row, useIsMobile } from "lib/chakraUtils";
 import { APISearchReturn } from "types/search";
 import { useMemo, useState } from "react";
 import { useAccountBalances } from "context/BalancesContext";
@@ -19,13 +19,15 @@ import SearchResults from "./SearchResults";
 
 // Fetchers
 const searchFetcher = async (
+  chainId: number,
   text: string,
   ...addresses: string[]
 ): Promise<APISearchReturn | undefined> => {
-  let url = `/api/search`;
+  console.log({ chainId, text, addresses });
+  let url = `/api/search?chainId=${chainId}`;
 
   if (!text && !addresses.length) return undefined;
-  if (text) url += `?text=${text}`;
+  if (text) url += `&text=${text}`;
   if (addresses.length) {
     for (let i = 0; i < addresses.length; i++) {
       url += `${url.includes("?") ? "&" : "?"}address=${addresses[i]}`;
@@ -47,20 +49,23 @@ const Searchbar = ({
   smaller?: boolean;
   [x: string]: any;
 }) => {
-  const { isAuthed } = useRari();
+  const { isAuthed, chainId } = useRari();
   const isMobile = useIsMobile();
 
   const [val, setVal] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
   const [balances, balancesToSearchWith] = useAccountBalances();
 
-  const debouncedSearch = useDebounce([val, ...balancesToSearchWith], 200);
+  const debouncedSearch = useMemo(() => {
+    return [chainId, val, ...balancesToSearchWith]
+  }, [chainId, val, balancesToSearchWith.length])
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
+
 
   const hasResults = useMemo(() => {
     if (!data) return false;
@@ -73,6 +78,7 @@ const Searchbar = ({
 
   // If it has results, and focused is true
   const shouldShowDropdown = hasResults && focused;
+  const hasResultsUnfocused = hasResults && !focused;
 
   return (
     <Column
@@ -82,9 +88,9 @@ const Searchbar = ({
       width="100%"
       position="relative"
       bg="white"
-      border={smaller ? "2px solid" : "4px solid"}
+      border={(smaller || hasResultsUnfocused) ? "2px solid" : "4px solid"}
       borderRadius="xl"
-      borderColor="grey"
+      borderColor={hasResultsUnfocused ? "green" : "grey"}
       zIndex={2}
       id="Searchbox"
     >
@@ -115,14 +121,14 @@ const Searchbar = ({
           }
           _placeholder={{
             color: "grey",
-            fontWeight: "bold",
+            fontWeight: 600,
             fontSize: smaller
               ? "sm"
               : {
-                  base: "sm",
-                  sm: "sm",
-                  md: "md",
-                },
+                base: "sm",
+                sm: "sm",
+                md: "md",
+              },
             width: "100%",
           }}
           _focus={{ borderColor: "grey" }}
@@ -137,7 +143,7 @@ const Searchbar = ({
           {...inputProps}
         />
         {!smaller && (
-          <Column
+          <Row
             mainAxisAlignment="center"
             crossAxisAlignment="center"
             h="100%"
@@ -147,12 +153,13 @@ const Searchbar = ({
             right="0"
             mr={1}
           >
+
             <AppLink href="/explore">
               <Button colorScheme="green" _hover={{ transform: "scale(1.04)" }}>
                 Explore
               </Button>
             </AppLink>
-          </Column>
+          </Row>
         )}
       </InputGroup>
       <Collapse in={shouldShowDropdown} unmountOnExit style={{ width: "100%" }}>

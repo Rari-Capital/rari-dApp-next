@@ -8,18 +8,19 @@ export const GlowingButton = ({
   leftIcon,
   disabled,
   label,
+  innerTextColor = "#000000",
   ...boxProps
 }: BoxProps & {
   leftIcon?: ReactElement;
-  label?: string
+  label?: string;
   onClick: () => any;
+  innerTextColor?: string;
   disabled?: boolean;
 }) => {
   return (
     <GlowingBox {...boxProps}>
       <Button
         bg="#FFFFFF"
-        color="#000000"
         borderRadius="7px"
         fontWeight="bold"
         width="100%"
@@ -31,6 +32,7 @@ export const GlowingButton = ({
         _disabled={{ cursor: "not-allowed" }}
         fontSize={boxProps.fontSize ?? "xl"}
         label={label}
+        color={innerTextColor}
       >
         {children}
       </Button>
@@ -40,6 +42,7 @@ export const GlowingButton = ({
 
 export const DarkGlowingButton = ({
   label,
+  children,
   onClick,
   leftIcon,
   disabled,
@@ -48,9 +51,10 @@ export const DarkGlowingButton = ({
 }: BoxProps & {
   leftIcon?: ReactElement;
   onClick: () => any;
-  label: string;
+  label?: string;
   disabled?: boolean;
   bg?: any;
+  children?: any;
 }) => {
   return (
     <DarkGlowingBox {...boxProps}>
@@ -71,6 +75,7 @@ export const DarkGlowingButton = ({
         fontSize={boxProps.fontSize ?? "xl"}
       >
         {label}
+        {children}
       </Button>
     </DarkGlowingBox>
   );

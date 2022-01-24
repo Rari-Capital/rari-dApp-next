@@ -1,3 +1,4 @@
+import { ChainID } from "esm/utils/networks";
 import { GET_TOP_PERFORMING_FUSE_ASSET } from "gql/getTopPerformingFuseAsset";
 import { GET_TOP_PERFORMING_FUSE_ASSET_OF_UNDERLYING } from "gql/getTopPerformingFuseStable";
 import { SubgraphCToken } from "pages/api/explore";
@@ -7,8 +8,12 @@ import { makeGqlRequest } from "utils/gql";
 export const queryTopFuseAsset = async (
   orderBy: keyof SubgraphCToken,
   orderDirection: "asc" | "desc",
-  addresses?: string[]
-): Promise<SubgraphCToken> => {
+  addresses?: string[],
+  chainId?: ChainID
+): Promise<SubgraphCToken | undefined> => {
+  console.log("queryTopFuseAsset", {chainId})
+  if (!chainId) return undefined;
+
   const query = addresses?.length
     ? GET_TOP_PERFORMING_FUSE_ASSET_OF_UNDERLYING
     : GET_TOP_PERFORMING_FUSE_ASSET;
@@ -19,7 +24,10 @@ export const queryTopFuseAsset = async (
     addresses,
   };
 
-  const { ctokens } = await makeGqlRequest(query, vars);
+
+  const { ctokens } = await makeGqlRequest(query, vars, chainId);
+
+  console.log("queryTopFuseAsset", {vars, chainId, ctokens})
 
   const ctoken: SubgraphCToken = ctokens?.[0];
 
@@ -30,8 +38,10 @@ export const queryTopFuseAsset = async (
 export const queryFuseAssets = async (
   orderBy: string,
   orderDirection: "asc" | "desc",
-  limit: number = 1
+  limit: number = 1,
+  chainId?: ChainID
 ): Promise<SubgraphCToken[]> => {
+  if (!chainId) return [];
   const query = GET_TOP_PERFORMING_FUSE_ASSET;
 
   const vars = {
@@ -40,7 +50,7 @@ export const queryFuseAssets = async (
     limit,
   };
 
-  const { ctokens } = await makeGqlRequest(query, vars);
+  const { ctokens } = await makeGqlRequest(query, vars, chainId);
 
   return ctokens;
 };

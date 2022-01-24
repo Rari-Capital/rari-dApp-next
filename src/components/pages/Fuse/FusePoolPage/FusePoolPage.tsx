@@ -71,6 +71,7 @@ import AppLink from "components/shared/AppLink";
 import { EditIcon } from "@chakra-ui/icons";
 import { getSymbol } from "utils/symbolUtils";
 import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
+import { formatUnits } from "ethers/lib/utils";
 
 const FuseRewardsBanner = ({
   rewardTokensData,
@@ -234,11 +235,7 @@ const CollateralRatioBar = ({
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = useMemo(() => {
-    const mB = parseFloat(maxBorrow.toString());
-    const bUSD = parseFloat(borrowUSD.toString());
-    return BigNumber.from(Math.floor((bUSD / mB) * 100));
-  }, [maxBorrow, borrowUSD]);
+  const ratio = useMemo(() => !maxBorrow.isZero() ? borrowUSD.mul(100).div(maxBorrow) : constants.Zero, [maxBorrow, borrowUSD]);
 
   useEffect(() => {
     if (ratio.gt(95)) {
@@ -278,10 +275,10 @@ const CollateralRatioBar = ({
                 ratio.lte(40)
                   ? "whatsapp"
                   : ratio.lte(60)
-                  ? "yellow"
-                  : ratio.lte(80)
-                  ? "orange"
-                  : "red"
+                    ? "yellow"
+                    : ratio.lte(80)
+                      ? "orange"
+                      : "red"
               }
               borderRadius="10px"
               value={toInt(ratio)}
@@ -319,6 +316,7 @@ const SupplyList = ({
   const suppliedAssets = assets.filter(
     (asset) => asset.supplyBalanceUSD.toNumber() > 1
   );
+
   const nonSuppliedAssets = assets.filter(
     (asset) => asset.supplyBalanceUSD.toNumber() < 1
   );
@@ -333,7 +331,7 @@ const SupplyList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Supply Balance:")} {smallUsdFormatter(supplyBalanceUSD)}
+        {"Supply Balance: " + smallUsdFormatter(supplyBalanceUSD)}
       </Heading>
       <ModalDivider />
 
@@ -474,9 +472,9 @@ const AssetSupplyRow = ({
 
     let call;
     if (asset.membership) {
-      call = comptroller.methods.exitMarket(asset.cToken);
+      call = comptroller.exitMarket(asset.cToken);
     } else {
-      call = comptroller.methods.enterMarkets([asset.cToken]);
+      call = comptroller.enterMarkets([asset.cToken]);
     }
 
     let response = await call.call({ from: address });
@@ -547,14 +545,13 @@ const AssetSupplyRow = ({
 
   const displayedSupplyAPRLabel =
     hovered >= 0
-      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${
-          rewardTokensData[supplyIncentives[hovered].rewardToken].symbol
-        } distributions.`
+      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${rewardTokensData[supplyIncentives[hovered].rewardToken].symbol
+      } distributions.`
       : `${displayedSupplyAPR.toFixed(
-          2
-        )}% total APR distributed in ${supplyIncentives
-          .map((incentive) => rewardTokensData[incentive.rewardToken].symbol)
-          .join(", ")}
+        2
+      )}% total APR distributed in ${supplyIncentives
+        .map((incentive) => rewardTokensData[incentive.rewardToken].symbol)
+        .join(", ")}
          `;
 
   // console.log({ supplyIncentives });
@@ -613,15 +610,6 @@ const AssetSupplyRow = ({
               {symbol}
             </Text>
           </Row>
-          {/* <Row
-            mainAxisAlignment="flex-start"
-            crossAxisAlignment="center"
-            width="100%"
-          >
-            <Text fontSize="sm" ml={2} flexShrink={0}>
-            {shortUsdFormatter(asset.liquidityUSD)}
-            </Text>
-          </Row> */}
         </Column>
 
         {/* APY */}
@@ -684,45 +672,6 @@ const AssetSupplyRow = ({
               </Row>
             )}
 
-            {/* Incentives */}
-            {/* {hasSupplyIncentives && (
-              <Column
-                mainAxisAlignment="flex-start"
-                crossAxisAlignment="flex-end"
-                py={1}
-              >
-                {supplyIncentives?.map((supplyIncentive) => {
-                  return (
-                    <Row
-                      ml={1}
-                      py={0.5}
-                      // mb={.5}
-                      crossAxisAlignment="center"
-                      mainAxisAlignment="flex-end"
-                    >
-                      <Text fontWeight="bold" mr={2}>
-                        +
-                      </Text>
-                      <CTokenIcon
-                        address={supplyIncentive.rewardToken}
-                        boxSize="20px"
-                      />
-                      <Text fontWeight="bold" mr={2}></Text>
-                      <Text
-                        color={
-                          rewardTokensData[supplyIncentive.rewardToken].color ??
-                          "white"
-                        }
-                        fontWeight="bold"
-                      >
-                        {(supplyIncentive.supplySpeed / 1e18).toString()}%
-                      </Text>
-                    </Row>
-                  );
-                })}
-              </Column>
-            )} */}
-
             <SimpleTooltip
               label={t(
                 "The Loan to Value (LTV) ratio defines the maximum amount of tokens in the pool that can be borrowed with a specific collateral. It’s expressed in percentage: if in a pool ETH has 75% LTV, for every 1 ETH worth of collateral, borrowers will be able to borrow 0.75 ETH worth of other tokens in the pool."
@@ -733,59 +682,12 @@ const AssetSupplyRow = ({
               </Text>
             </SimpleTooltip>
 
-            {/* Incentives under APY
-            <Column
-              mainAxisAlignment="flex-start"
-              crossAxisAlignment="flex-end"
-              my={1}
-            >
-              {supplyIncentives?.map((supplyIncentive) => {
-                return (
-                  <Row
-                    mainAxisAlignment="space-between"
-                    crossAxisAlignment="center"
-                    w="100%"
-                  >
-                    <Avatar
-                      src={
-                        rewardTokensData[supplyIncentive.rewardToken].logoURL ?? ""
-                      }
-                      boxSize="20px"
-                    />
-                    <Text
-                      ml={2}
-                      fontWeight="bold"
-                      color={
-                        rewardTokensData[supplyIncentive.rewardToken].color ?? ""
-                      }
-                    >
-                      {(supplyIncentive.supplySpeed / 1e18).toString()}%
-                    </Text>
-                  </Row>
-                );
-              })}
-            </Column>
-             */}
           </Column>
         )}
 
         {/* Incentives */}
-        {/* <Column mainAxisAlignment="flex-start" crossAxisAlignment="flex-start">
-          {supplyIncentives?.map((supplyIncentive) => {
-            return (
-              <Row mainAxisAlignment="flex-start" crossAxisAlignment="center">
-                <Avatar
-                  src={rewardTokensData[supplyIncentive.rewardToken].logoURL}
-                  boxSize="15px"
-                />
-                <Box>
-                  {(supplyIncentive.supplySpeed / 1e18).toString()}% APY
-                </Box>
-              </Row>
-            );
-          })}
-        </Column> */}
 
+        {/* Balance */}
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-end"
@@ -802,14 +704,10 @@ const AssetSupplyRow = ({
           </Text>
 
           <Text fontSize="sm">
-            {smallUsdFormatter(
-              parseFloat(
-                asset.supplyBalance
-                  .div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                  .toString()
-              )
-            ).replace("$", "")}{" "}
-            {symbol}
+            {parseFloat(
+              formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+            ).toFixed(2)}
+            {" " + symbol}
           </Text>
         </Column>
 
@@ -863,7 +761,7 @@ const BorrowList = ({
       pb={1}
     >
       <Heading size="md" px={4} py={3}>
-        {t("Borrow Balance:")} {smallUsdFormatter(borrowBalanceUSD)}
+        {"Borrow Balance: " + smallUsdFormatter(borrowBalanceUSD)}
       </Heading>
       <ModalDivider />
 
@@ -1120,44 +1018,6 @@ const AssetBorrowRow = ({
               </Row>
             )}
 
-            {/* Borrow Incentives */}
-            {/* {hasBorrowIncentives && (
-              <Column
-                mainAxisAlignment="flex-start"
-                crossAxisAlignment="flex-end"
-                py={1}
-              >
-                {borrowIncentives?.map((borrowIncentive) => {
-                  return (
-                    <Row
-                      ml={1}
-                      // mb={.5}
-                      crossAxisAlignment="center"
-                      mainAxisAlignment="flex-end"
-                    >
-                      <Text fontWeight="bold" mr={2}>
-                        +
-                      </Text>
-                      <CTokenIcon
-                        address={borrowIncentive.rewardToken}
-                        boxSize="20px"
-                      />
-                      <Text fontWeight="bold" mr={2}></Text>
-                      <Text
-                        color={
-                          rewardTokensData[borrowIncentive.rewardToken].color ??
-                          "white"
-                        }
-                        fontWeight="bold"
-                      >
-                        {(borrowIncentive.borrowSpeed / 1e18).toString()}%
-                      </Text>
-                    </Row>
-                  );
-                })}
-              </Column>
-            )} */}
-
             <SimpleTooltip
               label={t(
                 "Total Value Lent (TVL) measures how much of this asset has been supplied in total. TVL does not account for how much of the lent assets have been borrowed, use 'liquidity' to determine the total unborrowed assets lent."
@@ -1169,40 +1029,6 @@ const AssetBorrowRow = ({
               </Text>
             </SimpleTooltip>
 
-            {/* Borrow Incentives under APY */}
-            {/* <Column
-              mainAxisAlignment="flex-start"
-              crossAxisAlignment="flex-end"
-              my={1}
-            >
-              {borrowIncentives?.map((borrowIncentive) => {
-                return (
-                  <Row
-                    mainAxisAlignment="space-between"
-                    crossAxisAlignment="center"
-                    w="100%"
-                  >
-                    <Avatar
-                      src={
-                        rewardTokensData[borrowIncentive.rewardToken].logoURL ??
-                        ""
-                      }
-                      boxSize="20px"
-                    />
-                    <Text
-                      ml={2}
-                      fontWeight="bold"
-                      color={
-                        rewardTokensData[borrowIncentive.rewardToken].color ??
-                        ""
-                      }
-                    >
-                      {(borrowIncentive.borrowSpeed / 1e18).toString()}%
-                    </Text>
-                  </Row>
-                );
-              })}
-            </Column> */}
           </Column>
         )}
 
@@ -1249,12 +1075,10 @@ const AssetBorrowRow = ({
               </Text>
 
               <Text fontSize="sm">
-                {shortUsdFormatter(
-                  asset.liquidity
-                    .div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                    .toNumber()
-                ).replace("$", "")}{" "}
-                {symbol}
+                {parseFloat(
+                  formatUnits(asset.liquidity, asset.underlyingDecimals)
+                ).toFixed(2)}
+                {" " + symbol}
               </Text>
             </Column>
           </Box>

@@ -19,6 +19,8 @@ export const getOpportunityLink = (
       return `/pool2`;
     case HomepageOpportunityType.TranchesPage:
       return `/tranches`;
+    case HomepageOpportunityType.Connext:
+      return 'https://xpollinate.io/'
   }
   return "/";
 };

@@ -1,34 +1,40 @@
-import { Fuse } from "../esm/index";
+import { Fuse } from "../esm";
 
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { ChainID, getChainMetadata } from "esm/utils/networks";
 
 export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
 export const providerURL = `http://127.0.0.1:8545/`;
 
-export function chooseBestWeb3Provider(): JsonRpcProvider | Web3Provider {
+export function chooseBestWeb3Provider(
+  chainId = 1
+): JsonRpcProvider | Web3Provider {
+  let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
+
   const isClient = typeof window === "object";
   if (!isClient) {
-    return new JsonRpcProvider(alchemyURL);
+    return new JsonRpcProvider(providerURL);
   }
 
-  if (window.ethereum) {
-    return new Web3Provider(window.ethereum);
-  } else if (window.web3) {
+ if (window.web3) {
     return new Web3Provider(window.web3.currentProvider);
   } else {
-    return new JsonRpcProvider(alchemyURL);
+    return new JsonRpcProvider(providerURL);
   }
 }
 
 export const initFuseWithProviders = (
-  provider = chooseBestWeb3Provider()
+  provider = chooseBestWeb3Provider(),
+  chainId: ChainID = 1
 ): Fuse => {
-  const fuse = new Fuse(provider);
-
+  console.log('d');
+  
+  const fuse = new Fuse(provider, chainId === 31337 ? 1 : chainId );
+  let lensProvider = getChainMetadata(chainId).rpcUrl ?? "";
+  console.log({lensProvider})
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
-    new JsonRpcProvider(alchemyURL)
+    new JsonRpcProvider(lensProvider)
   );
-
   return fuse;
 };

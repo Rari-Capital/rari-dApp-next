@@ -1,55 +1,33 @@
 import React from "react";
 import { AllAssetsList } from "components/shared/Lists/AssetsList";
 import { Box, Heading, HStack } from "@chakra-ui/layout";
-import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { TokensDataMap } from "types/tokens";
-import { queryAllUnderlyingAssets } from "services/gql";
-import { fetchTokensAPIDataAsMap } from "utils/services";
-import useSWR from "swr";
+import useSWR, { SWRResponse } from "swr";
+import { makeGqlRequest } from "utils/gql";
+import { GET_UNDERLYING_ASSETS_COUNT } from "gql/underlyingAssets/getUnderlyingAssetsCount";
+import { ChainID } from "esm/utils/networks";
+import { useRari } from "context/RariContext";
 
-interface AllSubgraphUnderlyingAssets {
-  assets: SubgraphUnderlyingAsset[];
-  tokensData: TokensDataMap;
-}
-// Fetchers
-const allTokensFetcher = async (): Promise<AllSubgraphUnderlyingAssets> => {
-  const underlyingAssets = await queryAllUnderlyingAssets();
-
-  const addrs = underlyingAssets.map((asset) => asset.address);
-  const tokensData = await fetchTokensAPIDataAsMap(addrs);
-
-  return {
-    assets: underlyingAssets,
-    tokensData,
-  };
-};
-
-const useAllUnderlyingTokens = (): AllSubgraphUnderlyingAssets => {
-  const { data, error } = useSWR("allAssets", allTokensFetcher);
-
-  const { assets, tokensData } = data ?? {
-    assets: [],
-    tokensData: {},
-  };
-
-  return {
-    assets,
-    tokensData,
-  };
+export const useUnderlyingAssetsCount = (): SWRResponse<number, any> => {
+  const { chainId } = useRari()
+  return useSWR("allAssetsCount " + chainId, async () => {
+    const data = await makeGqlRequest(GET_UNDERLYING_ASSETS_COUNT, {}, chainId);
+    const count = data.utility.underlyingCount;
+    return count;
+  });
 };
 
 const TokenExplorer = () => {
-  const { assets, tokensData } = useAllUnderlyingTokens();
+  const { data: count } = useUnderlyingAssetsCount();
   return (
     <Box w="100%" h="100%">
       <HStack mb={4}>
         <Heading>All</Heading>
         <Heading bgGradient="linear(to-l, #7928CA, #FF0080)" bgClip="text">
-          {assets.length}
+          {count}
         </Heading>
         <Heading>tokens</Heading>
       </HStack>
-      <AllAssetsList assets={assets} tokensData={tokensData} />
+      <AllAssetsList />
     </Box>
   );
 };

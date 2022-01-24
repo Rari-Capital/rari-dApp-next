@@ -9,5 +9,4 @@ export interface APISearchReturn {
   tokens: GQLUnderlyingAsset[];
   fuse: GQLFusePool[];
   fuseTokensMap: { [comptroller: string]: string[] }
-  tokensData: TokensDataMap;
 }

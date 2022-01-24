@@ -18,8 +18,10 @@ const OpportunityCard = ({
   const subheading: string | null = useOpportunitySubtitle(opportunity);
   const link = useMemo(() => getOpportunityLink(opportunity), [opportunity]);
 
+  console.log({ subheading });
+
   return (
-    <AppLink href={link} style={{ textDecoration: "none" }}>
+    <AppLink href={link} style={{ textDecoration: "none" }} isExternal={opportunity.isExternal ?? false}>
       <Box
         bg={opportunity.bgColor}
         height={{
@@ -69,7 +71,7 @@ const OpportunityCard = ({
                   xl: "sm",
                   "2xl": "md",
                 }}
-                fontWeight="bold"
+                fontWeight="semibold"
               >{`${subheading}`}</Text>
             </Skeleton>
 

@@ -1,5 +1,4 @@
 import { Box } from "@chakra-ui/layout";
-import AssetBorrowLend from "components/modules/AssetBorrowLend";
 import LendAndBorrow from "components/shared/AmountSelectNew/LendAndBorrow";
 import { useTokenData } from "hooks/useTokenData";
 
@@ -12,7 +11,6 @@ const Components = () => {
 
   return (
     <Box w="500px">
-      {/* <AssetBorrowLend token={token} /> */}
       <LendAndBorrow token={token} />
     </Box>
   );

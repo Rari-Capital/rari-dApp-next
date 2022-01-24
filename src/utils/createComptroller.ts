@@ -84,7 +84,7 @@ export const createERC20 = (fuse: Fuse, cTokenAddress: string) => {
 
 export const createMasterPriceOracle = (fuse: Fuse) => {
   const masterPriceOracle = new Contract(
-    Fuse.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle,
+    fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle,
     fuse.oracleContracts["MasterPriceOracle"].abi,
     fuse.provider.getSigner()
   );

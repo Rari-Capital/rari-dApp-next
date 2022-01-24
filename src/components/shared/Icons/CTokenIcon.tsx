@@ -6,6 +6,7 @@ export const CTokenIcon = ({
   ...avatarProps
 }: {
   address: string;
+  chainId?: number;
   [key: string]: any;
 }) => {
   const tokenData = useTokenData(address);

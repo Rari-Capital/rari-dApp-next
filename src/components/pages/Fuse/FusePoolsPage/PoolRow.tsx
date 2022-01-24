@@ -36,15 +36,14 @@ export const PoolRow = ({
   const isEmpty = tokens.length === 0;
 
   const rss = usePoolRSS(poolNumber);
-
   const rssScore = rss ? letterScore(rss.totalScore) : "?";
 
   const isMobile = useIsMobile();
-
   const poolIncentives = usePoolIncentives(comptroller);
+
   const { hasIncentives } = poolIncentives;
   if (hasIncentives) {
-    console.log({ poolNumber, poolIncentives });
+    // console.log({ poolNumber, poolIncentives });
   }
 
   return (

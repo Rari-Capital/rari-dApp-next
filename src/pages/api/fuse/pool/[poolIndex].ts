@@ -1,9 +1,7 @@
 // Rari
 import { EmptyAddress } from "context/RariContext";
-import {  Vaults } from '../../../../esm/index'
 
 // Hooks
-import { fetchPools } from "hooks/fuse/useFusePools";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 
 // Next Js
@@ -37,7 +35,6 @@ export default async function handler(
 
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);
-      const rari = new Vaults(web3);
       const fuse = initFuseWithProviders(web3);
 
       // Get data for this fuse pool
@@ -45,7 +42,6 @@ export default async function handler(
         poolIndex,
         userAddress,
         fuse,
-        rari
       );
 
       return res.status(200).json({ success: true, fusePoolData, userAddress });

@@ -1,8 +1,6 @@
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
-import {
-  createRewardsDistributor,
-} from "utils/createComptroller";
+import { createRewardsDistributor } from "utils/createComptroller";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {
@@ -17,18 +15,16 @@ export interface RewardsDistributorToPoolsMap {
  * **/
 
 export function useUnclaimedFuseRewards() {
-  const { fuse, address } = useRari();
+  const { fuse, address, chainId } = useRari();
 
   // 1. Fetch all Fuse Pools User has supplied to + their Rewards Distribs.
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
-    "unclaimedRewards for " + address,
+    "unclaimedRewards for " + address + " " + chainId,
     async () => {
-      // fetchTokenBalance(tokenAddress, rari.web3, addressToCheck)
-
       const rewardsDistributorsByFusePool =
-        await fuse.contracts.FusePoolLensSecondary.methods
-          .getRewardsDistributorsBySupplier(address)
-          .call();
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
+          address
+        );
 
       return rewardsDistributorsByFusePool ?? [];
     }
@@ -75,7 +71,7 @@ export function useUnclaimedFuseRewards() {
 
   // 3a. Query all individual RewardsDistributors for their rewardTokens
   const { data: _rewardsDistributors, error: _rdError } = useQuery(
-    "rewardsDistributor data for " + address,
+    "rewardsDistributor data for " + address + " " + chainId,
     async () => {
       const rewardDistributors = await Promise.all(
         uniqueRDs.map(async (rewardsDistributorAddress) => {
@@ -83,8 +79,8 @@ export function useUnclaimedFuseRewards() {
             rewardsDistributorAddress,
             fuse
           );
-          const rewardToken = await instance.methods.rewardToken().call();
-          const _markets = await instance.methods.getAllMarkets().call();
+          const rewardToken = await instance.callStatic.rewardToken();
+          const _markets = await instance.callStatic.getAllMarkets();
 
           //   const markets = _markets.length
           //     ? await Promise.all(
@@ -140,12 +136,13 @@ export function useUnclaimedFuseRewards() {
 
   //  4.  getUnclaimedRewardsByDistributors
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
-    "unclaimed for " + address,
+    "unclaimed for " + address +  ' ' + chainId,
     async () => {
       const unclaimedResults =
-        await fuse.contracts.FusePoolLensSecondary.methods
-          .getUnclaimedRewardsByDistributors(address, uniqueRDs)
-          .call();
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
+          address,
+          uniqueRDs
+        );
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 

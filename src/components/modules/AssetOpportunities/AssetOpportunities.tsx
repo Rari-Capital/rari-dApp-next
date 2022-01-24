@@ -10,7 +10,6 @@ import { useMemo, useState } from "react";
 // Utils
 import { Column, Row } from "lib/chakraUtils";
 
-import TrancheOpportunities from "./TrancheOpportunities";
 import VaultsList from "components/shared/Lists/VaultsList";
 import FuseList from "components/shared/Lists/Fuse/FuseListForToken";
 
@@ -50,9 +49,6 @@ const AssetOpportunities = ({
         overflowY="scroll"
       >
         {nav === OpportunityNav.FUSE && <FuseList token={token} />}
-        {nav === OpportunityNav.TRANCHES && (
-          <TrancheOpportunities token={token} />
-        )}
         {nav === OpportunityNav.EARN && <VaultsList token={token} />}
       </Column>
     </DashboardBox>

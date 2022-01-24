@@ -23,6 +23,7 @@ import { Pool, getPoolName, getPoolCaption } from "utils/poolUtils";
 
 // Ethers
 import { BigNumber, constants } from 'ethers'
+import useVaultsSDK from "./vaults/useVaultsSDK";
 
 export const usePoolInfo = (poolType: Pool) => {
   const { t } = useTranslation();
@@ -81,7 +82,7 @@ export type AggregatePoolsInfoReturn = {
 };
 
 export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
-  const { rari } = useRari();
+  const { rari } = useVaultsSDK();
   const poolInfos = usePoolInfos();
   const poolAPYs = usePoolsAPY(poolInfos);
   const poolBalances = usePoolBalances(poolInfos);

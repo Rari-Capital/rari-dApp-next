@@ -16,8 +16,8 @@ type FuseMarket = {
 };
 
 export default function useFuseMarkets() {
-  const { rari, fuse, address } = useRari();
-  const { pools } = useFusePools(null);
+  const { fuse, address } = useRari();
+  const pools = useFusePools(null);
   const [markets, setMarkets] = useState<FuseMarket>({});
 
   useEffect(() => {
@@ -34,8 +34,7 @@ export default function useFuseMarkets() {
               const poolData = (await fetchFusePoolData(
                 pool.id.toString(), // type incorrectly believes pool.id to be number
                 address,
-                fuse,
-                rari
+                fuse
               )) as FusePoolData;
 
               // add market info
@@ -63,7 +62,7 @@ export default function useFuseMarkets() {
     }
 
     getAllFusePoolData();
-  }, [pools, rari, fuse, address]);
+  }, [pools, fuse, address]);
 
   return { pools, markets };
 }

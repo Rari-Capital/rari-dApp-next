@@ -8,14 +8,8 @@ import { useFusePoolData } from "hooks/useFusePoolData";
 import { FusePoolMetric } from "utils/fetchFusePoolData";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { useFuseTVL } from "hooks/fuse/useFuseTVL";
-import { usePool2APR } from "hooks/pool2/usePool2APR";
 import { usePoolsAPY } from "hooks/usePoolAPY";
 import { usePoolInfos } from "hooks/usePoolInfo";
-import {
-  SaffronTranchePool,
-  TrancheRating,
-  useRariSupportedTranches,
-} from "hooks/tranches/useSaffronData";
 
 export const useOpportunitySubtitle = (
   opportunity: HomepageOpportunity
@@ -28,24 +22,6 @@ export const useOpportunitySubtitle = (
   // Fuse
   const fusePoolData = useFusePoolData(opportunity.fusePoolId?.toString());
   const { data: fuseTVL } = useFuseTVL();
-
-  // Pool2
-  const pool2APR = usePool2APR();
-
-  // Tranches
-  const mySaffronData: SaffronTranchePool[] = useRariSupportedTranches();
-  const trancheAPYs = useMemo(() => {
-    const sTrancheAPY =
-      mySaffronData?.[0]?.tranches?.[TrancheRating.S]?.["total-apy"];
-    const aTrancheAPY =
-      mySaffronData?.[0]?.tranches?.[TrancheRating.A]?.["total-apy"];
-
-    const APYs = [sTrancheAPY, aTrancheAPY]
-      .filter((obj) => obj) // remove null or zero values
-      .sort((a, b) => (b && a ? a - b : 1));
-
-    return APYs;
-  }, [mySaffronData]);
 
   const returnedSubtitle = useMemo(() => {
     switch (opportunity.type) {
@@ -89,26 +65,19 @@ export const useOpportunitySubtitle = (
       case HomepageOpportunityType.FusePage:
         return fuseTVL ? `${shortUsdFormatter(fuseTVL)} TVL` : null;
 
-      case HomepageOpportunityType.Pool2Page:
-        return pool2APR ? `${pool2APR}% APR` : null;
+      case HomepageOpportunityType.Arbitrum:
+        return "";
 
-      case HomepageOpportunityType.TranchesPage:
-        return `${trancheAPYs
-          .map((apy) => `${apy?.toFixed(0)}%`)
-          .join(" - ")} APY`;
+      case HomepageOpportunityType.Connext:
+        return "via Connext";
+
+      case HomepageOpportunityType.PegExchanger:
+        return "";
 
       default:
         return null;
     }
-  }, [
-    opportunity,
-    earnPoolAPY,
-    poolsAPY,
-    fusePoolData,
-    fuseTVL,
-    pool2APR,
-    trancheAPYs,
-  ]);
+  }, [opportunity, earnPoolAPY, poolsAPY, fusePoolData, fuseTVL]);
 
   return returnedSubtitle;
 };

@@ -1,43 +1,177 @@
-/* eslint-disable no-loop-func */
+import { Box, Link, Spinner, Text } from "@chakra-ui/react";
+import { Column, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
+import { useTranslation } from "react-i18next";
+import { useRari } from "context/RariContext";
+import { useIsSmallScreen } from "hooks/useIsSmallScreen";
+import { smallUsdFormatter } from "utils/bigUtils";
 
-// Chakra and UI
-import { Center, Column, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
-import { AvatarGroup, Box, Spinner, Switch, Text } from "@chakra-ui/react";
-import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import DashboardBox from "../../shared/DashboardBox";
+import { ModalDivider } from "../../shared/Modal";
+
+import FuseStatsBar from "./FuseStatsBar";
+import FuseTabBar from "./FuseTabBar";
+
+import { filterOnlyObjectProperties, FuseAsset } from "utils/fetchFusePoolData";
+
+import { memo, useState } from "react";
 
 // @ts-ignore
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
-
-// Components
-import FuseStatsBar from "./FuseStatsBar";
-import FuseTabBar from "./FuseTabBar";
-import { CTokenIcon } from "../../shared/Icons/CTokenIcon";
-import AppLink from "components/shared/AppLink";
-
-// React
-import { memo, useState } from "react";
 import { useQuery } from "react-query";
+import { Contract } from "ethers";
+import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
-// Rari
-import { useRari } from "context/RariContext";
+export type LiquidatablePosition = {
+  account: string;
+  totalBorrow: number;
+  totalCollateral: number;
+  totalSupplied: number;
+  health: number;
+  assets: FuseAsset[];
+  poolID: number;
+};
 
-// Hooks
-import { useTranslation } from "next-i18next";
-import { useIsSmallScreen } from "hooks/useIsSmallScreen";
+export type LiquidationEvent = {
+  borrower: string;
+  cTokenBorrowed: string;
+  cTokenCollateral: string;
+  borrowedTokenAddress: string;
+  suppliedTokenAddress: string;
+  liquidator: string;
 
-// Utils
-import { smallUsdFormatter } from "utils/bigUtils";
-import { filterOnlyObjectProperties, FuseAsset } from "utils/fetchFusePoolData";
+  borrowedTokenUnderlyingDecimals: number;
+  borrowedTokenUnderlyingSymbol: string;
 
-// Ethers
-import { fromWei } from "utils/ethersUtils";
-import { constants, utils } from "ethers";
+  repayAmount: number;
+  seizeTokens: number;
+  blockNumber: number;
+  timestamp: number;
+  transactionHash: string;
+  transactionIndex: number;
+  poolID: number;
+};
 
 const FuseLiquidationsPage = memo(() => {
-  const { isAuthed } = useRari();
   const isMobile = useIsSmallScreen();
+
+  const { fuse, isAuthed } = useRari();
+
+  const { data: liquidations } = useQuery("liquidations", async () => {
+    const pools = await fuse.contracts.FusePoolDirectory
+      .callStatic
+      .getAllPools()
+
+    let liquidationEvents: LiquidationEvent[] = [];
+
+    let poolFetches: Promise<any>[] = [];
+
+    for (let poolID = 0; poolID < pools.length; poolID++) {
+      const pool = pools[poolID];
+
+      // console.log(pool.comptroller, poolID);
+
+      if (poolID === 4) {
+        // Pool 4 is broken, we'll just skip it for now.
+        continue;
+      }
+
+      poolFetches.push(
+        fuse.contracts.FusePoolLens
+          .callStatic
+          .getPoolAssetsWithData(pool.comptroller)
+          .then(async (assets: FuseAsset[]) => {
+            let eventFetches: Promise<any>[] = [];
+
+            for (const asset of assets) {
+              // If the asset has no borrowers, just skip it.
+              if (parseInt(asset.totalBorrow as any) === 0) {
+                continue;
+              }
+
+              const cToken = new Contract(
+                asset.cToken,
+                JSON.parse(
+                  fuse.compoundContracts[
+                    "contracts/CEtherDelegate.sol:CEtherDelegate"
+                  ].abi
+                ),
+              );
+
+
+              console.log({ cToken })
+
+              const events = await cToken.queryFilter(
+                cToken.filters.LiquidateBorrow(),
+                12060000,
+                "latest"
+              );
+
+
+              let promises: Promise<any>[] = [];
+              for (const event of events) {
+
+                const suppliedToken = assets.find(
+                  a => {
+                    return a.cToken.toLowerCase() ===
+                      event!.args!.cTokenCollateral.toLowerCase()
+                  })!;
+
+
+                promises.push(
+                  fuse.provider
+                    .getBlock(event.blockNumber)
+                    .then((blockInfo) => {
+                      liquidationEvents.push({
+                        ...filterOnlyObjectProperties(event.args),
+                        cTokenBorrowed: asset.cToken,
+
+                        borrowedTokenAddress: asset.underlyingToken,
+                        suppliedTokenAddress:
+                          suppliedToken.underlyingToken,
+
+                        borrowedTokenUnderlyingDecimals:
+                          asset.underlyingDecimals,
+                        borrowedTokenUnderlyingSymbol:
+                          asset.underlyingSymbol,
+
+                        poolID,
+
+                        blockNumber: event.blockNumber,
+                        timestamp: blockInfo.timestamp,
+
+                        transactionHash: event.transactionHash,
+                        transactionIndex: event.transactionIndex,
+                      });
+                    })
+                );
+                await Promise.all(promises);
+              }
+            }
+
+            await Promise.all(eventFetches);
+          })
+      );
+
+    }
+
+    console.log({ poolFetches })
+
+
+    await Promise.all(poolFetches);
+
+    return liquidationEvents.sort((a, b) => {
+      if (b.blockNumber !== a.blockNumber) {
+        return b.blockNumber - a.blockNumber;
+      } else {
+        return b.transactionIndex - a.transactionIndex;
+      }
+    });
+  });
+
+  const [liquidationsToShow, setLiquidationsToShow] = useState(10);
+  const limitedLiquidations = liquidations?.slice(0, liquidationsToShow);
+
+  console.log({ liquidationsToShow, limitedLiquidations, liquidations })
 
   return (
     <>
@@ -63,29 +197,13 @@ const FuseLiquidationsPage = memo(() => {
           height={isMobile ? "400px" : "200px"}
         >
           <DashboardBox
-            height={isMobile ? "70%" : "100%"}
-            width={isMobile ? "100%" : "70%"}
+            height="100%"
+            width="100%"
             overflow="hidden"
             bg="#141619"
           >
             <iframe
-              height="100%"
-              width="100%"
-              src="https://rari.grafana.net/d-solo/NlUs6DwGk/fuse-overview?orgId=1&refresh=5m&panelId=16"
-              title="Leverage"
-            />
-          </DashboardBox>
-
-          <DashboardBox
-            height={isMobile ? "30%" : "100%"}
-            width={isMobile ? "100%" : "30%"}
-            mt={isMobile ? 4 : 0}
-            ml={isMobile ? 0 : 4}
-            overflow="hidden"
-            bg="#141619"
-          >
-            <iframe
-              src="https://rari.grafana.net/d-solo/NlUs6DwGk/fuse-overview?orgId=1&refresh=5m&panelId=19"
+              src="https://metrics.rari.capital/d-solo/NlUs6DwGk/fuse-overview?orgId=1&refresh=5m&panelId=19"
               height="100%"
               width="100%"
               title="Liquidation Count"
@@ -94,7 +212,11 @@ const FuseLiquidationsPage = memo(() => {
         </RowOrColumn>
 
         <DashboardBox width="100%" mt={4}>
-          <LiquidatablePositionsList />
+          <LiquidationEventsList
+            liquidations={limitedLiquidations}
+            totalLiquidations={liquidations?.length ?? 0}
+            setLiquidationsToShow={setLiquidationsToShow}
+          />
         </DashboardBox>
       </Column>
     </>
@@ -103,116 +225,16 @@ const FuseLiquidationsPage = memo(() => {
 
 export default FuseLiquidationsPage;
 
-export type LiquidatablePositions = {
-  account: string;
-  totalBorrow: number;
-  totalCollateral: number;
-  totalSupplied: number;
-  assets: FuseAsset[];
-  poolID: number;
-};
-
-const LiquidatablePositionsList = () => {
-  const { fuse, rari } = useRari();
+const LiquidationEventsList = ({
+  liquidations,
+  totalLiquidations,
+  setLiquidationsToShow,
+}: {
+  liquidations?: LiquidationEvent[];
+  totalLiquidations: number;
+  setLiquidationsToShow: React.Dispatch<React.SetStateAction<number>>;
+}) => {
   const { t } = useTranslation();
-
-  const [showAtRiskPositions, setShowAtRiskPositions] = useState(false);
-
-  const { data: positions } = useQuery(
-    showAtRiskPositions ? "atRiskPositions" : "liquidateablePositions",
-    async () => {
-      const [response, ethPriceBN] = await Promise.all([
-        fuse.contracts.FusePoolLens.methods
-          .getPublicPoolUsersWithData(
-            showAtRiskPositions ? utils.parseUnits((1.1).toString()) : constants.WeiPerEther
-          )
-          .call(),
-        rari.getEthUsdPriceBN(),
-      ]);
-
-      const ethPrice: number = parseFloat(fromWei(ethPriceBN));
-
-      const comptrollers = response[0];
-      const poolUsers = response[1];
-
-      let positions: LiquidatablePositions[] = [];
-
-      // Wait until we fetch all pools before returning.
-      await new Promise((resolvePools) => {
-        let poolsCompleted = 0;
-
-        // Loop over each pool to get its users:
-        for (let poolID = 0; poolID < comptrollers.length; poolID++) {
-          const comptroller = comptrollers[poolID];
-          const filteredUsers: LiquidatablePositions[] = poolUsers[
-            poolID
-          ].filter((user: any) => {
-            // Filter out users that are borrowing less than 0.1 ETH
-            return (
-              user.totalBorrow / 1e18 > 0.1 &&
-              // If we want to show at risk positions, don't show liquidatable ones.
-              (showAtRiskPositions ? user.health / 1e18 > 1 : true)
-            );
-          });
-
-          // If this pool has no filteredUsers, consider this pool fetched:
-          if (filteredUsers.length === 0) {
-            // Increment the pools completed counter.
-            poolsCompleted++;
-
-            // If this was the last pool we needed to fetch, we're done!
-            if (poolsCompleted === comptrollers.length) {
-              resolvePools(true);
-            }
-          }
-
-          let usersCompleted = 0;
-
-          // Loop over each user:
-          for (
-            let userIndex = 0;
-            userIndex < filteredUsers.length;
-            userIndex++
-          ) {
-            const user = filteredUsers[userIndex];
-
-            // Fetch more details about the user:
-            fuse.contracts.FusePoolLens.methods
-              .getPoolUserSummary(comptroller, user.account)
-              .call()
-              .then((userSummary: number[]) => {
-                // Add the positions to the list with extra details:
-                positions.push({
-                  ...user,
-                  totalCollateral: (user.totalCollateral / 1e18) * ethPrice,
-                  totalBorrow: (user.totalBorrow / 1e18) * ethPrice,
-                  totalSupplied: (userSummary[0] / 1e18) * ethPrice,
-                  assets: user.assets.map(filterOnlyObjectProperties),
-                  poolID,
-                });
-
-                // Increment the users completed counter.
-                usersCompleted++;
-
-                // If this was the last user in the pool we need to fetch, we're done with this pool:
-                if (usersCompleted === filteredUsers.length) {
-                  // Increment the pools completed counter.
-                  poolsCompleted++;
-
-                  // If this was the last pool we needed to fetch, we're done!
-                  if (poolsCompleted === comptrollers.length) {
-                    resolvePools(true);
-                  }
-                }
-              });
-          }
-        }
-      });
-
-      // Sort the positions by borrow balance in descending order.
-      return positions.sort((a, b) => b.totalBorrow - a.totalBorrow);
-    }
-  );
 
   const isMobile = useIsMobile();
 
@@ -231,66 +253,22 @@ const LiquidatablePositionsList = () => {
         pl={4}
         pr={1}
       >
-        <Row
-          mainAxisAlignment="flex-start"
-          crossAxisAlignment="center"
-          width={isMobile ? "100%" : "30%"}
-        >
-          <SimpleTooltip
-            label={
-              showAtRiskPositions
-                ? t(
-                    "At risk positions are positions that are less than 110% collateralized."
-                  )
-                : t(
-                    "Liquidatable positions are positions less than 100% collateralized."
-                  )
-            }
-          >
-            <Text fontWeight="bold">
-              {showAtRiskPositions
-                ? t("At Risk Positions")
-                : t("Liquidatable Positions")}
-            </Text>
-          </SimpleTooltip>
-          <SimpleTooltip
-            label={
-              showAtRiskPositions
-                ? t("Disable the switch to just view liquidatable positions.")
-                : t("Enable the switch to view 'at risk' positions.")
-            }
-          >
-            <Box ml={3}>
-              <Switch
-                size="sm"
-                colorScheme="yellow"
-                checked={showAtRiskPositions}
-                onChange={() => setShowAtRiskPositions((past) => !past)}
-              />
-            </Box>
-          </SimpleTooltip>
-        </Row>
+        <Text fontWeight="bold" width={isMobile ? "100%" : "30%"}>
+          {t("Recent Liquidations")}
+        </Text>
 
         {isMobile ? null : (
           <>
-            <Text fontWeight="bold" textAlign="center" width="14%">
-              {t("Supplied")}
+            <Text fontWeight="bold" textAlign="center" width="23%">
+              {t("Collateral Seized")}
             </Text>
 
-            <Text fontWeight="bold" textAlign="center" width="14%">
-              {t("Borrowed")}
+            <Text fontWeight="bold" textAlign="center" width="23%">
+              {t("Borrow Repaid")}
             </Text>
 
-            <Text textAlign="center" width="14%">
-              {t("Borrow Ratio")}
-            </Text>
-
-            <Text fontWeight="bold" textAlign="center" width="14%">
-              {t("Borrow Limit")}
-            </Text>
-
-            <Text textAlign="center" width="14%">
-              {t("Limit Used")}
+            <Text fontWeight="bold" textAlign="center" width="25%">
+              {t("Timestamp")}
             </Text>
           </>
         )}
@@ -303,24 +281,23 @@ const LiquidatablePositionsList = () => {
         crossAxisAlignment="center"
         width="100%"
       >
-        {positions ? (
-          positions.map((position, index) => {
-            return (
-              <PositionRow
-                key={position.account + position.poolID}
-                poolNumber={position.poolID}
-                address={position.account}
-                supplied={position.totalSupplied}
-                borrowLimit={position.totalCollateral}
-                borrowed={position.totalBorrow}
-                tokens={position.assets.map((asset) => ({
-                  symbol: asset.underlyingSymbol,
-                  address: asset.underlyingToken,
-                }))}
-                noBottomDivider={index === positions.length - 1}
-              />
-            );
-          })
+        {liquidations ? (
+          <>
+            {liquidations.map((liquidation, index) => {
+              return (
+                <LiquidationRow
+                  key={liquidation.transactionHash}
+                  liquidation={liquidation}
+                  noBottomDivider={index === liquidations.length - 1}
+                />
+              );
+            })}
+
+            <RowsControl
+              totalAmount={totalLiquidations}
+              setAmountToShow={setLiquidationsToShow}
+            />
+          </>
         ) : (
           <Spinner my={8} />
         )}
@@ -329,93 +306,197 @@ const LiquidatablePositionsList = () => {
   );
 };
 
-const PositionRow = ({
-  tokens,
-  poolNumber,
-  borrowLimit,
-  borrowed,
-  supplied,
-  address,
+const LiquidationRow = ({
   noBottomDivider,
+  liquidation,
 }: {
-  tokens: { symbol: string; address: string }[];
-  poolNumber: number;
-  borrowLimit: number;
-  borrowed: number;
-  supplied: number;
-  address: string;
   noBottomDivider?: boolean;
+  liquidation: LiquidationEvent;
 }) => {
   const isMobile = useIsMobile();
 
+  const { t } = useTranslation();
+
+  const date = new Date(liquidation.timestamp * 1000);
   return (
     <>
-      <AppLink
+      <Link
+        isExternal
         width="100%"
         className="no-underline"
-        href={"/fuse/pool/" + poolNumber + `?address=${address}`}
+        href={"https://etherscan.io/tx/" + liquidation.transactionHash}
       >
         <Row
           mainAxisAlignment="flex-start"
           crossAxisAlignment="center"
           width="100%"
-          height="90px"
+          height="100px"
           className="hover-row"
           pl={4}
           pr={1}
         >
           <Column
-            pt={2}
             width={isMobile ? "100%" : "30%"}
             height="100%"
             mainAxisAlignment="center"
             crossAxisAlignment="flex-start"
           >
             <Row mainAxisAlignment="flex-start" crossAxisAlignment="center">
-              <Jazzicon diameter={23} seed={jsNumberForAddress(address)} />
+              <Box boxSize="23px">
+                <Jazzicon
+                  diameter={23}
+                  seed={jsNumberForAddress(liquidation.liquidator)}
+                />
+              </Box>
 
-              <Text ml={3} fontWeight="bold">
-                Pool #{poolNumber}
+              <Text ml={2} mr={2} fontWeight="bold">
+                <Text as="span" color="#EE1E45">
+                  {" → "}
+                </Text>
+                {t("Liquidated")}
+                <Text as="span" color="#73BF69">
+                  {" → "}
+                </Text>
               </Text>
 
-              <SimpleTooltip label={tokens.map((t) => t.symbol).join(" / ")}>
-                <AvatarGroup size="xs" max={30} ml={2} mr={2}>
-                  {tokens.map(({ address }) => {
-                    return <CTokenIcon key={address} address={address} />;
-                  })}
-                </AvatarGroup>
-              </SimpleTooltip>
+              <Box boxSize="23px">
+                <Jazzicon
+                  diameter={23}
+                  seed={jsNumberForAddress(liquidation.borrower)}
+                />
+              </Box>
+
+              <Text ml={3} mr={2} fontWeight="bold">
+                (Pool #{liquidation.poolID})
+              </Text>
             </Row>
 
-            <Text mt={2} fontSize="11px">
-              {address}
+            <Text mt={2} fontSize="11px" color="#EE1E45">
+              {liquidation.liquidator}
+            </Text>
+            <Text mt={1} fontSize="11px" color="#73BF69">
+              {liquidation.borrower}
             </Text>
           </Column>
 
           {isMobile ? null : (
             <>
-              <Center height="100%" width="14%">
-                <b>{smallUsdFormatter(supplied)}</b>
-              </Center>
+              <Column
+                mainAxisAlignment="center"
+                crossAxisAlignment="center"
+                height="100%"
+                width="23%"
+              >
+                <CTokenIcon
+                  size="md"
+                  mb={2}
+                  address={liquidation.suppliedTokenAddress}
+                />
+              </Column>
 
-              <Center height="100%" width="14%">
-                <b>{smallUsdFormatter(borrowed)}</b>
-              </Center>
-              <Center height="100%" width="14%">
-                {((borrowed / supplied) * 100).toFixed(2) + "%"}
-              </Center>
-              <Center height="100%" width="14%">
-                <b> {smallUsdFormatter(borrowLimit)}</b>
-              </Center>
-              <Center height="100%" width="14%">
-                {((borrowed / borrowLimit) * 100).toFixed(2) + "%"}
-              </Center>
+              <Column
+                mainAxisAlignment="center"
+                crossAxisAlignment="center"
+                height="100%"
+                width="23%"
+                fontWeight="bold"
+              >
+                <CTokenIcon
+                  size="sm"
+                  mb={2}
+                  address={liquidation.borrowedTokenAddress}
+                />
+                {smallUsdFormatter(
+                  liquidation.repayAmount /
+                  10 ** liquidation.borrowedTokenUnderlyingDecimals
+                ).replace("$", "")}{" "}
+                {liquidation.borrowedTokenUnderlyingSymbol}
+              </Column>
+
+              <Column
+                mainAxisAlignment="center"
+                crossAxisAlignment="center"
+                height="100%"
+                width="25%"
+              >
+                <Text fontWeight="bold">{date.toLocaleTimeString()}</Text>
+
+                <Text mt={1}>{date.toLocaleDateString()}</Text>
+              </Column>
             </>
           )}
         </Row>
-      </AppLink>
+      </Link>
 
       {noBottomDivider ? null : <ModalDivider />}
     </>
+  );
+};
+
+const RowsControl = ({
+  setAmountToShow,
+  totalAmount,
+}: {
+  totalAmount: number;
+  setAmountToShow: React.Dispatch<React.SetStateAction<number>>;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <Row
+      mainAxisAlignment="center"
+      crossAxisAlignment="center"
+      width="100%"
+      my={4}
+      px={4}
+    >
+      <DashboardBox
+        fontWeight="bold"
+        as="button"
+        px={2}
+        py={1}
+        onClick={() =>
+          setAmountToShow((past) =>
+            Math.min(
+              past === 0 ? 1 : past === -1 ? totalAmount : past + 5,
+              totalAmount
+            )
+          )
+        }
+      >
+        {t("View More")}
+      </DashboardBox>
+
+      <DashboardBox
+        fontWeight="bold"
+        as="button"
+        ml={4}
+        px={2}
+        py={1}
+        onClick={() => setAmountToShow((past) => Math.max(past - 5, 0))}
+      >
+        {t("View Less")}
+      </DashboardBox>
+
+      <DashboardBox
+        as="button"
+        ml={4}
+        px={2}
+        py={1}
+        onClick={() => setAmountToShow(totalAmount)}
+      >
+        {t("View All")}
+      </DashboardBox>
+
+      <DashboardBox
+        as="button"
+        ml={4}
+        px={2}
+        py={1}
+        onClick={() => setAmountToShow(0)}
+      >
+        {t("Collapse All")}
+      </DashboardBox>
+    </Row>
   );
 };

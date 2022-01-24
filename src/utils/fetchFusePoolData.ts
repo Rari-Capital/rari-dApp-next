@@ -5,6 +5,8 @@ import { Vaults, Fuse } from "../esm/index";
 import { BigNumber } from "@ethersproject/bignumber";
 import { constants } from "ethers";
 import { createComptroller } from "./createComptroller";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { utils } from "ethers";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
 
@@ -132,7 +134,6 @@ export const fetchFusePoolData = async (
   poolId: string | undefined,
   address: string,
   fuse: Fuse,
-  rari?: Vaults,
   blockNum: string | number = "latest",
   dev?: boolean
 ): Promise<FusePoolData | undefined> => {
@@ -143,7 +144,6 @@ export const fetchFusePoolData = async (
     name: _unfiliteredName,
     isPrivate,
   } = await fuse.contracts.FusePoolDirectory.pools(poolId);
-
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
@@ -165,13 +165,12 @@ export const fetchFusePoolData = async (
 
   const ethPrice: BigNumber =
     // prefer rari because it has caching
-    await (rari ?? fuse).getEthUsdPriceBN();
+    await getEthUsdPriceBN();
 
   let promises = [];
 
   const comptrollerContract = createComptroller(comptroller, fuse);
   let oracle: string = await comptrollerContract.callStatic.oracle();
-
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
 
   const admin = await comptrollerContract.callStatic.admin();

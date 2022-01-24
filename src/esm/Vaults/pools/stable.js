@@ -417,7 +417,7 @@ export default class StablePool {
                         totalBalanceUsdBN = totalBalanceUsdBN.add(poolBalanceUsdBN);
                     }
                 }
-                // console.log(totalBalanceUsdBN.isZero());
+                console.log(totalBalanceUsdBN.isZero());
                 if (totalBalanceUsdBN.isZero()) {
                     let maxApyBN = constants.Zero;
                     for (var i = 0; i < factors.length; i++) {

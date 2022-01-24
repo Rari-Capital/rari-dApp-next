@@ -131,7 +131,6 @@ export const filterFusePoolsByTokens = (
   fusePools.filter((pool) =>
     pool.assets.find((asset) => {
       if (tokenAddresses.includes(asset.underlyingToken)) {
-        console.log("yup");
         return true;
       }
     })

@@ -13,7 +13,7 @@ import {
   Tabs,
   Spinner,
 } from "@chakra-ui/react";
-import { Row, Column, Center, useIsMobile } from "lib/chakraUtils";
+import { Row, Column, Center } from "lib/chakraUtils";
 import DashboardBox from "../../../../shared/DashboardBox";
 import { ModalDivider } from "../../../../shared/Modal";
 import { SwitchCSS } from "../../../../shared/SwitchCSS";
@@ -55,6 +55,8 @@ import {
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
+import { formatEther, formatUnits } from "ethers/lib/utils";
+import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 enum UserAction {
   NO_ACTION,
@@ -129,9 +131,8 @@ const AmountSelect = ({
 
     _setUserEnteredAmount(newAmount);
 
-    const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
-
     try {
+      const bigAmount = utils.parseUnits(newAmount, tokenData?.decimals);
       _setAmount(bigAmount);
     } catch (e) {
       // If the number was invalid, set the amount to null to disable confirming:
@@ -203,7 +204,7 @@ const AmountSelect = ({
     depositOrWithdrawAlert = null;
   }
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsSmallScreen();
 
   const length = depositOrWithdrawAlert?.length ?? 0;
   let depositOrWithdrawAlertFontSize;
@@ -219,7 +220,6 @@ const AmountSelect = ({
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
-      console.log("Inside onConfirm");
 
       const isETH = asset.underlyingToken === ETH_TOKEN_DATA.address;
 
@@ -234,23 +234,21 @@ const AmountSelect = ({
         asset.cToken,
         isETH
           ? JSON.parse(
-              fuse.compoundContracts[
-                "contracts/CEtherDelegate.sol:CEtherDelegate"
-              ].abi
-            )
+            fuse.compoundContracts[
+              "contracts/CEtherDelegate.sol:CEtherDelegate"
+            ].abi
+          )
           : JSON.parse(
-              fuse.compoundContracts[
-                "contracts/CErc20Delegate.sol:CErc20Delegate"
-              ].abi
-            ),
+            fuse.compoundContracts[
+              "contracts/CErc20Delegate.sol:CErc20Delegate"
+            ].abi
+          ),
         fuse.provider.getSigner()
       );
 
       if (mode === Mode.SUPPLY || mode === Mode.REPAY) {
         // if not eth check if amounti is approved for thsi token
-        console.log("inside if 1.", { isETH });
         if (!isETH) {
-          console.log("shouldnt be here babe");
           const token = new Contract(
             asset.underlyingToken,
             JSON.parse(
@@ -274,29 +272,23 @@ const AmountSelect = ({
 
         // if ur suplying, then
         if (mode === Mode.SUPPLY) {
-          console.log("Inside supply");
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
-            console.log("enable as collateral");
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            console.log("HELLO");
             await comptroller.enterMarkets([asset.cToken]);
-            console.log("HEYYY");
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
           if (isETH) {
             const call = cToken.mint; //
-            console.log(cToken, cToken.mint);
 
             if (
               // If they are supplying their whole balance:
               amount === (await fuse.provider.getBalance(address))
             ) {
               // full balance of ETH
-              console.log("NOOO");
 
               // Subtract gas for max ETH
               const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
@@ -315,8 +307,6 @@ const AmountSelect = ({
               });
             } else {
               // custom amount of ETH
-              console.log("hey", { amount }, call);
-
               await call({ value: amount });
             }
           } else {
@@ -403,7 +393,6 @@ const AmountSelect = ({
       // Wait 2 seconds for refetch and then close modal.
       // We do this instead of waiting the refetch because some refetches take a while or error out and we want to close now.
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("made it");
       onClose();
     } catch (e) {
       handleGenericError(e, toast);
@@ -490,7 +479,7 @@ const AmountSelect = ({
                     color={tokenData?.color ?? "#FFF"}
                     displayAmount={userEnteredAmount}
                     updateAmount={updateAmount}
-                    disabled={isBorrowPaused}
+                    disabled={mode === Mode.BORROW && isBorrowPaused}
                   />
                   <TokenNameAndMaxButton
                     comptrollerAddress={comptrollerAddress}
@@ -553,8 +542,8 @@ const AmountSelect = ({
               // If the size is small, this means the text is large and we don't want the font size scale animation.
               className={
                 isMobile ||
-                depositOrWithdrawAlertFontSize === "14px" ||
-                depositOrWithdrawAlertFontSize === "15px"
+                  depositOrWithdrawAlertFontSize === "14px" ||
+                  depositOrWithdrawAlertFontSize === "15px"
                   ? "confirm-button-disable-font-size-scale"
                   : ""
               }
@@ -699,7 +688,7 @@ const StatsColumn = ({
   const updatedAsset = updatedAssets ? updatedAssets[index] : null;
 
   // Calculate Old and new Borrow Limits
-  const borrowLimit = useBorrowLimit(assets, {});
+  const borrowLimit = useBorrowLimit(assets);
   const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
   });
@@ -724,13 +713,20 @@ const StatsColumn = ({
     ? Math.abs(updatedSupplyAPY - supplyAPY) > 0.1
     : Math.abs(updatedBorrowAPR - borrowAPR) > 0.1;
 
+
+  const parsedBorrowLimit = "$" + utils.commify(parseFloat(borrowLimit.toString()))
   const parsedUpdatedBorrowLimit = utils.formatEther(
     updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
   );
+
+  const parsedDebtBalance = asset
+    ?
+    asset.borrowBalanceUSD.toString()
+    : "0.00";
   const parsedUpdatedDebtBalance = updatedAsset
     ? utils.formatEther(
-        updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)
-      )
+      updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther).div(constants.WeiPerEther)
+    )
     : "0.00";
 
   return (
@@ -759,16 +755,19 @@ const StatsColumn = ({
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {utils.commify(
-                utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+                parseFloat(
+                  utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+                ).toFixed(2)
               )}
               {isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
                   {utils.commify(
-                    utils.formatUnits(
-                      updatedAsset.supplyBalance,
-                      updatedAsset.underlyingDecimals
-                    )
+                    parseFloat(
+                      utils.formatUnits(
+                        updatedAsset.supplyBalance,
+                        updatedAsset.underlyingDecimals
+                      )).toFixed(2)
                   )}
                 </>
               ) : null}{" "}
@@ -816,23 +815,16 @@ const StatsColumn = ({
               fontWeight="bold"
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
-              {smallUsdFormatter(
-                parseInt(
-                  utils.formatEther(borrowLimit.div(constants.WeiPerEther))
-                )
-              )}
-              {isSupplyingOrWithdrawing ? (
-                <>
-                  {" → "}{" "}
-                  {"$" +
-                    utils.commify(
-                      parsedUpdatedBorrowLimit.slice(
-                        0,
-                        parsedUpdatedBorrowLimit.indexOf(".") + 3
-                      )
-                    )}
-                </>
-              ) : null}{" "}
+              {parsedBorrowLimit}
+
+              {" → "}{" "}
+              {"$" +
+                utils.commify(
+                  parsedUpdatedBorrowLimit.slice(
+                    0,
+                    parsedUpdatedBorrowLimit.indexOf(".") + 3
+                  )
+                )}
             </Text>
           </Row>
 
@@ -847,19 +839,22 @@ const StatsColumn = ({
               fontSize={!isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {
-                "$" + utils.formatEther(asset.borrowBalanceUSD) //smallUsdFormatter(
+                "$" +
+                utils.commify(
+                  parsedDebtBalance
+                ) // smallUsdFormatter(
               }
               {!isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
                   {
                     "$" +
-                      utils.commify(
-                        parsedUpdatedDebtBalance.slice(
-                          0,
-                          parsedUpdatedDebtBalance.indexOf(".") + 3
-                        )
-                      ) // smallUsdFormatter(
+                    utils.commify(
+                      parsedUpdatedDebtBalance.slice(
+                        0,
+                        parsedUpdatedDebtBalance.indexOf(".") + 3
+                      )
+                    ) // smallUsdFormatter(
                   }
                 </>
               ) : null}
@@ -870,8 +865,9 @@ const StatsColumn = ({
         <Center expand>
           <Spinner />
         </Center>
-      )}
-    </DashboardBox>
+      )
+      }
+    </DashboardBox >
   );
 };
 
@@ -909,7 +905,7 @@ const TokenNameAndMaxButton = ({
       if (maxBN!.lt(constants.Zero) || maxBN!.isZero()) {
         updateAmount("");
       } else {
-        const str = maxBN.div(asset.underlyingDecimals).toString();
+        const str = formatUnits(maxBN, asset.underlyingDecimals);
 
         updateAmount(str);
       }
@@ -1001,7 +997,6 @@ export async function testForCTokenErrorAndSend(
   failMessage: string
 ) {
   let response = await txObjectStaticCall(txArgs);
-  console.log(response);
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string of a number.
   if (response.toString() !== "0") {
     response = parseInt(response);
@@ -1070,6 +1065,7 @@ async function fetchMaxAmount(
   asset: USDPricedFuseAsset,
   comptrollerAddress: string
 ) {
+
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
@@ -1096,32 +1092,35 @@ async function fetchMaxAmount(
   }
 
   if (mode === Mode.BORROW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    try {
+      const maxBorrow =
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxBorrow(
+          address,
+          asset.cToken
+        );
 
-    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(
-      address,
-      asset.cToken
-    );
+      const amount = maxBorrow.mul(3).div(4);
 
-    if (err !== 0) {
-      return maxBorrow.mul(utils.parseUnits("0.75")).toString();
-    } else {
+      // const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
+      console.log("fetchMaxAmount", { amount, maxBorrow, utils })
+
+      return amount.div(1);
+    } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
   }
 
   if (mode === Mode.WITHDRAW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    try {
+      const maxRedeem =
+        await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxRedeem(
+          address,
+          asset.cToken
+        );
 
-    const { 0: err, 1: maxRedeem } = await comptroller.callStatic.getMaxRedeem(
-      address,
-      asset.cToken
-    );
-
-    if (err !== 0) {
-      return BigNumber.from(maxRedeem);
-    } else {
-      throw new Error("Could not fetch your max withdraw amount! Code: " + err);
+      return maxRedeem;
+    } catch (err) {
+      throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
   }
 }

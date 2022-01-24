@@ -19,6 +19,7 @@ import { fetchTokenDataWithCache } from 'utils/services';
 import { MarketInfo } from "hooks/interestRates/types";
 import { MergedPool } from "hooks/fuse/useFusePools";
 import { useTranslation } from "react-i18next";
+import { chain } from "mathjs";
 
 export enum InterestRatesTableOptions {
   Lending = "lending",
@@ -32,7 +33,7 @@ type FuseMarket = {
 type InterestRatesContextType = {
   selectedTable: InterestRatesTableOptions;
   tokens: TokenData[];
-  fusePools?: MergedPool[];
+  fusePools: MergedPool[] | null;
   markets: {
     aave: MarketInfo[];
     compound: MarketInfo[];
@@ -82,7 +83,7 @@ export default function InterestRatesView() {
       // add fuse pools if available
       if (fusePools)
         allTokens.push(
-          ...fusePools.map((pool) => pool.underlyingTokens).flat()
+          ...fusePools.map((pool: any) => pool.underlyingTokens).flat()
         );
 
       // isolate unique tokens only
@@ -92,7 +93,7 @@ export default function InterestRatesView() {
       const tokenDataList: TokenData[] = [];
       await Promise.all(
         tokenAddresses.map(async (address) => {
-          tokenDataList.push(await fetchTokenDataWithCache(address));
+          tokenDataList.push(await fetchTokenDataWithCache(address, 1));
         })
       );
 

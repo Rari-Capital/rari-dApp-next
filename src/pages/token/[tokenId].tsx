@@ -14,18 +14,20 @@ import { Spinner, Heading } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { Column } from "lib/chakraUtils";
+import { useRari } from "context/RariContext";
 
 const tokenDataFetcher = async (
-  tokenAddress: string
+  tokenAddress: string,
+  chainId: number
 ): Promise<TokenData | undefined> => {
-  console.log({ tokenAddress });
-  if (!tokenAddress) return undefined;
-  const token: TokenData = await fetchTokenData(tokenAddress);
+  if (!tokenAddress || !chainId) return undefined;
+  const token: TokenData = await fetchTokenData(tokenAddress, chainId);
   return token;
 };
 
 const TokenDetailsPage: NextPage<{ token: TokenData }> = () => {
   const router = useRouter();
+  const { chainId } = useRari();
   const [tokenAddress, setTokenAddress] = useState<string>("");
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const TokenDetailsPage: NextPage<{ token: TokenData }> = () => {
     }
   }, [router.query]);
 
-  const { data, error } = useSWR(tokenAddress, tokenDataFetcher);
+  const { data, error } = useSWR([tokenAddress, chainId], tokenDataFetcher);
 
   console.log({ data, error });
 

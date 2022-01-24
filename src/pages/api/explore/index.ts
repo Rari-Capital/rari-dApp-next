@@ -5,6 +5,7 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import { queryTopFuseAsset } from "services/gql";
 import { TokensDataMap } from "types/tokens";
 import { stables } from "gql/getTopPerformingFuseStable";
+import { ChainID } from "esm/utils/networks";
 
 // Types
 export type SubgraphPool = {
@@ -51,13 +52,12 @@ export type SubgraphCToken = {
 
 export type APIExploreData = {
   results: {
-    topEarningFuseStable: SubgraphCToken;
-    topEarningFuseAsset: SubgraphCToken;
-    mostPopularFuseAsset: SubgraphCToken;
-    mostBorrowedFuseAsset: SubgraphCToken;
-    cheapestStableBorrow: SubgraphCToken;
+    topEarningFuseStable: SubgraphCToken | undefined;
+    topEarningFuseAsset: SubgraphCToken | undefined;
+    mostPopularFuseAsset: SubgraphCToken | undefined;
+    mostBorrowedFuseAsset: SubgraphCToken | undefined;
+    cheapestStableBorrow: SubgraphCToken | undefined;
   };
-  tokensData: TokensDataMap;
 };
 
 export default async function handler(
@@ -66,6 +66,8 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     // Get Underlying Assets from subgraph
+    let chainId = parseInt(req.query.chainId as string) ?? ChainID.ETHEREUM;
+
     try {
       const [
         topEarningFuseStable,
@@ -74,25 +76,26 @@ export default async function handler(
         mostBorrowedFuseAsset,
         cheapestStableBorrow,
       ] = await Promise.all([
-        getTopEarningFuseStable(),
-        getTopEarningFuseAsset(),
-        getMostPopularFuseAsset(),
-        getMostBorrowedFuseAsset(),
-        getCheapestStablecoinBorrow(),
+        getTopEarningFuseStable(chainId),
+        getTopEarningFuseAsset(chainId),
+        getMostPopularFuseAsset(chainId),
+        getMostBorrowedFuseAsset(chainId),
+        getCheapestStablecoinBorrow(chainId),
       ]);
 
       const addresses = [];
       addresses.push(
-        topEarningFuseStable.underlying.address,
-        topEarningFuseAsset.underlying.address,
-        mostPopularFuseAsset.underlying.address,
-        mostBorrowedFuseAsset.underlying.address,
-        cheapestStableBorrow.underlying.address
+        topEarningFuseStable?.underlying.address,
+        topEarningFuseAsset?.underlying.address,
+        mostPopularFuseAsset?.underlying.address,
+        mostBorrowedFuseAsset?.underlying.address,
+        cheapestStableBorrow?.underlying.address
       );
 
-      const tokensData: TokensDataMap = await fetchTokensAPIDataAsMap(
-        addresses
-      );
+      // const tokensData: TokensDataMap = await fetchTokensAPIDataAsMap(
+      //   addresses,
+      //   chainId
+      // );
 
       const results = {
         topEarningFuseStable,
@@ -104,7 +107,7 @@ export default async function handler(
 
       const returnObj = {
         results,
-        tokensData,
+        // tokensData,
       };
 
       return res.status(200).json(returnObj);
@@ -115,21 +118,31 @@ export default async function handler(
 }
 
 // Top Earning Stable = highest lending rate Stablecoin
-const getTopEarningFuseStable = async (): Promise<SubgraphCToken> =>
-  await queryTopFuseAsset("supplyAPY", "desc", stables);
+const getTopEarningFuseStable = async (
+  chainId: ChainID
+): Promise<SubgraphCToken | undefined> =>
+  await queryTopFuseAsset("supplyAPY", "desc", stables, chainId);
 
 // Top Earning = highest lending rate Fuse Asset
-const getTopEarningFuseAsset = async (): Promise<SubgraphCToken> =>
-  await queryTopFuseAsset("supplyAPY", "desc");
+const getTopEarningFuseAsset = async (
+  chainId: ChainID
+): Promise<SubgraphCToken | undefined> =>
+  await queryTopFuseAsset("supplyAPY", "desc", undefined, chainId);
 
 // Most Popular = Highest lending liquidity Fuse Asset
-const getMostPopularFuseAsset = async (): Promise<SubgraphCToken> =>
-  await queryTopFuseAsset("liquidityUSD", "desc");
+const getMostPopularFuseAsset = async (
+  chainId: ChainID
+): Promise<SubgraphCToken | undefined> =>
+  await queryTopFuseAsset("liquidityUSD", "desc", undefined, chainId);
 
 // Most Popular = Highest borrow liquidity Fuse Asset
-const getMostBorrowedFuseAsset = async (): Promise<SubgraphCToken> =>
-  await queryTopFuseAsset("totalBorrowUSD", "desc");
+const getMostBorrowedFuseAsset = async (
+  chainId: ChainID
+): Promise<SubgraphCToken | undefined> =>
+  await queryTopFuseAsset("totalBorrowUSD", "desc", undefined, chainId);
 
 // Cheapest stablecoin borrow
-const getCheapestStablecoinBorrow = async (): Promise<SubgraphCToken> =>
-  await queryTopFuseAsset("borrowAPR", "asc", stables);
+const getCheapestStablecoinBorrow = async (
+  chainId: ChainID
+): Promise<SubgraphCToken | undefined> =>
+  await queryTopFuseAsset("borrowAPR", "asc", stables, chainId);

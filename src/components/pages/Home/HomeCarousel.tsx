@@ -5,59 +5,60 @@ import { Carousel } from "react-responsive-carousel";
 import { Column } from "lib/chakraUtils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { useFuseDataForAssets } from "hooks/fuse/useFuseDataForAsset";
-import { shortUsdFormatter } from "utils/bigUtils";
+// import { shortUsdFormatter } from "utils/bigUtils";
 
 const ASSETS = ["DAI", "ETH", "RGT"];
 
 const HomeCarousel = () => {
   const isMobile = useIsSmallScreen();
 
-  const { totals: pools } = useFuseDataForAssets(ASSETS);
+  // const { totals: pools } = useFuseDataForAssets(ASSETS);
+  return null
 
-  return (
-    <Column
-      width="100%"
-      height="100%"
-      mainAxisAlignment="center"
-      crossAxisAlignment="center"
-      // bg="blue"
-      //   padding={3}
-      id="carousel-column"
-    >
-      <Carousel
-        autoPlay
-        infiniteLoop
-        showStatus={false}
-        showArrows={false}
-        showThumbs={false}
-        showIndicators={isMobile ? false : true}
-      >
-        {pools.map((pool, i) => {
-          return (
-            <Box w="100%" h="100%" key={i}>
-              <Heading
-                fontSize={{ base: "md", sm: "lg", md: "lg", lg: "xl" }}
-                textAlign={isMobile ? "left" : "center"}
-              >
-                The Rari Capital Ecosystem currently has{" "}
-                <InlineStyledText
-                  text={`${pool.totalSuppliedUSD.toString()}
-                  `}
-                />
-                in {" "}
-                <InlineStyledText text={`${ASSETS[i]}`} />
-                {" "} earning{" "}
-                <InlineStyledText
-                  text={`${pool.highestSupplyAPY.toFixed(2)}%`}
-                />{" "}
-                yield.
-              </Heading>
-            </Box>
-          );
-        })}
-      </Carousel>
-    </Column>
-  );
+  // return (
+  //   <Column
+  //     width="100%"
+  //     height="100%"
+  //     mainAxisAlignment="center"
+  //     crossAxisAlignment="center"
+  //     // bg="blue"
+  //     //   padding={3}
+  //     id="carousel-column"
+  //   >
+  //     <Carousel
+  //       autoPlay
+  //       infiniteLoop
+  //       showStatus={false}
+  //       showArrows={false}
+  //       showThumbs={false}
+  //       showIndicators={isMobile ? false : true}
+  //     >
+  //       {pools.map((pool, i) => {
+  //         return (
+  //           <Box w="100%" h="100%" key={i}>
+  //             <Heading
+  //               fontSize={{ base: "md", sm: "lg", md: "lg", lg: "xl" }}
+  //               textAlign={isMobile ? "left" : "center"}
+  //             >
+  //               The Rari Capital Ecosystem currently has{" "}
+  //               <InlineStyledText
+  //                 text={`${pool.totalSuppliedUSD.toString()}
+  //                 `}
+  //               />
+  //               in {" "}
+  //               <InlineStyledText text={`${ASSETS[i]}`} />
+  //               {" "} earning{" "}
+  //               <InlineStyledText
+  //                 text={`${pool.highestSupplyAPY.toFixed(2)}%`}
+  //               />{" "}
+  //               yield.
+  //             </Heading>
+  //           </Box>
+  //         );
+  //       })}
+  //     </Carousel>
+  //   </Column>
+  // );
 };
 
 export default HomeCarousel;

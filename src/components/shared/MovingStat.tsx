@@ -143,7 +143,7 @@ export const APYWithRefreshMovingStat = React.memo(
     return (
       <CaptionedStat
         {...statProps}
-        stat={!data ? loadingPlaceholder : formattedStat}
+        stat={data === undefined ? loadingPlaceholder : formattedStat}
       />
     );
   }

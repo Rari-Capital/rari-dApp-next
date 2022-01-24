@@ -38,7 +38,6 @@ export default async function handler(
 
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);
-      const rari = new Vaults(web3);
       const fuse = initFuseWithProviders(web3);
 
       // If we specified poolIndices, use those, else fetch all pools
@@ -46,7 +45,6 @@ export default async function handler(
         _poolIndices = poolIndices;
       } else {
         const fusePools = await fetchPools({
-          rari,
           fuse,
           address: userAddress,
           filter: "",
@@ -56,7 +54,7 @@ export default async function handler(
 
       const fusePoolsData = await Promise.all(
         _poolIndices.map((poolIndex) =>
-          fetchFusePoolData(poolIndex, userAddress, fuse, rari)
+          fetchFusePoolData(poolIndex, userAddress, fuse)
         )
       );
 
@@ -85,11 +83,9 @@ export default async function handler(
 
       // Set up SDKs
       const web3 = new JsonRpcProvider(providerURL);
-      const rari = new Vaults(web3);
       const fuse = initFuseWithProviders(web3);
 
       const fusePools = await fetchPools({
-        rari,
         fuse,
         address: userAddress,
         filter: "",
@@ -101,7 +97,7 @@ export default async function handler(
 
       const fusePoolsData = await Promise.all(
         poolIndices.map((poolIndex) =>
-          fetchFusePoolData(poolIndex, userAddress, fuse, rari)
+          fetchFusePoolData(poolIndex, userAddress, fuse)
         )
       );
 

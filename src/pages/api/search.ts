@@ -14,7 +14,6 @@ export const DEFAULT_SEARCH_RETURN: APISearchReturn = {
   tokens: [],
   fuse: [],
   fuseTokensMap: {},
-  tokensData: {},
 };
 
 const REDIS_KEY_PREFIX = "search-";
@@ -25,7 +24,11 @@ export default async function handler(
   res: NextApiResponse<APISearchReturn | undefined>
 ) {
   if (req.method === "GET") {
-    const { text, address } = req.query;
+    const { text, address, chainId: _chainId } = req.query;
+
+    console.log({text, address, _chainId});
+
+    let chainId = parseInt(_chainId as string);
 
     // // If no search, return
     if (text && typeof text !== "string")
@@ -40,7 +43,7 @@ export default async function handler(
 
     try {
       let gqlsearchResults: GQLUnderlyingAsset[] = [];
-      const redisKey = REDIS_KEY_PREFIX + text;
+      const redisKey = `${REDIS_KEY_PREFIX}-${chainId}-${text}`;
 
       // If we explicitly provided a text input, search with this text
       if (text) {
@@ -57,7 +60,7 @@ export default async function handler(
 
         // Make the GQL Request to perform the search for tokens that exist
         const { underlyingAssets: searchTokens }: GQLSearchReturn =
-          await querySearchForToken(text);
+          await querySearchForToken(text, chainId);
 
         if (!searchTokens) return res.status(400).send(undefined);
         if (!searchTokens.length) return res.json(DEFAULT_SEARCH_RETURN);
@@ -68,18 +71,12 @@ export default async function handler(
       else if (addresses.length) {
         // Make the GQL Request to perform the search for tokens that exist
         const { underlyingAssets: balanceTokens } =
-          await querySearchForTokenByAddresses(addresses);
+          await querySearchForTokenByAddresses(addresses, chainId);
 
         if (!balanceTokens) return res.status(400).send(undefined);
         if (!balanceTokens.length) return res.json(DEFAULT_SEARCH_RETURN);
         gqlsearchResults = balanceTokens;
       }
-
-      // We are now going to fetch the tokenData and Fuse Pool Data
-      const [tokensDataMap] = await Promise.all([
-        fetchTokensAPIDataAsMap(gqlsearchResults.map((asset) => asset.id)),
-      ]);
-
       /** Get Fuse Data **/
 
       // Maps a Fuse Pool's address to an array of its underlyingToken Addresses
@@ -114,7 +111,6 @@ export default async function handler(
         tokens: gqlsearchResults.slice(0, 3),
         fuse: sortedFusePools.slice(0, 3),
         fuseTokensMap,
-        tokensData: tokensDataMap,
       };
 
       // Save results to redis every 15 minutes

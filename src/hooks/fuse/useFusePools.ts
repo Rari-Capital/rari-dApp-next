@@ -16,7 +16,6 @@ import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
 
 // Ethers
-
 export interface FusePool {
   name: string;
   creator: string;
@@ -69,13 +68,11 @@ const poolSort = (pools: MergedPool[]) => {
 };
 
 export const fetchPools = async ({
-  rari,
   fuse,
   address,
   filter,
   blockNum,
 }: {
-  rari: Vaults;
   fuse: Fuse;
   address: string;
   filter: string | null;
@@ -142,27 +139,24 @@ export const fetchPools = async ({
   return merged;
 };
 
-export interface UseFusePoolsReturn {
-  pools: MergedPool[];
-  filteredPools: MergedPool[];
-}
-
 // returns impersonal data about fuse pools ( can filter by your supplied/created pools )
-export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
-  const { fuse, rari, address } = useRari();
+export const useFusePools = (filter: string | null): MergedPool[] | null => {
+  const { fuse, address, chainId } = useRari();
 
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
   const isNonWhitelistedPools = filter === "unverified-pools";
 
-  const { data: _pools } = useQuery(
-    address + " fusePoolList" + (filter ?? ""),
-    async () => await fetchPools({ rari, fuse, address, filter })
+  const { data: pools } = useQuery(
+    `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
+    async () => await fetchPools({ fuse, address, filter })
   );
 
-  const pools = _pools ?? [];
-
   const filteredPools = useMemo(() => {
+    if (!pools) {
+      return null;
+    }
+
     if (!pools.length) {
       return [];
     }
@@ -171,7 +165,7 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
       return poolSort(pools);
     }
 
-    if (isMyPools || isCreatedPools || isNonWhitelistedPools)  {
+    if (isMyPools || isCreatedPools || isNonWhitelistedPools) {
       return poolSort(pools);
     }
 
@@ -184,5 +178,5 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
     return poolSort(filtered.map((item) => item.item));
   }, [pools, filter, isMyPools, isCreatedPools, isNonWhitelistedPools]);
 
-  return { pools, filteredPools };
+  return filteredPools;
 };

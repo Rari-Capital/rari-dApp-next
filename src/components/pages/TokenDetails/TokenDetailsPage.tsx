@@ -26,34 +26,39 @@ import {
   GET_BEST_CTOKENS_FOR_UNDERLYING,
   GQLBestCTokenForUnderlyings,
 } from "gql/ctokens/getBestCTokensForUnderlying";
-import AvatarWithBadge from "components/shared/Icons/AvatarWithBadge";
+import { ChainID } from "esm/utils/networks";
 
-const fetchBestCTokensForUnderlying = async (tokenAddress: string) => {
+const fetchBestCTokensForUnderlying = async (tokenAddress: string, chainId?: ChainID) => {
   const data: GQLBestCTokenForUnderlyings = await makeGqlRequest(
     GET_BEST_CTOKENS_FOR_UNDERLYING,
     {
       tokenAddress,
-    }
+    },
+    chainId
   );
   return data;
 };
 
 const useBestCTokensForUnderlying = (tokenAddress: string) => {
+  const { chainId } = useRari();
+
   const { data, error } = useSWR(
-    [tokenAddress.toLowerCase(), "best"],
+    [tokenAddress.toLowerCase(), chainId, "best"],
     fetchBestCTokensForUnderlying
   );
 
-  const { bestSupplyAPY, bestBorrowAPR }: GQLBestCTokenForUnderlyings =
+  const { bestSupplyAPY, bestBorrowAPR, bestLTV }: GQLBestCTokenForUnderlyings =
     data ?? {
       bestSupplyAPY: [],
       bestBorrowAPR: [],
+      bestLTV: [],
     };
 
   const bestSupplyCToken = bestSupplyAPY?.[0];
   const bestBorrowCToken = bestBorrowAPR?.[0];
+  const bestLTVCToken = bestLTV?.[0];
 
-  const ret = { bestSupplyCToken, bestBorrowCToken };
+  const ret = { bestSupplyCToken, bestBorrowCToken, bestLTVCToken };
   return ret;
 };
 
@@ -61,9 +66,8 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
   const isMobile = useIsSmallScreen();
   const { fuse } = useRari();
 
-  const { bestSupplyCToken, bestBorrowCToken } = useBestCTokensForUnderlying(
-    token.address
-  );
+  const { bestSupplyCToken, bestBorrowCToken, bestLTVCToken } =
+    useBestCTokensForUnderlying(token.address);
 
   const isVaultCreated = useIsVaultCreated(token.address);
   const { deployVault, isDeploying } = useDeployVault();
@@ -87,7 +91,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
         isRow={!isMobile}
         width="100%"
         h="100%"
-        // bg="red"
+      // bg="red"
       >
         {/* Column 1 */}
         <Column
@@ -119,7 +123,9 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           bg=""
           ml={3}
         >
-          <AppLink
+
+          {/* Inactive: Vaults */}
+          {/* <AppLink
             href={`/vaults/${token.address}`}
             as={DashboardBox}
             h="130px"
@@ -129,9 +135,9 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
               transform: "scale(1.02)",
               cursor: "pointer",
             }}
-            // onClick={() =>
-            //   isVaultCreated ? undefined : deployVault(token.address)
-            // }
+          // onClick={() =>
+          //   isVaultCreated ? undefined : deployVault(token.address)
+          // }
           >
             <Center h="100%">
               {isVaultCreated ? (
@@ -149,7 +155,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 </VStack>
               )}
             </Center>
-          </AppLink>
+          </AppLink> */}
 
           <DashboardBox h="100%" w="100%" px={5} py={3} flexGrow={1} mt={2}>
             <Heading mb={2}>{"Lend & Borrow"}</Heading>
@@ -181,7 +187,21 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 }
               />
 
-              <CTokenBox title={"Highest LTV"} subtitle={"60%"} href="#" />
+              <CTokenBox
+                title={"Highest LTV"}
+                subtitle={
+                  !!bestLTVCToken?.collateralFactor
+                    ? `${(
+                      parseFloat(bestLTVCToken.collateralFactor) / 1e16
+                    ).toFixed()}%`
+                    : undefined
+                }
+                href={
+                  bestLTVCToken
+                    ? `/fuse/pool/${bestLTVCToken.pool.index}`
+                    : "#"
+                }
+              />
             </VStack>
           </DashboardBox>
 
@@ -238,7 +258,7 @@ const Header = ({
           mainAxisAlignment="flex-start"
           crossAxisAlignment="center"
           flexBasis={"75%"}
-          //   bg="purple"
+        //   bg="purple"
         >
           <Image
             src={

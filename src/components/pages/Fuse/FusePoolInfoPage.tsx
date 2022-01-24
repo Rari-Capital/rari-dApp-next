@@ -51,12 +51,17 @@ import { memo, useState } from "react";
 // Utils
 import { shortAddress } from "utils/shortAddress";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import { shortUsdFormatter } from "utils/bigUtils";
+import {
+  shortUsdFormatter,
+  smallStringUsdFormatter,
+  smallUsdFormatter,
+} from "utils/bigUtils";
 
 // Ethers
 import { utils, BigNumber } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
-
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { formatUnits } from "ethers/lib/utils";
 
 const FusePoolInfoPage = memo(() => {
   const { isAuthed } = useRari();
@@ -350,7 +355,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
   const selectedTokenData = useTokenData(selectedAsset.underlyingToken);
   const selectedAssetUtilization =
     // @ts-ignore
-    selectedAsset.totalSupply === "0"
+    selectedAsset.totalSupply.isZero()
       ? 0
       : selectedAsset.totalBorrow.div(selectedAsset.totalSupply).mul(100);
 
@@ -363,7 +368,7 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
       return { borrowerRates: null, supplierRates: null };
     }
 
-    return convertIRMtoCurve(interestRateModel, fuse);
+    return convertIRMtoCurve(interestRateModel);
   });
 
   const isMobile = useIsMobile();
@@ -496,14 +501,24 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
         p={4}
         mt={3}
       >
-        <CaptionedStat
-          stat={selectedAsset.totalSupplyUSD.toString()}
-          statSize="lg"
-          captionSize="xs"
-          caption={t("Total Supplied")}
-          crossAxisAlignment="center"
-          captionFirst={true}
-        />
+        <SimpleTooltip
+          label={`${formatUnits(
+            selectedAsset.totalSupply,
+            selectedAsset.underlyingDecimals
+          )} ${selectedAsset.underlyingSymbol}`}
+          placement="top"
+        >
+          <CaptionedStat
+            stat={smallStringUsdFormatter(
+              parseFloat(selectedAsset.totalSupplyUSD.toString())
+            )}
+            statSize="lg"
+            captionSize="xs"
+            caption={t("Total Supplied")}
+            crossAxisAlignment="center"
+            captionFirst={true}
+          />
+        </SimpleTooltip>
 
         {isMobile ? null : (
           <CaptionedStat
@@ -511,9 +526,9 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
               selectedAsset.totalSupplyUSD.toString() === "0"
                 ? "0%"
                 : selectedAsset.totalBorrowUSD
-                    .div(selectedAsset.totalSupplyUSD)
-                    .mul(100)
-                    .toString() + "%"
+                  .div(selectedAsset.totalSupplyUSD)
+                  .mul(100)
+                  .toString() + "%"
             }
             statSize="lg"
             captionSize="xs"
@@ -536,16 +551,17 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
   );
 };
 
-export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
+export const convertIRMtoCurve = (interestRateModel: any) => {
   let borrowerRates = [];
   let supplierRates = [];
+  // fuse.web3.utils.toBN((i * 1e16).toString())
   for (var i = 0; i <= 100; i++) {
     const supplyLevel =
       (Math.pow(
-        (interestRateModel.getSupplyRate(utils.parseUnits(i.toString(), 16)) /
+        (interestRateModel.getSupplyRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
           1e18) *
-          (4 * 60 * 24) +
-          1,
+        (4 * 60 * 24) +
+        1,
         365
       ) -
         1) *
@@ -553,10 +569,10 @@ export const convertIRMtoCurve = (interestRateModel: any, fuse: Fuse) => {
 
     const borrowLevel =
       (Math.pow(
-        (interestRateModel.getBorrowRate(utils.parseUnits(i.toString(), 16)) /
+        (interestRateModel.getBorrowRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
           1e18) *
-          (4 * 60 * 24) +
-          1,
+        (4 * 60 * 24) +
+        1,
         365
       ) -
         1) *

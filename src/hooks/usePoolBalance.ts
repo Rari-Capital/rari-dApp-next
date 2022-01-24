@@ -7,6 +7,7 @@ import { PoolInterface } from "constants/pools";
 import { fromWei, toBN } from "utils/ethersUtils";
 import { Vaults } from "../esm/index"
 import { BigNumber } from 'ethers'
+import useVaultsSDK from "./vaults/useVaultsSDK";
 
 interface UseQueryResponse {
   data: any;
@@ -28,7 +29,9 @@ export const fetchPoolBalance = async ({
 };
 
 export const usePoolBalance = (pool: Pool): UseQueryResponse => {
-  const { address, rari } = useRari();
+  const { address } = useRari();
+  const { rari } = useVaultsSDK();
+
 
   const { data, isLoading, error } = useQuery(
     address + " " + pool + " balance",
@@ -41,7 +44,8 @@ export const usePoolBalance = (pool: Pool): UseQueryResponse => {
 };
 
 export const usePoolBalances = (pools: PoolInterface[]): UseQueryResponse[] => {
-  const { rari, address } = useRari();
+  const { address } = useRari();
+  const { rari } = useVaultsSDK();
 
   // Fetch APYs for all pools
   const poolBalances = useQueries(
@@ -67,7 +71,8 @@ export const usePoolBalances = (pools: PoolInterface[]): UseQueryResponse[] => {
 };
 
 export const useTotalPoolsBalance = (): UseQueryResponse => {
-  const { rari, address } = useRari();
+  const { address } = useRari();
+  const { rari } = useVaultsSDK();
 
   const { isLoading, data, error } = useQuery(
     address + " allPoolBalance",

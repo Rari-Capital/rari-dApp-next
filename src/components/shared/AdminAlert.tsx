@@ -3,11 +3,8 @@ import { Button } from "@chakra-ui/button";
 import { Box, HStack } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/toast";
-import { testForComptrollerErrorAndSend } from "components/pages/Fuse/FusePoolEditPage";
 import { useRari } from "context/RariContext";
-import {
-  useIsComptrollerPendingAdmin,
-} from "hooks/fuse/useIsComptrollerAdmin";
+import { useIsComptrollerPendingAdmin } from "hooks/fuse/useIsComptrollerAdmin";
 import LogRocket from "logrocket";
 import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -68,14 +65,9 @@ export const PendingAdminAlert = ({
     setIsAccepting(true);
 
     try {
-      await testForComptrollerErrorAndSend(
-        unitroller.methods._acceptAdmin(),
-        address,
-        ""
-      );
-
+      const tx = await unitroller._acceptAdmin({ from: address });
+      await tx.wait(1);
       LogRocket.track("Fuse-AcceptAdmin");
-
       queryClient.refetchQueries();
       setIsAccepting(false);
     } catch (e) {

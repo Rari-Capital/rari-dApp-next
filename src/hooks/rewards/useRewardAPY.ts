@@ -19,6 +19,7 @@ import {
 } from "./usePoolIncentives";
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
 import { constants, BigNumber } from "ethers";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 // ( ( rewardSupplySpeed * rewardEthPrice ) / ( underlyingTotalSupply * underlyingEthPrice / 1e18 / 1e18 ) )
 // (
@@ -293,7 +294,7 @@ export const useAssetPricesInEth = (
       Object.keys(tokensData).join(","),
     async () => {
       const [ethUSDBN, ...tokenPricesInEth] = await Promise.all([
-        fuse.getEthUsdPriceBN(),
+        getEthUsdPriceBN(),
         ...tokenAddresses.map(
           async (t) => await getPriceFromOracles(t, comptroller, fuse)
         ),
