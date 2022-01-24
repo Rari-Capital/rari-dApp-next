@@ -53,7 +53,6 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
   ) => {
     // If the user needs to configure a BaseToken Oracle for their Univ3 Pair, then disable until its set
     if (shouldShowUniV3BaseTokenOracleForm) {
-      console.log('lol1')
       return utils.isAddress(uniV3BaseTokenOracle);
     }
 
@@ -74,12 +73,10 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
       activeOracleModel === "Uniswap_V2_Oracle"
       || activeOracleModel === "SushiSwap_Oracle"
     ) {
-      console.log('lol333')
       return isItReady
     }
 
     // If the oracle address is not set at all, then disable until it is set.
-    console.log({oracleAddress, activeUniSwapPair},"SDSDSDSDSD", {shouldShowUniV3BaseTokenOracleForm})
     return utils.isAddress(oracleAddress);
   };
 
@@ -89,7 +86,6 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     uniV3BaseTokenOracle
   );
 
-  console.log({shouldNextButtonBeDisabled})
 
   return (
     <Column

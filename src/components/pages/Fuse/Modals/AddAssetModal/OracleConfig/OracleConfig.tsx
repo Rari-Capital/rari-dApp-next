@@ -135,17 +135,19 @@ const OracleConfig = ({
       activeOracleModel !== "Uniswap_V2_Oracle" &&
       activeOracleModel !== "SushiSwap_Oracle" &&
       options
-    )
-      setOracleAddress(options[activeOracleModel]);
+    ) {
+     setOracleAddress(options[activeOracleModel]);
+    }
     if (
       activeUniSwapPair === "" &&
       (activeOracleModel === "Custom_Oracle" ||
         activeOracleModel === "Uniswap_V3_Oracle" ||
         activeOracleModel === "SushiSwap_Oracle") &&
       !inputTouched
-    )
-    console.log("SETTIONGG", inputTouched)
+    ) {
       setOracleAddress("");
+
+    }
   }, [activeOracleModel, options, setOracleAddress, activeUniSwapPair]);
 
   // Will update oracle for the asset. This is used only if user is editing asset.
@@ -217,8 +219,6 @@ const OracleConfig = ({
       handleGenericError(e, toast);
     }
   };
-
-  console.log({activeOracleModel, checked, oracleAddress})
 
   if (!options)
     return (
