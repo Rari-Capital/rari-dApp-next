@@ -33,7 +33,7 @@ type FuseMarket = {
 type InterestRatesContextType = {
   selectedTable: InterestRatesTableOptions;
   tokens: TokenData[];
-  fusePools?: MergedPool[];
+  fusePools: MergedPool[] | null;
   markets: {
     aave: MarketInfo[];
     compound: MarketInfo[];
@@ -83,7 +83,7 @@ export default function InterestRatesView() {
       // add fuse pools if available
       if (fusePools)
         allTokens.push(
-          ...fusePools.map((pool) => pool.underlyingTokens).flat()
+          ...fusePools.map((pool: any) => pool.underlyingTokens).flat()
         );
 
       // isolate unique tokens only

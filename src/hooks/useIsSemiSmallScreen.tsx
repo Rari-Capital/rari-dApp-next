@@ -4,7 +4,7 @@ export const useIsSemiSmallScreen = () => {
   return useBreakpointValue({
     base: true,
     sm: true,
-    md: true,
+    md: false,
     lg: false,
   }, 'md') ?? false
 };

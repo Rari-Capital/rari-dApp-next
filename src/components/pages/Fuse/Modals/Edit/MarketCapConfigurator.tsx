@@ -155,7 +155,7 @@ const MarketCapConfigurator = ({
                 justifyContent="space-between"
                 alignContent="center"
               >
-                <Text size="sm" opacity="0.7">
+                <Text fontSize="sm" opacity="0.7">
                   New supply cap:
                 </Text>
                 <Box height="100%" width="40%">
@@ -175,7 +175,7 @@ const MarketCapConfigurator = ({
                   justifyContent="space-between"
                   alignContent="center"
                 >
-                  <Text size="sm" opacity="0.7">
+                  <Text fontSize="sm" opacity="0.7">
                     Current supply cap:
                   </Text>
                   <Box height="100%" width="40%">

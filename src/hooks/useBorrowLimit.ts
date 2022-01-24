@@ -20,6 +20,7 @@ export const useBorrowLimit = (
         );
       }
     }
+
     return _maxBorrow.div(constants.WeiPerEther);
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 

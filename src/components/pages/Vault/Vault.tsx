@@ -92,22 +92,22 @@ const VaultPortal = () => {
 
       <HStack w="75%" h="100%" justify="flex-start" bg="" mt="50px">
         <VStack alignItems="flex-start">
-          <Text size="sm">Total Supply</Text>
-          <Text size="xl" fontWeight="bold">
+          <Text fontSize="sm">Total Supply</Text>
+          <Text fontSize="xl" fontWeight="bold">
             {totalHoldings} {vault.underlyingSymbol}
           </Text>
         </VStack>
         <Spacer />
         <VStack alignItems="flex-start">
-          <Text size="sm">Avg. APY (30D)</Text>
-          <Text size="xl" fontWeight="bold">
+          <Text fontSize="sm">Avg. APY (30D)</Text>
+          <Text fontSize="xl" fontWeight="bold">
             {apy}%
           </Text>
         </VStack>
         <Spacer />
         <VStack alignItems="flex-start">
-          <Text size="sm">Your Balance</Text>
-          <Text size="xl" fontWeight="bold">
+          <Text fontSize="sm">Your Balance</Text>
+          <Text fontSize="xl" fontWeight="bold">
             {parseFloat(
               formatUnits(vaultBalance, vault.underlyingDecimals ?? 18)
             ).toFixed(2)}{" "}
@@ -116,8 +116,8 @@ const VaultPortal = () => {
         </VStack>
         <Spacer />
         <VStack alignItems="flex-start">
-          <Text size="sm">Amount Earned</Text>
-          <Text size="xl" fontWeight="bold">
+          <Text fontSize="sm">Amount Earned</Text>
+          <Text fontSize="xl" fontWeight="bold">
             30 {vault.underlyingSymbol}
           </Text>
         </VStack>

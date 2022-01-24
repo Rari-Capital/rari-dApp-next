@@ -65,7 +65,6 @@ const Searchbar = ({
     revalidateOnReconnect: false,
   });
 
-  // console.log({debouncedSearch, data, balances})
 
   const hasResults = useMemo(() => {
     if (!data) return false;

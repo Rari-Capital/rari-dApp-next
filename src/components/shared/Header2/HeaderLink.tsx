@@ -45,7 +45,7 @@ function getHeaderLinkStyleProps(isOnThisRoute: boolean) {
     color: isOnThisRoute ? "white" : "#818181",
     bg: isOnThisRoute ? "#1F1F1F" : "transparent",
     _hover: { bg: isOnThisRoute ? "#1F1F1F" : "#272727" },
-    _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
+    _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent", },
     _focus: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
   };
 }
@@ -74,6 +74,7 @@ export const HeaderLink = ({
       isExternal
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
+      borderRadius="sm"
       {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
       <Text {...props}>{name}</Text>
@@ -83,6 +84,7 @@ export const HeaderLink = ({
       href={route}
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
+      borderRadius="sm"
       {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
       <Text {...props}>{name}</Text>
@@ -132,6 +134,7 @@ export const DropDownLink = ({
           as={Button}
           rightIcon={<ChevronDownIcon />}
           {...getHeaderLinkStyleProps(isOnThisRoute)}
+          borderRadius="sm"
         >
           {name}
         </MenuButton>

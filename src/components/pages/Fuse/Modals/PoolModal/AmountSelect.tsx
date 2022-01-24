@@ -55,7 +55,7 @@ import {
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
-import { formatUnits } from "ethers/lib/utils";
+import { formatEther, formatUnits } from "ethers/lib/utils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 enum UserAction {
@@ -713,6 +713,8 @@ const StatsColumn = ({
     ? Math.abs(updatedSupplyAPY - supplyAPY) > 0.1
     : Math.abs(updatedBorrowAPR - borrowAPR) > 0.1;
 
+
+  const parsedBorrowLimit = "$" + utils.commify(parseFloat(borrowLimit.toString()))
   const parsedUpdatedBorrowLimit = utils.formatEther(
     updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
   );
@@ -723,7 +725,7 @@ const StatsColumn = ({
     : "0.00";
   const parsedUpdatedDebtBalance = updatedAsset
     ? utils.formatEther(
-      updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther)
+      updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther).div(constants.WeiPerEther)
     )
     : "0.00";
 
@@ -813,11 +815,7 @@ const StatsColumn = ({
               fontWeight="bold"
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
-              {smallUsdFormatter(
-                parseInt(
-                  utils.formatEther(borrowLimit.div(constants.WeiPerEther))
-                )
-              )}
+              {parsedBorrowLimit}
 
               {" → "}{" "}
               {"$" +
@@ -1101,8 +1099,12 @@ async function fetchMaxAmount(
           asset.cToken
         );
 
-      const amount = maxBorrow.mul(utils.parseUnits("0.75"));
-      return amount.div(BigNumber.from(10).pow(asset.underlyingDecimals));
+      const amount = maxBorrow.mul(3).div(4);
+
+      // const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
+      console.log("fetchMaxAmount", { amount, maxBorrow, utils })
+
+      return amount.div(1);
     } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }

@@ -73,30 +73,30 @@ const Screen3 = () => {
           justifyContent="center"
         >
           <ConfigRow maxHeight="35px" mainAxisAlignment="space-between">
-            <Text size="sm">Collateral Factor:</Text>
-            <Text size="sm">{collateralFactor}%</Text>
+            <Text fontSize={"sm"}>Collateral Factor:</Text>
+            <Text fontSize="sm">{collateralFactor}%</Text>
           </ConfigRow>
 
           <ModalDivider />
 
           <ConfigRow maxHeight="35px" mainAxisAlignment="space-between">
-            <Text size="sm">Reserve Factor:</Text>
-            <Text size="sm">{reserveFactor}%</Text>
+            <Text fontSize="sm">Reserve Factor:</Text>
+            <Text fontSize="sm">{reserveFactor}%</Text>
           </ConfigRow>
 
           <ModalDivider />
 
           <ConfigRow maxHeight="35px" mainAxisAlignment="space-between">
-            <Text size="sm">Admin Fee: </Text>
-            <Text size="sm">{adminFee}%</Text>
+            <Text fontSize="sm">Admin Fee: </Text>
+            <Text fontSize="sm">{adminFee}%</Text>
           </ConfigRow>
 
           <ModalDivider />
 
           <ConfigRow maxHeight="35px" mainAxisAlignment="space-between">
-            <Text size="sm">Oracle:</Text>
+            <Text fontSize="sm">Oracle:</Text>
             <SimpleTooltip label={oracleAddress}>
-              <Text size="sm">{activeOracleModel.replace("_", " ")}</Text>
+              <Text fontSize="sm">{activeOracleModel.replace("_", " ")}</Text>
             </SimpleTooltip>
           </ConfigRow>
 
@@ -104,8 +104,8 @@ const Screen3 = () => {
             <>
               <ModalDivider />
               <ConfigRow maxHeight="35px" mainAxisAlignment="space-between">
-                <Text size="sm"> Base token oracle: </Text>
-                <Text size="sm">{baseTokenActiveOracleName}</Text>
+                <Text fontSize="sm"> Base token oracle: </Text>
+                <Text fontSize="sm">{baseTokenActiveOracleName}</Text>
               </ConfigRow>
             </>
           ) : null}

@@ -113,7 +113,7 @@ const HomeFuseCard = ({
             {title ?? pool?.name}
           </Heading>
           {!isMobile && (
-            <Text size="xs" color="gray.500" fontWeight="bold">
+            <Text fontSize="xs" color="gray.500" fontWeight="bold">
               {subtitle ?? assetsSubtitle}
             </Text>
           )}

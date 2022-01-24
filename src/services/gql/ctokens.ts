@@ -11,6 +11,7 @@ export const queryTopFuseAsset = async (
   addresses?: string[],
   chainId?: ChainID
 ): Promise<SubgraphCToken | undefined> => {
+  console.log("queryTopFuseAsset", {chainId})
   if (!chainId) return undefined;
 
   const query = addresses?.length
@@ -23,7 +24,10 @@ export const queryTopFuseAsset = async (
     addresses,
   };
 
+
   const { ctokens } = await makeGqlRequest(query, vars, chainId);
+
+  console.log("queryTopFuseAsset", {vars, chainId, ctokens})
 
   const ctoken: SubgraphCToken = ctokens?.[0];
 

@@ -85,8 +85,8 @@ export const FuseAssetGridBox = ({
         data?.pool?.index
           ? `/fuse/pool/${data.pool.index}`
           : data?.underlying?.id
-          ? `/token/${data?.underlying?.id}`
-          : `#`
+            ? `/token/${data?.underlying?.id}`
+            : `#`
       }
       className="no-underline"
       w="100%"
@@ -173,6 +173,8 @@ export const VaultGridBox = ({
   const poolAPY = usePoolAPY(Pool.USDC);
   const poolInfo = usePoolInfo(Pool.USDC);
   const loading = !poolAPY;
+
+  console.log({ poolAPY });
 
   return (
     <AppLink href={"/pools/usdc"} className="no-underline" w="100%" h="100%">

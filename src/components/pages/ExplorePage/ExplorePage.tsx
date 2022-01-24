@@ -1,9 +1,9 @@
-import { Heading, useBreakpointValue, Image, Collapse } from "@chakra-ui/react";
+import { Heading, useBreakpointValue, Image, Collapse, PopoverCloseButton } from "@chakra-ui/react";
 import DashboardBox from "components/shared/DashboardBox";
 
 import {
   Box,
-  Center,
+  Stack,
   HStack,
   SimpleGrid,
   Spacer,
@@ -17,16 +17,13 @@ import {
 } from "./ExploreGridBox";
 
 // Hooks
-import { useTVLFetchers } from "hooks/useTVL";
-import { useTranslation } from "next-i18next";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 
 // Utils
 import { Column, Row, RowOrColumn } from "lib/chakraUtils";
 
 import {
   APIExploreData,
-  SubgraphCToken,
   SubgraphPool,
 } from "pages/api/explore";
 import useSWR from "swr";
@@ -56,24 +53,16 @@ const exploreFetcher = async (route: string): Promise<APIExploreData> => {
   return data;
 };
 
-const topFusePoolsFetcher = async (chainId: ChainID): Promise<{
-  pools: SubgraphPool[];
-  tokensData: TokensDataMap;
-}> => {
+const topFusePoolsFetcher = async (chainId: ChainID): Promise<
+  SubgraphPool[]
+> => {
   // const data = await getExploreData();
   const { pools }: { pools: SubgraphPool[] } = await makeGqlRequest(
     GET_TOP_FUSE_POOLS,
     {},
     chainId
   );
-  const tokenAddresses = getUniqueTokensForFusePools(pools);
-  const tokensData = await fetchTokensAPIDataAsMap([
-    ...Array.from(tokenAddresses),
-  ],
-    chainId
-  );
-
-  return { pools, tokensData };
+  return pools
 };
 
 interface RecommendedMarketsMap {
@@ -89,13 +78,11 @@ type RecommendedPoolDataMap = { [token: string]: SubgraphPool };
 interface RecommendedPoolsReturn {
   recommended: RecommendedMarketsMap;
   poolsMap: RecommendedPoolDataMap;
-  tokensData: TokensDataMap;
 }
 
 const recommendedPoolsFetcher = async (
   chainId: number, ...tokenAddresses: string[]
 ): Promise<RecommendedPoolsReturn> => {
-  const tokensData = await fetchTokensAPIDataAsMap(tokenAddresses, chainId);
 
   // Get all pools where any of these tokens exist
   const { underlyingAssets } = await makeGqlRequest(
@@ -193,7 +180,6 @@ const recommendedPoolsFetcher = async (
   return {
     recommended: map,
     poolsMap: recommendedPoolDataMap,
-    tokensData,
   };
 };
 
@@ -204,7 +190,6 @@ const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
     data ?? {
       recommended: {},
       poolsMap: {},
-      tokensData: {},
     }
   );
 };
@@ -214,7 +199,7 @@ const ExplorePage = () => {
   // const { t } = useTranslation();
   const { chainId } = useRari();
 
-  const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 10, lg: 10 });
+  const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 15, lg: 20 });
   const isMobile =
     useBreakpointValue({
       base: true,
@@ -228,16 +213,17 @@ const ExplorePage = () => {
   const { data, error } = useSWR("/api/explore?chainId=" + chainId, exploreFetcher);
   const { data: topFusePools } = useSWR([chainId, "topFusePools"], topFusePoolsFetcher);
   const { results } = data ?? {};
-  const { pools: topPools, tokensData: topFusePoolsTokensData } =
-    topFusePools ?? { pools: [], tokensData: {} };
+
+  const topPools = topFusePools ?? []
 
   const [balances, significantTokens] = useAccountBalances();
 
   const {
     recommended,
     poolsMap,
-    tokensData: recommendedTokensData,
   } = useRecommendedPools(significantTokens);
+
+  const [tokensData, setTokensData] = useState<any>({})
 
   const recommendedTokens = useMemo(
     () =>
@@ -252,13 +238,35 @@ const ExplorePage = () => {
     [significantTokens]
   );
 
-  const {
-    topEarningFuseStable,
+  const { topEarningFuseStable,
     topEarningFuseAsset,
     mostPopularFuseAsset,
     mostBorrowedFuseAsset,
     cheapestStableBorrow,
   } = results ?? {};
+
+
+  useEffect(() => {
+    let addrs: string[] = []
+
+    Object.values(results ?? {}).forEach(cToken => {
+      if (cToken) {
+        addrs.push(cToken.underlying.address)
+      }
+    })
+    Object.values(poolsMap).forEach(pool => {
+      pool.assets.forEach(asset => addrs.push(asset.underlying.id))
+    })
+
+    fetchTokensAPIDataAsMap(addrs, chainId).then(tokensData => {
+      if (!!Object.keys(tokensData).length) {
+        setTokensData(tokensData)
+      }
+    })
+  }, [poolsMap, chainId, results])
+
+  console.log({ tokensData, results  });
+
 
   return (
     <Column
@@ -311,7 +319,7 @@ const ExplorePage = () => {
                 data={topEarningFuseStable}
                 tokenData={
                   topEarningFuseStable
-                    ? topFusePoolsTokensData?.[topEarningFuseStable?.underlying.address]
+                    ? tokensData?.[topEarningFuseStable?.underlying.address]
                     : undefined
                 }
                 heading="Top Stable Lend"
@@ -322,7 +330,7 @@ const ExplorePage = () => {
                 data={cheapestStableBorrow}
                 tokenData={
                   cheapestStableBorrow
-                    ? topFusePoolsTokensData?.[cheapestStableBorrow?.underlying.address]
+                    ? tokensData?.[cheapestStableBorrow?.underlying.address]
                     : undefined
                 }
                 heading="Top Stable Borrow"
@@ -334,7 +342,7 @@ const ExplorePage = () => {
                 data={mostPopularFuseAsset}
                 tokenData={
                   mostPopularFuseAsset
-                    ? topFusePoolsTokensData?.[mostPopularFuseAsset?.underlying.address]
+                    ? tokensData?.[mostPopularFuseAsset?.underlying.address]
                     : undefined
                 }
                 heading="Most Supplied"
@@ -399,7 +407,7 @@ const ExplorePage = () => {
                       recommended[tokenAddress]?.assetIndex ?? undefined
                     }
                     tokenData={
-                      recommendedTokensData?.[tokenAddress] ?? undefined
+                      tokensData?.[tokenAddress] ?? undefined
                     }
                     balance={balances[tokenAddress] ?? undefined}
                   />
@@ -439,32 +447,34 @@ const ExplorePage = () => {
               based on total supply
             </Text>
           </Row>
-          <HStack
+          <Stack
+            direction={isMobile ? "column" : "row"}
             justify="space-between"
             alignItems="flex-start"
             w="100%"
             h="100%"
             py={4}
+
           >
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
               <ExploreFuseCard
                 pool={topPools[0]}
               // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
               <ExploreFuseCard
                 pool={topPools[1]}
               // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW="33%">
+            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
               <ExploreFuseCard
                 pool={topPools[2]}
               // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-          </HStack>
+          </Stack>
         </Column>
       </HStack>
 
@@ -488,7 +498,7 @@ const ExplorePage = () => {
           <TokenExplorer />
         </Column>
       </HStack>
-    </Column>
+    </Column >
   );
 };
 
@@ -511,6 +521,7 @@ export const HoverCard = ({
       }}
       transition="transform 0.2s ease 0s"
       opacity={0.9}
+      overflow={"hidden"}
       {...boxProps}
     >
       {children}
