@@ -144,6 +144,7 @@ const OracleConfig = ({
         activeOracleModel === "SushiSwap_Oracle") &&
       !inputTouched
     )
+    console.log("SETTIONGG", inputTouched)
       setOracleAddress("");
   }, [activeOracleModel, options, setOracleAddress, activeUniSwapPair]);
 
@@ -217,7 +218,7 @@ const OracleConfig = ({
     }
   };
 
-  console.log({activeOracleModel, checked})
+  console.log({activeOracleModel, checked, oracleAddress})
 
   if (!options)
     return (

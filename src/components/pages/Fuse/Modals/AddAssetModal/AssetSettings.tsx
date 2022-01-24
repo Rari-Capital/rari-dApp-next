@@ -117,7 +117,7 @@ const AssetSettings = ({
   const [oracleTouched, setOracleTouched] = useState(false);
   const [activeOracleModel, setActiveOracleModel] = useState<string>(""); // Will store the oracle's model selected for this asset. i.e. Rari Master Price Oracle, Custome Oracle, etc.
   const [oracleAddress, setOracleAddress] = useState<string>(""); // Will store the actual address of the oracle.
-
+    console.log({oracleAddress})
   // Uniswap V3 base token oracle config - these following lines are used only
   // if you choose Uniswap V3 Twap Oracle as the asset's oracle.
   const [feeTier, setFeeTier] = useState<number>(0);
