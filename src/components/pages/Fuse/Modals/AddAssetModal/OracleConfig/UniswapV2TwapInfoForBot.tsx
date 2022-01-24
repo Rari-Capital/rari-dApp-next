@@ -83,11 +83,21 @@ const UniswapV2TwapInfoForBot = () => {
             }
             { pairAddress !== "" && oracleAddress !== "" ?
                 <>
-                    <Text fontSize="xs" align="center">
-                        3) Use the information below to configure your TWAP bot. 
-                    </Text>
+                    <Row
+                        mainAxisAlignment="center"
+                        crossAxisAlignment="center"
+                        height="10%"
+                    >
+                        <Text fontSize="xs" align="center">
+                            3) Use the information below to configure your TWAP bot. 
+                        </Text>
+                    </Row>
                     <Box
                         width="100%"
+                        display="flex"
+                        flexDirection="column"
+                        justifyContent="space-evenly"
+                        height="50%"
                     >
                         <TwapBotConfigRow 
                             label={"Root oracle contract address:"}
@@ -112,6 +122,53 @@ const UniswapV2TwapInfoForBot = () => {
 
             : null}
       </>
+    )
+}
+
+const TwapBotConfigRow = ({
+    label,
+    onCopy,
+    hasCopied,
+    addressToCopy
+} : {
+    label: string,
+    onCopy: () => void,
+    hasCopied: boolean,
+    addressToCopy: string
+}) => {
+    return (
+        <Row
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
+        >
+                <Column
+                    mainAxisAlignment="center"
+                    crossAxisAlignment="flex-start"
+                    width="60%"
+                >
+                    <Text>{label}</Text>
+                </Column>
+                <Column
+                    mainAxisAlignment="center"
+                    crossAxisAlignment="center"
+                    width="30%"
+                >
+                    <Text 
+                        onClick={() => onCopy()} 
+                        fontSize="sm" 
+                        width="70%"
+                        display="flex"
+                        justifyContent="space-evenly"
+                    >
+                        {shortAddress(addressToCopy)} <CopyIcon />
+                    </Text>
+                    {hasCopied ?
+                        <Text opacity="0.6" fontSize="10px">
+                            Copied! 
+                        </Text> : null
+                    }
+                </Column>
+        </Row>
     )
 }
 
