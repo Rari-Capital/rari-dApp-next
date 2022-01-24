@@ -131,7 +131,8 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
     title: "Swap RGT for TRIBE",
     subtitle: "Swap your RGT for TRIBE post-merge.",
     bgColor: "#DD6829",
-    icon: "/static/icons/swap.svg",
+    icon: "/static/icons/tribe_swap.svg",
+    vaultType: Pool.USDC,
   },
   {
     type: HomepageOpportunityType.FusePool,
@@ -154,7 +155,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePool,
     title: "Olympus Pool Party",
-    subtitle: "Lend and borrow off sOHM",
+    subtitle: "Collateralize and borrow off gOHM",
     bgColor: "#00BEFF",
     icon: "/static/icons/olympus-pool.svg",
     fusePoolId: 18,
@@ -183,7 +184,7 @@ export const HOMEPAGE_OPPORTUNIES_ARBITRUM: HomepageOpportunity[] = [
     title: "Swap RGT for TRIBE",
     subtitle: "Swap your RGT for TRIBE post-merge.",
     bgColor: "#DD6829",
-    icon: "/static/icons/swap.svg",
+    icon: "/static/icons/tribe_swap.svg",
     vaultType: Pool.USDC,
   },
   // {
