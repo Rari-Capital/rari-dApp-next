@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Context
     // Fuse
@@ -8,18 +8,20 @@ import { useRari } from "context/RariContext";
 
 // Chakra UI
 import { Button, Text, useClipboard, Box } from "@chakra-ui/react";
-import { CopyIcon } from '@chakra-ui/icons'
+import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Column, Row } from "lib/chakraUtils";
+import AppLink from "components/shared/AppLink";
 
 // Hooks
 import { useSushiOrUniswapV2Pairs } from "hooks/fuse/useOracleData";
-
+import useCheckUniV2Oracle from 'hooks/fuse/useCheckUniV2Oracle';
 // Utils
 import { shortAddress } from "utils/shortAddress";
 
 const UniswapV2TwapInfoForBot = () => {
     const [ pairAddress, setPairAddress ] = useState("")
     const { fuse, address } = useRari()
+    
     const { 
         oracleAddress, 
         uniV3BaseTokenAddress, 
@@ -29,8 +31,6 @@ const UniswapV2TwapInfoForBot = () => {
         activeUniSwapPair,
         tokenData
     } = useAddAssetContext()
-
-    
 
     // Get pair options from sushiswap and uniswap
     const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
@@ -48,15 +48,24 @@ const UniswapV2TwapInfoForBot = () => {
         setOracleAddress(addressToUse)
     };
 
+    const [ special, setSpecial ] = useState(false)
+
+    useEffect(() => {
+        if (!isItReady) return
+        deployUniV2Oracle()
+        setSpecial(true)
+    })
+
     const rootPriceOracle = fuse.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_ROOT_CONTRACT_ADDRESS 
     
     const { hasCopied: copiedRoot, onCopy: onCopyRoot } = useClipboard(rootPriceOracle ?? "");
     const { hasCopied: copiedBase, onCopy: onCopyBase } = useClipboard(uniV3BaseTokenAddress ?? "");
     const { hasCopied: copiedPair, onCopy: onCopyPair } = useClipboard(pairAddress ?? "");
+
+    const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress, activeOracleModel)
     return (
         <>
-          
-            {   pairAddress === "" && uniV3BaseTokenAddress.length > 0 ? (
+            {  !isItReady && pairAddress === "" && uniV3BaseTokenAddress.length > 0 ? (
                 <>
                     <Text fontSize="xs" align="center">
                         2) Click below to deploy the oracle. 
@@ -88,9 +97,20 @@ const UniswapV2TwapInfoForBot = () => {
                         crossAxisAlignment="center"
                         height="10%"
                     >
-                        <Text fontSize="xs" align="center">
-                            3) Use the information below to configure your TWAP bot. 
-                        </Text>
+                        <Column
+                            mainAxisAlignment="center"
+                            crossAxisAlignment="center"
+                        >
+                            <Text fontSize="xs" align="center">
+                                {special ? "2)" : "3)"} With the information below please configure your TWAP bot.
+                            </Text>
+                            <Text fontSize="xs" align="center">
+                                <AppLink href="https://github.com/Rari-Capital/fuse-twap-bot" isExternal>
+                                    You can use Rari Capital's recommended twap bot. <ExternalLinkIcon/>
+                                </AppLink> 
+                            </Text>
+                            
+                        </Column>
                     </Row>
                     <Box
                         width="100%"
@@ -118,6 +138,15 @@ const UniswapV2TwapInfoForBot = () => {
                             addressToCopy={uniV3BaseTokenAddress}
                             />   
                     </Box>
+                    <Row
+                        mainAxisAlignment="center"
+                        crossAxisAlignment="center"
+                        height="10%"
+                    >
+                        <Text fontSize="xs" align="center">
+                            {special ? "3)" : "4)"} Once your TWAP is running please contact us to add the supported pair to our Grafana and redundancy bot list.
+                        </Text>
+                    </Row>
                 </>
 
             : null}
