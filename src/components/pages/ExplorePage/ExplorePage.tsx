@@ -44,6 +44,7 @@ import TokenExplorer from "./TokenExplorer";
 import AppLink from "components/shared/AppLink";
 import { ChainID } from "esm/utils/networks";
 import { useRari } from "context/RariContext";
+import { useRouter } from "next/router";
 
 // Fetchers
 const exploreFetcher = async (route: string): Promise<APIExploreData> => {
@@ -197,7 +198,8 @@ const useRecommendedPools = (tokens: string[]): RecommendedPoolsReturn => {
 const ExplorePage = () => {
   // const { getNumberTVL } = useTVLFetchers();
   // const { t } = useTranslation();
-  const { chainId } = useRari();
+  const { chainId, switchNetwork } = useRari();
+  const router = useRouter()
 
   const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 15, lg: 20 });
   const isMobile =
@@ -302,7 +304,7 @@ const ExplorePage = () => {
             overflow="hidden"
             flex={0}
           >
-            <AppLink href={"#"}>
+            <AppLink href={"#"} onClick={() => switchNetwork(ChainID.ARBITRUM, router)}>
               <Image h="100%" w="100%" src="static/arbitrum_banner.png" />
             </AppLink>
           </DashboardBox>
