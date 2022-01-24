@@ -15,6 +15,7 @@ import AppLink from "../AppLink";
 import {
   GOVERNANCE_DROPDOWN_ITEMS,
   PRODUCTS_DROPDOWN_ITEMS,
+  UtilLinks,
   UTILS_DROPDOWN_ITEMS,
 } from "constants/nav";
 import { HamburgerIcon } from "@chakra-ui/icons";
@@ -25,7 +26,7 @@ export const HeaderHeightWithTopPadding = new PixelSize(
 );
 
 export const NewHeader = () => {
-  const { isAuthed } = useRari();
+  const { chainId } = useRari();
   const { t } = useTranslation();
   const isMobile = useIsSmallScreen();
 
@@ -79,7 +80,7 @@ export const NewHeader = () => {
             <DropDownLink
               name={t("Tools")}
               ml={2}
-              links={UTILS_DROPDOWN_ITEMS}
+              links={UtilLinks(chainId ?? 1)}
             />
 
             {/* <DropDownLink

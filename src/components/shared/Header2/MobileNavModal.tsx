@@ -20,6 +20,7 @@ import { useRari } from "context/RariContext";
 import {
   GOVERNANCE_DROPDOWN_ITEMS,
   PRODUCTS_DROPDOWN_ITEMS,
+  UtilLinks,
   UTILS_DROPDOWN_ITEMS,
 } from "constants/nav";
 
@@ -91,6 +92,7 @@ export const MobileNavModal = ({
   defaultMode?: string;
 }) => {
   const { t } = useTranslation();
+  const { chainId } = useRari();
 
   return (
     <Modal

@@ -283,22 +283,22 @@ const RightSide = ({
     <HStack justify="flex-start" align="flex-start" mx="auto">
       <VStack alignItems="flex-start" ml={"auto"} mr="auto">
         <Text fontSize={["sm"]} color="grey">
-          Total Supply
+          Total Borrows
         </Text>
         <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
           <Heading fontSize={["sm"]}>
-            {shortUsdFormatter(pool.totalSupplyUSD)}
+            {shortUsdFormatter(pool.totalBorrowUSD)}
           </Heading>
         </Skeleton>
       </VStack>
 
       <VStack alignItems="flex-start" ml={"auto"} mr="auto">
         <Text fontSize={["sm"]} color="grey">
-          Total Supply
+          Total Liquidity
         </Text>
         <Skeleton isLoaded={!loading} height={loading ? "20px" : "100%"} my={1}>
           <Heading fontSize={["sm"]}>
-            {shortUsdFormatter(pool.totalSupplyUSD)}
+            {shortUsdFormatter(pool.totalLiquidityUSD)}
           </Heading>
         </Skeleton>
       </VStack>
