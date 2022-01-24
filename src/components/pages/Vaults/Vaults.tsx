@@ -19,7 +19,7 @@ const Vaults = () => {
           {" "}
           Vaults{" "}
         </Heading>
-        <Text color="#ABABAB" size="xl">
+        <Text color="#ABABAB" fontSize="xl">
           The yield aggregator is our autonomous algorithm that searches for the
           highest yield across different Fuse pools.
         </Text>

@@ -62,25 +62,25 @@ export const HOMEPAGE_FUSE_POOLS: { [chainId: number]: HomepageFusePool[] } = {
       id: 0,
     },
     {
-      id: 3,
+      id: 0,
     },
     {
       id: 0,
     },
     {
-      id: 3,
+      id: 0,
+    },
+    { 
+      id: 0,
     },
     {
       id: 0,
     },
     {
-      id: 3,
-    },
-    {
       id: 0,
     },
     {
-      id: 3,
+      id: 0,
     },
   ],
 };

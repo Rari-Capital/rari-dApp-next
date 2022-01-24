@@ -7,7 +7,7 @@ import { useRari } from "context/RariContext";
 
 // Hooks
 import { useTranslation } from "react-i18next";
-import useCheckUniV2Oracle from "../../../../../hooks/fuse/useCheckUniV2Oracle";
+import useCheckUniV2Oracle from "hooks/fuse/useCheckUniV2Oracle";
 
 // Components
 import TransactionStepper from "components/shared/TransactionStepper";

@@ -253,11 +253,11 @@ const AssetSettings = ({
   // Set transaction steps based on type of Oracle deployed
   const steps: string[] =
     activeOracleModel === "Rari_Default_Oracle" ||
-    activeOracleModel === "Chainlink_Oracle"
+      activeOracleModel === "Chainlink_Oracle"
       ? SimpleDeployment
       : activeOracleModel === "Uniswap_V3_Oracle"
-      ? UniSwapV3DeploymentSimple
-      : SimpleDeployment;
+        ? UniSwapV3DeploymentSimple
+        : SimpleDeployment;
 
   const increaseActiveStep = (step: string) => {
     setActiveStep(steps.indexOf(step));
@@ -593,7 +593,7 @@ const AssetSettings = ({
   if (mode === "Editing")
     return (
       <AddAssetContext.Provider value={args2}>
-        <AssetConfig checked={checked} setChecked={setChecked}/>
+        <AssetConfig checked={checked} setChecked={setChecked} />
       </AddAssetContext.Provider>
     );
 
@@ -612,7 +612,7 @@ const AssetSettings = ({
           crossAxisAlignment={"center"}
           w="100%"
           flexBasis={"10%"}
-          // bg="green"
+        // bg="green"
         >
           <Title stage={stage} />
         </Row>
@@ -626,7 +626,7 @@ const AssetSettings = ({
           overflowY="auto"
           flexBasis={"80%"}
           flexGrow={1}
-          // bg="red"
+        // bg="red"
         >
           {stage === 1 ? (
             <Column
@@ -639,7 +639,7 @@ const AssetSettings = ({
               alignItems="center"
               justifyContent="center"
             >
-              <Screen1 />
+              <Screen1 checked={checked} setChecked={setChecked} />
             </Column>
           ) : stage === 2 ? (
             <Row
@@ -650,9 +650,9 @@ const AssetSettings = ({
               crossAxisAlignment="center"
               alignItems="center"
               justifyContent="center"
-              // bg="aqua"
+            // bg="aqua"
             >
-              <Screen2 mode="Adding" checked={checked} setChecked={setChecked}/>
+              <Screen2 mode="Adding" checked={checked} setChecked={setChecked} />
             </Row>
           ) : (
             <Screen3 />

@@ -10,6 +10,7 @@ import { AmountSelectMode } from "components/shared/AmountSelectNew/AmountSelect
 
 import { constants, BigNumber } from "ethers";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { parseEther } from "ethers/lib/utils";
 
 const useUpdatedUserAssets = ({
   mode,
@@ -22,7 +23,6 @@ const useUpdatedUserAssets = ({
   index: number;
   amount: BigNumber;
 }) => {
-
   const { fuse } = useRari();
 
   const { data: updatedAssets }: UseQueryResult<USDPricedFuseAsset[]> =
@@ -51,7 +51,8 @@ const useUpdatedUserAssets = ({
             supplyBalance,
             supplyBalanceUSD: supplyBalance
               .mul(assetToBeUpdated.underlyingPrice)
-              .mul(ethPrice.div(constants.WeiPerEther)),
+              .mul(parseEther(ethPrice.toString()))
+              .div(constants.WeiPerEther),
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
@@ -64,7 +65,6 @@ const useUpdatedUserAssets = ({
           };
         } else if (mode === Mode.WITHDRAW) {
           const supplyBalance = assetToBeUpdated.supplyBalance.sub(amount);
-
           const totalSupply = assetToBeUpdated.totalSupply.sub(amount);
 
           updatedAsset = {
@@ -73,7 +73,8 @@ const useUpdatedUserAssets = ({
             supplyBalance,
             supplyBalanceUSD: supplyBalance
               .mul(assetToBeUpdated.underlyingPrice)
-              .mul(ethPrice.div(constants.WeiPerEther)),
+              .mul(parseEther(ethPrice.toString()))
+              .div(constants.WeiPerEther),
 
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
@@ -81,9 +82,15 @@ const useUpdatedUserAssets = ({
                 ? assetToBeUpdated.totalBorrow
                     .div(totalSupply)
                     .mul(constants.WeiPerEther)
-                : 0
+                : constants.Zero
             ),
           };
+          console.log({
+            supplyBalance,
+            assetToBeUpdated,
+            ethPrice,
+            updatedAsset,
+          });
         } else if (mode === Mode.BORROW || mode === AmountSelectMode.BORROW) {
           const borrowBalance = assetToBeUpdated.borrowBalance.add(amount);
 
@@ -99,7 +106,8 @@ const useUpdatedUserAssets = ({
             borrowBalance,
             borrowBalanceUSD: borrowBalance
               .mul(assetToBeUpdated.underlyingPrice)
-              .mul(ethPrice.div(constants.WeiPerEther)),
+              .mul(parseEther(ethPrice.toString()))
+              .div(constants.WeiPerEther),
 
             totalBorrow,
             borrowRatePerBlock: interestRateModel.getBorrowRate(
@@ -108,6 +116,13 @@ const useUpdatedUserAssets = ({
                 : constants.Zero
             ),
           };
+
+          console.log({
+            borrowBalance,
+            totalBorrow,
+            updatedAsset,
+            newUtilRate
+          });
         } else if (mode === Mode.REPAY) {
           const borrowBalance = assetToBeUpdated.borrowBalance.sub(amount);
 
@@ -129,14 +144,12 @@ const useUpdatedUserAssets = ({
             borrowBalance,
             borrowBalanceUSD: borrowBalance
               .mul(assetToBeUpdated.underlyingPrice)
-              .mul(ethPrice)
+              .mul(parseEther(ethPrice.toString()))
               .div(constants.WeiPerEther),
-
             totalBorrow,
             borrowRatePerBlock,
           };
         }
-
 
         const ret = assets.map((value, _index) => {
           if (_index === index) {

@@ -192,7 +192,7 @@ const Home = () => {
           >
             <Heading size="md">Explore Opportunities</Heading>
             <AppLink href="/explore">
-              <Text size="md" color="grey">
+              <Text fontSize="md" color="grey">
                 View All
               </Text>
             </AppLink>
