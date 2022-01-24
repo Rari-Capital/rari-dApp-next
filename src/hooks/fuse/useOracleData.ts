@@ -252,7 +252,7 @@ export const useGetOracleOptions = (
       // TODO: Config file
       const graphUrl = chainId === ChainID.ETHEREUM ? 
         "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3" 
-        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal/graphql"
+        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
 
       return (
         await axios.post(
@@ -273,7 +273,8 @@ export const useGetOracleOptions = (
                   name,
                   id,
                   symbol
-                }
+                },
+                volumeUSD
               }
             }
           }`,
@@ -283,6 +284,8 @@ export const useGetOracleOptions = (
     },
     { refetchOnMount: false }
   );
+
+  console.log({liquidity})
 
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''

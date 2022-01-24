@@ -16,8 +16,11 @@ import axios from "axios";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { useAddAssetContext } from "context/AddAssetContext";
 import { useMemo } from "react";
+import { useRari } from "context/RariContext";
+import { ChainID } from "esm/utils/networks";
 
 const UniswapV3PriceOracleConfigurator = () => {
+  const { chainId } = useRari()
   const { t } = useTranslation();
 
   const {
@@ -31,42 +34,51 @@ const UniswapV3PriceOracleConfigurator = () => {
 
   // We get a list of whitelistedPools from uniswap-v3's the graph.
   const { data: liquidity, error } = useQuery(
-    "UniswapV3 pool liquidity for " + tokenAddress,
-    async () =>
-      (
+    `UniswapV3 pool liquidity for ${tokenAddress} on ChainID: ${chainId}`,
+    async () => {
+      const tokenAddressFormatted = tokenAddress.toLowerCase()
+      
+      // TODO: Config file
+      const graphUrl = chainId === ChainID.ETHEREUM ? 
+        "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3" 
+        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
+
+      return (
         await axios.post(
-          "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+          graphUrl,
           {
             query: `{
-              token(id:"${tokenAddress.toLowerCase()}") {
-                whitelistPools {
+            token(id:"${tokenAddressFormatted}") {
+              whitelistPools {
+                id,
+                feeTier,
+                totalValueLockedUSD,
+                token0 {
+                  name,
                   id,
-                  feeTier,
-                  volumeUSD,
-                  totalValueLockedUSD,
-                  token0 {
-                    symbol,
-                    id,
-                    name
-                  },
-                  token1 {
-                    symbol,
-                    id,
-                    name
-                  }
-                }
+                  symbol
+                },
+                token1 {
+                  name,
+                  id,
+                  symbol
+                },
+                volumeUSD
               }
-            }`,
+            }
+          }`,
           }
         )
-      ).data,
+      ).data.data 
+    },
     { refetchOnMount: false }
   );
+
 
   // When user selects an option this function will be called.
   // Active pool, fee Tier, and base token are updated and we set the oracle address to the address of the pool we chose.
   const updateBoth = (value: string) => {
-    const uniPool = liquidity.data.token.whitelistPools[value];
+    const uniPool = liquidity.token.whitelistPools[value];
 
     const baseToken: string =
       uniPool.token0.id.toLowerCase() === tokenAddress.toLocaleLowerCase()
@@ -79,18 +91,18 @@ const UniswapV3PriceOracleConfigurator = () => {
   };
 
   // If liquidity is undefined, theres an error or theres no token found return nothing.
-  if (liquidity === undefined || liquidity.data === undefined)
+  if (liquidity === undefined || liquidity.token === undefined)
     return null;
 
   // Sort whitelisted pools by TVL. Greatest to smallest. Greater TVL is safer for users so we show it first.
   // Filter out pools where volume is less than $100,000
-  const liquiditySorted = liquidity.data.token.whitelistPools.sort(
+  const liquiditySorted = liquidity.token.whitelistPools.sort(
     (a: any, b: any): any =>
       parseInt(a.totalValueLockedUSD) > parseInt(b.totalValueLockedUSD) ? -1 : 1
   );
   // .filter((pool: any) => pool.volumeUSD >= 100000);
 
-  const selectedOracle = liquidity.data.token.whitelistPools[activeUniSwapPair];
+  const selectedOracle = liquidity.token.whitelistPools[activeUniSwapPair];
   // const warning = useMemo(() => {
   //   if (selectedOracle.liquidityProviderCount <=100)
   // }, [selectedOracle]);
@@ -194,7 +206,7 @@ const UniswapV3PriceOracleConfigurator = () => {
               <h1>
                 {activeUniSwapPair !== ""
                   ? shortUsdFormatter(
-                      liquidity.data.token.whitelistPools[activeUniSwapPair]
+                      liquidity.token.whitelistPools[activeUniSwapPair]
                         .totalValueLockedUSD
                     )
                   : null}
@@ -216,7 +228,7 @@ const UniswapV3PriceOracleConfigurator = () => {
               <h1>
                 {activeUniSwapPair !== ""
                   ? shortUsdFormatter(
-                      liquidity.data.token.whitelistPools[activeUniSwapPair]
+                      liquidity.token.whitelistPools[activeUniSwapPair]
                         .volumeUSD
                     )
                   : null}
@@ -253,7 +265,7 @@ const UniswapV3PriceOracleConfigurator = () => {
               my={0}
             >
               <Link
-                href={`https://info.uniswap.org/#/pools/${liquidity.data.token.whitelistPools[activeUniSwapPair].id}`}
+                href={`https://info.uniswap.org/#/pools/${liquidity.token.whitelistPools[activeUniSwapPair].id}`}
                 isExternal
               >
                 Visit Pool in Uniswap
