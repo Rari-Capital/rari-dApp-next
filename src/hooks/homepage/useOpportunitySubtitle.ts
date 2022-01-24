@@ -63,7 +63,7 @@ export const useOpportunitySubtitle = (
         return maxAPY ? `${maxAPY}% APY` : null;
 
       case HomepageOpportunityType.FusePage:
-        return fuseTVL ? `${shortUsdFormatter(fuseTVL)} TVL` : null;
+        return (fuseTVL !== undefined || fuseTVL !== null) ? `${shortUsdFormatter(fuseTVL!)} TVL` : null;
 
       case HomepageOpportunityType.Arbitrum:
         return "Now live!";

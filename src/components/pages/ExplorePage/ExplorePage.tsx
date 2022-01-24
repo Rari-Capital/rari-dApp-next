@@ -390,7 +390,7 @@ const ExplorePage = () => {
               alignItems="flex-start"
               w="100%"
               h="100%"
-              expand={true}
+              expand
               // flex={1}
               py={4}
               spacing={4}
