@@ -6,7 +6,6 @@ import FuseStatsBar from "../FuseStatsBar";
 import FuseTabBar from "../FuseTabBar";
 
 // Hooks
-import { useRari } from "context/RariContext";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 // Utils
@@ -16,10 +15,9 @@ import { useFilter } from "hooks/useFilter";
 import { useFusePools } from "hooks/fuse/useFusePools";
 
 const FusePoolsPage = memo(() => {
-  const { isAuthed } = useRari();
   const isMobile = useIsSmallScreen();
   const filter = useFilter();
-  const { filteredPools } = useFusePools(filter);
+  const filteredPools = useFusePools(filter);
 
   return (
     <>

@@ -10,33 +10,12 @@ import { useTranslation } from "next-i18next";
 // Utils
 import { Column, Row, useIsMobile } from "lib/chakraUtils";
 import { filterPoolName } from "utils/fetchFusePoolData";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
-
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log({ pools });
-    let timeout: any;
-    if (!pools) {
-      setLoading(true);
-      timeout = setTimeout(() => {
-        setLoading(false);
-      }, 6000);
-    }
-    if (!!pools?.length) {
-      setLoading(false);
-    }
-    return () => {
-      if (!!timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [pools]);
 
   return (
     <Column
@@ -86,38 +65,37 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
         width="100%"
         h="100%"
       >
-        {loading ? (
+        {!!pools ? !!pools.length ? pools.map((pool, index) => {
+          return (
+            <PoolRow
+              key={pool.id}
+              poolNumber={pool.id}
+              name={filterPoolName(pool.name)}
+              tvl={pool.suppliedUSD}
+              borrowed={pool.borrowedUSD}
+              tokens={pool.underlyingTokens.map((address, index) => ({
+                symbol: pool.underlyingSymbols[index],
+                address,
+              }))}
+              noBottomDivider={index === pools.length - 1}
+              isWhitelisted={pool.whitelistedAdmin}
+              comptroller={pool.comptroller}
+            />
+          )
+        }) : (
+          <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
+            <Center w="100%" h="100%">
+              <Text>No Pools </Text>
+            </Center>
+          </Box>
+        ) : (
           <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
             <Center>
               <Spinner />
             </Center>
           </Box>
-        ) : !!pools?.length ? (
-          pools?.map((pool, index) => {
-            return (
-              <PoolRow
-                key={pool.id}
-                poolNumber={pool.id}
-                name={filterPoolName(pool.name)}
-                tvl={pool.suppliedUSD}
-                borrowed={pool.borrowedUSD}
-                tokens={pool.underlyingTokens.map((address, index) => ({
-                  symbol: pool.underlyingSymbols[index],
-                  address,
-                }))}
-                noBottomDivider={index === pools.length - 1}
-                isWhitelisted={pool.whitelistedAdmin}
-                comptroller={pool.comptroller}
-              />
-            );
-          })
-        ) : (
-          <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
-            <Center my={4}>
-              <Spinner />
-            </Center>
-          </Box>
-        )}
+        )
+        }
       </Column>
     </Column>
   );

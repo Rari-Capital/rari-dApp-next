@@ -38,6 +38,14 @@ export const UTILS_DROPDOWN_ITEMS: MenuItemInterface[] = [
   },
   {
     type: MenuItemType.LINK,
+    link: { name: "Liquidations", route: "/fuse/liquidations" },
+  },
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Metrics", route: "https://rari.grafana.net/goto/61kctV_Gk" },
+  },
+  {
+    type: MenuItemType.LINK,
     link: { name: "Interest Rates", route: "/utils/interest-rates" },
   },
 ];

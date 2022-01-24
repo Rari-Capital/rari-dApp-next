@@ -11,7 +11,6 @@ import { useFuseTVL } from "hooks/fuse/useFuseTVL";
 import { usePoolsAPY } from "hooks/usePoolAPY";
 import { usePoolInfos } from "hooks/usePoolInfo";
 
-
 export const useOpportunitySubtitle = (
   opportunity: HomepageOpportunity
 ): string | null => {
@@ -66,16 +65,19 @@ export const useOpportunitySubtitle = (
       case HomepageOpportunityType.FusePage:
         return fuseTVL ? `${shortUsdFormatter(fuseTVL)} TVL` : null;
 
+      case HomepageOpportunityType.Arbitrum:
+        return "";
+
+      case HomepageOpportunityType.Connext:
+        return "via Connext";
+
+      case HomepageOpportunityType.PegExchanger:
+        return "";
+
       default:
         return null;
     }
-  }, [
-    opportunity,
-    earnPoolAPY,
-    poolsAPY,
-    fusePoolData,
-    fuseTVL,
-  ]);
+  }, [opportunity, earnPoolAPY, poolsAPY, fusePoolData, fuseTVL]);
 
   return returnedSubtitle;
 };

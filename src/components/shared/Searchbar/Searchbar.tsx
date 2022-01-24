@@ -23,7 +23,7 @@ const searchFetcher = async (
   text: string,
   ...addresses: string[]
 ): Promise<APISearchReturn | undefined> => {
-  console.log({chainId, text, addresses});
+  console.log({ chainId, text, addresses });
   let url = `/api/search?chainId=${chainId}`;
 
   if (!text && !addresses.length) return undefined;
@@ -57,8 +57,8 @@ const Searchbar = ({
   const [balances, balancesToSearchWith] = useAccountBalances();
 
   const debouncedSearch = useMemo(() => {
-return [chainId, val, ...balancesToSearchWith]
-  }, [chainId, val, balancesToSearchWith.length]) 
+    return [chainId, val, ...balancesToSearchWith]
+  }, [chainId, val, balancesToSearchWith.length])
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,
@@ -79,6 +79,7 @@ return [chainId, val, ...balancesToSearchWith]
 
   // If it has results, and focused is true
   const shouldShowDropdown = hasResults && focused;
+  const hasResultsUnfocused = hasResults && !focused;
 
   return (
     <Column
@@ -88,9 +89,9 @@ return [chainId, val, ...balancesToSearchWith]
       width="100%"
       position="relative"
       bg="white"
-      border={smaller ? "2px solid" : "4px solid"}
+      border={(smaller || hasResultsUnfocused) ? "2px solid" : "4px solid"}
       borderRadius="xl"
-      borderColor="grey"
+      borderColor={hasResultsUnfocused ? "green" : "grey"}
       zIndex={2}
       id="Searchbox"
     >
@@ -142,13 +143,6 @@ return [chainId, val, ...balancesToSearchWith]
           onBlur={() => setTimeout(() => setFocused(false), 500)}
           {...inputProps}
         />
-                                    <Box
-                  borderRadius="50%"
-                  backgroundColor="green.200"
-                  height="8px"
-                  width="8px"
-                  mr={3}
-                />
         {!smaller && (
           <Row
             mainAxisAlignment="center"
@@ -159,7 +153,6 @@ return [chainId, val, ...balancesToSearchWith]
             zIndex="5"
             right="0"
             mr={1}
-            bg="pink"
           >
 
             <AppLink href="/explore">

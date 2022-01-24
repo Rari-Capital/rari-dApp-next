@@ -33,8 +33,7 @@ import HomeCarousel from "./HomeCarousel";
 // constants
 import {
   HOMEPAGE_FUSE_POOLS,
-  HOMEPAGE_OPPORTUNIES,
-  HOMEPAGE_EARN_VAULTS,
+  HomepageItems,
 } from "constants/homepage";
 // import { SearchIcon } from "@chakra-ui/icons";
 import DashboardBox from "components/shared/DashboardBox";
@@ -205,9 +204,11 @@ const Home = () => {
             w="100%"
             mt={5}
           >
-            {HOMEPAGE_OPPORTUNIES.slice(0, sliceNum).map((opportunity, i) => (
-              <OpportunityCard opportunity={opportunity} key={i} />
-            ))}
+            {HomepageItems(chainId ?? 1)
+              .slice(0, sliceNum)
+              .map((opportunity: any, i: number) => (
+                <OpportunityCard opportunity={opportunity} key={i} />
+              ))}
           </SimpleGrid>
         </Column>
       </Row>

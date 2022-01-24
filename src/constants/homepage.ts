@@ -62,25 +62,25 @@ export const HOMEPAGE_FUSE_POOLS: { [chainId: number]: HomepageFusePool[] } = {
       id: 0,
     },
     {
-      id: 0,
+      id: 3,
     },
     {
       id: 0,
     },
     {
-      id: 0,
+      id: 3,
     },
     {
       id: 0,
     },
     {
-      id: 0,
+      id: 3,
     },
     {
       id: 0,
     },
     {
-      id: 0,
+      id: 3,
     },
   ],
 };
@@ -93,6 +93,9 @@ export enum HomepageOpportunityType {
   FusePage,
   Pool2Page,
   TranchesPage,
+  Arbitrum,
+  Connext,
+  PegExchanger,
 }
 
 export interface HomepageOpportunity {
@@ -105,6 +108,7 @@ export interface HomepageOpportunity {
   vaultType?: Pool;
   fusePoolId?: number;
   fuseMetric?: FusePoolMetric;
+  isExternal?: boolean;
 }
 
 export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
@@ -116,29 +120,29 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
     icon: "/static/icons/fuse-glow.svg",
   },
   {
-    type: HomepageOpportunityType.EarnPage,
-    title: "Vaults v1",
-    subtitle: "Sustainable yield made easy",
-    bgColor: "#6041FC",
-    icon: "/static/icons/earn-glow.svg",
+    type: HomepageOpportunityType.Arbitrum,
+    title: "Arbitrum",
+    subtitle: "Faster and cheaper txs",
+    bgColor: "#072BAC",
+    icon: "/static/icons/arbitrum_icon_glow.png",
   },
   {
     type: HomepageOpportunityType.EarnVault,
-    title: "DAI Vault",
-    subtitle: "Earn interest on DAI deposits",
-    bgColor: "#FFA700",
-    icon: "/static/icons/dai-glow.svg",
-    vaultType: Pool.DAI,
-  },
-  {
-    type: HomepageOpportunityType.EarnVault,
-    title: "USDC Vault",
-    subtitle: "Earn interest on USDC deposits",
-    bgColor: "#2474cc",
-    icon: "/static/icons/usdc-glow.svg",
+    title: "Swap RGT for TRIBE",
+    subtitle: "Swap your RGT for TRIBE post-merge.",
+    bgColor: "#DD6829",
+    icon: "/static/icons/swap.svg",
     vaultType: Pool.USDC,
   },
-
+  {
+    type: HomepageOpportunityType.FusePool,
+    title: "FeiRari Pool",
+    subtitle: "Join the Tribe",
+    bgColor: "#178DCF",
+    icon: "/static/icons/tribe_feirari_glow.png",
+    fusePoolId: 8,
+    fuseMetric: FusePoolMetric.TotalSuppliedUSD,
+  },
   {
     type: HomepageOpportunityType.FusePool,
     title: "Tetranode's Pool",
@@ -158,6 +162,64 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
     fuseMetric: FusePoolMetric.TotalSuppliedUSD,
   },
 ];
+
+export const HOMEPAGE_OPPORTUNIES_ARBITRUM: HomepageOpportunity[] = [
+  {
+    type: HomepageOpportunityType.FusePage,
+    title: "Fuse",
+    subtitle: "The first open interest rate market protocol",
+    bgColor: "#E6303A",
+    icon: "/static/icons/fuse-glow.svg",
+  },
+  {
+    type: HomepageOpportunityType.Connext,
+    title: "Bridge to Arbitrum",
+    subtitle: "Bridge assets to Arbitrum with Connext",
+    bgColor: "#072BAC",
+    icon: "/static/icons/connext_white.png",
+    isExternal: true,
+  },
+  {
+    type: HomepageOpportunityType.EarnVault,
+    title: "Swap RGT for TRIBE",
+    subtitle: "Swap your RGT for TRIBE post-merge.",
+    bgColor: "#DD6829",
+    icon: "/static/icons/swap.svg",
+    vaultType: Pool.USDC,
+  },
+  // {
+  //   type: HomepageOpportunityType.FusePool,
+  //   title:  "FeiRari Pool",
+  //   subtitle: "Join the Tribe",
+  //   bgColor: "#178DCF",
+  //   icon: "/static/icons/tribe_feirari_glow.png",
+  //   fusePoolId: 8,
+  //   fuseMetric: FusePoolMetric.TotalSuppliedUSD,
+  // },
+  // {
+  //   type: HomepageOpportunityType.FusePool,
+  //   title: "Tetranode's Pool",
+  //   subtitle: "Lend RGT and borrow against it",
+  //   bgColor: "#00BB28",
+  //   icon: "/static/icons/tetranode-pool.svg",
+  //   fusePoolId: 6,
+  //   fuseMetric: FusePoolMetric.TotalSuppliedUSD,
+  // },
+  // {
+  //   type: HomepageOpportunityType.FusePool,
+  //   title: "Olympus Pool Party",
+  //   subtitle: "Lend and borrow off sOHM",
+  //   bgColor: "#00BEFF",
+  //   icon: "/static/icons/olympus-pool.svg",
+  //   fusePoolId: 18,
+  //   fuseMetric: FusePoolMetric.TotalSuppliedUSD,
+  // },
+];
+
+export const HomepageItems = (chainId: ChainID) =>
+  chainId === ChainID.ETHEREUM
+    ? HOMEPAGE_OPPORTUNIES
+    : HOMEPAGE_OPPORTUNIES_ARBITRUM;
 
 export const HOMEPAGE_EARN_VAULTS: HomepageOpportunity[] = [
   {

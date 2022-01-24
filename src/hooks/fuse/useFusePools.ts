@@ -139,27 +139,24 @@ export const fetchPools = async ({
   return merged;
 };
 
-export interface UseFusePoolsReturn {
-  pools: MergedPool[];
-  filteredPools: MergedPool[];
-}
-
 // returns impersonal data about fuse pools ( can filter by your supplied/created pools )
-export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
+export const useFusePools = (filter: string | null): MergedPool[] | null => {
   const { fuse, address, chainId } = useRari();
 
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
   const isNonWhitelistedPools = filter === "unverified-pools";
 
-  const { data: _pools } = useQuery(
+  const { data: pools } = useQuery(
     `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
     async () => await fetchPools({ fuse, address, filter })
   );
 
-  const pools = _pools ?? [];
-
   const filteredPools = useMemo(() => {
+    if (!pools) {
+      return null;
+    }
+
     if (!pools.length) {
       return [];
     }
@@ -181,5 +178,5 @@ export const useFusePools = (filter: string | null): UseFusePoolsReturn => {
     return poolSort(filtered.map((item) => item.item));
   }, [pools, filter, isMyPools, isCreatedPools, isNonWhitelistedPools]);
 
-  return { pools, filteredPools };
+  return filteredPools;
 };
