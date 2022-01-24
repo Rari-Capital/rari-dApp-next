@@ -39,39 +39,47 @@ export const perPoolTVL = async (
   fuse: Fuse,
   chainId: ChainID
 ) => {
-  const [stableTVL, yieldTVL, ethTVLInETH, daiTVL] = await Promise.all([
-    Vaults.pools.stable.balances.getTotalSupply(),
-    Vaults.pools.yield.balances.getTotalSupply(),
-    Vaults.pools.ethereum.balances.getTotalSupply(),
-    Vaults.pools.dai.balances.getTotalSupply(),
-  ]);
-
-  const stakedTVL =
+  if (chainId === 1) {
+    const [stableTVL, yieldTVL, ethTVLInETH, daiTVL] = await Promise.all([
+      Vaults.pools.stable.balances.getTotalSupply(),
+      Vaults.pools.yield.balances.getTotalSupply(),
+      Vaults.pools.ethereum.balances.getTotalSupply(),
+      Vaults.pools.dai.balances.getTotalSupply(),
+    ]);
+    const stakedTVL =
     chainId === 1
       ? await Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd()
       : constants.Zero;
 
-  const ethPriceBN = await getEthUsdPriceBN();
+    const ethPriceBN = await getEthUsdPriceBN();
 
-  // console.log("PER POOL TVL");
+    // console.log("PER POOL TVL");
 
-  const fuseTVLInETH = await fetchFuseTVL(fuse);
+    const fuseTVLInETH = await fetchFuseTVL(fuse);
 
-  // console.log("PER POOL TVL", { fuseTVLInETH });
+    // console.log("PER POOL TVL", { fuseTVLInETH });
 
 
-  // const ethUSDBN = (ethPriceBN ?? constants.Zero).div(constants.WeiPerEther);
-  const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
-  const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
+    // const ethUSDBN = (ethPriceBN ?? constants.Zero).div(constants.WeiPerEther);
+    const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
+    const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
 
-  return {
-    stableTVL,
-    yieldTVL,
-    ethTVL,
-    daiTVL,
-    fuseTVL,
-    stakedTVL,
-  };
+    return {
+      stableTVL,
+      yieldTVL,
+      ethTVL,
+      daiTVL,
+      fuseTVL,
+      stakedTVL,
+    };
+  } 
+    const ethPriceBN = await getEthUsdPriceBN();
+    const fuseTVLInETH = await fetchFuseTVL(fuse);
+    const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
+ 
+    return {
+      fuseTVL
+    }
 };
 
 export const fetchTVL = async (
@@ -82,14 +90,17 @@ export const fetchTVL = async (
   if (!chainId) return constants.Zero;
   try {
     const tvls = await perPoolTVL(Vaults, fuse, chainId);
-    const total = tvls.stableTVL
+    
+    const total: BigNumber = chainId === 1 ? tvls.stableTVL
       .add(tvls.yieldTVL)
       .add(tvls.ethTVL)
       .add(tvls.daiTVL)
       .add(tvls.stakedTVL)
       .add(tvls.fuseTVL)
       .div(constants.WeiPerEther)
-    return total;
+    : tvls.fuseTVL
+
+    return total
   } catch (err) {
     console.log({ err });
     return constants.Zero;
