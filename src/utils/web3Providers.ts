@@ -27,6 +27,8 @@ export const initFuseWithProviders = (
   provider = chooseBestWeb3Provider(),
   chainId: ChainID = 1
 ): Fuse => {
+  console.log('d');
+  
   const fuse = new Fuse(provider, chainId === 31337 ? 1 : chainId );
   let lensProvider = getChainMetadata(chainId).rpcUrl ?? "";
   console.log({lensProvider})
