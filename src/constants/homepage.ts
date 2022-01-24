@@ -146,7 +146,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePool,
     title: "Tetranode's Pool",
-    subtitle: "Lend RGT and borrow against it",
+    subtitle: "Lend and borrow against multiple assets.",
     bgColor: "#00BB28",
     icon: "/static/icons/tetranode-pool.svg",
     fusePoolId: 6,
