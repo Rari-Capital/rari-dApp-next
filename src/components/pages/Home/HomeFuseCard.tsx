@@ -14,9 +14,9 @@ import DashboardBox from "components/shared/DashboardBox";
 import AppLink from "components/shared/AppLink";
 import { SubgraphPool } from "pages/api/explore";
 import { TokensDataMap } from "types/tokens";
-import { isMobile } from "web3modal";
 import { useIsMobile } from "lib/chakraUtils";
 import { useRari } from "context/RariContext";
+import { filterPoolName } from "utils/fetchFusePoolData";
 
 const HomeFuseCard = ({
   pool,
@@ -110,7 +110,7 @@ const HomeFuseCard = ({
           </AvatarGroup>
 
           <Heading size="sm" mt={2}>
-            {title ?? pool?.name}
+            {filterPoolName(pool?.name)}
           </Heading>
           {!isMobile && (
             <Text fontSize="xs" color="gray.500" fontWeight="bold">

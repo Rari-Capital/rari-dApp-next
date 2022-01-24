@@ -265,8 +265,6 @@ const ExplorePage = () => {
     })
   }, [poolsMap, chainId, results])
 
-  console.log({ tokensData, results  });
-
 
   return (
     <Column
@@ -304,7 +302,7 @@ const ExplorePage = () => {
             overflow="hidden"
             flex={0}
           >
-            <AppLink href={"/vaults"}>
+            <AppLink href={"#"}>
               <Image h="100%" w="100%" src="static/arbitrum_banner.png" />
             </AppLink>
           </DashboardBox>
