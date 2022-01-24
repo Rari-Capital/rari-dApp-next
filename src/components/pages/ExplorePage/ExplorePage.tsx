@@ -237,6 +237,7 @@ const ExplorePage = () => {
     () => !!significantTokens.length,
     [significantTokens]
   );
+  const shouldShowRecommendedPools = chainId === 1 && hasBalances
 
   const { topEarningFuseStable,
     topEarningFuseAsset,
@@ -354,7 +355,7 @@ const ExplorePage = () => {
       </RowOrColumn>
 
       {/* Recommended Row */}
-      <Collapse in={hasBalances} animateOpacity style={{ width: "100%" }}>
+      <Collapse in={shouldShowRecommendedPools} animateOpacity style={{ width: "100%" }}>
         <RowOrColumn
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
