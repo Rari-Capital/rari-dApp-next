@@ -111,8 +111,9 @@ const UniswapV3PriceOracleConfigurator = () => {
     <>
       <Column
         crossAxisAlignment="flex-start"
-        mainAxisAlignment="flex-start"
+        mainAxisAlignment="center"
         width={"100%"}
+        height={"100%"}
         my={2}
         px={4}
         ml={"auto"}
@@ -261,7 +262,7 @@ const UniswapV3PriceOracleConfigurator = () => {
             <Row
               crossAxisAlignment="center"
               mainAxisAlignment="center"
-              width="260px"
+              width="100%"
               my={0}
             >
               <Link

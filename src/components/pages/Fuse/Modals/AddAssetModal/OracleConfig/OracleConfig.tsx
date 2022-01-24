@@ -1,6 +1,6 @@
 // Chakra and UI
 import { Input, Box, Text, Select, Spinner, useToast } from "@chakra-ui/react";
-import { Center, Row } from "lib/chakraUtils";
+import { Center, Column, Row } from "lib/chakraUtils";
 import { DASHBOARD_BOX_PROPS } from "../../../../../shared/DashboardBox";
 import { SaveButton } from "../../../FusePoolEditPage";
 import { QuestionIcon } from "@chakra-ui/icons";
@@ -252,89 +252,104 @@ const OracleConfig = ({
         </SimpleTooltip>
 
         {/* Oracles */}
-        <Box
-          width={mode === "Editing" ? "50%" : "50%"}
-          alignItems="flex-end"
-          flexDirection="column"
-          justifyContent="space-around"
-          alignContent="center"
-          display="flex"
+        <Column
+          crossAxisAlignment="flex-start"
+          mainAxisAlignment="center"
+          width={"100%"}
+          height={"100%"}
+          my={2}
+          px={4}
+          ml={"auto"}
+          // bg="aqua"
+          id="UNIv3COLUMN"
         >
-          <Select
-            mb={2}
-            ml="auto"
+          <Column
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
+            height="50%"
             width="100%"
-            {...DASHBOARD_BOX_PROPS}
-            borderRadius="7px"
-            _focus={{ outline: "none" }}
-            value={activeOracleModel.toLowerCase()}
-            onChange={(event) => {
-              // if (mode === "Editing") {
-              // }
-              setOracleTouched(true);
-              setActiveOracleModel(event.target.value);
-            }}
-            placeholder={
-              activeOracleModel.length === 0
-                ? t("Choose Oracle")
-                : activeOracleModel.replaceAll("_", " ")
-            }
-            disabled={
-              !isUserAdmin ||
-              (!oracleData?.adminOverwrite &&
-                !options.Current_Price_Oracle === null)
-            }
           >
-            {Object.entries(options).map(([key, value]) =>
-              value !== null &&
-              value !== undefined &&
-              key !== activeOracleModel &&
-              (mode === "Adding" ? key !== "Current_Price_Oracle" : true) ? (
-                // dont show the selected choice in the list
-                <option key={key} value={key} className="black-bg-option">
-                  {key.replaceAll("_", " ")}
-                </option>
-              ) : null
-            )}
-            {/* <option disabled={true}>Loading...</option> */}
-          </Select>
-
-          { activeOracleModel.length > 0 
-            && activeOracleModel !== "Uniswap_V2_Oracle" 
-            && activeOracleModel !== "SushiSwap_Oracle"
-            ? (
-            <Input
-              mt={2}
+            <Select
               mb={2}
               ml="auto"
-              size="sm"
-              bg="#282727"
-              height="50px"
-              width="260px"
-              variant="filled"
-              textAlign="center"
-              value={oracleAddress}
-              onChange={(event) => {
-                const address = event.target.value;
-                setInputTouched(true);
-                setOracleAddress(address);
-              }}
+              width="100%"
               {...DASHBOARD_BOX_PROPS}
-              _focus={{ bg: "#121212" }}
-              _hover={{ bg: "#282727" }}
-              _placeholder={{ color: "#e0e0e0" }}
-              disabled={activeOracleModel === "Custom_Oracle" ? false : true}
-            />
-          ) : null}
-          <Text color="grey" fontSize="sm" textAlign="center">
-            {oracleIdentity}
-          </Text>
-          {activeOracleModel === "Custom_Oracle" && (
-            <Text color="red" fontSize="sm" textAlign="center">
-              Make sure you know what you are doing!
+              borderRadius="7px"
+              _focus={{ outline: "none" }}
+              value={activeOracleModel.toLowerCase()}
+              onChange={(event) => {
+                // if (mode === "Editing") {
+                // }
+                setOracleTouched(true);
+                setActiveOracleModel(event.target.value);
+              }}
+              placeholder={
+                activeOracleModel.length === 0
+                  ? t("Choose Oracle")
+                  : activeOracleModel.replaceAll("_", " ")
+              }
+              disabled={
+                !isUserAdmin ||
+                (!oracleData?.adminOverwrite &&
+                  !options.Current_Price_Oracle === null)
+              }
+            >
+              {Object.entries(options).map(([key, value]) =>
+                value !== null &&
+                value !== undefined &&
+                key !== activeOracleModel &&
+                (mode === "Adding" ? key !== "Current_Price_Oracle" : true) ? (
+                  // dont show the selected choice in the list
+                  <option key={key} value={key} className="black-bg-option">
+                    {key.replaceAll("_", " ")}
+                  </option>
+                ) : null
+              )}
+              {/* <option disabled={true}>Loading...</option> */}
+            </Select>
+          </Column>
+         
+          <Column
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
+            height="50%"
+            width="100%"
+          >
+            { activeOracleModel.length > 0 
+              && activeOracleModel !== "Uniswap_V2_Oracle" 
+              && activeOracleModel !== "SushiSwap_Oracle"
+              ? (
+              <Input
+                ml="auto"
+                size="sm"
+                bg="#282727"
+                height="80%"
+                width="100%"
+                variant="filled"
+                textAlign="center"
+                value={oracleAddress}
+                onChange={(event) => {
+                  const address = event.target.value;
+                  setInputTouched(true);
+                  setOracleAddress(address);
+                }}
+                {...DASHBOARD_BOX_PROPS}
+                _focus={{ bg: "#121212" }}
+                _hover={{ bg: "#282727" }}
+                _placeholder={{ color: "#e0e0e0" }}
+                disabled={activeOracleModel === "Custom_Oracle" ? false : true}
+              />
+            ) : null}
+            {activeOracleModel === "Custom_Oracle" && (
+              <Text color="red" fontSize="sm" textAlign="center">
+                Make sure you know what you are doing!
+              </Text>
+            )}
+            <Text color="grey" fontSize="sm" textAlign="center">
+              {oracleIdentity}
             </Text>
-          )}
-        </Box>
+          </Column>
+        </Column>
       </Row>
 
       <Row
@@ -344,7 +359,13 @@ const OracleConfig = ({
         height={
             activeOracleModel === "SushiSwap_Oracle" 
             ||  activeOracleModel === "Uniswap_V2_Oracle" 
-            ? checked ? "60%" : "10%" : "10%"}
+            ? checked 
+              ? "60%" 
+              : "10%" 
+            : activeOracleModel === "Uniswap_V3_Oracle" && activeUniSwapPair !== "" 
+              ? "60%"
+              : "30%"
+            }
         width={
           mode === "Adding" && !shouldShowUniV3BaseTokenOracleForm
             ? "100%"
