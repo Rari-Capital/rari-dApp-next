@@ -17,9 +17,6 @@ const OpportunityCard = ({
 }) => {
   const subheading: string | null = useOpportunitySubtitle(opportunity);
   const link = useMemo(() => getOpportunityLink(opportunity), [opportunity]);
-
-  console.log({ subheading });
-
   return (
     <AppLink href={link} style={{ textDecoration: "none" }} isExternal={opportunity.isExternal ?? false}>
       <Box

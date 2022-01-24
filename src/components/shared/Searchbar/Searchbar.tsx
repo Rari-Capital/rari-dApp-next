@@ -23,7 +23,6 @@ const searchFetcher = async (
   text: string,
   ...addresses: string[]
 ): Promise<APISearchReturn | undefined> => {
-  console.log({ chainId, text, addresses });
   let url = `/api/search?chainId=${chainId}`;
 
   if (!text && !addresses.length) return undefined;
