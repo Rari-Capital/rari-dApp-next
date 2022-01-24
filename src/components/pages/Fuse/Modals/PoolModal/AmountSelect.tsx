@@ -264,7 +264,8 @@ const AmountSelect = ({
           ).gte(amount);
 
           if (!hasApprovedEnough) {
-            await token.approve(cToken.address, max);
+            let approveTx = await token.approve(cToken.address, max);
+            await approveTx.wait(1)
           }
 
           LogRocket.track("Fuse-Approve");
@@ -276,7 +277,8 @@ const AmountSelect = ({
           if (enableAsCollateral) {
             const comptroller = createComptroller(comptrollerAddress, fuse);
             // Don't await this, we don't care if it gets executed first!
-            await comptroller.enterMarkets([asset.cToken]);
+            let tx = await comptroller.enterMarkets([asset.cToken]);
+            await tx.wait(1)
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
@@ -298,39 +300,32 @@ const AmountSelect = ({
                 address
               );
 
-              await call({
+              let tx = await call({
                 from: address,
                 value: amount.sub(gasWEI),
 
                 gasPrice,
                 gas: estimatedGas,
               });
+              await tx.wait(1)
             } else {
               // custom amount of ETH
               await call({ value: amount });
             }
           } else {
             //  Custom amount of ERC20
-            await testForCTokenErrorAndSend(
+           let tx = await testForCTokenErrorAndSend(
               cToken.callStatic.mint,
               amount,
               cToken.mint,
               "Cannot deposit this amount right now!"
             );
+            await tx.wait(1)
           }
-
-          await testForCTokenErrorAndSend(
-            cToken.callStatic.borrow,
-            amount,
-            cToken.borrow,
-            "Cannot borrow this amount right now!"
-          );
-
           LogRocket.track("Fuse-Supply");
         } else if (mode === Mode.REPAY) {
           if (isETH) {
             const call = cToken.repayBorrow();
-
             if (
               // If they are repaying their whole balance:
               amount === (await fuse.provider.getBalance(address))
@@ -358,32 +353,34 @@ const AmountSelect = ({
               });
             }
           } else {
-            await testForCTokenErrorAndSend(
+            let tx = await testForCTokenErrorAndSend(
               cToken.callStatic.repayBorrow,
               isRepayingMax ? max : amount,
-              address,
+              cToken.repayBorrow,
               "Cannot repay this amount right now!"
             );
+            await tx.wait(1)
           }
-
           LogRocket.track("Fuse-Repay");
         }
       } else if (mode === Mode.BORROW) {
         await testForCTokenErrorAndSend(
-          cToken.borrow,
+          cToken.callStatic.borrow,
           amount,
-          address,
+          cToken.borrow,
           "Cannot borrow this amount right now!"
         );
-
         LogRocket.track("Fuse-Borrow");
       } else if (mode === Mode.WITHDRAW) {
-        await testForCTokenErrorAndSend(
-          cToken.redeemUnderlying,
+        alert("HERE")
+        let tx = await testForCTokenErrorAndSend(
+          cToken.callStatic.redeemUnderlying,
           amount,
-          address,
+          cToken.redeemUnderlying,
           "Cannot withdraw this amount right now!"
         );
+
+        await tx.wait(1)
 
         LogRocket.track("Fuse-Withdraw");
       }
@@ -1026,7 +1023,7 @@ export async function testForCTokenErrorAndSend(
     throw err;
   }
 
-  return txObject(txArgs);
+  return await txObject(txArgs);
 }
 
 export const fetchGasForCall = async (

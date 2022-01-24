@@ -39,18 +39,19 @@ export const perPoolTVL = async (
   fuse: Fuse,
   chainId: ChainID
 ) => {
-  const [stableTVL, yieldTVL, ethTVLInETH, daiTVL] =
-    await Promise.all([
-      Vaults.pools.stable.balances.getTotalSupply(),
-      Vaults.pools.yield.balances.getTotalSupply(),
-      Vaults.pools.ethereum.balances.getTotalSupply(),
-      Vaults.pools.dai.balances.getTotalSupply(),
-    ]);
+  const [stableTVL, yieldTVL, ethTVLInETH, daiTVL] = await Promise.all([
+    Vaults.pools.stable.balances.getTotalSupply(),
+    Vaults.pools.yield.balances.getTotalSupply(),
+    Vaults.pools.ethereum.balances.getTotalSupply(),
+    Vaults.pools.dai.balances.getTotalSupply(),
+  ]);
 
-    const stakedTVL = 
-      chainId === 1 ? Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd(): constants.Zero;
+  const stakedTVL =
+    chainId === 1
+      ? await Vaults.governance.rgt.sushiSwapDistributions.totalStakedUsd()
+      : constants.Zero;
 
-  const ethUSDBN = await getEthUsdPriceBN();
+  const ethPriceBN = await getEthUsdPriceBN();
 
   // console.log("PER POOL TVL");
 
@@ -58,19 +59,10 @@ export const perPoolTVL = async (
 
   // console.log("PER POOL TVL", { fuseTVLInETH });
 
-  // console.log({
-  //   stableTVL,
-  //   yieldTVL,
-  //   ethTVLInETH,
-  //   daiTVL,
-  //   ethPriceBN,
-  //   stakedTVL,
-  //   fuseTVLInETH,
-  // });
 
   // const ethUSDBN = (ethPriceBN ?? constants.Zero).div(constants.WeiPerEther);
-  const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethUSDBN);
-  const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethUSDBN);
+  const ethTVL = (ethTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
+  const fuseTVL = (fuseTVLInETH ?? constants.Zero).mul(ethPriceBN).div(constants.WeiPerEther);
 
   return {
     stableTVL,
@@ -90,14 +82,14 @@ export const fetchTVL = async (
   if (!chainId) return constants.Zero;
   try {
     const tvls = await perPoolTVL(Vaults, fuse, chainId);
-    return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
-
-    return tvls.stableTVL
+    const total = tvls.stableTVL
       .add(tvls.yieldTVL)
       .add(tvls.ethTVL)
       .add(tvls.daiTVL)
       .add(tvls.stakedTVL)
-      .add(tvls.fuseTVL);
+      .add(tvls.fuseTVL)
+      .div(constants.WeiPerEther)
+    return total;
   } catch (err) {
     console.log({ err });
     return constants.Zero;

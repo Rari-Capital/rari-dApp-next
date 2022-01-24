@@ -66,13 +66,13 @@ export const useOpportunitySubtitle = (
         return fuseTVL ? `${shortUsdFormatter(fuseTVL)} TVL` : null;
 
       case HomepageOpportunityType.Arbitrum:
-        return "";
+        return "Now live!";
 
       case HomepageOpportunityType.Connext:
         return "via Connext";
 
       case HomepageOpportunityType.PegExchanger:
-        return "";
+        return "Join the Tribe";
 
       default:
         return null;

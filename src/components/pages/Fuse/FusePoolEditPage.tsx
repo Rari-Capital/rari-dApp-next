@@ -175,7 +175,6 @@ const FusePoolEditPage = memo(() => {
 
   const { fuse } = useRari();
   const comptroller = createComptroller(data?.comptroller ?? "", fuse);
-  console.log({ comptroller });
 
   // Maps underlying to oracle
   const oraclesMap = useOraclesForPool(

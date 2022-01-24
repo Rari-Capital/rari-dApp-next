@@ -25,6 +25,8 @@ import {
 } from "hooks/useTokenData";
 import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
+import { filterPoolName } from "utils/fetchFusePoolData"
+
 export enum ExploreGridBoxMetric {
   TOTAL_BORROWS,
   TOTAL_SUPPLY,
@@ -66,8 +68,6 @@ export const FuseAssetBoxNew = ({
   );
 
   const TokenData = tokenData ?? _tokenData;
-
-  // console.log({ tokenData, _tokenData, TokenData });
 
   return (
     <AppLink
@@ -121,7 +121,7 @@ export const FuseAssetBoxNew = ({
             >
               <HStack alignItems="flex-end">
                 <Heading fontSize={["sm", "md", "xl"]} isTruncated={true}>
-                  {pool?.name}
+                  {filterPoolName(pool?.name ?? "")}
                 </Heading>
               </HStack>
             </Skeleton>

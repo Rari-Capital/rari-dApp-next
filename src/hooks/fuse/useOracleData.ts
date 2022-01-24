@@ -285,8 +285,6 @@ export const useGetOracleOptions = (
     { refetchOnMount: false }
   );
 
-  console.log({liquidity})
-
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info

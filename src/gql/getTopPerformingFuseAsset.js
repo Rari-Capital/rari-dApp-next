@@ -10,7 +10,12 @@ export const GET_TOP_PERFORMING_FUSE_ASSET = gql`
     $limit: Int = 1
   ) {
     ctokens(
-      where: {liquidityUSD_gte: $liquidityThreshold}
+      where: {liquidityUSD_gte: $liquidityThreshold
+        pool_not_in: [
+          "0xa58056e9dcc7bf3006dbb695a4cd70a11553b9bf"
+          "0xf53c73332459b0dbd14d8e073319e585f7a46434"
+        ]
+      }
       orderBy: $orderBy
       orderDirection: $orderDirection
       first: $limit

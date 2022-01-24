@@ -20,7 +20,9 @@ export const getOpportunityLink = (
     case HomepageOpportunityType.TranchesPage:
       return `/tranches`;
     case HomepageOpportunityType.Connext:
-      return 'https://xpollinate.io/'
+      return "https://xpollinate.io/";
+    case HomepageOpportunityType.PegExchanger:
+      return "https://jointhetribe.xyz/";
   }
   return "/";
 };

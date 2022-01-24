@@ -122,17 +122,16 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.Arbitrum,
     title: "Arbitrum",
-    subtitle: "Faster and cheaper txs",
+    subtitle: "Fuse. Faster and Cheaper.",
     bgColor: "#072BAC",
     icon: "/static/icons/arbitrum_icon_glow.png",
   },
   {
-    type: HomepageOpportunityType.EarnVault,
+    type: HomepageOpportunityType.PegExchanger,
     title: "Swap RGT for TRIBE",
     subtitle: "Swap your RGT for TRIBE post-merge.",
     bgColor: "#DD6829",
     icon: "/static/icons/swap.svg",
-    vaultType: Pool.USDC,
   },
   {
     type: HomepageOpportunityType.FusePool,

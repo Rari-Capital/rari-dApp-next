@@ -97,9 +97,6 @@ const FuseLiquidationsPage = memo(() => {
                 ),
               );
 
-
-              console.log({ cToken })
-
               const events = await cToken.queryFilter(
                 cToken.filters.LiquidateBorrow(),
                 12060000,
@@ -154,9 +151,6 @@ const FuseLiquidationsPage = memo(() => {
 
     }
 
-    console.log({ poolFetches })
-
-
     await Promise.all(poolFetches);
 
     return liquidationEvents.sort((a, b) => {
@@ -170,8 +164,6 @@ const FuseLiquidationsPage = memo(() => {
 
   const [liquidationsToShow, setLiquidationsToShow] = useState(10);
   const limitedLiquidations = liquidations?.slice(0, liquidationsToShow);
-
-  console.log({ liquidationsToShow, limitedLiquidations, liquidations })
 
   return (
     <>

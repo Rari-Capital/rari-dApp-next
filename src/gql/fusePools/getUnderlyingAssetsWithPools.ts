@@ -5,7 +5,7 @@ export const GET_UNDERLYING_ASSETS_WITH_POOLS = gql`
     underlyingAssets(where: { address_in: $tokenAddresses }, first: 200) {
       address
       symbol
-      pools {
+      pools(where: { index_not_in: [90, 23] }) {
         index
         id
       }
