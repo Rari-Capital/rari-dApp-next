@@ -20,8 +20,6 @@ export default async function handler(
   if (req.method === "GET") {
     // Get Underlying Assets from subgraph
     try {
-      console.log("yo");
-
       // Redis query
       const redisKey = REDIS_KEY_PREFIX + "assets";
       const redisSearchData = await redis.get(redisKey);

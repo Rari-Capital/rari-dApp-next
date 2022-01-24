@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 // Chakra and UI
 import { Text, Select, useToast } from "@chakra-ui/react";
 import { Column } from "lib/chakraUtils";
@@ -43,7 +45,13 @@ import MarketCapConfigurator from "../Edit/MarketCapConfigurator";
 
 const formatPercentage = (value: number) => value.toFixed(1) + "%";
 
-const AssetConfig = () => {
+const AssetConfig = ({
+  checked,
+  setChecked
+} : {
+  checked: boolean,
+  setChecked: Dispatch<SetStateAction<boolean>>
+}) => {
   const queryClient = useQueryClient();
   const { fuse, address } = useRari();
   const { t } = useTranslation();
@@ -371,7 +379,7 @@ const AssetConfig = () => {
           !isTokenETHOrWETH(tokenAddress) &&
           mode === "Editing" && (
             <>
-              <OracleConfig />
+              <OracleConfig  checked={checked} setChecked={setChecked}/>
 
               <ModalDivider />
             </>

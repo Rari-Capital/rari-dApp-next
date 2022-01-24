@@ -103,6 +103,8 @@ const AssetSettings = ({
   const [isBorrowPaused, setIsBorrowPaused] = useState(false);
   const [collateralFactor, setCollateralFactor] = useState(50);
 
+  const [checked, setChecked] = useState<boolean>(false);
+
   const [interestRateModel, setInterestRateModel] = useState(
     fuse.addresses.PUBLIC_INTEREST_RATE_MODEL_CONTRACT_ADDRESSES
       .JumpRateModel_Cream_Stables_Majors
@@ -212,7 +214,6 @@ const AssetSettings = ({
         })
         .then((priceForAsset: string) => {
           // 3.) Check for price
-          console.log({ priceForAsset });
           setPriceForAsset(parseFloat(priceForAsset));
         })
         .catch((err: any) => {
@@ -317,13 +318,6 @@ const AssetSettings = ({
 
     // alert("deploying univ3twapOracle");
 
-    console.log("deployUniV3Oracle", {
-      feeTier,
-      uniV3BaseTokenAddress,
-      address,
-      deployPriceOracle: fuse.deployPriceOracle,
-    });
-
     // Deploy UniV3 oracle
     const oracleAddressToUse = await fuse.deployPriceOracle(
       "UniswapV3TwapPriceOracleV2",
@@ -333,19 +327,10 @@ const AssetSettings = ({
 
     // alert("finished univ3twapOracle " + oracleAddressToUse);
 
-    console.log({ oracleAddressToUse });
-
     return oracleAddressToUse;
   };
 
   // Deploy Oracle
-  const deployUniV2Oracle = async () =>
-    await fuse.deployPriceOracle(
-      "UniswapTwapPriceOracleV2",
-      { baseToken: uniV3BaseTokenAddress },
-      { from: address }
-    );
-
   const addOraclesToMasterPriceOracle = async (oracleAddressToUse: string) => {
     /** Configure the pool's MasterPriceOracle  **/
     increaseActiveStep("Configuring your Fuse pool's Master Price Oracle");
@@ -377,13 +362,6 @@ const AssetSettings = ({
     );
 
     const tokenHasOraclesInPool = hasOracles.some((x) => !!x);
-
-    console.log("poop", {
-      hasOracles,
-      tokenArray,
-      oracleAddress,
-      tokenHasOraclesInPool,
-    });
 
     // if (!tokenHasOraclesInPool) {
     const tx = await poolOracleContract.add(tokenArray, oracleAddress, {
@@ -433,16 +411,6 @@ const AssetSettings = ({
       decimals: 8,
     };
 
-    console.log("Inside client, deployAssetToPool", {
-      conf,
-      collateralFactor,
-      reserveFactor,
-      adminFee,
-      bigCollateralFactor,
-      bigReserveFactor,
-      bigAdminFee,
-      address,
-    });
 
     await fuse.deployAsset(
       conf,
@@ -460,6 +428,7 @@ const AssetSettings = ({
   // Deploy Asset!
   const deploy = async () => {
     let oracleAddressToUse = oracleAddress;
+
     try {
       preDeployValidate(oracleAddressToUse);
     } catch (err) {
@@ -477,9 +446,7 @@ const AssetSettings = ({
       if (_retryFlag === 1) {
         setNeedsRetry(false);
         if (activeOracleModel === "Uniswap_V3_Oracle") {
-          console.log("preCheck");
           await checkUniV3Oracle();
-          console.log("postCheck");
         }
         _retryFlag = 2; // set it to two after we fall through step 1
       }
@@ -488,19 +455,12 @@ const AssetSettings = ({
       if (_retryFlag === 2) {
         setNeedsRetry(false);
         if (activeOracleModel === "Uniswap_V3_Oracle") {
-          console.log("predeploy");
           oracleAddressToUse = await deployUniV3Oracle();
-          console.log("postDeploy", { oracleAddressToUse });
         }
         _retryFlag = 3;
       }
 
-      /** IF UNISWAP V2 ORACLE **/
-      if (_retryFlag === 3) {
-        setNeedsRetry(false);
-        if (activeOracleModel === "Uniswap_V2_Oracle") {
-          oracleAddressToUse = await deployUniV2Oracle();
-        }
+      if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
         _retryFlag = 4;
       }
 
@@ -511,13 +471,6 @@ const AssetSettings = ({
       if (_retryFlag === 4) {
         const shouldAddToMasterPriceOracle =
           !isTokenETHOrWETH(tokenAddress) && oracleAddress !== defaultOracle;
-        console.log({
-          _retryFlag,
-          oracleModel,
-          oracleAddress,
-          defaultOracle,
-          shouldAddToMasterPriceOracle,
-        });
         setNeedsRetry(false);
         if (
           shouldAddToMasterPriceOracle
@@ -640,7 +593,7 @@ const AssetSettings = ({
   if (mode === "Editing")
     return (
       <AddAssetContext.Provider value={args2}>
-        <AssetConfig />
+        <AssetConfig checked={checked} setChecked={setChecked}/>
       </AddAssetContext.Provider>
     );
 
@@ -699,7 +652,7 @@ const AssetSettings = ({
               justifyContent="center"
               // bg="aqua"
             >
-              <Screen2 mode="Adding" />
+              <Screen2 mode="Adding" checked={checked} setChecked={setChecked}/>
             </Row>
           ) : (
             <Screen3 />

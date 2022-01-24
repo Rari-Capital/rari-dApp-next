@@ -138,7 +138,7 @@ export default class Fuse {
             });
         };
         this.deployPriceOracle = function (model, // TODO: find a way to use this.ORACLES
-        conf, // This conf depends on which comptroller model we're deploying
+        conf, // This conf depends on which oracle model we're deploying
         options) {
             var _a, _b, _c;
             return __awaiter(this, void 0, void 0, function* () {
@@ -177,7 +177,7 @@ export default class Fuse {
                             conf.canAdminOverwrite ? true : false,
                         ];
                         let initializerData = masterPriceOracle.interface.encodeFunctionData("initialize", deployArgs);
-                        console.log("3.) In MasterPriceOracle", { initializerData });
+                        console.log("3.) In MasterPriceOracle", { initializerData }, this.addresses.MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS);
                         let tx = yield initializableClones.clone(this.addresses.MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS, initializerData);
                         const receipt = yield tx.wait(1);
                         console.log("4: In MasterPriceOracle", { receipt });
@@ -194,9 +194,8 @@ export default class Fuse {
                             throw Error("Invalid fee tier passed to UniswapV3TwapPriceOracleV2 deployment.");
                         // Check for existing oracle
                         oracleFactoryContract = new Contract(this.addresses.UNISWAP_V3_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS, this.oracleContracts.UniswapV3TwapPriceOracleV2Factory.abi, this.provider.getSigner());
-                        deployedPriceOracle = yield oracleFactoryContract.methods
-                            .oracles(conf.uniswapV3Factory, conf.feeTier, conf.baseToken)
-                            .call();
+                        deployedPriceOracle = yield oracleFactoryContract
+                            .oracles(conf.uniswapV3Factory, conf.feeTier, conf.baseToken);
                         // Deploy if oracle does not exist
                         if (deployedPriceOracle == "0x0000000000000000000000000000000000000000") {
                             yield oracleFactoryContract.deploy(conf.uniswapV3Factory, conf.feeTier, conf.baseToken);
@@ -210,13 +209,13 @@ export default class Fuse {
                             conf.uniswapV2Factory = this.addresses.UNISWAP_V2_FACTORY_ADDRESS;
                         // Check for existing oracle
                         oracleFactoryContract = new Contract(this.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS, this.oracleContracts.UniswapTwapPriceOracleV2Factory.abi, this.provider.getSigner());
-                        deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                        deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         // Deploy if oracle does not exist
                         if (deployedPriceOracle === "0x0000000000000000000000000000000000000000") {
-                            yield oracleFactoryContract.deploy(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
-                            deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                            yield oracleFactoryContract.deploy(conf.uniswapV2Factory, conf.baseToken);
+                            deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         }
-                        break;
+                        return deployedPriceOracle;
                     // TODO : Delete all these after the tests gets moved into the contracts repo
                     // ChainlinkPriceOracle
                     case "ChainlinkPriceOracle":
@@ -735,18 +734,17 @@ export default class Fuse {
         };
         this.checkCardinality = function (uniswapV3Pool) {
             return __awaiter(this, void 0, void 0, function* () {
-                var uniswapV3PoolContract = new Contract(uniswapV3Pool, uniswapV3PoolAbiSlim);
-                const shouldPrime = (yield uniswapV3PoolContract.methods.slot0().call())
+                var uniswapV3PoolContract = new Contract(uniswapV3Pool, uniswapV3PoolAbiSlim, this.provider);
+                const shouldPrime = (yield uniswapV3PoolContract.callStatic.slot0())
                     .observationCardinalityNext < 64;
                 return shouldPrime;
             });
         };
         this.primeUniswapV3Oracle = function (uniswapV3Pool, options) {
             return __awaiter(this, void 0, void 0, function* () {
-                var uniswapV3PoolContract = new Contract(uniswapV3Pool, uniswapV3PoolAbiSlim);
-                yield uniswapV3PoolContract.methods
-                    .increaseObservationCardinalityNext(64)
-                    .send(options);
+                var uniswapV3PoolContract = new Contract(uniswapV3Pool, uniswapV3PoolAbiSlim, this.provider.getSigner());
+                yield uniswapV3PoolContract
+                    .increaseObservationCardinalityNext(64);
             });
         };
         this.identifyInterestRateModelName = (irmAddress) => {

@@ -1,12 +1,13 @@
 // Chakra and UI
-import { Button, Text, Select, Checkbox } from "@chakra-ui/react";
+import { Button, Text, Select, Checkbox, Link } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Row } from "lib/chakraUtils";
 import { DASHBOARD_BOX_PROPS } from "../../../../../shared/DashboardBox";
 import { QuestionIcon } from "@chakra-ui/icons";
 import { SimpleTooltip } from "../../../../../shared/SimpleTooltip";
 
 // React
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
 // Hooks
@@ -15,28 +16,34 @@ import { useAddAssetContext } from "context/AddAssetContext";
 
 // Utils
 import { smallUsdFormatter, shortUsdFormatter } from "utils/bigUtils";
+import { useRari } from "context/RariContext";
 
 const UniswapV2OrSushiPriceOracleConfigurator = ({
   type,
+  checked,
+  setChecked
 }: {
   // Asset's Address. i.e DAI, USDC
 
   // Either SushiSwap or Uniswap V2
   type: string;
+  checked:boolean,
+  setChecked: Dispatch<SetStateAction<boolean>>
 }) => {
+  const { fuse, address } = useRari();
   const { t } = useTranslation();
-
-  // This will be used to index whitelistPools array (fetched from the graph.)
-  // It also helps us know if user has selected anything or not. If they have, detail fields are shown.
-  const [activePool, setActivePair] = useState<string>("");
-
-  // Checks if user has started the TWAP bot.
-  const [checked, setChecked] = useState<boolean>(false);
 
   // Will store oracle response. This helps us know if its safe to add it to Master Price Oracle
   const [checkedStepTwo, setCheckedStepTwo] = useState<boolean>(false);
 
-  const { tokenAddress, setOracleAddress, setUniV3BaseTokenAddress } =
+  const { 
+    tokenAddress, 
+    setOracleAddress, 
+    setUniV3BaseTokenAddress,
+    uniV3BaseTokenAddress,
+    setActiveUniSwapPair,
+    activeUniSwapPair
+  } =
     useAddAssetContext();
 
   // Get pair options from sushiswap and uniswap
@@ -51,48 +58,53 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Will update active pair, set oracle address and base token.
   const updateInfo = (value: string) => {
     const pair = Pairs[value];
-    setActivePair(value);
-    setOracleAddress(pair.id);
+    setActiveUniSwapPair(value);
+    setOracleAddress("");
     setUniV3BaseTokenAddress(
-      pair.token1.id === tokenAddress ? pair.token0.id : pair.token1.id
+      pair.id === tokenAddress ? pair.token0.id : pair.token1.id
     );
   };
+
+  
 
   // If pairs are still being fetched, if theres and error or if there are none, return nothing.
   if (Pairs === undefined || Error || Pairs === null) return null;
 
   return (
     <>
+    { !checked ?
       <Row
         crossAxisAlignment="center"
         mainAxisAlignment="space-between"
         width="260px"
-        my={3}
+        mt={2}
       >
         <Checkbox isChecked={checked} onChange={() => setChecked(!checked)}>
-          <Text fontSize="xs" align="center">
-            Using this type of oracle requires you to run a TWAP bot.
+          <Text fontSize="10px" align="center">
+            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. Click to continue.
           </Text>
         </Checkbox>
-      </Row>
+      </Row> : null
+    }
 
       {checked ? (
+        <>
+        <Text fontSize="xs" align="left">
+          We'll help you set up the oracle.
+        </Text>
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
           width="260px"
           my={3}
         >
-          <Button colorScheme="teal">Check</Button>
+          {/* <Button colorScheme="teal">Check</Button> */}
 
           <Text fontSize="xs" align="center">
-            After deploying your oracle, you have to wait about 15 - 25 minutes
-            for the oracle to be set.
+            1) Select the uniswap pair you'd like to use:
           </Text>
         </Row>
-      ) : null}
-
-      {true ? (
+      
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
@@ -116,9 +128,9 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             _focus={{ outline: "none" }}
             width="180px"
             placeholder={
-              activePool.length === 0 ? t("Choose Pool") : activePool
+              activeUniSwapPair.length === 0 ? t("Choose Pool") : activeUniSwapPair
             }
-            value={activePool}
+            value={activeUniSwapPair}
             disabled={!checked}
             onChange={(event) => {
               updateInfo(event.target.value);
@@ -143,9 +155,10 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
               : null}
           </Select>
         </Row>
+        </>
       ) : null}
 
-      {activePool.length > 0 ? (
+      {activeUniSwapPair.length > 0 ? (
         <Row
           crossAxisAlignment="center"
           mainAxisAlignment="space-between"
@@ -158,11 +171,17 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             </Text>
           </SimpleTooltip>
           <h1>
-            {activePool !== ""
-              ? smallUsdFormatter(Pairs[activePool].totalSupply)
+            {activeUniSwapPair !== ""
+              ? smallUsdFormatter(Pairs[activeUniSwapPair].totalSupply)
               : null}
+               <Link href={`https://analytics-arbitrum.sushi.com/pairs/${Pairs[activeUniSwapPair].id}`} isExternal>
+                <ExternalLinkIcon />
+          
+              </Link>
           </h1>
+         
         </Row>
+
       ) : null}
     </>
   );

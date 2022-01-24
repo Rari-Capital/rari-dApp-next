@@ -144,19 +144,6 @@ export const depositIntoVault = async (
   const token = createERC20(fuse, tokenAddress);
   const allowance = await token.allowance(user, vaultAddress);
 
-  console.log({
-    amountBN,
-    tokenAddress,
-    token,
-    amount: amountBN.toString(),
-    vault,
-    vaultAddress,
-    user,
-    allowanceBN: allowance,
-    allowance: allowance.toString(),
-    shouldApprove: allowance.lt(amountBN),
-  });
-
   if (allowance.lt(amountBN)) {
     setStep("APPROVING");
     await token.approve(vaultAddress, constants.MaxUint256);

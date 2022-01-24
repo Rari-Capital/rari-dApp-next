@@ -59,8 +59,6 @@ const AddAssetModal = ({
   // Get fuse pool's oracle data. i.e contract, admin, overwriting permissions
   const oracleData = useOracleData(poolOracleAddress, fuse, oracleModel);
 
-  console.log({ poolOracleAddress, oracleModel, oracleData });
-
   const isEmpty = tokenAddress.trim() === "";
 
   return (

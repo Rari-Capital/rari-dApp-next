@@ -154,8 +154,6 @@ const BaarBaar = ({
   totalHoldings: string;
 }) => {
   const strategiesMap = useVaultStrategyPercentages(strategies);
-  console.log({ strategiesMap });
-
   return (
     <Box>
       <Flex width="100%" height="4px" justify="flex-start" borderRadius="lg">

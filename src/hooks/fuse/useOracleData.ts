@@ -78,8 +78,6 @@ export const useOracleData = (
         console.error(err);
       }
 
-      console.log({ admin, adminOverwrite, oracleContract, defaultOracle });
-
       return { admin, adminOverwrite, oracleContract, defaultOracle };
     }
   );
@@ -96,8 +94,6 @@ export const useGetOracleOptions = (
 
   const { defaultOracle, oracleContract, adminOverwrite } = oracleData ?? {};
   const oracleAddress = oracleContract?.options?.address ?? undefined;
-
-  console.log({ fuse, defaultOracle, isValidAddress, oracleAddress });
 
   // If the pool has a default price oracle (RariMasterPriceOracle), query that oracle's price for this token.
   // If it has an available price, we can let the user choose "Default Price Oracle"
@@ -122,10 +118,8 @@ export const useGetOracleOptions = (
       // Call the defaultOracle's price to make sure we have a price for this token
       try {
         const price = await oracleContract.callStatic.price(tokenAddress);
-        console.log("Default_Price_Oracle", { price });
         if (parseFloat(price) > 0) return defaultOracle;
       } catch (err) {
-        console.log("Default_Price_Oracle: could not fetch price");
         console.error(err);
         return null;
       }
@@ -252,14 +246,20 @@ export const useGetOracleOptions = (
   // TODO:
   const { data: liquidity, error } = useQuery(
     `UniswapV3 pool liquidity for ${tokenAddress} on ChainID: ${chainId}`,
-    async () =>
-      chainId === ChainID.ETHEREUM &&
-      (
+    async () => {
+      const tokenAddressFormatted = tokenAddress.toLowerCase()
+      
+      // TODO: Config file
+      const graphUrl = chainId === ChainID.ETHEREUM ? 
+        "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3" 
+        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal/graphql"
+
+      return (
         await axios.post(
-          "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+          graphUrl,
           {
             query: `{
-            token(id:"${tokenAddress.toLocaleLowerCase()}") {
+            token(id:"${tokenAddressFormatted}") {
               whitelistPools {
                 id,
                 feeTier,
@@ -279,14 +279,15 @@ export const useGetOracleOptions = (
           }`,
           }
         )
-      ).data.data.pairs,
+      ).data.data 
+    },
     { refetchOnMount: false }
   );
 
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info
-  const Uniswap_V3_Oracle = !liquidity?.data?.token || error ? null : "";
+  const Uniswap_V3_Oracle = !liquidity?.token?.whitelistPools || error ? null : "";
 
   const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
     useSushiOrUniswapV2Pairs(tokenAddress);
@@ -294,15 +295,15 @@ export const useGetOracleOptions = (
   // If theres no whitelisted pool for the asset, or if there was an error return null
   // Otherwise its return ''
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info
-  // const Uniswap_V2_Oracle =
-  //       (UniV2Pairs === null || UniV2Pairs === undefined || UniV2Pairs.length === 0 || univ2Error )
-  //       ? null
-  //       : ''
+  const Uniswap_V2_Oracle =
+        (UniV2Pairs === null || UniV2Pairs === undefined || UniV2Pairs.length === 0 || univ2Error )
+        ? null
+        : ''
 
-  // const SushiSwap_Oracle =
-  //       (SushiPairs === null || SushiPairs === undefined || SushiPairs.length === 0 || SushiError )
-  //       ? null
-  //       : ''
+  const SushiSwap_Oracle =
+        (SushiPairs === null || SushiPairs === undefined || SushiPairs.length === 0 || SushiError )
+        ? null
+        : ''
 
   // If tokenAddress is not a valid address return null.
   // If tokenAddress is valid and oracle admin can overwrite or if admin can't overwrite but there's no preset, return all options
@@ -316,8 +317,8 @@ export const useGetOracleOptions = (
         Rari_MasterPriceOracle,
         Chainlink_Oracle,
         Uniswap_V3_Oracle,
-        // Uniswap_V2_Oracle,
-        // SushiSwap_Oracle,
+        Uniswap_V2_Oracle,
+        SushiSwap_Oracle,
         Custom_Oracle: " ",
       }
     : { Current_Price_Oracle };
@@ -326,14 +327,17 @@ export const useGetOracleOptions = (
 };
 
 export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
+  const { chainId } = useRari()
   const { data: UniV2Pairs, error: univ2Error } = useQuery(
     "UniswapV2 pairs for  " + tokenAddress,
     async () => {
+      if (chainId != ChainID.ETHEREUM) return null
+      const lowerCaseAddress = tokenAddress.toLocaleLowerCase()
       const pairs = await axios.post(
         "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
         {
           query: `{
-          pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${tokenAddress.toLocaleLowerCase()}" } ) {
+          pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${lowerCaseAddress}", totalSupply_gt: 10000 } ) {
             id,
            token0 {
              id,
@@ -351,17 +355,21 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
       return pairs !== undefined &&
         pairs.data !== undefined &&
         pairs.data.data.pairs !== undefined
-        ? pairs.data.data.pairs.filter((pair: any) => pair.totalSupply > 10000)
+        ? pairs.data.data.pairs
         : null;
     },
     { refetchOnMount: false }
   );
 
   const { data: SushiPairs, error: SushiError } = useQuery(
-    "SushiSwap pairs for  " + tokenAddress,
+    "SushiSwap pairs for  " + tokenAddress + " " + chainId,
     async () => {
-      const pairs = await axios.post(
-        "https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork",
+      const graphUrl = chainId === ChainID.ETHEREUM 
+        ? "https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork"
+        : "https://api.thegraph.com/subgraphs/name/simplefi-finance/sushiswap-arbitrum"
+      
+        const pairs = await axios.post(
+        graphUrl,
         {
           query: `{
           pairs(first: 10, orderBy: totalSupply, orderDirection: desc, where: { token0: "${tokenAddress.toLocaleLowerCase()}" } ) {
@@ -379,7 +387,6 @@ export const useSushiOrUniswapV2Pairs = (tokenAddress: string) => {
          }`,
         }
       );
-
       return pairs !== undefined &&
         pairs.data !== undefined &&
         pairs.data.data.pairs !== undefined

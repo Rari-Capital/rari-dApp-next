@@ -7,7 +7,7 @@ import { QuestionIcon } from "@chakra-ui/icons";
 import { SimpleTooltip } from "../../../../../shared/SimpleTooltip";
 
 // React
-import { useEffect, useState } from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
 
@@ -40,7 +40,13 @@ import { useAddAssetContext } from "context/AddAssetContext";
 
 // };
 
-const OracleConfig = () => {
+const OracleConfig = ({
+  checked,
+  setChecked
+}: {
+  checked:boolean,
+  setChecked: Dispatch<SetStateAction<boolean>>
+}) => {
   const toast = useToast();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -75,6 +81,8 @@ const OracleConfig = () => {
   const oracleIdentity = useIdentifyOracle(oracleAddress);
 
   const [inputTouched, setInputTouched] = useState(false);
+
+  
 
   // console.log({
   //   mode,
@@ -133,7 +141,6 @@ const OracleConfig = () => {
       activeUniSwapPair === "" &&
       (activeOracleModel === "Custom_Oracle" ||
         activeOracleModel === "Uniswap_V3_Oracle" ||
-        activeOracleModel === "Uniswap_V2_Oracle" ||
         activeOracleModel === "SushiSwap_Oracle") &&
       !inputTouched
     )
@@ -210,6 +217,8 @@ const OracleConfig = () => {
     }
   };
 
+  console.log({activeOracleModel, checked})
+
   if (!options)
     return (
       <Center>
@@ -220,9 +229,10 @@ const OracleConfig = () => {
   return (
     <>
       <Row
-        mainAxisAlignment={mode === "Editing" ? "space-between" : "flex-start"}
+        mainAxisAlignment={mode === "Editing" ? "space-between" : "space-evenly"}
         // background="gold"
         crossAxisAlignment={"center"}
+        height="20%"
         width={
           mode === "Editing"
             ? !shouldShowUniV3BaseTokenOracleForm
@@ -230,7 +240,6 @@ const OracleConfig = () => {
               : "50%"
             : "100%"
         }
-        flexGrow={1}
         pt={mode === "Editing" ? 4 : 0}
         pb={mode === "Editing" ? 1 : 0}
         px={mode === "Editing" ? 4 : 0}
@@ -244,16 +253,17 @@ const OracleConfig = () => {
 
         {/* Oracles */}
         <Box
-          width={mode === "Editing" ? "50%" : "100%"}
+          width={mode === "Editing" ? "50%" : "50%"}
           alignItems="flex-end"
           flexDirection="column"
+          justifyContent="space-around"
           alignContent="center"
           display="flex"
         >
           <Select
             mb={2}
             ml="auto"
-            width="260px"
+            width="100%"
             {...DASHBOARD_BOX_PROPS}
             borderRadius="7px"
             _focus={{ outline: "none" }}
@@ -289,14 +299,17 @@ const OracleConfig = () => {
             {/* <option disabled={true}>Loading...</option> */}
           </Select>
 
-          {activeOracleModel.length > 0 ? (
+          { activeOracleModel.length > 0 
+            && activeOracleModel !== "Uniswap_V2_Oracle" 
+            && activeOracleModel !== "SushiSwap_Oracle"
+            ? (
             <Input
               mt={2}
               mb={2}
               ml="auto"
               size="sm"
               bg="#282727"
-              height="40px"
+              height="50px"
               width="260px"
               variant="filled"
               textAlign="center"
@@ -328,12 +341,15 @@ const OracleConfig = () => {
         mainAxisAlignment={mode === "Editing" ? "center" : "center"}
         crossAxisAlignment={mode === "Editing" ? "flex-start" : "center"}
         flexDirection="column"
+        height={
+            activeOracleModel === "SushiSwap_Oracle" 
+            ||  activeOracleModel === "Uniswap_V2_Oracle" 
+            ? checked ? "60%" : "10%" : "10%"}
         width={
           mode === "Adding" && !shouldShowUniV3BaseTokenOracleForm
             ? "100%"
             : "50%"
         }
-        // bg="pink"
         ml={mode === "Editing" ? "auto" : ""}
         px={mode === "Editing" ? 4 : 0}
         id="UNIV3Config"
@@ -343,11 +359,19 @@ const OracleConfig = () => {
         ) : null}
 
         {activeOracleModel === "Uniswap_V2_Oracle" ? (
-          <UniswapV2OrSushiPriceOracleConfigurator type="UniswapV2" />
+          <UniswapV2OrSushiPriceOracleConfigurator 
+            checked={checked} 
+            setChecked={setChecked} 
+            type="UniswapV2" 
+          />
         ) : null}
 
         {activeOracleModel === "SushiSwap_Oracle" ? (
-          <UniswapV2OrSushiPriceOracleConfigurator type="Sushiswap" />
+          <UniswapV2OrSushiPriceOracleConfigurator 
+            checked={checked} 
+            setChecked={setChecked} 
+            type="Sushiswap" 
+          />
         ) : null}
       </Row>
 

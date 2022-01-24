@@ -16,7 +16,7 @@ import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
 import { Fuse } from "../esm";
 
-import LogRocket from "logrocket";
+import LogRocket, { init } from "logrocket";
 import { useToast } from "@chakra-ui/react";
 
 import {
@@ -102,9 +102,9 @@ export const RariContext = createContext<RariContextData | undefined>(
 export const RariProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const { address: requestedAddress } = router.query;
-
+  const [firstRender, setFirstRender ] = useState(true);
   // Rari and Fuse get initally set already
-
+  const [provider, setProvider] = useState(() => chooseBestWeb3Provider());
   const [fuse, setFuse] = useState<Fuse>(() => initFuseWithProviders());
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState<boolean>(false);
@@ -114,27 +114,28 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
   const [web3ModalProvider, setWeb3ModalProvider] = useState<any | null>(null);
 
-  const [chainId, setChainId] = useState<number | undefined>();
+  const [chainId, setChainId] = useState<number | undefined>(1);
 
   const toast = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  console.log({ chainId });
   // Check the user's network:
   useEffect(() => {
     Promise.all([
-      fuse.provider.send("net_version", []),
-      fuse.provider.getNetwork(),
+      provider.send("net_version", []),
+      provider.getNetwork(),
     ]).then(([netId, network]) => {
-      const { chainId } = network;
-      console.log("Network ID: " + netId, "Chain ID: " + chainId);
+      const { chainId: internalChainId } = network;
+      
+      if (firstRender && chainId === internalChainId) return
+      console.log("Network ID: " + netId, "Chain ID: " + internalChainId);
 
       // // Don't show "wrong network" toasts if dev
       // if (process.env.NODE_ENV === "development") {
       //   return;
       // }
-      if (!isSupportedChainId(chainId)) {
+      if (!isSupportedChainId(internalChainId)) {
         setTimeout(() => {
           toast({
             title: "Unsupported network!",
@@ -146,18 +147,27 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
           });
         }, 1500);
       }
-      setChainId(chainId);
+      
+      const provider = chooseBestWeb3Provider()
+      const fuse = initFuseWithProviders(provider,internalChainId)
+      setFuse(fuse)
+      setFirstRender(false)
+      queryClient.refetchQueries()
+      
+      setChainId(internalChainId);
     });
-  }, [fuse, toast]);
+  }, [provider, toast, firstRender]);
 
-  // We need to give rari the new provider (todo: and also ethers.js signer) every time someone logs in again
+  useEffect(() => {
+    queryClient.invalidateQueries()
+  },[fuse])
+
+  // We need to give rari the new provider.
   const setRariAndAddressFromModal = useCallback(
-    async (modalProvider) => {
+    async (modalProvider, source) => {
       const provider = new Web3Provider(modalProvider);
       const { chainId } = await provider.getNetwork();
-      let _chainId = chainId === 31337 ? ChainID.ETHEREUM : chainId;
-      const fuseInstance = initFuseWithProviders(provider, _chainId);
-      setChainId(_chainId)
+      const fuseInstance = initFuseWithProviders(provider, chainId);
       setSwitchingNetwork(false)
 
       setFuse(fuseInstance);
@@ -185,11 +195,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (cacheProvider: boolean = true) => {
       try {
         setIsAttemptingLogin(true);
-        console.log("login 0");
         const providerWeb3Modal = await launchModalLazy(t, cacheProvider);
-        console.log("login 1");
         setWeb3ModalProvider(providerWeb3Modal);
-        setRariAndAddressFromModal(providerWeb3Modal);
+        setRariAndAddressFromModal(providerWeb3Modal, "login");
         setIsAttemptingLogin(false);
       } catch (err) {
         console.log(err);
@@ -202,8 +210,11 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
   const refetchAccountData = useCallback(() => {
     console.log("New account, clearing the queryClient! ChainId: ", chainId);
-    setRariAndAddressFromModal(web3ModalProvider);
-    queryClient.clear();
+    const provider = chooseBestWeb3Provider();
+    setProvider(provider);
+    const fuseInstance = initFuseWithProviders(provider, chainId);
+    setFuse(fuseInstance);
+    setSwitchingNetwork(false);
   }, [setRariAndAddressFromModal, web3ModalProvider, queryClient, chainId]);
 
   const logout = useCallback(() => {
@@ -243,10 +254,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // https://docs.metamask.io/guide/rpc-api.html#usage-with-wallet-switchethereumchain
   // TODO(nathanhleung) handle all possible errors
   const switchNetwork = async function (newChainId: ChainID) {
+    console.log("Indise switchNetwork", {newChainId, chainId})
     if (chainId == newChainId) return;
     const hexChainId = newChainId.toString(16);
     const chainMetadata = getChainMetadata(newChainId);
-
     if (typeof window === undefined) return
     try {
       setSwitchingNetwork(true)
@@ -254,6 +265,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
       });
+      setChainId(newChainId)
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
@@ -268,6 +280,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
               },
             ],
           });
+
+          setChainId(newChainId)
+
         } catch (addError) {
           // handle "add" error
         }

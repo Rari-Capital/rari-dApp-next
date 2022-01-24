@@ -91,7 +91,6 @@ const UniswapV3PriceOracleConfigurator = () => {
   // .filter((pool: any) => pool.volumeUSD >= 100000);
 
   const selectedOracle = liquidity.data.token.whitelistPools[activeUniSwapPair];
-  console.log({ selectedOracle });
   // const warning = useMemo(() => {
   //   if (selectedOracle.liquidityProviderCount <=100)
   // }, [selectedOracle]);

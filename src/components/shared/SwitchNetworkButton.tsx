@@ -17,8 +17,6 @@ const SwitchNetworkButton: React.FC = () => {
     chainMetadata = getChainMetadata(chainId);
   }
 
-  console.log({ chainMetadata });
-
   return (
     <DashboardBox
       position="relative"

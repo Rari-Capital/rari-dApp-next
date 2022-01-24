@@ -122,8 +122,6 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
 
   const rewardTokensData = useTokensDataAsMap(allRewardsTokens);
 
-  console.log({ allClaimable, rewardTokensData });
-
   const queryClient = useQueryClient();
 
   // Claims all Fuse LM rewards at once
@@ -287,8 +285,6 @@ const ClaimableRow = ({
         default:
           claimMethod = rari.governance.rgt.sushiSwapDistributions.claim;
       }
-
-      console.log({ mode, claimMethod });
 
       // Could do something with the receipt but notify.js is watching the account and will send a notification for us.
       await claimMethod(unclaimed.unclaimed, {

@@ -60,9 +60,9 @@ export const fetchTokenData = async (
 ): Promise<TokenData> => {
   if (!chainId) return EMPTY_TOKEN_DATA;
   let data;
-  let _chainid = chainId;
+  let _chainId = chainId;
   if (chainId === 31337) {
-    _chainid = ChainID.ETHEREUM;
+    _chainId = 1;
   }
 
   // console.log('fetchTokenData',{address, chainId, _chainid})
@@ -71,7 +71,7 @@ export const fetchTokenData = async (
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
-      let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address}&chainId=${chainId}`;
+      let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address}&chainId=${_chainId}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),
@@ -81,7 +81,6 @@ export const fetchTokenData = async (
       data = EMPTY_TOKEN_DATA;
     }
   } else {
-    console.log("eth2 address", address);
     data = ETH_TOKEN_DATA;
   }
 

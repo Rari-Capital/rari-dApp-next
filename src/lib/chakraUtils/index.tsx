@@ -8,7 +8,8 @@ export type MainAxisAlignmentStrings =
   | "space-around"
   | "flex-start"
   | "center"
-  | "flex-end";
+  | "flex-end"
+  | "space-evenly";
 
 export type MainAxisAlignment =
   | MainAxisAlignmentStrings

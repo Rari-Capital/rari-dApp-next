@@ -7,6 +7,7 @@ import { useRari } from "context/RariContext";
 
 // Hooks
 import { useTranslation } from "react-i18next";
+import useCheckUniV2Oracle from "../../../../../hooks/fuse/useCheckUniV2Oracle";
 
 // Components
 import TransactionStepper from "components/shared/TransactionStepper";
@@ -33,8 +34,12 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     hasPriceForAsset,
     hasDefaultOracle,
     defaultOracle,
+    tokenAddress,
+    uniV3BaseTokenAddress,
+    activeOracleModel
   } = useAddAssetContext();
 
+  const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress, activeOracleModel)
   // If user hasnt edited the form and we have a default oracle price for this asset
   const hasDefaultOraclePriceAndHasntEdited =
     hasDefaultOracle && hasPriceForAsset && oracleAddress === defaultOracle;
@@ -60,6 +65,13 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     // });
 
     if (hasDefaultOraclePriceAndHasntEdited) return true;
+
+    // If its depending on a twap bot wait for it to be ready
+      // once isItReady is true disabled should be false..
+    if (
+      activeOracleModel === "Uniswap_V3_Oracle"
+      || activeOracleModel === "SushiSwap_Oracle"
+    ) return isItReady
 
     // If the oracle address is not set at all, then disable until it is set.
     return utils.isAddress(oracleAddress);

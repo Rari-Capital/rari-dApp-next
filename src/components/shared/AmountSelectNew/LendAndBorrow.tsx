@@ -73,8 +73,6 @@ const LendAndBorrow = ({
   // Bubbled up from StatsColumn
   const [error, setError] = useState<string | null>(null);
 
-  console.log({ bestPool, poolAssetIndex });
-
   // Wrappers for updating input
   const updateLendAmount = useCallback(
     (newAmount: string) => {
@@ -274,7 +272,6 @@ const StatsColumn = ({
   const asset = assets[assetIndex];
 
   const updatedAsset = updatedAssets ? updatedAssets[assetIndex] : null;
-  console.log({ updatedAssets, updatedAsset });
 
   const borrowAsset = assets[borrowAssetIndex];
   const updatedBorrowAsset = updatedAssets

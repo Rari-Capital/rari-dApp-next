@@ -19,5 +19,4 @@ export const claimRewardsFromRewardsDistributors = async (
 
   // const returnDatas = await sendWithMultiCall(fuse.web3, encodedCalls, address);
 
-  console.log("claimAllRewards", {  });
 };

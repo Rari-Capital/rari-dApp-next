@@ -87,11 +87,9 @@ export const fetchTVL = async (
   fuse: Fuse,
   chainId?: ChainID
 ): Promise<BigNumber> => {
-  console.log("fetchTVL", { chainId });
   if (!chainId) return constants.Zero;
   try {
     const tvls = await perPoolTVL(Vaults, fuse, chainId);
-    console.log("fetchTVL", { fuse, tvls });
     return tvls.fuseTVL.div(constants.WeiPerEther).div(constants.WeiPerEther);
 
     return tvls.stableTVL

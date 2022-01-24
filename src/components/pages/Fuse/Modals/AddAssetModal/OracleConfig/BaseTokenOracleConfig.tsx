@@ -39,7 +39,6 @@ const BaseTokenOracleConfig = () => {
   // We get all oracle options.
   const options = useGetOracleOptions(oracleData, uniV3BaseTokenAddress);
 
-  console.log("helo there", { options });
   // If we're editing the asset, show master price oracle as a default.
   // Should run only once, when component renders.
   useEffect(() => {

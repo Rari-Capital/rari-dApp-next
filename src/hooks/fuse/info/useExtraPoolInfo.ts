@@ -20,8 +20,6 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
       await comptroller.callStatic.oracle()
     );
 
-    console.log("useExtraPoolInfo", { oracle });
-
     const closeFactor = await comptroller.callStatic.closeFactorMantissa();
     const liquidationIncentive =
       await comptroller.callStatic.liquidationIncentiveMantissa();

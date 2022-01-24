@@ -148,16 +148,12 @@ export const fetchFusePoolData = async (
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
 
-  console.log('{fetchFusePoolData}')
-
   let assets: USDPricedFuseAsset[] = (
     await fuse.contracts.FusePoolLens.callStatic.getPoolAssetsWithData(
       comptroller,
       { from: address }
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
-
-  console.log({assets})
 
   let totalLiquidityUSD = constants.Zero;
 
@@ -176,8 +172,6 @@ export const fetchFusePoolData = async (
   const comptrollerContract = createComptroller(comptroller, fuse);
   let oracle: string = await comptrollerContract.callStatic.oracle();
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
-
-  console.log({ oracle, oracleModel, fuse, utils });
 
   const admin = await comptrollerContract.callStatic.admin();
 
