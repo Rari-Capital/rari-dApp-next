@@ -201,6 +201,10 @@ export const AssetRow = ({
 }) => {
   const isMobile = useIsMobile();
 
+  const symbol = useMemo(() => {
+  return  asset.symbol.toLowerCase() === "sohm" ? "gOHM" : asset.symbol
+  }, [asset.symbol]) 
+
   return (
     <AppLink
       href={`/token/${asset.id}`}
@@ -220,7 +224,7 @@ export const AssetRow = ({
         >
           <Avatar src={tokenData?.logoURL} boxSize={10} />
           <Text ml={2} fontWeight="bold">
-            {asset.symbol}
+            {symbol}
           </Text>
         </Row>
       </Td>

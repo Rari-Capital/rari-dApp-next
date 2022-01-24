@@ -110,7 +110,7 @@ const HomeFuseCard = ({
           </AvatarGroup>
 
           <Heading size="sm" mt={2}>
-            {filterPoolName(pool?.name)}
+            {filterPoolName(pool?.name ?? "")}
           </Heading>
           {!isMobile && (
             <Text fontSize="xs" color="gray.500" fontWeight="bold">
