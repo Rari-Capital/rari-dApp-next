@@ -16,6 +16,7 @@ import { useRari } from "context/RariContext";
 
 import DashboardBox from "./DashboardBox";
 import { getChainMetadata, getSupportedChains } from "esm/utils/networks";
+import { useRouter } from "next/router";
 
 const SwitchNetworkButton: React.FC<
   React.ComponentProps<typeof DashboardBox>
@@ -74,6 +75,7 @@ const SwitchNetworkButton: React.FC<
 const SwitchNetworkMenu: React.FC = () => {
   const { switchNetwork, chainId } = useRari();
   const supportedChains = useMemo(() => getSupportedChains(), []);
+  const router = useRouter();
 
   let chainMetadata;
   if (chainId) {
@@ -105,7 +107,7 @@ const SwitchNetworkMenu: React.FC = () => {
                 backgroundColor: "rgba(255,255,255,0.25)",
               }}
               onClick={async () => {
-                await switchNetwork(chainMetadata.chainId);
+                await switchNetwork(chainMetadata.chainId, router);
               }}
             >
               {chainMetadata.imageUrl && (

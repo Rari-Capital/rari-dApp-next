@@ -98,7 +98,7 @@ export interface RariContextData {
   address: string;
   isAttemptingLogin: boolean;
   chainId: number | undefined;
-  switchNetwork: (newChainId: number) => void;
+  switchNetwork: (newChainId: number, router: any) => void;
   switchingNetwork: boolean;
 }
 
@@ -262,7 +262,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // Based on Metamask-recommended code at
   // https://docs.metamask.io/guide/rpc-api.html#usage-with-wallet-switchethereumchain
   // TODO(nathanhleung) handle all possible errors
-  const switchNetwork = async function (newChainId: ChainID) {
+  const switchNetwork = async function (newChainId: ChainID, router: any) {
     console.log("Indise switchNetwork", {newChainId, chainId})
     if (chainId == newChainId) return;
     const hexChainId = newChainId.toString(16);
@@ -274,7 +274,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
       });
-      setChainId(newChainId)
+      router.reload()
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
