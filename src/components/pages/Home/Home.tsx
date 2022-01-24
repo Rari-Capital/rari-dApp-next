@@ -49,15 +49,19 @@ import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 import { useRari } from "context/RariContext";
 import { useMemo } from "react";
 import { ChainID, getChainMetadata } from "esm/utils/networks";
-import { useTokensDataAsMap } from "hooks/useTokenData";
 
 // Fetcher
 const homepagePoolsFetcher = async (
   chainId: ChainID,
   ...ids: number[]
-): Promise<SubgraphPool[]> => {
+): Promise<{
+  pools: SubgraphPool[];
+  tokensData: TokensDataMap;
+}> => {
   const pools = await queryFusePools(ids, chainId);
-  return pools;
+  const addresses = getUniqueTokensForFusePools(pools);
+  const tokensData = await fetchTokensAPIDataAsMap([...Array.from(addresses)], chainId);
+  return { pools, tokensData };
 };
 
 const Home = () => {
@@ -76,8 +80,10 @@ const Home = () => {
     homepagePoolsFetcher
   );
 
-  const pools = data ?? []
-  const tokensData = useTokensDataAsMap([...getUniqueTokensForFusePools(pools)])
+  const { pools, tokensData } = data ?? {
+    pools: [],
+    tokensData: {},
+  };
 
   const sliceNum = useBreakpointValue({ sm: 4, md: 4, lg: 6, xl: 8 });
 

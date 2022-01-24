@@ -47,7 +47,7 @@ const SwitchNetworkButton: React.FC<
       }}
     // borderColor={chainMetadata?.color}
     >
-      <Center expand={true}>
+      <Center>
         {switchingNetwork ? "Switching..." : chainMetadata ? (
           <>
             {chainMetadata.imageUrl && (
