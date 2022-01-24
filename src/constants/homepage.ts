@@ -115,7 +115,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePage,
     title: "Fuse",
-    subtitle: "The first open interest rate market protocol",
+    subtitle: "The first open interest rate market protocol.  ",
     bgColor: "#E6303A",
     icon: "/static/icons/fuse-glow.svg",
   },
@@ -137,7 +137,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePool,
     title: "FeiRari Pool",
-    subtitle: "Join the Tribe",
+    subtitle: "Join the Tribe 🌲.",
     bgColor: "#178DCF",
     icon: "/static/icons/tribe_feirari_glow.png",
     fusePoolId: 8,
@@ -155,7 +155,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePool,
     title: "Olympus Pool Party",
-    subtitle: "Collateralize and borrow off gOHM",
+    subtitle: "Collateralize and borrow off gOHM.",
     bgColor: "#00BEFF",
     icon: "/static/icons/olympus-pool.svg",
     fusePoolId: 18,
@@ -167,20 +167,20 @@ export const HOMEPAGE_OPPORTUNIES_ARBITRUM: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.FusePage,
     title: "Fuse",
-    subtitle: "The first open interest rate market protocol",
+    subtitle: "The first open interest rate market protocol.",
     bgColor: "#E6303A",
     icon: "/static/icons/fuse-glow.svg",
   },
   {
     type: HomepageOpportunityType.Connext,
     title: "Bridge to Arbitrum",
-    subtitle: "Bridge assets to Arbitrum with Connext",
+    subtitle: "Bridge assets to Arbitrum with Connext.",
     bgColor: "#072BAC",
     icon: "/static/icons/connext_white.png",
     isExternal: true,
   },
   {
-    type: HomepageOpportunityType.EarnVault,
+    type: HomepageOpportunityType.PegExchanger,
     title: "Swap RGT for TRIBE",
     subtitle: "Swap your RGT for TRIBE post-merge.",
     bgColor: "#DD6829",

@@ -124,7 +124,7 @@ export const MobileNavModal = ({
             />
             <MobileNavAccordionItem
               name={t("Tools")}
-              items={UtilLinks(chainId ?? 1)}
+              items={UTILS_DROPDOWN_ITEMS}
             />
           </Accordion>
 
