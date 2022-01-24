@@ -12,8 +12,10 @@ import AppLink from "components/shared/AppLink";
 
 const OpportunityCard = ({
   opportunity,
+  onClick,
 }: {
   opportunity: HomepageOpportunity;
+  onClick?: null | { (): void }
 }) => {
   const subheading: string | null = useOpportunitySubtitle(opportunity);
   const link = useMemo(() => getOpportunityLink(opportunity), [opportunity]);
@@ -36,6 +38,7 @@ const OpportunityCard = ({
           transform: "translateY(-5px)",
           boxShadow: ".2px .3px 1px white;",
         }}
+        onClick={onClick ? () => onClick(): undefined}
       >
         <Row
           mainAxisAlignment="flex-start"

@@ -49,6 +49,7 @@ import { getUniqueTokensForFusePools } from "utils/gqlFormatters";
 import { useRari } from "context/RariContext";
 import { useMemo } from "react";
 import { ChainID, getChainMetadata } from "esm/utils/networks";
+import { useRouter } from "next/router";
 
 // Fetcher
 const homepagePoolsFetcher = async (
@@ -65,7 +66,8 @@ const homepagePoolsFetcher = async (
 };
 
 const Home = () => {
-  const { chainId } = useRari();
+  const { chainId, switchNetwork } = useRari();
+  const router = useRouter()
 
   const chainMetadata = useMemo(
     () => getChainMetadata(chainId ?? 1),
@@ -207,7 +209,13 @@ const Home = () => {
             {HomepageItems(chainId ?? 1)
               .slice(0, sliceNum)
               .map((opportunity: any, i: number) => (
-                <OpportunityCard opportunity={opportunity} key={i} />
+                <OpportunityCard 
+                  opportunity={opportunity} 
+                  key={i} 
+                  onClick={i === 1 && chainId === 1 
+                    ? () => switchNetwork(ChainID.ARBITRUM, router) 
+                    : null
+                  } />
               ))}
           </SimpleGrid>
         </Column>
