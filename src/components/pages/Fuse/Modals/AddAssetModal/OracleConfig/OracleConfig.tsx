@@ -232,7 +232,11 @@ const OracleConfig = ({
         mainAxisAlignment={mode === "Editing" ? "space-between" : "space-evenly"}
         // background="gold"
         crossAxisAlignment={"center"}
-        height="20%"
+        height={activeOracleModel === "Default_Price_Oracle"  
+                ? "40%" 
+                : activeOracleModel === "Custom_Oracle" 
+                ? "30%"
+                : "20%"}
         width={
           mode === "Editing"
             ? !shouldShowUniV3BaseTokenOracleForm
@@ -255,7 +259,7 @@ const OracleConfig = ({
         <Column
           crossAxisAlignment="flex-start"
           mainAxisAlignment="center"
-          width={"100%"}
+          width={"70%"}
           height={"100%"}
           my={2}
           px={4}
@@ -340,16 +344,17 @@ const OracleConfig = ({
                 disabled={activeOracleModel === "Custom_Oracle" ? false : true}
               />
             ) : null}
-            {activeOracleModel === "Custom_Oracle" && (
-              <Text color="red" fontSize="sm" textAlign="center">
+          </Column>
+          {activeOracleModel === "Custom_Oracle" && (
+              <Text color="red" fontSize="sm" textAlign="center" width="100%" mt={2}>
                 Make sure you know what you are doing!
               </Text>
             )}
-            <Text color="grey" fontSize="sm" textAlign="center">
-              {oracleIdentity}
-            </Text>
-          </Column>
+          <Text color="grey" fontSize="sm" textAlign="center" width="100%" mt={2}>
+            {oracleIdentity}
+          </Text>
         </Column>
+        
       </Row>
 
       <Row
