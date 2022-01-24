@@ -31,6 +31,7 @@ import {
   isSupportedChainId,
   getChainMetadata,
 } from "esm/utils/networks";
+import WalletLink from "walletlink";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
@@ -57,6 +58,14 @@ async function launchModalLazy(
       },
       display: {
         description: t("Scan with a wallet to connect"),
+      },
+    },
+    walletlink: {
+      package: WalletLink,
+      options: {
+        appName: "Rari Capital",
+        appLogoUrl: "/logo512.png",
+        rpc: alchemyURL,
       },
     },
   };
