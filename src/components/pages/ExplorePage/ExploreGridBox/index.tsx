@@ -174,8 +174,6 @@ export const  VaultGridBox = ({
   const poolInfo = usePoolInfo(Pool.USDC);
   const loading = !poolAPY;
 
-  console.log({ poolAPY });
-
   return (
     <AppLink href={"https://v2.rari.capital/pools/usdc"} isExternal className="no-underline" w="100%" h="100%">
       <Column

@@ -265,7 +265,6 @@ const ExplorePage = () => {
     })
   }, [poolsMap, chainId, results])
 
-
   return (
     <Column
       mainAxisAlignment="flex-start"

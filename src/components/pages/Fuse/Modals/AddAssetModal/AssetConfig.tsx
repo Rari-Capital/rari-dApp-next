@@ -118,7 +118,6 @@ const AssetConfig = ({
   // Determines if users can borrow an asset or not.
   const togglePause = async () => {
     const comptroller = createComptroller(comptrollerAddress, fuse);
-    console.log({ comptroller, cTokenAddress, isBorrowPaused, address });
 
     try {
       await comptroller._setBorrowPaused(cTokenAddress, !isBorrowPaused, {

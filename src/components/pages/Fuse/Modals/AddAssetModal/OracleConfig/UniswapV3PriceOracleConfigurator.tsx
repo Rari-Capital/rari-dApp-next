@@ -86,9 +86,7 @@ const UniswapV3PriceOracleConfigurator = () => {
         : uniPool.token0.id;
     setActiveUniSwapPair(value);
     setFeeTier(uniPool.feeTier);
-    console.log("SETTING ORACLE ADDRESS")
     setOracleAddress(uniPool.id);
-    console.log(uniPool.id, "ID")
     setUniV3BaseTokenAddress(baseToken);
   };
 
