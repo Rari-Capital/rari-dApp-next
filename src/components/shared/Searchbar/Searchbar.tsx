@@ -116,7 +116,7 @@ const Searchbar = ({
           height="100%"
           width="100%"
           placeholder={
-            isMobile ? "Search..." : "Search by token, pool or product..."
+            isMobile ? "Search..." : "Search by token..."
           }
           _placeholder={{
             color: "grey",

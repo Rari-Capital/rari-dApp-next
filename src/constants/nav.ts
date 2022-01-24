@@ -46,6 +46,31 @@ export const UTILS_DROPDOWN_ITEMS: MenuItemInterface[] = [
   },
   {
     type: MenuItemType.LINK,
-    link: { name: "Interest Rates", route: "/utils/interest-rates" },
+    link: {
+      name: "Bridge Assets to Arbitrum",
+      route: "https://xpollinate.io/",
+    },
+  },
+];
+
+export const UTILS_DROPDOWN_ITEMS_ARBITRUM: MenuItemInterface[] = [
+  // {
+  //   type: MenuItemType.LINK,
+  //   link: { name: "Positions", route: "/positions" },
+  // },
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Liquidations", route: "/fuse/liquidations" },
+  },
+  {
+    type: MenuItemType.LINK,
+    link: { name: "Metrics", route: "https://rari.grafana.net/goto/61kctV_Gk" },
+  },
+  {
+    type: MenuItemType.LINK,
+    link: {
+      name: "Bridge Assets to Arbitrum",
+      route: "https://xpollinate.io/",
+    },
   },
 ];
