@@ -10,27 +10,32 @@ import { shortUsdFormatter } from "utils/bigUtils";
 import { useFuseTVL } from "hooks/fuse/useFuseTVL";
 import { usePoolsAPY } from "hooks/usePoolAPY";
 import { usePoolInfos } from "hooks/usePoolInfo";
+import { useRari } from "context/RariContext";
 
 export const useOpportunitySubtitle = (
   opportunity: HomepageOpportunity
 ): string | null => {
-  // Earn
-  const earnPoolAPY = usePoolAPY(opportunity.vaultType);
-  const poolInfos = usePoolInfos();
-  const poolsAPY = usePoolsAPY(poolInfos);
+  const { fuse, chainId } = useRari()
+  // // Earn
+  // const earnPoolAPY = usePoolAPY(opportunity.vaultType);
+  // const poolInfos = usePoolInfos();
+  // const poolsAPY = usePoolsAPY(poolInfos);
 
-  // Fuse
-  const fusePoolData = useFusePoolData(opportunity.fusePoolId?.toString());
-  const { data: fuseTVL } = useFuseTVL();
-
-  const returnedSubtitle = useMemo(() => {
+  // // Fuse
+  // const fusePoolData = useFusePoolData(opportunity.fusePoolId?.toString());
+  // const { data: fuseTVL } = useFuseTVL();
     switch (opportunity.type) {
       case HomepageOpportunityType.EarnVault:
-        return earnPoolAPY ? `${earnPoolAPY}% APY` : null;
-
-      case HomepageOpportunityType.FusePool:
+        {
+          const earnPoolAPY = usePoolAPY(opportunity.vaultType);
+          return earnPoolAPY ? `${earnPoolAPY}% APY` : null;
+        }
+      case HomepageOpportunityType.FusePool: {
+        console.log("RUNNING BRRR", {opportunity, fuse, chainId} )
+        const fusePoolData = useFusePoolData(opportunity.fusePoolId?.toString());
+      
         switch (opportunity.fuseMetric) {
-          case FusePoolMetric.TotalBorrowedUSD:
+          case FusePoolMetric.TotalBorrowedUSD: 
             return fusePoolData?.totalBorrowedUSD
               ? `${shortUsdFormatter(
                   fusePoolData.totalBorrowedUSD.toNumber()
@@ -55,16 +60,20 @@ export const useOpportunitySubtitle = (
                 )} supplied`
               : null;
         }
-
-      case HomepageOpportunityType.EarnPage:
+      }
+      case HomepageOpportunityType.EarnPage: {
+        const poolInfos = usePoolInfos();
+        const poolsAPY = usePoolsAPY(poolInfos);
+        console.log({poolsAPY, poolInfos})
         // @ts-ignore
         const apys = poolsAPY.filter((obj) => obj).map(parseFloat);
         const maxAPY = !!apys.length ? Math.max.apply(null, apys) : null;
         return maxAPY ? `${maxAPY}% APY` : null;
-
-      case HomepageOpportunityType.FusePage:
+      }
+      case HomepageOpportunityType.FusePage: {
+        const { data: fuseTVL } = useFuseTVL();
         return (fuseTVL !== undefined || fuseTVL !== null) ? `${shortUsdFormatter(fuseTVL!)} TVL` : null;
-
+      }
       case HomepageOpportunityType.Arbitrum:
         return "Now live!";
 
@@ -76,8 +85,4 @@ export const useOpportunitySubtitle = (
 
       default:
         return null;
-    }
-  }, [opportunity, earnPoolAPY, poolsAPY, fusePoolData, fuseTVL]);
-
-  return returnedSubtitle;
-};
+}};
