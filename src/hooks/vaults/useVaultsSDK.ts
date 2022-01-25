@@ -4,7 +4,7 @@ import { chooseBestWeb3Provider } from "utils/web3Providers";
 
 const useVaultsSDK = () => {
     const [rari, setRari] = useState<Vaults>(
-        () => new Vaults(chooseBestWeb3Provider())
+        () => new Vaults(chooseBestWeb3Provider(1, true))
       );
     return {rari}
 }
