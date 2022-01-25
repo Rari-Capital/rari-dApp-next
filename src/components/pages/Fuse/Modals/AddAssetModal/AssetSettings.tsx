@@ -460,6 +460,8 @@ const AssetSettings = ({
 
       if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
         _retryFlag = 4;
+      } else {
+        _retryFlag = 5;
       }
 
       /**  CONFIGURE MASTERPRICEORACLE **/
