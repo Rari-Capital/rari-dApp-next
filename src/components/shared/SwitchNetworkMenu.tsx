@@ -84,7 +84,7 @@ const SwitchNetworkMenu: React.FC = () => {
 
   return (
     <Menu>
-      <MenuButton as={SwitchNetworkButton} />
+      <SwitchNetworkButton />
       <MenuList
         minWidth="125%"
         bg="transparent"
