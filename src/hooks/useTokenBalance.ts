@@ -62,12 +62,13 @@ export function useTokenBalance(
 
 export const useTokenBalances = (tokenAddresses: string[]): number[] => {
   //TODO BalancesContext calls this multiple times with empty tokenAddresses array
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed} = useRari();
 
   const multiCallProvider = new providers.MulticallProvider(fuse.provider)
-  return useQuery<number[]>(
+  return useQuery<number[] | undefined>(
     address + ' balancesMulticall ' + tokenAddresses.join(' '),
     () => {
+      if (!isAuthed) return undefined
       return Promise.all<number>(
         tokenAddresses.map( (tokenAddress: string) => {
           if(tokenAddress === ETH_TOKEN_DATA.address)
