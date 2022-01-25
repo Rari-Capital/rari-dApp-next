@@ -449,6 +449,8 @@ const AssetSettings = ({
         _retryFlag = 2; // set it to two after we fall through step 1
       }
 
+      console.log({ _retryFlag });
+
       /** IF UNISWAP V3 ORACLE **/
       if (_retryFlag === 2) {
         setNeedsRetry(false);
@@ -458,17 +460,20 @@ const AssetSettings = ({
         _retryFlag = 3;
       }
 
-      if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
-        _retryFlag = 4;
-      } else {
-        _retryFlag = 5;
-      }
+
+      console.log({ _retryFlag });
+
+      // if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
+      //   _retryFlag = 4;
+      // } else {
+      //   _retryFlag = 5;A
+      // }
 
       /**  CONFIGURE MASTERPRICEORACLE **/
       // You dont need to configure if your asset is ETH / WETH
       // You dont need to configure if a default oracle is available and you have chosen it
 
-      if (_retryFlag === 4) {
+      if (_retryFlag === 3) {
         const shouldAddToMasterPriceOracle =
           !isTokenETHOrWETH(tokenAddress) && oracleAddress !== defaultOracle;
         setNeedsRetry(false);
@@ -479,12 +484,17 @@ const AssetSettings = ({
           // alert("addOraclesToMasterPriceOracle");
           await addOraclesToMasterPriceOracle(oracleAddressToUse);
         }
-        _retryFlag = 5;
+        _retryFlag = 4;
       }
 
+      console.log({ _retryFlag });
+
       /** DEPLOY ASSET  **/
-      if (_retryFlag === 5) {
+      if (_retryFlag === 4) {
         setNeedsRetry(false);
+
+        console.log({ _retryFlag });
+
 
         await deployAssetToPool();
 
