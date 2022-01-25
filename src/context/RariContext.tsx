@@ -159,11 +159,11 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       
       const provider = chooseBestWeb3Provider()
       const fuse = initFuseWithProviders(provider,internalChainId)
+      setChainId(internalChainId);
       setFuse(fuse)
       setFirstRender(false)
       queryClient.refetchQueries()
       
-      setChainId(internalChainId);
     });
   }, [provider, toast, firstRender]);
 
