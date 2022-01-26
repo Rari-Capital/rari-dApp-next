@@ -116,13 +116,6 @@ const useUpdatedUserAssets = ({
                 : constants.Zero
             ),
           };
-
-          console.log({
-            borrowBalance,
-            totalBorrow,
-            updatedAsset,
-            newUtilRate
-          });
         } else if (mode === Mode.REPAY) {
           const borrowBalance = assetToBeUpdated.borrowBalance.sub(amount);
 
