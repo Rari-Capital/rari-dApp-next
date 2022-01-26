@@ -11,6 +11,8 @@ import {
   useToast,
   HStack,
   AvatarGroup,
+  AlertIcon,
+  Alert,
 } from "@chakra-ui/react";
 import { Column, Center, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
 import DashboardBox from "components/shared/DashboardBox";
@@ -21,7 +23,7 @@ import { SwitchCSS } from "components/shared/SwitchCSS";
 // React
 import { memo, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
+import { useQuery, UseQueryResult } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
@@ -109,8 +111,29 @@ const FuseRewardsBanner = ({
   );
 };
 
+const FuseUniV3Alert = ({
+  univ3Tokens,
+}: {
+  univ3Tokens?: string[];
+}) => {
+  console.log({ univ3Tokens });
+  if (!univ3Tokens || !univ3Tokens.length) return null
+  return (
+    <Alert
+      colorScheme={"yellow"}
+      borderRadius={5}
+      mt="5"
+    >
+      <AlertIcon />
+      <span style={{ color: "black" }}>
+        🚧 Warning - The following tokens in this pool utilize Univ3 Oracles - Use pool with caution: {univ3Tokens.join(', ')}
+      </span>
+    </Alert >
+  );
+};
+
 const FusePoolPage = memo(() => {
-  const { isAuthed } = useRari();
+  const { isAuthed, fuse } = useRari();
 
   const isMobile = useIsSemiSmallScreen();
   const router = useRouter();
@@ -121,6 +144,34 @@ const FusePoolPage = memo(() => {
   const incentivesData: IncentivesData = usePoolIncentives(data?.comptroller);
   const { hasIncentives } = incentivesData;
   const isAdmin = useIsComptrollerAdmin(data?.comptroller);
+
+  const { data: univ3Assets }: UseQueryResult<string[]> = useQuery("univ3 assets for " + data?.assets?.map(a => a.cToken),
+    async () => {
+      if (!data) return []
+      let res: string[] = []
+      data.assets.forEach(
+
+        async asset => {
+          const identity = await fuse.identifyPriceOracle(asset.oracle)
+          const includes = [
+            "UniswapV3TwapPriceOracle_Uniswap_3000",
+            "UniswapV3TwapPriceOracle_Uniswap_10000",
+            "UniswapV3TwapPriceOracleV2_Uniswap_500_USDC",
+            "UniswapV3TwapPriceOracleV2_Uniswap_3000_USDC",
+            "UniswapV3TwapPriceOracleV2_Uniswap_10000_USDC",
+            "UniswapV3TwapPriceOracleV2"
+          ].includes(identity)
+          console.log(asset.oracle, { identity, includes });
+          if (!!includes) {
+            res.push(asset.underlyingSymbol)
+          }
+        }
+      )
+
+      return res
+    })
+
+  console.log({ univ3Assets });
 
   return (
     <>
@@ -173,6 +224,8 @@ const FusePoolPage = memo(() => {
             rewardTokensData={incentivesData.rewardTokensData}
           />
         )}
+
+        <FuseUniV3Alert univ3Tokens={univ3Assets} />
 
         <FuseTabBar />
 
