@@ -372,7 +372,6 @@ const AmountSelect = ({
         );
         LogRocket.track("Fuse-Borrow");
       } else if (mode === Mode.WITHDRAW) {
-        alert("HERE")
         let tx = await testForCTokenErrorAndSend(
           cToken.callStatic.redeemUnderlying,
           amount,
