@@ -43,7 +43,7 @@ import { Fuse } from "../../../esm/index";
 // Hooks
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
-import { useTokenData } from "hooks/useTokenData";
+import { ETH_TOKEN_DATA, useTokenData } from "hooks/useTokenData";
 import { useTranslation } from "next-i18next";
 import { useRari } from "context/RariContext";
 import { memo, useState } from "react";
@@ -58,10 +58,12 @@ import {
 } from "utils/bigUtils";
 
 // Ethers
-import { utils, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { formatUnits } from "ethers/lib/utils";
+import { useIdentifyOracle } from "hooks/fuse/useOracleData";
+import { truncate } from "utils/stringUtils";
 
 const FusePoolInfoPage = memo(() => {
   const { isAuthed } = useRari();
@@ -124,7 +126,7 @@ const FusePoolInfoPage = memo(() => {
           >
             {data ? (
               data.assets.length > 0 ? (
-                <AssetAndOtherInfo assets={data.assets} />
+                <AssetAndOtherInfo assets={data.assets} poolOracle={data.oracle} />
               ) : (
                 <Center expand>{t("There are no assets in this pool.")}</Center>
               )
@@ -341,7 +343,7 @@ const StatRow = ({
   );
 };
 
-const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
+const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[], poolOracle: string }) => {
   const router = useRouter();
   const poolId = router.query.poolId as string;
 
@@ -370,6 +372,18 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
 
     return convertIRMtoCurve(interestRateModel);
   });
+
+
+  const oracleIdentity = useIdentifyOracle(
+    selectedAsset.oracle,
+    selectedAsset.underlyingToken
+  );
+
+  // Link to MPO if asset is ETH
+  const oracleAddress =
+    (selectedAsset.underlyingToken === ETH_TOKEN_DATA.address || selectedAsset.oracle === ETH_TOKEN_DATA.address)
+      ? poolOracle
+      : selectedAsset.oracle;
 
   const isMobile = useIsMobile();
 
@@ -476,6 +490,23 @@ const AssetAndOtherInfo = ({ assets }: { assets: USDPricedFuseAsset[] }) => {
           crossAxisAlignment="center"
           captionFirst={true}
         />
+
+        <SimpleTooltip label={oracleIdentity}>
+          <Link
+            href={`https://etherscan.io/address/${oracleAddress}`}
+            isExternal
+            _hover={{ pointer: "cursor", color: "#21C35E" }}
+          >
+            <CaptionedStat
+              stat={truncate(oracleIdentity, 20)}
+              statSize="md"
+              captionSize="xs"
+              caption={t("Oracle")}
+              crossAxisAlignment="center"
+              captionFirst={true}
+            />
+          </Link>
+        </SimpleTooltip>
 
         <CaptionedStat
           stat={

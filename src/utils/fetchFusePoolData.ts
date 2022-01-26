@@ -51,6 +51,7 @@ export interface FuseAsset {
 
   adminFee: BigNumber;
   fuseFee: BigNumber;
+  oracle: string;
 
   borrowRatePerBlock: BigNumber;
   supplyRatePerBlock: BigNumber;
@@ -181,6 +182,8 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
+
+    console.log({ asset });
 
     promises.push(
       comptrollerContract.callStatic

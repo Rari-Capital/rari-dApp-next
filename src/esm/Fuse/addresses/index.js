@@ -30,8 +30,7 @@ export var FuseContractVersion;
 })(FuseContractVersion || (FuseContractVersion = {}));
 const addresses = {
     [ChainID.ETHEREUM]: MAINNET_ADDRESSES,
-    [ChainID.HARDHAT]: MAINNET_ADDRESSES,
-    // Todo - update all these addresses
+    [ChainID.HARDHAT]: MAINNET_ADDRESSES,    // Todo - update all these addresses
     [ChainID.ARBITRUM]: ARBITRUM_ADDRESSES,
     [ChainID.ARBITRUM_TESTNET]: ARBITRUM_RINKEBY_ADDRESSES,
 };

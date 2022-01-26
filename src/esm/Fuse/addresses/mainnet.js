@@ -57,9 +57,11 @@ export default {
         StakedSdtPriceOracle: "0x5447c825ee330015418c1a0d840c4a1b5a7176cc",
         TokemakPoolTAssetPriceOracle: "0xd806782b31EC52FcB7f2a009d7D045bB732431Fb",
         MStablePriceOracle: "0xeb988f5492C86584f8D8f1B8662188D5A9BfE357",
-        GelatoGUniPriceOracle: "0xea3633b38c747cea231adb74b511dc2ed3992b43",
+        GelatoGUniPriceOracle: "0xEa3633b38C747ceA231aDB74b511DC2eD3992B43",
         StakedSpellPriceOracle: "0xb544f62045b96a60b398abb5a5c23bf04cb4ed9c",
         CurveTriCryptoLpTokenPriceOracle: "0xb2d16916d520d585ee49f08db1436b961b48fe60",
+        CurveFactoryLpTokenPriceOracle: "0xa9f3faac3b8eDF7b3DCcFDBBf25033D6F5fc02F3",
+        TribeMasterPriceOracle: "0x4d10BC156FBaD2474a94f792fe0D6c3261469cdd",
     },
     PRICE_ORACLE_RUNTIME_BYTECODE_HASHES: {
         ChainlinkPriceOracle: "0x7a2a5633a99e8abb759f0b52e87875181704b8e29f6567d4a92f12c3f956d313",
@@ -107,6 +109,9 @@ export default {
         MStablePriceOracle: "0x39fc7b2cdac3d401ea91becf897346b2156dbe261162de14082e856103456eb4",
         StakedSpellPriceOracle: "0x9fcea6d23c7e2e330e35e303a49f39e0c2c783e6b770ccc2de41fbbfbfc539e7",
         CurveTriCryptoLpTokenPriceOracle: "0x92014d914370d8c59082044786d9b056ea188a95891778c555209c210850d5ae",
+        CurveFactoryLpTokenPriceOracle: "0x90cb470d00fd449254eda43856b1e32b5c9a9bf25a8070c10ed1ff92ca656616",
+        GUniLpTokenPriceOracle: "0xbed0eddba7009021dd774a530b53a784fc80217c7bf27c15c9b2487b13fb2863",
+        TribeMasterPriceOracle: "0xf79f348bef443bef108c446753829e55eb5e4e3028d2064d9edefab2f95fd876",
     },
     // Deployable Oracles
     // (Note: In production, you can only deploy `MasterPriceOracle`, `UniswapTwapPriceOracleV2` `UniswapV3TwapPriceOracleV2`)
