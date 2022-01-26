@@ -1,8 +1,7 @@
 import { Contract } from "@ethersproject/contracts"
 import { useRari } from "context/RariContext"
-import { ChainID } from "esm/utils/networks"
 import { useQuery } from "react-query"
-import UniswapV2OracleAbi  from '../../esm/Fuse/contracts/abi/UniswapTwapPriceOracleV2Root.json'
+import UniswapV2OracleAbi  from 'static/UniswapTwapPriceOracleV2.json'
 
 const useCheckUniV2Oracle = (
     underlying: string, 
@@ -10,7 +9,7 @@ const useCheckUniV2Oracle = (
     activeOracleModel: string
 ) => {
 
-    const { fuse, chainId } = useRari()
+    const { fuse } = useRari()
     const shouldCheck = activeOracleModel === "Uniswap_V2_Oracle" 
     || activeOracleModel === "SushiSwap_Oracle" ? true : false
 
