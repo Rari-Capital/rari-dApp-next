@@ -26,11 +26,33 @@ import { GET_UNDERLYING_ASSET_WITH_POOLS } from "gql/underlyingAssets/getUnderly
 import { ChainID } from "esm/utils/networks";
 import { useRari } from "context/RariContext";
 
-const fetchUnderlyingAssetWithPools = async (tokenAddress: string, chainId: ChainID) => {
+const PoolTh: React.FC<React.ComponentProps<typeof Th>> = (props) => {
+  return (
+    <Th
+      fontSize="initial"
+      fontWeight="normal"
+      color="rgba(255,255,255,0.5)"
+      textTransform="none"
+      letterSpacing={0}
+      cursor="pointer"
+      userSelect="none"
+      {...props}
+    />
+  );
+};
+
+const fetchUnderlyingAssetWithPools = async (
+  tokenAddress: string,
+  chainId: ChainID
+) => {
   const { underlyingAsset }: { underlyingAsset: GQLUnderlyingAsset } =
-    await makeGqlRequest(GET_UNDERLYING_ASSET_WITH_POOLS, {
-      tokenAddress,
-    }, chainId);
+    await makeGqlRequest(
+      GET_UNDERLYING_ASSET_WITH_POOLS,
+      {
+        tokenAddress,
+      },
+      chainId
+    );
   return underlyingAsset;
 };
 
@@ -70,8 +92,8 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
     const poolUnderlyingsMap: { [id: string]: string[] } = {};
     pools.forEach(
       (pool) =>
-      (poolUnderlyingsMap[pool.id] =
-        pool.underlyingAssets?.map(({ id }) => id) ?? [])
+        (poolUnderlyingsMap[pool.id] =
+          pool.underlyingAssets?.map(({ id }) => id) ?? [])
     );
     return poolUnderlyingsMap;
   }, [pools]);
@@ -87,23 +109,31 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
   return (
     <Box w="100%" h="100%" bg="" overflowY="scroll">
       <Table variant="unstyled">
-        <Thead position="sticky" top={0} left={0} bg="" zIndex={4}>
-          <Tr bg="black" color="#7D7D7D">
-            <Th fontSize="sm" fontWeight="normal">
-              Fuse Pool
-            </Th>
-            <Th fontSize="sm" fontWeight="normal">
-              Asset Liquidity
-            </Th>
-            <Th fontSize="sm" fontWeight="normal">
-              Lend APY
-            </Th>
-            <Th fontSize="sm" fontWeight="normal">
-              Borrow APR
-            </Th>
-            <Th fontSize="sm" fontWeight="normal" position="relative">
+        <Thead
+          position="sticky"
+          top={-1}
+          left={0}
+          bg="black"
+          zIndex={4}
+          // Simulates a border-bottom while respecting z-index
+          _after={{
+            content: `""`,
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "1px",
+            backgroundColor: "rgba(255,255,255,0.1)",
+          }}
+        >
+          <Tr>
+            <PoolTh>Fuse Pool</PoolTh>
+            <PoolTh>Asset Liquidity</PoolTh>
+            <PoolTh>Lend APY</PoolTh>
+            <PoolTh>Borrow APR</PoolTh>
+            <PoolTh position="relative">
               <HStack alignContent="flex-end">
-                <Text>Borrow against</Text>
+                <Text>Borrow Against</Text>
                 <ViewIcon
                   _hover={{
                     cursor: "pointer",
@@ -125,8 +155,8 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
                   setFilteredTokens={setFilteredTokens}
                 />
               )}
-            </Th>
-            <Th fontSize="sm" />
+            </PoolTh>
+            <PoolTh />
           </Tr>
         </Thead>
         <Tbody w="100%">
@@ -227,9 +257,9 @@ const FusePoolRow = ({
       className="hover-row no-underline"
       width="100%"
       height="90px"
-      borderTop="1px solid #272727"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      borderBottom="1px solid rgba(255,255,255,0.1)"
     >
       {/* Pool */}
       <Td>
