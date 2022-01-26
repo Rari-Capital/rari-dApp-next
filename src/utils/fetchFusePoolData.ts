@@ -7,6 +7,7 @@ import { constants } from "ethers";
 import { createComptroller } from "./createComptroller";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { utils } from "ethers";
+import { EmptyAddress } from "context/RariContext";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
 
@@ -140,6 +141,7 @@ export const fetchFusePoolData = async (
 ): Promise<FusePoolData | undefined> => {
   if (!poolId) return undefined;
 
+  const addressToUse = address === EmptyAddress ? "" : address
   const {
     comptroller,
     name: _unfiliteredName,
@@ -152,7 +154,7 @@ export const fetchFusePoolData = async (
   let assets: USDPricedFuseAsset[] = (
     await fuse.contracts.FusePoolLens.callStatic.getPoolAssetsWithData(
       comptroller,
-      { from: address }
+      { from: addressToUse }
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
 

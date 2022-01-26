@@ -3,13 +3,13 @@ import { Contract } from "ethers";
 
 import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 
-export const createComptroller = (comptrollerAddress: string, fuse: Fuse) => {
+export const createComptroller = (comptrollerAddress: string, fuse: Fuse, isAuthed?: boolean) => {
   const comptroller = new Contract(
     comptrollerAddress,
     JSON.parse(
       fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
     ),
-    fuse.provider.getSigner()
+    isAuthed ? fuse.provider.getSigner() : fuse.provider
   );
 
   return comptroller;
