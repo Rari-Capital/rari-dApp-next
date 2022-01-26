@@ -31,7 +31,6 @@ export const useOpportunitySubtitle = (
           return earnPoolAPY ? `${earnPoolAPY}% APY` : null;
         }
       case HomepageOpportunityType.FusePool: {
-        console.log("RUNNING BRRR", {opportunity, fuse, chainId} )
         const fusePoolData = useFusePoolData(opportunity.fusePoolId?.toString());
       
         switch (opportunity.fuseMetric) {
@@ -64,7 +63,6 @@ export const useOpportunitySubtitle = (
       case HomepageOpportunityType.EarnPage: {
         const poolInfos = usePoolInfos();
         const poolsAPY = usePoolsAPY(poolInfos);
-        console.log({poolsAPY, poolInfos})
         // @ts-ignore
         const apys = poolsAPY.filter((obj) => obj).map(parseFloat);
         const maxAPY = !!apys.length ? Math.max.apply(null, apys) : null;
