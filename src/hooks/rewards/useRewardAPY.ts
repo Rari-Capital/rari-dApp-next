@@ -186,7 +186,7 @@ export const useCTokensDataForRewards = (
 
       const cTokensArray = await Promise.all(
         cTokenAddrs.map(async (cTokenAddr) => {
-          const ctokenInstance = createCToken(fuse, cTokenAddr);
+          const ctokenInstance = createCToken(fuse, cTokenAddr, true);
           // console.log({ ctokenInstance });
           const underlying = await ctokenInstance.callStatic.underlying();
 
@@ -258,13 +258,13 @@ export const getPriceFromOracles = async (
   fuse: Fuse
 ) => {
   // Rari MPO
-  const masterPriceOracle = createMasterPriceOracle(fuse);
+  const masterPriceOracle = createMasterPriceOracle(fuse, true);
 
   // Pool's MPO
-  const comptrollerInstance = createComptroller(comptroller, fuse);
+  const comptrollerInstance = createComptroller(comptroller, fuse, false);
   const oracleAddress: string = await comptrollerInstance.callStatic.oracle();
   // const oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
-  const oracleContract = createOracle(oracleAddress, fuse, "MasterPriceOracle");
+  const oracleContract = createOracle(oracleAddress, fuse, "MasterPriceOracle", true);
 
   let price;
   try {

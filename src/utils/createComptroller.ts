@@ -50,24 +50,27 @@ export const createRewardsDistributor = (
 export const createOracle = (
   oracleAddress: string,
   fuse: Fuse,
-  type: string
+  type: string,
+  special?: boolean
 ): Contract => {
+  const provider = special ? fuse.provider : fuse.provider.getSigner()
   const oracle = new Contract(
     oracleAddress,
     fuse.oracleContracts[type].abi,
-    fuse.provider.getSigner()
+    provider
   );
 
   return oracle;
 };
 
-export const createCToken = (fuse: Fuse, cTokenAddress: string) => {
+export const createCToken = (fuse: Fuse, cTokenAddress: string, special?: boolean) => {
+  const provider = special ? fuse.provider : fuse.provider.getSigner()
   const cErc20Delegate = new Contract(
     cTokenAddress,
     JSON.parse(
       fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi
     ),
-    fuse.provider.getSigner()
+    provider
   );
 
   return cErc20Delegate;
@@ -82,11 +85,12 @@ export const createERC20 = (fuse: Fuse, cTokenAddress: string) => {
   return erc20;
 };
 
-export const createMasterPriceOracle = (fuse: Fuse) => {
+export const createMasterPriceOracle = (fuse: Fuse, special?: boolean) => {
+  const provider = special ? fuse.provider : fuse.provider.getSigner()
   const masterPriceOracle = new Contract(
     fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle,
     fuse.oracleContracts["MasterPriceOracle"].abi,
-    fuse.provider.getSigner()
+    provider
   );
   return masterPriceOracle;
 };
