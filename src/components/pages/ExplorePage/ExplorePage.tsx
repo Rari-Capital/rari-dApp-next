@@ -172,10 +172,12 @@ const recommendedPoolsFetcher = async (
   }
 
   // reduce poolsMap to only pools which were recommended
-  const recommendedPoolDataMap: RecommendedPoolDataMap = {};
-  Object.values(map).forEach(({ poolId }) => {
-    recommendedPoolDataMap[poolId] = poolsMap[poolId];
-  });
+  const recommendedPoolDataMap = Object.values(
+    map
+  ).reduce<RecommendedPoolDataMap>((acc, { poolId }) => {
+    acc[poolId] = poolsMap[poolId];
+    return acc;
+  }, {});
   poolsMap = {};
 
   return {
