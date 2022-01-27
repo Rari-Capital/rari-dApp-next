@@ -73,10 +73,11 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
   const pools = useSubgraphPoolsForToken(token?.address);
 
   const underlyingAssets = useMemo(() => {
-    const tokens = new Set<string>();
-    pools.forEach(({ underlyingAssets }) => {
-      underlyingAssets!.forEach(({ id }) => tokens.add(id));
-    });
+    const tokenIds = pools
+      .flatMap(({ underlyingAssets }) => underlyingAssets?.map(({ id }) => id))
+      .filter((tokenId): tokenId is string => typeof tokenId !== "undefined");
+    // Set constructor will automatically remove duplicates
+    const tokens = new Set<string>(tokenIds);
     return [...tokens];
   }, [pools]);
 

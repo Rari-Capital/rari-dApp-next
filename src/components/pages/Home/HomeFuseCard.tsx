@@ -29,7 +29,9 @@ const HomeFuseCard = ({
 
   const { title, subtitle }: HomepageFusePool = useMemo(() => {
     if (!pool) return { title: null, subtitle: null, id: -1 };
-    return HOMEPAGE_FUSE_POOLS[chainId ?? 1].find((p) => p.id == parseInt(pool.index))!;
+    return HOMEPAGE_FUSE_POOLS[chainId ?? 1].find(
+      (p) => p.id == parseInt(pool.index)
+    )!;
   }, [pool]);
 
   const isMobile = useIsMobile();
@@ -39,18 +41,18 @@ const HomeFuseCard = ({
 
     const NUM = 3;
 
-    const symbols: string[] = [];
-
-    pool.assets.forEach((a, i) => {
-      const { symbol } = a.underlying;
-      if (i < NUM && symbol) symbols.push(symbol!);
-    });
+    const symbols = pool.assets
+      .map(({ underlying }) => underlying.symbol)
+      .slice(0, NUM);
 
     let caption;
-    if (pool.assets.length <= 3) {
+    if (pool.assets.length <= NUM) {
       caption = symbols.join(", ");
     } else {
-      caption = `${symbols.join(", ")}, and ${pool.assets.length - NUM} others`;
+      const remaining = pool.assets.length - NUM;
+      caption = `${symbols.join(", ")}, and ${remaining} other${
+        remaining > 1 ? "s" : ""
+      }`;
     }
 
     return caption;
