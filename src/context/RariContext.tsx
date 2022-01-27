@@ -273,6 +273,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       setSwitchingNetwork(true)
+      
       await window.ethereum!.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
@@ -306,6 +307,13 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
           // handle "add" error
         }
       }
+      
+      // This error code indicates that the user aborted chain switch from wallet interface.
+      if((switchError as any).code === 4001) {
+        setSwitchingNetwork(false)
+      }
+
+      console.log({switchError})
       // handle other "switch" errors
     } 
     // finally {
