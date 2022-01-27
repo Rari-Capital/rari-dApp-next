@@ -699,6 +699,7 @@ const AssetSupplyRow = ({
                   {supplyIncentives?.map((supplyIncentive, i) => {
                     return (
                       <CTokenIcon
+                        key={i}
                         address={supplyIncentive.rewardToken}
                         boxSize="20px"
                         onMouseEnter={() => handleMouseEnter(i)}
