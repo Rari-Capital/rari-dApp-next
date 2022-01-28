@@ -9,7 +9,7 @@ import { createOracle } from "../../utils/createComptroller";
 // Libraries
 import axios from "axios";
 import { useQuery } from "react-query";
-import { useRari } from "context/RariContext";
+import { EmptyAddress, useRari } from "context/RariContext";
 import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 import { Contract } from "@ethersproject/contracts";
 import { utils } from "ethers";
@@ -30,14 +30,16 @@ export const useIdentifyOracle = (
   const { fuse } = useRari();
 
   const { data } = useQuery("Identifying Oracle " + oracleAddr, async () => {
-    if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address)
+    if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address || oracleAddr === EmptyAddress)
       return "MasterPriceOracle";
 
     // If no oracle address provided, return empty string
     if (!oracleAddr) return "";
 
     const identity = await fuse.identifyPriceOracle(oracleAddr);
+
     if (identity === "MasterPriceOracleV1") return "RariMasterPriceOracle";
+    
     return identity;
   });
 
