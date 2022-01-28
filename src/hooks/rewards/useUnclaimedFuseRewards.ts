@@ -1,6 +1,7 @@
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
 import { createRewardsDistributor } from "utils/createComptroller";
+import { ChainID } from "esm/utils/networks";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {
@@ -15,13 +16,13 @@ export interface RewardsDistributorToPoolsMap {
  * **/
 
 export function useUnclaimedFuseRewards() {
-  const { fuse, address, chainId } = useRari();
+  const { fuse, address, chainId, isAuthed } = useRari();
 
   // 1. Fetch all Fuse Pools User has supplied to + their Rewards Distribs.
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
     "unclaimedRewards for " + address + " " + chainId,
     async () => {
-      if (chainId !== 1) return null
+      if (!isAuthed) return null
       
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
@@ -140,6 +141,7 @@ export function useUnclaimedFuseRewards() {
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
     "unclaimed for " + address +  ' ' + chainId,
     async () => {
+      if (!isAuthed) return undefined
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,

@@ -116,7 +116,6 @@ const FuseUniV3Alert = ({
 }: {
   univ3Tokens?: string[];
 }) => {
-  console.log({ univ3Tokens });
   if (!univ3Tokens || !univ3Tokens.length) return null
   return (
     <Alert
@@ -161,7 +160,6 @@ const FusePoolPage = memo(() => {
             "UniswapV3TwapPriceOracleV2_Uniswap_10000_USDC",
             "UniswapV3TwapPriceOracleV2"
           ].includes(identity)
-          console.log(asset.oracle, { identity, includes });
           if (!!includes) {
             res.push(asset.underlyingSymbol)
           }
@@ -170,8 +168,6 @@ const FusePoolPage = memo(() => {
 
       return res
     })
-
-  console.log({ univ3Assets });
 
   return (
     <>
@@ -703,6 +699,7 @@ const AssetSupplyRow = ({
                   {supplyIncentives?.map((supplyIncentive, i) => {
                     return (
                       <CTokenIcon
+                        key={i}
                         address={supplyIncentive.rewardToken}
                         boxSize="20px"
                         onMouseEnter={() => handleMouseEnter(i)}

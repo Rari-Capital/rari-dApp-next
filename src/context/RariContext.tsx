@@ -263,18 +263,29 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // https://docs.metamask.io/guide/rpc-api.html#usage-with-wallet-switchethereumchain
   // TODO(nathanhleung) handle all possible errors
   const switchNetwork = async function (newChainId: ChainID, router: any) {
-    console.log("Indise switchNetwork", {newChainId, chainId})
     if (chainId == newChainId) return;
+
     const hexChainId = newChainId.toString(16);
     const chainMetadata = getChainMetadata(newChainId);
+
+    // TODO: We could just start fuse with our providers if theres no wallet and user changes chain.
     if (typeof window === undefined) return
+
     try {
       setSwitchingNetwork(true)
+      
       await window.ethereum!.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
       });
-      router.reload()
+
+      const {pathname} = router
+      
+      if(pathname === "/fuse/pool/[poolId]") {
+        window.location.href = "/fuse"
+      } else {
+        router.reload()
+      }
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
@@ -296,6 +307,13 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
           // handle "add" error
         }
       }
+      
+      // This error code indicates that the user aborted chain switch from wallet interface.
+      if((switchError as any).code === 4001) {
+        setSwitchingNetwork(false)
+      }
+
+      console.log({switchError})
       // handle other "switch" errors
     } 
     // finally {
