@@ -376,7 +376,8 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
 
   const oracleIdentity = useIdentifyOracle(
     selectedAsset.oracle,
-    selectedAsset.underlyingToken
+    poolOracle,
+    selectedAsset.underlyingToken,
   );
 
   // Link to MPO if asset is ETH

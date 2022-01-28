@@ -25,16 +25,47 @@ export type OracleDataType = {
 // Return a string of what we want to call this oracle
 export const useIdentifyOracle = (
   oracleAddr: string,
+  poolOracle: string,
   tokenAddr?: string
 ): string => {
   const { fuse } = useRari();
 
   const { data } = useQuery("Identifying Oracle " + oracleAddr, async () => {
-    if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address || oracleAddr === EmptyAddress)
+    if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address)
       return "MasterPriceOracle";
 
     // If no oracle address provided, return empty string
     if (!oracleAddr) return "";
+
+    if (oracleAddr === EmptyAddress) {
+      // If condition is true it means price feed comes from default oracle
+      // From MPO get defaultOracle
+      const poolOracleContract = createOracle(
+        poolOracle,
+        fuse,
+        "MasterPriceOracle",
+        true
+      )
+
+      const poolDefaultOracleAddress = await poolOracleContract.callStatic.defaultOracle()
+      
+      // From Default oracle get token's oracle
+      const poolDefaultOracleContract = createOracle(
+        poolDefaultOracleAddress,
+        fuse,
+        "MasterPriceOracle",
+        true
+      )
+
+      const tokenOracle = await poolDefaultOracleContract.oracles(tokenAddr)
+
+      // Identify type of oracle used
+      const identity = await fuse.identifyPriceOracle(tokenOracle)
+
+      
+      return identity
+
+    }
 
     const identity = await fuse.identifyPriceOracle(oracleAddr);
 
