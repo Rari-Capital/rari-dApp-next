@@ -112,6 +112,9 @@ export default {
         CurveFactoryLpTokenPriceOracle: "0x90cb470d00fd449254eda43856b1e32b5c9a9bf25a8070c10ed1ff92ca656616",
         GUniLpTokenPriceOracle: "0xbed0eddba7009021dd774a530b53a784fc80217c7bf27c15c9b2487b13fb2863",
         TribeMasterPriceOracle: "0xf79f348bef443bef108c446753829e55eb5e4e3028d2064d9edefab2f95fd876",
+        IchiVaultPriceOracle: "0xc594fa92ed8e42bed8093592958b56dc4c2a55b022d6ccf5c8f2c5dce2233488",
+        xICHIPriceOracle: "0xad71ec0e1e9ce04e14abea17d12f16b8491507102d83807e73ad1b708a798b23",
+        IchiFarmOneUniOracle: "0x22f1a205ca4cd1687a424fd0c3ce1817ac98eaa9190ff208388af7b20589ac21",
     },
     // Deployable Oracles
     // (Note: In production, you can only deploy `MasterPriceOracle`, `UniswapTwapPriceOracleV2` `UniswapV3TwapPriceOracleV2`)
