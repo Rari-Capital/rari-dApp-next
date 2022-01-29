@@ -44,7 +44,7 @@ const OracleConfig = ({
   checked,
   setChecked
 }: {
-  checked:boolean,
+  checked: boolean,
   setChecked: Dispatch<SetStateAction<boolean>>
 }) => {
   const toast = useToast();
@@ -78,11 +78,11 @@ const OracleConfig = ({
   const options = useGetOracleOptions(oracleData, tokenAddress);
 
   // Identify token oracle address
-  const oracleIdentity = useIdentifyOracle(oracleAddress);
+  const oracleIdentity = useIdentifyOracle(oracleAddress, poolOracleAddress, tokenAddress);
 
   const [inputTouched, setInputTouched] = useState(false);
 
-  
+
 
   // console.log({
   //   mode,
@@ -136,7 +136,7 @@ const OracleConfig = ({
       activeOracleModel !== "SushiSwap_Oracle" &&
       options
     ) {
-     setOracleAddress(options[activeOracleModel]);
+      setOracleAddress(options[activeOracleModel]);
     }
     if (
       activeUniSwapPair === "" &&
@@ -183,12 +183,12 @@ const OracleConfig = ({
 
       const tokenArray =
         shouldShowUniV3BaseTokenOracleForm &&
-        !isTokenETHOrWETH(uniV3BaseTokenAddress)
+          !isTokenETHOrWETH(uniV3BaseTokenAddress)
           ? [tokenAddress, uniV3BaseTokenAddress]
           : [tokenAddress];
       const oracleAddressArray =
         shouldShowUniV3BaseTokenOracleForm &&
-        !isTokenETHOrWETH(uniV3BaseTokenAddress)
+          !isTokenETHOrWETH(uniV3BaseTokenAddress)
           ? [oracleAddressToUse, uniV3BaseTokenOracle]
           : [oracleAddressToUse];
 
@@ -233,11 +233,11 @@ const OracleConfig = ({
         mainAxisAlignment={mode === "Editing" ? "space-between" : "space-evenly"}
         // background="gold"
         crossAxisAlignment={"center"}
-        height={activeOracleModel === "Default_Price_Oracle"  
-                ? "40%" 
-                : activeOracleModel === "Custom_Oracle" 
-                ? "30%"
-                : "20%"}
+        height={activeOracleModel === "Default_Price_Oracle"
+          ? "40%"
+          : activeOracleModel === "Custom_Oracle"
+            ? "30%"
+            : "20%"}
         width={
           mode === "Editing"
             ? !shouldShowUniV3BaseTokenOracleForm
@@ -301,9 +301,9 @@ const OracleConfig = ({
             >
               {Object.entries(options).map(([key, value]) =>
                 value !== null &&
-                value !== undefined &&
-                key !== activeOracleModel &&
-                (mode === "Adding" ? key !== "Current_Price_Oracle" : true) ? (
+                  value !== undefined &&
+                  key !== activeOracleModel &&
+                  (mode === "Adding" ? key !== "Current_Price_Oracle" : true) ? (
                   // dont show the selected choice in the list
                   <option key={key} value={key} className="black-bg-option">
                     {key.replaceAll("_", " ")}
@@ -313,49 +313,49 @@ const OracleConfig = ({
               {/* <option disabled={true}>Loading...</option> */}
             </Select>
           </Column>
-         
+
           <Column
             mainAxisAlignment="center"
             crossAxisAlignment="center"
             height="50%"
             width="100%"
           >
-            { activeOracleModel.length > 0 
-              && activeOracleModel !== "Uniswap_V2_Oracle" 
+            {activeOracleModel.length > 0
+              && activeOracleModel !== "Uniswap_V2_Oracle"
               && activeOracleModel !== "SushiSwap_Oracle"
               ? (
-              <Input
-                ml="auto"
-                size="sm"
-                bg="#282727"
-                height="80%"
-                width="100%"
-                variant="filled"
-                textAlign="center"
-                value={oracleAddress}
-                onChange={(event) => {
-                  const address = event.target.value;
-                  setInputTouched(true);
-                  setOracleAddress(address);
-                }}
-                {...DASHBOARD_BOX_PROPS}
-                _focus={{ bg: "#121212" }}
-                _hover={{ bg: "#282727" }}
-                _placeholder={{ color: "#e0e0e0" }}
-                disabled={activeOracleModel === "Custom_Oracle" ? false : true}
-              />
-            ) : null}
+                <Input
+                  ml="auto"
+                  size="sm"
+                  bg="#282727"
+                  height="80%"
+                  width="100%"
+                  variant="filled"
+                  textAlign="center"
+                  value={oracleAddress}
+                  onChange={(event) => {
+                    const address = event.target.value;
+                    setInputTouched(true);
+                    setOracleAddress(address);
+                  }}
+                  {...DASHBOARD_BOX_PROPS}
+                  _focus={{ bg: "#121212" }}
+                  _hover={{ bg: "#282727" }}
+                  _placeholder={{ color: "#e0e0e0" }}
+                  disabled={activeOracleModel === "Custom_Oracle" ? false : true}
+                />
+              ) : null}
           </Column>
           {activeOracleModel === "Custom_Oracle" && (
-              <Text color="red" fontSize="sm" textAlign="center" width="100%" mt={2}>
-                Make sure you know what you are doing!
-              </Text>
-            )}
+            <Text color="red" fontSize="sm" textAlign="center" width="100%" mt={2}>
+              Make sure you know what you are doing!
+            </Text>
+          )}
           <Text color="grey" fontSize="sm" textAlign="center" width="100%" mt={2}>
             {oracleIdentity}
           </Text>
         </Column>
-        
+
       </Row>
 
       <Row
@@ -363,15 +363,15 @@ const OracleConfig = ({
         crossAxisAlignment={mode === "Editing" ? "flex-start" : "center"}
         flexDirection="column"
         height={
-            activeOracleModel === "SushiSwap_Oracle" 
-            ||  activeOracleModel === "Uniswap_V2_Oracle" 
-            ? checked 
-              ? "60%" 
-              : "10%" 
-            : activeOracleModel === "Uniswap_V3_Oracle" && activeUniSwapPair !== "" 
+          activeOracleModel === "SushiSwap_Oracle"
+            || activeOracleModel === "Uniswap_V2_Oracle"
+            ? checked
+              ? "60%"
+              : "10%"
+            : activeOracleModel === "Uniswap_V3_Oracle" && activeUniSwapPair !== ""
               ? "60%"
               : "30%"
-            }
+        }
         width={
           mode === "Adding" && !shouldShowUniV3BaseTokenOracleForm
             ? "100%"
@@ -386,18 +386,18 @@ const OracleConfig = ({
         ) : null}
 
         {activeOracleModel === "Uniswap_V2_Oracle" ? (
-          <UniswapV2OrSushiPriceOracleConfigurator 
-            checked={checked} 
-            setChecked={setChecked} 
-            type="UniswapV2" 
+          <UniswapV2OrSushiPriceOracleConfigurator
+            checked={checked}
+            setChecked={setChecked}
+            type="UniswapV2"
           />
         ) : null}
 
         {activeOracleModel === "SushiSwap_Oracle" ? (
-          <UniswapV2OrSushiPriceOracleConfigurator 
-            checked={checked} 
-            setChecked={setChecked} 
-            type="Sushiswap" 
+          <UniswapV2OrSushiPriceOracleConfigurator
+            checked={checked}
+            setChecked={setChecked}
+            type="Sushiswap"
           />
         ) : null}
       </Row>

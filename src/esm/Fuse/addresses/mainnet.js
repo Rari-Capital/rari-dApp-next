@@ -348,13 +348,13 @@ export default {
             oldVersions: {},
         },
         HarvestPriceOracleV1: {
-            address: "0x6141d9353bb1fb8131d07d358c112b372aa92514",
+            address: "0x8D364609cd2716172016838fF9FBC7fBcAC91792",
             bytecodeHash: "0x6e23380d1d640118cf80cf2bfa9ca7a89068659dfcb50abc0a7f8b9e5f9daab7",
             deployable: false,
             oldVersions: {},
         },
         HarvestPriceOracleV2: {
-            address: "",
+            address: "0x6141d9353bb1fb8131d07d358c112b372aa92514",
             bytecodeHash: "0x5eff948725404a38311ebe4b3bafc312f63dd8ae611e3ddcdfebb9cfa231988c",
             deployable: false,
             oldVersions: {},
@@ -391,7 +391,7 @@ export default {
         },
         GelatoGUniPriceOracle: {
             address: "0xea3633b38c747cea231adb74b511dc2ed3992b43",
-            bytecodeHash: "",
+            bytecodeHash: "0xbed0eddba7009021dd774a530b53a784fc80217c7bf27c15c9b2487b13fb2863",
             deployable: false,
             oldVersions: {},
         },
@@ -423,6 +423,8 @@ export default {
         JumpRateModel_Fei_ETH: "0xbab47e4b692195bf064923178a90ef999a15f819",
         JumpRateModel_Fei_DAI: "0xede47399e2aa8f076d40dc52896331cba8bd40f7",
         JumpRateModel_Olympus_Majors: "0xe1d35fae219e4d74fe11cb4246990784a4fe6680",
+        JumpRateModel_Olympus_Majors_New: "0x4EF29407a8dbcA2F37B7107eAb54d6f2a3f2ad60",
+        JumpRateModel_Flat_3_Percent_Borrow_APY: "0xc8acad405ff67eaee2aca374764883cecbd490ad",
         Custom_JumpRateModel: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
         // Custom_JumpRateModel: "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
     },
