@@ -48,6 +48,8 @@ interface RewardsDataForMantissa {
   rewardEthPrice: number;
   underlyingTotalSupply: number;
   underlyingEthPrice: number;
+  underlyingDecimals: number;
+  rewardDecimals: number;
 }
 
 export const useIncentivesWithRates = (
