@@ -47,7 +47,7 @@ const LendAndBorrow = ({
 }) => {
   const isMobile = useIsMobile();
   const toast = useToast();
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   // Assets
   const lendAsset: USDPricedFuseAssetWithTokenData = useMemo(
@@ -126,6 +126,7 @@ const LendAndBorrow = ({
       borrowAmount: borrowAmountBN,
       comptrollerAddress: bestPool.comptroller,
       setUserAction,
+      isAuthed,
       toast,
     });
   };

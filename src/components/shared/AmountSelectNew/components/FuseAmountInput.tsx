@@ -124,7 +124,7 @@ export const TokenNameAndMaxButton = ({
   updateAmount: (newAmount: string) => any;
   updateAsset?: (assetAddress: string) => any;
 }) => {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
   const toast = useToast();
   const { t } = useTranslation();
   const [isMaxLoading, setIsMaxLoading] = useState(false);
@@ -142,7 +142,8 @@ export const TokenNameAndMaxButton = ({
         fuse,
         address,
         asset,
-        comptrollerAddress
+        comptrollerAddress,
+        isAuthed
       );
 
       if (maxBN!.isNeg() || maxBN!.isZero()) {
