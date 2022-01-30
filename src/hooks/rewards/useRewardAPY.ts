@@ -196,7 +196,11 @@ export interface CTokensDataForRewardsMap {
 
 export type CTokenDataForRewards = Pick<
   USDPricedFuseAsset,
-  "underlyingToken" | "cToken" | "totalSupply" | "underlyingPrice"
+  | "underlyingToken"
+  | "cToken"
+  | "totalSupply"
+  | "underlyingPrice"
+  | "underlyingDecimals"
 >;
 
 export const useCTokensDataForRewards = (
