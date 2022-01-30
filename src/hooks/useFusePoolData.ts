@@ -14,10 +14,10 @@ export const useFusePoolData = (
   poolId: string | undefined,
   dev?: boolean
 ): FusePoolData | undefined => {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(poolId + " poolData " + address, () => {
-    return fetchFusePoolData(poolId, address, fuse, undefined , dev);
+    return fetchFusePoolData(poolId, address, fuse, undefined , isAuthed, dev);
   });
 
   return data;
@@ -25,14 +25,14 @@ export const useFusePoolData = (
 
 // Fetch APYs for all pools
 export const useFusePoolsData = (poolIds: number[]): FusePoolData[] | null => {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const poolsData = useQueries(
     poolIds.map((id: number) => {
       return {
         queryKey: id + " apy",
         queryFn: () => {
-          return fetchFusePoolData(id.toString(), address, fuse);
+          return fetchFusePoolData(id.toString(), address, fuse, undefined, isAuthed);
         },
       };
     })

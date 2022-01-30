@@ -284,7 +284,9 @@ export default async (request: NowRequest, response: NowResponse) => {
     const { assets, totalLiquidityUSD, comptroller } = (await fetchFusePoolData(
       poolID,
       "0x0000000000000000000000000000000000000000",
-      fuse
+      fuse,
+      undefined,
+      false
     ))!;
 
     // console.timeEnd("poolData");

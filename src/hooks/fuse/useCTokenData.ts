@@ -1,7 +1,7 @@
 import { useRari } from "context/RariContext";
 import { useQuery } from "react-query";
 
-import { createComptroller, createCToken } from "utils/createComptroller";
+import { useCreateComptroller, createCToken } from "utils/createComptroller";
 
 export interface CTokenData {
   reserveFactorMantissa: any;
@@ -16,11 +16,11 @@ export const useCTokenData = (
   comptrollerAddress?: string,
   cTokenAddress?: string
 ): CTokenData | undefined => {
-  const { fuse } = useRari();
+  const { fuse, isAuthed } = useRari();
 
   const { data } = useQuery(cTokenAddress + " cTokenData", async () => {
     if (comptrollerAddress && cTokenAddress) {
-      const comptroller = createComptroller(comptrollerAddress, fuse);
+      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
       const cToken = createCToken(fuse, cTokenAddress);
 
       const [

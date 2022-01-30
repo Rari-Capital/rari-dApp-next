@@ -4,7 +4,7 @@ import { TokenData } from "hooks/useTokenData";
 import { Vaults, Fuse } from "../esm/index";
 import { BigNumber } from "@ethersproject/bignumber";
 import { constants } from "ethers";
-import { createComptroller } from "./createComptroller";
+import { useCreateComptroller } from "./createComptroller";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { utils } from "ethers";
 import { EmptyAddress } from "context/RariContext";
@@ -137,7 +137,8 @@ export const fetchFusePoolData = async (
   address: string,
   fuse: Fuse,
   blockNum: string | number = "latest",
-  dev?: boolean
+  isAuthed: boolean,
+  dev?: boolean,
 ): Promise<FusePoolData | undefined> => {
   if (!poolId) return undefined;
 
@@ -172,7 +173,7 @@ export const fetchFusePoolData = async (
 
   let promises = [];
 
-  const comptrollerContract = createComptroller(comptroller, fuse);
+  const comptrollerContract = useCreateComptroller(comptroller, fuse, isAuthed);
   let oracle: string = await comptrollerContract.callStatic.oracle();
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
 

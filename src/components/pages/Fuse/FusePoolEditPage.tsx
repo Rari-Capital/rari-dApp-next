@@ -53,7 +53,7 @@ import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 
 // Utils
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 import { handleGenericError } from "utils/errorHandling";
 
@@ -108,10 +108,10 @@ export enum ComptrollerErrorCodes {
 }
 
 export const useIsUpgradeable = (comptrollerAddress: string) => {
-  const { fuse } = useRari();
+  const { fuse, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const isUpgradeable: boolean =
       await comptroller.callStatic.adminHasRights();
@@ -173,8 +173,8 @@ const FusePoolEditPage = memo(() => {
 
   const data = useFusePoolData(poolId);
 
-  const { fuse } = useRari();
-  const comptroller = createComptroller(data?.comptroller ?? "", fuse);
+  const { fuse, isAuthed } = useRari();
+  const comptroller = useCreateComptroller(data?.comptroller ?? "", fuse, isAuthed);
 
   // Maps underlying to oracle
   const oraclesMap = useOraclesForPool(
@@ -412,7 +412,7 @@ const PoolConfiguration = ({
   const router = useRouter();
   const poolId = router.query.poolId as string;
 
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -420,7 +420,7 @@ const PoolConfiguration = ({
   const data = useExtraPoolInfo(comptrollerAddress);
 
   const changeWhitelistStatus = async (enforce: boolean) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(
@@ -439,7 +439,7 @@ const PoolConfiguration = ({
   };
 
   const addToWhitelist = async (newUser: string) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const newList = [...data!.whitelist, newUser];
 
@@ -466,7 +466,7 @@ const PoolConfiguration = ({
   };
 
   const removeFromWhitelist = async (removeUser: string) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const whitelist = data!.whitelist;
     try {
@@ -544,7 +544,7 @@ const PoolConfiguration = ({
       (closeFactor / 100).toString()
     );
 
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(
@@ -568,7 +568,7 @@ const PoolConfiguration = ({
       (liquidationIncentive / 100 + 1).toString()
     );
 
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(

@@ -9,7 +9,7 @@ import { Row } from "lib/chakraUtils";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 import { Button } from "@chakra-ui/button";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/toast";
@@ -30,12 +30,12 @@ const MarketCapConfigurator = ({
 }) => {
   const { t } = useTranslation();
   const [newSupplyCap, setNewSupplyCap] = useState<string>("");
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
   const toast = useToast();
 
   const tokenSymbol = tokenData.symbol;
 
-  const comptroller = createComptroller(comptrollerAddress, fuse);
+  const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
   const { data: supplyCap } = useQuery(
     "Get " + mode + " cap for: " + tokenData.symbol,

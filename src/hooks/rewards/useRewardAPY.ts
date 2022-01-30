@@ -4,7 +4,7 @@
 import { useQuery } from "react-query";
 import { useTokensDataAsMap } from "hooks/useTokenData";
 import {
-  createComptroller,
+  useCreateComptroller,
   createCToken,
   createMasterPriceOracle,
   createOracle,
@@ -255,13 +255,14 @@ interface TokenPrices {
 export const getPriceFromOracles = async (
   tokenAddress: string,
   comptroller: string,
-  fuse: Fuse
+  fuse: Fuse,
+  isAuthed: boolean
 ) => {
   // Rari MPO
   const masterPriceOracle = createMasterPriceOracle(fuse, true);
 
   // Pool's MPO
-  const comptrollerInstance = createComptroller(comptroller, fuse, false);
+  const comptrollerInstance = useCreateComptroller(comptroller, fuse, isAuthed);
   const oracleAddress: string = await comptrollerInstance.callStatic.oracle();
   // const oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
   const oracleContract = createOracle(oracleAddress, fuse, "MasterPriceOracle", true);
@@ -282,7 +283,7 @@ export const useAssetPricesInEth = (
   tokenAddresses: string[],
   comptroller: string
 ): TokenPrices | undefined => {
-  const { fuse } = useRari();
+  const { fuse, isAuthed } = useRari();
   const masterPriceOracle = createMasterPriceOracle(fuse);
 
   const tokensData = useTokensDataAsMap(tokenAddresses);
@@ -296,7 +297,7 @@ export const useAssetPricesInEth = (
       const [ethUSDBN, ...tokenPricesInEth] = await Promise.all([
         getEthUsdPriceBN(),
         ...tokenAddresses.map(
-          async (t) => await getPriceFromOracles(t, comptroller, fuse)
+          async (t) => await getPriceFromOracles(t, comptroller, fuse, isAuthed)
         ),
       ]);
 

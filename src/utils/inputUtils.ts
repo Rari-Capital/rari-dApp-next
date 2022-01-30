@@ -10,7 +10,7 @@ import {
 } from "components/shared/AmountSelectNew/AmountSelectNew";
 
 // Utils
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 import {
   checkHasApprovedEnough,
   createERC20Contract,
@@ -34,7 +34,8 @@ export const fetchMaxAmount = async (
   fuse: Fuse,
   address: string,
   asset: USDPricedFuseAsset,
-  comptrollerAddress: string
+  comptrollerAddress: string,
+  isAuthed: boolean,
 ) => {
   if (mode === AmountSelectMode.LEND) {
     const balance = await fetchTokenBalance(
@@ -62,7 +63,7 @@ export const fetchMaxAmount = async (
   }
 
   if (mode === AmountSelectMode.BORROW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(address, asset.cToken)
 
@@ -74,7 +75,7 @@ export const fetchMaxAmount = async (
   }
 
   if (mode === AmountSelectMode.WITHDRAW) {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const { 0: err, 1: maxRedeem } = await comptroller.methods
       .getMaxRedeem(address, asset.cToken)
@@ -97,6 +98,7 @@ export const onLendBorrowConfirm = async ({
   borrowAmount,
   comptrollerAddress,
   setUserAction,
+  isAuthed,
   toast,
 }: {
   asset: USDPricedFuseAsset;
@@ -107,6 +109,7 @@ export const onLendBorrowConfirm = async ({
   borrowAmount?: BigNumber;
   comptrollerAddress: string;
   setUserAction: (userAction: AmountSelectUserAction) => void;
+  isAuthed: boolean
   toast?: any;
 }) => {
   try {
@@ -146,7 +149,7 @@ export const onLendBorrowConfirm = async ({
       }
 
       // By default, we enable the asset as collateral.
-      const comptroller = createComptroller(comptrollerAddress, fuse);
+      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
       // If we've already supplied this as collateral before, then we don't need to submit a new tx for this
       if (!asset.membership) {

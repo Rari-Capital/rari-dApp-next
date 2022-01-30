@@ -54,7 +54,7 @@ export default async function handler(
 
       const fusePoolsData = await Promise.all(
         _poolIndices.map((poolIndex) =>
-          fetchFusePoolData(poolIndex, userAddress, fuse)
+          fetchFusePoolData(poolIndex, userAddress, fuse, undefined, false)
         )
       );
 
@@ -97,7 +97,7 @@ export default async function handler(
 
       const fusePoolsData = await Promise.all(
         poolIndices.map((poolIndex) =>
-          fetchFusePoolData(poolIndex, userAddress, fuse)
+          fetchFusePoolData(poolIndex, userAddress, fuse, undefined, false)
         )
       );
 

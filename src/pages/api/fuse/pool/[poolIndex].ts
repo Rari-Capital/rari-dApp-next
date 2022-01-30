@@ -42,6 +42,8 @@ export default async function handler(
         poolIndex,
         userAddress,
         fuse,
+        undefined, 
+        false
       );
 
       return res.status(200).json({ success: true, fusePoolData, userAddress });

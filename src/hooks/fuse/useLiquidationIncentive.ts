@@ -3,15 +3,15 @@ import { useRari } from "context/RariContext";
 
 // Hooks
 import { useQuery } from "react-query";
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 
 export const useLiquidationIncentive = (comptrollerAddress: string) => {
-  const { fuse } = useRari();
+  const { fuse, isAuthed } = useRari();
 
   const { data } = useQuery(
     comptrollerAddress + " comptrollerData",
     async () => {
-      const comptroller = createComptroller(comptrollerAddress, fuse);
+      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
       return comptroller.callStatic.liquidationIncentiveMantissa();
     }

@@ -29,7 +29,7 @@ import { useLiquidationIncentive } from "hooks/fuse/useLiquidationIncentive";
 
 // Utils
 import { handleGenericError } from "utils/errorHandling";
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 import { testForCTokenErrorAndSend } from "../PoolModal/AmountSelect";
 import { isTokenETHOrWETH } from "utils/tokenUtils";
 
@@ -53,7 +53,7 @@ const AssetConfig = ({
   setChecked: Dispatch<SetStateAction<boolean>>
 }) => {
   const queryClient = useQueryClient();
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -117,7 +117,7 @@ const AssetConfig = ({
 
   // Determines if users can borrow an asset or not.
   const togglePause = async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await comptroller._setBorrowPaused(cTokenAddress, !isBorrowPaused, {
@@ -134,7 +134,7 @@ const AssetConfig = ({
 
   // Updates loan to Value ratio.
   const updateCollateralFactor = async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     // 70% -> 0.7 * 1e18
     const bigCollateralFactor = new BigNumber(collateralFactor)

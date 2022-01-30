@@ -44,7 +44,7 @@ import useUpdatedUserAssets from "hooks/fuse/useUpdatedUserAssets";
 import { smallUsdFormatter } from "../../../../../utils/bigUtils";
 import { Mode } from ".";
 import { USDPricedFuseAsset } from "../../../../../utils/fetchFusePoolData";
-import { createComptroller } from "../../../../../utils/createComptroller";
+import { useCreateComptroller } from "../../../../../utils/createComptroller";
 import { handleGenericError } from "../../../../../utils/errorHandling";
 import { ComptrollerErrorCodes } from "../../FusePoolEditPage";
 import {
@@ -105,7 +105,7 @@ const AmountSelect = ({
 }: Props) => {
   const asset = assets[index];
 
-  const { address, fuse } = useRari();
+  const { address, fuse, isAuthed } = useRari();
 
   const toast = useToast();
 
@@ -275,7 +275,7 @@ const AmountSelect = ({
         if (mode === Mode.SUPPLY) {
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
-            const comptroller = createComptroller(comptrollerAddress, fuse);
+            const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
             // Don't await this, we don't care if it gets executed first!
             let tx = await comptroller.enterMarkets([asset.cToken]);
             await tx.wait(1)

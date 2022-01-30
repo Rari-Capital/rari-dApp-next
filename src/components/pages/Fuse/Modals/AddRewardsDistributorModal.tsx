@@ -29,7 +29,7 @@ import { useRari } from "context/RariContext";
 import { Fuse } from "esm";
 
 import {
-  createComptroller,
+  useCreateComptroller,
   createRewardsDistributor,
 } from "utils/createComptroller";
 import TransactionStepper from "components/shared/TransactionStepper";
@@ -51,7 +51,7 @@ const AddRewardsDistributorModal = ({
   isOpen: boolean;
   onClose: () => any;
 }) => {
-  const { fuse, address: userAddress } = useRari();
+  const { fuse, address: userAddress, isAuthed } = useRari();
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -170,7 +170,7 @@ const AddRewardsDistributorModal = ({
     rDAddress: string,
     fuse: Fuse
   ) => {
-    const comptroller = await createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     if (!comptroller || !comptroller.methods._addRewardsDistributor) {
       throw new Error("Could not create Comptroller");

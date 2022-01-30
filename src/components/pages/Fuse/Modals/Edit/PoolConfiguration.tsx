@@ -17,7 +17,7 @@ import {
 import { useQueryClient } from "react-query";
 import { useToast } from "@chakra-ui/toast";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
-import { createComptroller, createUnitroller } from "utils/createComptroller";
+import { useCreateComptroller, createUnitroller } from "utils/createComptroller";
 import LogRocket from "logrocket";
 import { handleGenericError } from "utils/errorHandling";
 import BigNumber from "bignumber.js";
@@ -45,7 +45,7 @@ const PoolConfiguration = ({
   const router = useRouter();
   const poolId = parseInt(router.query.poolId as string);
 
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -59,7 +59,7 @@ const PoolConfiguration = ({
   );
 
   const changeWhitelistStatus = async (enforce: boolean) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(
@@ -78,7 +78,7 @@ const PoolConfiguration = ({
   };
 
   const addToWhitelist = async (newUser: string) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const newList = [...data!.whitelist, newUser];
 
@@ -105,7 +105,7 @@ const PoolConfiguration = ({
   };
 
   const removeFromWhitelist = async (removeUser: string) => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const whitelist = data!.whitelist;
     try {
@@ -223,7 +223,7 @@ const PoolConfiguration = ({
       .multipliedBy(1e18)
       .toFixed(0);
 
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(
@@ -249,7 +249,7 @@ const PoolConfiguration = ({
       .multipliedBy(1e18)
       .toFixed(0);
 
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     try {
       await testForComptrollerErrorAndSend(

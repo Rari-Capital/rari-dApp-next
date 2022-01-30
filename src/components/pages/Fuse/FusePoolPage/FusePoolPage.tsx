@@ -45,7 +45,7 @@ import {
 // Utils
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
 // Components
@@ -433,10 +433,6 @@ const SupplyList = ({
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
 
-              // console.log({
-              //   supplyIncentivesForAsset,
-              //   incentivesForCToken: incentivesData?.incentives?.[asset.cToken],
-              // });
 
               return (
                 <AssetSupplyRow
@@ -506,7 +502,7 @@ const AssetSupplyRow = ({
 
   const asset = assets[index];
 
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const tokenData = useTokenData(asset.underlyingToken);
 
@@ -517,7 +513,7 @@ const AssetSupplyRow = ({
   const toast = useToast();
 
   const onToggleCollateral = async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     let call;
     if (asset.membership) {

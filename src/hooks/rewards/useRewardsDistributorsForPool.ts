@@ -1,7 +1,7 @@
 import { useRari } from "context/RariContext";
 import { Contract } from "ethers";
 import { useQuery } from "react-query";
-import { createComptroller } from "utils/createComptroller";
+import { useCreateComptroller } from "utils/createComptroller";
 
 export interface RewardsDistributor {
   address: string;
@@ -12,13 +12,13 @@ export interface RewardsDistributor {
 export const useRewardsDistributorsForPool = (
   comptrollerAddress?: string
 ): RewardsDistributor[] => {
-  const { fuse } = useRari();
+  const { fuse, isAuthed } = useRari();
 
   const { data, error } = useQuery(
     comptrollerAddress + " rewardsDistributors",
     async () => {
       if (!comptrollerAddress) return [];
-      const comptroller = createComptroller(comptrollerAddress, fuse);
+      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
       // console.log({ comptroller });
 

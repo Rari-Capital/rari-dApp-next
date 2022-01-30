@@ -16,7 +16,7 @@ type FuseMarket = {
 };
 
 export default function useFuseMarkets() {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
   const pools = useFusePools(null);
   const [markets, setMarkets] = useState<FuseMarket>({});
 
@@ -34,7 +34,9 @@ export default function useFuseMarkets() {
               const poolData = (await fetchFusePoolData(
                 pool.id.toString(), // type incorrectly believes pool.id to be number
                 address,
-                fuse
+                fuse,
+                undefined,
+                isAuthed
               )) as FusePoolData;
 
               // add market info

@@ -88,7 +88,7 @@ export default async function handler(
 
       const fusePoolsData = (await Promise.all(
         poolIndices.map((poolIndex) =>
-          fetchFusePoolData(poolIndex, EmptyAddress, fuse)
+          fetchFusePoolData(poolIndex, EmptyAddress, fuse, undefined, false)
         )
       )) as FusePoolData[];
 

@@ -1,13 +1,13 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import { createComptroller, createOracle } from "utils/createComptroller";
+import { useCreateComptroller, createOracle } from "utils/createComptroller";
 
 // Todo - fix this some reason some `whitelist` dont work
 export const useExtraPoolInfo = (comptrollerAddress: string) => {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const whitelist: any[] = [];
 
@@ -52,10 +52,10 @@ export const useExtraPoolInfo2 = (
   comptrollerAddress: string,
   oracleAddress: string
 ) => {
-  const { fuse, address } = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
-    const comptroller = createComptroller(comptrollerAddress, fuse);
+    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
     const poolOracle = createOracle(oracleAddress, fuse, "MasterPriceOracle");
 
