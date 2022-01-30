@@ -8,7 +8,7 @@ export const useAssetRSS = (address: string) => {
         // Since running the vercel functions requires a Vercel account and is super slow,
         // just fetch this data from the live site in development:
         (process.env.NODE_ENV === "development"
-          ? "https://app.rari.capital"
+          ? "https://legacy.rari.capital"
           : "") +
           "/api/rss?address=" +
           address
@@ -87,7 +87,7 @@ export const usePoolRSS = (poolId: string | number | undefined) => {
           // Since running the vercel functions requires a Vercel account and is super slow,
           // just fetch this data from the live site in development:
           (process.env.NODE_ENV === "development"
-            ? "https://app.rari.capital"
+            ? "https://legacy.rari.capital"
             : "") +
             "/api/rss?poolID=" +
             poolId
