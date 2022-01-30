@@ -2,7 +2,7 @@
 // export const
 
 import { useQuery } from "react-query";
-import { useTokensDataAsMap } from "hooks/useTokenData";
+import { ETH_TOKEN_DATA, useTokensDataAsMap } from "hooks/useTokenData";
 import {
   useCreateComptroller,
   createCToken,
@@ -265,13 +265,26 @@ export const getPriceFromOracles = async (
   const comptrollerInstance = useCreateComptroller(comptroller, fuse, isAuthed);
   const oracleAddress: string = await comptrollerInstance.callStatic.oracle();
   // const oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
-  const oracleContract = createOracle(oracleAddress, fuse, "MasterPriceOracle", true);
+  const oracleContract = createOracle(
+    oracleAddress,
+    fuse,
+    "MasterPriceOracle",
+    true
+  );
 
   let price;
   try {
-    price = await oracleContract.callStatic.price(tokenAddress);
-  } catch {
-    price = await masterPriceOracle.callStatic.price(tokenAddress);
+    if (tokenAddress === ETH_TOKEN_DATA.address) {
+      price = BigNumber.from(1);
+    } else {
+      try {
+        price = await oracleContract.callStatic.price(tokenAddress);
+      } catch {
+        price = await masterPriceOracle.callStatic.price(tokenAddress);
+      }
+    }
+  } catch (err) {
+    // alert(`ERROR ${oracleAddress} -  ${tokenAddress} - ${comptroller}`);
   }
 
   return price;
