@@ -112,7 +112,7 @@ export const useIncentivesWithRates = (
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
               rewardDecimals: rewardTokensData[rewardToken].decimals ?? 18,
-              underlyingDecimals: cTokenData.underlyingDecimals,
+              underlyingDecimals: parseFloat(cTokenData.underlyingDecimals.toString()),
             };
 
             const borrowMantissaData: RewardsDataForMantissa = {
@@ -125,7 +125,7 @@ export const useIncentivesWithRates = (
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
               rewardDecimals: rewardTokensData[rewardToken].decimals ?? 18,
-              underlyingDecimals: cTokenData.underlyingDecimals,
+              underlyingDecimals: parseFloat(cTokenData.underlyingDecimals.toString()),
             };
 
             const supplyMantissa = constructMantissa(
@@ -252,7 +252,7 @@ export const useCTokensDataForRewards = (
             underlyingPrice: constants.Zero,
             cToken: cTokenAddr,
             totalSupply: underlyingTotalSupply2 ?? 0,
-            underlyingDecimals: parseFloat(underlyingDecimals),
+            underlyingDecimals: underlyingDecimals,
           };
 
           // console.log({ obj });
