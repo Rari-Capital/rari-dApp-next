@@ -30,9 +30,6 @@ import { useTokenData } from "hooks/useTokenData";
 import SmallWhiteCircle from "../../../../static/small-white-circle.png";
 import { useRari } from "context/RariContext";
 
-import { Fuse } from "esm";
-
-import { handleGenericError } from "../../../../utils/errorHandling";
 import {
   FusePoolData,
   USDPricedFuseAsset,
@@ -42,10 +39,13 @@ import DashboardBox from "../../../shared/DashboardBox";
 import { createERC20, createRewardsDistributor } from "utils/createComptroller";
 import { RewardsDistributor } from "hooks/rewards/useRewardsDistributorsForPool";
 import { shortAddress } from "utils/shortAddress";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
+import { BigNumber } from "ethers";
+import { handleGenericError } from "utils/errorHandling";
 
 // Styles
 const activeStyle = { bg: "#FFF", color: "#000" };
-const noop = () => {};
+const noop = () => { };
 
 const useRewardsDistributorInstance = (rDAddress: string) => {
   const { fuse } = useRari();
@@ -53,28 +53,27 @@ const useRewardsDistributorInstance = (rDAddress: string) => {
 };
 
 // Gets Reward Speed of CToken
-const useRewardSpeedsOfCToken = (rDAddress: any, cTokenAddress?: string) => {
+const useRewardSpeedsOfCToken = (rDAddress: any, decimals: number, cTokenAddress?: string,) => {
   const { fuse } = useRari();
-  const instance = createRewardsDistributor(rDAddress, fuse);
 
-  const [supplySpeed, setSupplySpeed] = useState<any>();
-  const [borrowSpeed, setBorrowSpeed] = useState<any>();
+  const [supplySpeed, setSupplySpeed] = useState<number>(0);
+  const [borrowSpeed, setBorrowSpeed] = useState<number>(0);
 
   useEffect(() => {
     if (!cTokenAddress) return;
+    const instance = createRewardsDistributor(rDAddress, fuse);
 
     // Get Supply reward speed for this CToken from the mapping
     instance.callStatic.compSupplySpeeds(cTokenAddress).then((result: any) => {
-      // console.log({ result });
-      setSupplySpeed(result);
+      setSupplySpeed(parseFloat(formatUnits(result, decimals)));
     });
 
     // Get Borrow reward speed for this CToken from the mapping
     instance.callStatic.compBorrowSpeeds(cTokenAddress).then((result: any) => {
       // console.log({ result });
-      setBorrowSpeed(result);
+      setBorrowSpeed(parseFloat(formatUnits(result, decimals)));
     });
-  }, [instance, fuse, cTokenAddress]);
+  }, [fuse, cTokenAddress, decimals]);
 
   return [supplySpeed, borrowSpeed];
 };
@@ -110,13 +109,14 @@ const EditRewardsDistributorModal = ({
   const toast = useToast();
 
   // Inputs
-  const [sendAmt, setSendAmt] = useState<number>(0);
+  const [sendAmt, setSendAmt] = useState<string>('');
 
   const [supplySpeed, setSupplySpeed] = useState<number>(0.001);
   const [borrowSpeed, setBorrowSpeed] = useState<number>(0.001);
 
   //  Loading states
   const [fundingDistributor, setFundingDistributor] = useState(false);
+  const [seizing, setSeizing] = useState(false);
   const [changingSpeed, setChangingSpeed] = useState(false);
   const [changingBorrowSpeed, setChangingBorrowSpeed] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<
@@ -126,7 +126,8 @@ const EditRewardsDistributorModal = ({
   //   RewardsSpeeds
   const [supplySpeedForCToken, borrowSpeedForCToken] = useRewardSpeedsOfCToken(
     rewardsDistributor.address,
-    selectedAsset?.cToken
+    tokenData?.decimals ?? 18,
+    selectedAsset?.cToken,
   );
 
   const { hasCopied, onCopy } = useClipboard(rewardsDistributor?.address ?? "");
@@ -136,60 +137,103 @@ const EditRewardsDistributorModal = ({
     // Create ERC20 instance of rewardToken
     const token = createERC20(fuse, rewardsDistributor.rewardToken);
 
-    setFundingDistributor(true);
-    // try {
-    //   await token.methods
-    //     .transfer(
-    //       rewardsDistributor.address,
-    //       Fuse.Web3.utils
-    //         .toBN(sendAmt)
-    //         .mul(Fuse.Web3.utils.toBN(10).pow(Fuse.Web3.utils.toBN(18)))
-    //     )
-    //     .send({
-    //       from: address,
-    //     });
 
-    //   setFundingDistributor(false);
-    // } catch (err) {
-    //   handleGenericError(err, toast);
-    //   setFundingDistributor(false);
-    // }
+    try {
+      if (!sendAmt) throw new Error('No Send Amount Specified')
+
+      setFundingDistributor(true);
+      const sendAmtBn = parseUnits((parseInt(sendAmt)).toString(), tokenData?.decimals)
+      console.log({ sendAmt, tokenData, sendAmtBn })
+
+      let tx = await token.methods
+        .transfer(
+          rewardsDistributor.address,
+          sendAmtBn,
+          {
+            from: address,
+          }
+        )
+      await tx.wait(1)
+      setFundingDistributor(false);
+    } catch (err) {
+      handleGenericError(err, toast);
+      setFundingDistributor(false);
+    }
   };
 
   //   Adds LM to supply side of a CToken in this fuse pool
   const changeSupplySpeed = async () => {
-    // try {
-    //   if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-    //   setChangingSpeed(true);
-    //   await rewardsDistributorInstance.methods
-    //     ._setCompSupplySpeed(
-    //       selectedAsset?.cToken,
-    //       Fuse.Web3.utils.toBN(supplySpeed * 1e18) // set supplySpeed to 0.001e18 for now
-    //     )
-    //     .send({ from: address });
-    //   setChangingSpeed(false);
-    // } catch (err) {
-    //   handleGenericError(err, toast);
-    //   setChangingSpeed(false);
-    // }
+    try {
+      setChangingSpeed(true);
+      const supplySpeedBN = parseUnits(supplySpeed.toString(), tokenData?.decimals ?? 18)
+      console.log({ supplySpeedBN })
+      if (!isAdmin) throw new Error("User is not admin of this Distributor!");
+      let tx = await rewardsDistributorInstance.methods
+        ._setCompSupplySpeed(
+          selectedAsset?.cToken,
+          supplySpeedBN,
+          { from: address }
+        )
+      await tx.wait(1)
+      setChangingSpeed(false);
+    } catch (err) {
+      handleGenericError(err, toast);
+      setChangingSpeed(false);
+    }
   };
 
   //   Adds LM to supply side of a CToken in this fuse pool
   const changeBorrowSpeed = async () => {
-    // try {
-    //   if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-    //   setChangingBorrowSpeed(true);
-    //   await rewardsDistributorInstance.methods
-    //     ._setCompBorrowSpeed(
-    //       selectedAsset?.cToken,
-    //       Fuse.Web3.utils.toBN(borrowSpeed * 1e18) // set supplySpeed to 0.001e18 for now
-    //     )
-    //     .send({ from: address });
-    //   setChangingBorrowSpeed(false);
-    // } catch (err) {
-    //   handleGenericError(err, toast);
-    //   setChangingBorrowSpeed(false);
-    // }
+    try {
+      setChangingBorrowSpeed(true);
+      const borrowSpeedBN = parseUnits(borrowSpeed.toString(), tokenData?.decimals ?? 18)
+      console.log({ borrowSpeedBN })
+      if (!isAdmin) throw new Error("User is not admin of this Distributor!");
+      let tx = await rewardsDistributorInstance.methods
+        ._setCompBorrowSpeed(
+          selectedAsset?.cToken,
+          borrowSpeedBN,
+          { from: address }
+        )
+      await tx.wait(1)
+      setChangingBorrowSpeed(false);
+    } catch (err) {
+      handleGenericError(err, toast);
+      setChangingBorrowSpeed(false);
+    }
+  };
+
+  const handleSeizeTokens = async () => {
+    try {
+      setSeizing(true);
+      if (isAdmin) {
+        await rewardsDistributorInstance._grantComp(
+          address,
+          balanceERC20
+        );
+      } else {
+        toast({
+          title: "Admin Only!",
+          description: "Only admin can seize tokens!",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
+    }
+    catch (err) {
+      console.log(err);
+      toast({
+        title: "Error Seizing Tokens",
+        description: "Error Withdrawing Tokens from RewardsDistributor",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+        position: "top-right",
+      });
+    }
+    setSeizing(false);
   };
 
   return (
@@ -233,7 +277,7 @@ const EditRewardsDistributorModal = ({
             </Heading>
             <Text>
               {balanceERC20
-                ? (parseFloat(balanceERC20?.toString()) / 1e18).toFixed(3)
+                ? parseFloat(formatUnits(balanceERC20!, tokenData?.decimals)).toFixed(3)
                 : 0}{" "}
               {tokenData?.symbol}
             </Text>
@@ -288,7 +332,7 @@ const EditRewardsDistributorModal = ({
                 step={0.1}
                 min={0}
                 onChange={(valueString) => {
-                  setSendAmt(parseFloat(valueString));
+                  setSendAmt(valueString);
                 }}
               >
                 <NumberInputField
@@ -308,6 +352,11 @@ const EditRewardsDistributorModal = ({
               >
                 {fundingDistributor ? <Spinner /> : "Send"}
               </Button>
+              {(!balanceERC20?.isZero() ?? false) && (
+                <Button onClick={handleSeizeTokens} bg="red" disabled={seizing}>
+                  {seizing ? <Spinner /> : "Withdraw Tokens"}
+                </Button>
+              )}
             </Row>
             <Text mt={1}>
               Your balance:{" "}
@@ -320,11 +369,12 @@ const EditRewardsDistributorModal = ({
 
           {/* Add or Edit a CToken to the Distributor */}
 
-          {pool.assets.length ? (
+          {!!pool.assets.length ? (
             <Column
               mainAxisAlignment="flex-start"
               crossAxisAlignment="flex-start"
               p={4}
+              w="100%"
             >
               <Heading fontSize={"lg"}> Manage CToken Rewards </Heading>
               {/* Select Asset */}
@@ -332,6 +382,9 @@ const EditRewardsDistributorModal = ({
                 mainAxisAlignment="flex-start"
                 crossAxisAlignment="center"
                 mt={1}
+                overflowX="scroll"
+                width="100%"
+                maxW="100%"
               >
                 {pool.assets.map(
                   (asset: USDPricedFuseAsset, index: number, array: any[]) => {
@@ -389,7 +442,7 @@ const EditRewardsDistributorModal = ({
                   <Button
                     onClick={changeSupplySpeed}
                     bg="black"
-                    disabled={changingSpeed || !isAdmin}
+                    disabled={changingSpeed}
                   >
                     {changingSpeed ? <Spinner /> : "Set"}
                   </Button>
@@ -400,7 +453,7 @@ const EditRewardsDistributorModal = ({
                 >
                   <Text>
                     Supply Speed:{" "}
-                    {(parseFloat(supplySpeedForCToken) / 1e18).toFixed(4)}
+                    {supplySpeedForCToken.toFixed(5)}
                   </Text>
                 </Row>
               </Column>
@@ -437,7 +490,7 @@ const EditRewardsDistributorModal = ({
                   <Button
                     onClick={changeBorrowSpeed}
                     bg="black"
-                    disabled={changingBorrowSpeed || !isAdmin}
+                    disabled={changingBorrowSpeed}
                   >
                     {changingBorrowSpeed ? <Spinner /> : "Set"}
                   </Button>
@@ -448,7 +501,8 @@ const EditRewardsDistributorModal = ({
                 >
                   <Text>
                     Borrow Speed:{" "}
-                    {(parseFloat(borrowSpeedForCToken) / 1e18).toFixed(2)}
+                    {borrowSpeedForCToken.toFixed(5)}
+
                   </Text>
                 </Row>
               </Column>

@@ -136,6 +136,7 @@ export interface CTokensUnderlyingMap {
   [cTokenAddr: string]: string;
 }
 
+// Get underlying addresses from CToken addresses
 export const useCTokensUnderlying = (
   cTokenAddrs: string[]
 ): CTokensUnderlyingMap => {
@@ -148,7 +149,7 @@ export const useCTokensUnderlying = (
       await Promise.all(
         cTokenAddrs.map(async (cTokenAddr) => {
           const ctokenInstance = createCToken(fuse, cTokenAddr);
-          const underlying = await ctokenInstance.methods.underlying().call();
+          const underlying = await ctokenInstance.callStatic.underlying();
           _map[cTokenAddr] = underlying;
         })
       );
@@ -156,6 +157,5 @@ export const useCTokensUnderlying = (
       return _map;
     }
   );
-
   return cTokensUnderlying ?? {};
 };

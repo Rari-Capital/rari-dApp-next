@@ -132,7 +132,7 @@ const MarketCapConfigurator = ({
             placeholder={
               supplyCap?.gt(0)
                 ? formatUnits(supplyCap, tokenData.decimals) + tokenSymbol
-                : t(`${tokenSymbol} Borrow Cap`)
+                : t(`${tokenSymbol} ${mode} Cap`)
             }
             type="number"
             size="sm"

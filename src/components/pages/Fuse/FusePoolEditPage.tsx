@@ -61,7 +61,7 @@ import { handleGenericError } from "utils/errorHandling";
 import LogRocket from "logrocket";
 
 // Ethers
-import { Contract, utils, BigNumber } from "ethers";
+import { Contract, utils, BigNumber, constants } from "ethers";
 import {
   useCTokensUnderlying,
   usePoolIncentives,
@@ -77,6 +77,7 @@ import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => { };
@@ -144,6 +145,7 @@ export async function testForComptrollerErrorAndSend(
 }
 
 const FusePoolEditPage = memo(() => {
+
   const isMobile = useIsSemiSmallScreen();
 
   const {
@@ -975,7 +977,7 @@ const RewardsDistributorRow = ({
   hideModalDivider: boolean;
   activeCTokens: string[];
 }) => {
-  const { address, fuse } = useRari();
+  const { address } = useRari();
   const isAdmin = address === rewardsDistributor.admin;
 
   const tokenData = useTokenData(rewardsDistributor.rewardToken);
@@ -983,10 +985,12 @@ const RewardsDistributorRow = ({
   const { data: rDBalance } = useTokenBalance(
     rewardsDistributor.rewardToken,
     rewardsDistributor.address
-  );
+  )
 
   const underlyingsMap = useCTokensUnderlying(activeCTokens);
   const underlyings = Object.values(underlyingsMap);
+
+  console.log({ activeCTokens, underlyingsMap, underlyings });
 
   return (
     <>
@@ -1023,7 +1027,7 @@ const RewardsDistributorRow = ({
         </Td>
 
         <Td>
-          {(parseFloat(rDBalance?.toString() ?? "0") / 1e18).toFixed(3)}{" "}
+          {parseFloat(formatUnits(rDBalance ?? constants.Zero, tokenData?.decimals ?? 18)).toFixed(3) ?? "0"}
           {tokenData?.symbol}
         </Td>
 

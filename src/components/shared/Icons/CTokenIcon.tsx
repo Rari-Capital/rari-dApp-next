@@ -37,10 +37,10 @@ export const CTokenAvatarGroup = ({
 }) => {
   return (
     <AvatarGroup size="xs" max={30} {...props}>
-      {tokenAddresses.map((tokenAddress) => {
+      {tokenAddresses.map((tokenAddress, i) => {
         return (
           <CTokenIcon
-            key={tokenAddress}
+            key={i}
             address={tokenAddress}
             _hover={popOnHover ? { transform: "scale(1.2)", zIndex: 5 } : null}
           />
