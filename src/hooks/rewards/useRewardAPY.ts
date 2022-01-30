@@ -55,6 +55,7 @@ interface RewardsDataForMantissa {
 export const useIncentivesWithRates = (
   incentives: CTokenIncentivesMap,
   rewardTokenAddrs: string[],
+  rewardTokensData: TokensDataMap,
   comptroller: string
 ) => {
   // this is what we return
