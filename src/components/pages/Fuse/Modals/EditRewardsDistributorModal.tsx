@@ -145,7 +145,7 @@ const EditRewardsDistributorModal = ({
       const sendAmtBn = parseUnits((parseInt(sendAmt)).toString(), tokenData?.decimals)
       console.log({ sendAmt, tokenData, sendAmtBn })
 
-      let tx = await token.methods
+      let tx = await token
         .transfer(
           rewardsDistributor.address,
           sendAmtBn,
