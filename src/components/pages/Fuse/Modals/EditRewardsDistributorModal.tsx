@@ -137,14 +137,11 @@ const EditRewardsDistributorModal = ({
     // Create ERC20 instance of rewardToken
     const token = createERC20(fuse, rewardsDistributor.rewardToken);
 
-
     try {
       if (!sendAmt) throw new Error('No Send Amount Specified')
 
       setFundingDistributor(true);
       const sendAmtBn = parseUnits((parseInt(sendAmt)).toString(), tokenData?.decimals)
-      console.log({ sendAmt, tokenData, sendAmtBn })
-
       let tx = await token
         .transfer(
           rewardsDistributor.address,
@@ -168,7 +165,7 @@ const EditRewardsDistributorModal = ({
       const supplySpeedBN = parseUnits(supplySpeed.toString(), tokenData?.decimals ?? 18)
       console.log({ supplySpeedBN })
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-      let tx = await rewardsDistributorInstance.methods
+      let tx = await rewardsDistributorInstance
         ._setCompSupplySpeed(
           selectedAsset?.cToken,
           supplySpeedBN,
@@ -189,7 +186,7 @@ const EditRewardsDistributorModal = ({
       const borrowSpeedBN = parseUnits(borrowSpeed.toString(), tokenData?.decimals ?? 18)
       console.log({ borrowSpeedBN })
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-      let tx = await rewardsDistributorInstance.methods
+      let tx = await rewardsDistributorInstance
         ._setCompBorrowSpeed(
           selectedAsset?.cToken,
           borrowSpeedBN,
