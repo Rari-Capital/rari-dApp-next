@@ -2,7 +2,11 @@
 // export const
 
 import { useQuery } from "react-query";
-import { ETH_TOKEN_DATA, useTokensDataAsMap } from "hooks/useTokenData";
+import {
+  ETH_TOKEN_DATA,
+  TokensDataMap,
+  useTokensDataAsMap,
+} from "hooks/useTokenData";
 import {
   useCreateComptroller,
   createCToken,
