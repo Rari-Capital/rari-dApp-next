@@ -121,6 +121,7 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
   const incentivesWithRates = useIncentivesWithRates(
     incentives,
     rewardTokens,
+    rewardTokensData,
     comptroller!
   );
 
