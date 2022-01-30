@@ -1,6 +1,6 @@
 import { Fuse } from "esm";
 import { createRewardsDistributor } from "./createComptroller";
-import { sendWithMultiCall } from "./multicall";
+// import { sendWithMultiCall } from "./multicall";
 
 export const claimRewardsFromRewardsDistributors = async (
   fuse: Fuse,
@@ -9,7 +9,7 @@ export const claimRewardsFromRewardsDistributors = async (
 ) => {
   const methods = rewardsDistributors.map((rDAddress: string) => {
     const rd = createRewardsDistributor(rDAddress, fuse);
-    console.log({ rd }, rd.address);
+    console.log({ rd }, rd.claimRewards);
     return rd.claimRewards(address);
   });
 
