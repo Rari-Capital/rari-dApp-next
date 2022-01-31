@@ -129,7 +129,7 @@ export const MobileNavModal = ({
           </Accordion>
 
           <Box mt={3} p={3} width="100%">
-            <HeaderSearchbar mx="auto" width="100%" />
+            <HeaderSearchbar width="100%" />
           </Box>
         </Column>
       </ModalContent>
