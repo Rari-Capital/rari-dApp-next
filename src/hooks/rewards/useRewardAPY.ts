@@ -111,8 +111,10 @@ export const useIncentivesWithRates = (
               ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
-              rewardDecimals: rewardTokensData[rewardToken].decimals ?? 18,
-              underlyingDecimals: parseFloat(cTokenData.underlyingDecimals.toString()),
+              rewardDecimals: rewardTokensData[rewardToken]?.decimals ?? 18,
+              underlyingDecimals: parseFloat(
+                cTokenData?.underlyingDecimals?.toString() ?? "18"
+              ),
             };
 
             const borrowMantissaData: RewardsDataForMantissa = {
@@ -124,8 +126,10 @@ export const useIncentivesWithRates = (
               ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
-              rewardDecimals: rewardTokensData[rewardToken].decimals ?? 18,
-              underlyingDecimals: parseFloat(cTokenData.underlyingDecimals.toString()),
+              rewardDecimals: rewardTokensData[rewardToken]?.decimals ?? 18,
+              underlyingDecimals: parseFloat(
+                cTokenData?.underlyingDecimals?.toString() ?? "18"
+              ),
             };
 
             const supplyMantissa = constructMantissa(
@@ -158,6 +162,16 @@ export const useIncentivesWithRates = (
               borrowAPY,
               borrowAPR,
             };
+
+            console.log({
+              supplyMantissaData,
+              borrowMantissaData,
+              supplyMantissa,
+              borrowMantissa,
+              supplyAPR,
+              borrowAPR,
+              cTokenData,
+            });
 
             return cTokenIncentiveDataWithAPYs;
           })
@@ -216,11 +230,24 @@ export const useCTokensDataForRewards = (
         cTokenAddrs.map(async (cTokenAddr) => {
           const ctokenInstance = createCToken(fuse, cTokenAddr, true);
           // console.log({ ctokenInstance });
-          const underlying = await ctokenInstance.callStatic.underlying();
-          const underlyingInstance = createERC20(fuse, underlying);
-          const underlyingDecimals = await underlyingInstance.callStatic.decimals();
+          const underlying: string =
+            await ctokenInstance.callStatic.underlying();
 
-          const decimals = await ctokenInstance.callStatic.decimals();
+          let underlyingDecimals = BigNumber.from(18);
+          if (underlying !== ETH_TOKEN_DATA.address) {
+            try {
+              const underlyingInstance = createERC20(fuse, underlying);
+              underlyingDecimals =
+                await underlyingInstance.callStatic.decimals();
+            } catch (err) {
+              console.error("ERROR DECIMALS on ", underlying);
+            }
+          }
+
+          console.log({
+            underlying,
+            underlyingDecimals: underlyingDecimals.toString(),
+          });
 
           const cTokenTotalSupply: BigNumber =
             await ctokenInstance.callStatic.totalSupply();
@@ -352,7 +379,7 @@ export const useAssetPricesInEth = (
       for (let i = 0; i < tokenAddresses.length; i++) {
         const priceInEth = parseFloat(tokenPricesInEth[i]);
         const tokenData = tokensData[tokenAddresses[i]];
-        const decimals = tokenData.decimals;
+        const decimals = tokenData?.decimals ?? 18;
 
         const price = (priceInEth / 10 ** (decimals ?? 18)) * ethUSDPrice;
 
