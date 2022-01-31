@@ -3,7 +3,7 @@ import React from "react";
 import Searchbar from "../Searchbar";
 
 type HeaderSearchbarProps = {
-  width: StyleProps["width"];
+  width?: StyleProps["width"];
 };
 
 const HeaderSearchbar: React.FC<HeaderSearchbarProps> = ({
