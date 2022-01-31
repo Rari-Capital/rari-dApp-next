@@ -333,7 +333,7 @@ export const getPriceFromOracles = async (
   let price;
   try {
     if (tokenAddress === ETH_TOKEN_DATA.address) {
-      price = BigNumber.from(1);
+      price = BigNumber.from(1e18);
     } else {
       try {
         price = await oracleContract.callStatic.price(tokenAddress);
