@@ -172,19 +172,19 @@ export const onLendBorrowConfirm = async ({
           lendAmount === (await fuse.provider.getBalance(address))
         ) {
           // Get the estimated gas for this call
-          const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
+          const { gasWEI } = await fetchGasForCall(
             call,
             lendAmount,
             fuse,
             address
           );
 
+          if (!gasWEI) return
+
           // Send the call with fullAmount - estimatedGas
           await call.send({
             from: address,
             value: lendAmount.sub(gasWEI),
-            gasPrice,
-            gas: estimatedGas,
           });
         } else {
           // Supplying a custom amount of ETH

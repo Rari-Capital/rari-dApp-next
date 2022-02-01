@@ -894,7 +894,7 @@ const TokenNameAndMaxButton = ({
 
   const [isMaxLoading, setIsMaxLoading] = useState(false);
 
-  const setToMax = async () => {
+const setToMax = async () => {
     setIsMaxLoading(true);
 
     try {
