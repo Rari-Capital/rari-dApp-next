@@ -271,20 +271,22 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Approve");
         }
 
+
+        // 2.) If collateral, send enterMarkets()
         if (mode === Mode.SUPPLY) {
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
             const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
             // Don't await this, we don't care if it gets executed first!
-            let tx = await comptroller.enterMarkets([asset.cToken]);
-            await tx.wait(1)
+            await comptroller.enterMarkets([asset.cToken]);
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
+          // 3 - supplying eth
           if (isETH) {
             const balance = await fuse.provider.getBalance(address)
-
+            // console.log({ amount, balance })
             if (
               // If they are supplying their whole balance:
               amount.eq(balance)
@@ -298,8 +300,11 @@ const AmountSelect = ({
                 address
               );
 
+
               // If there's an error fetching gas price return
               if (!gasWEI) return
+
+              // console.log({ gasWEI, total: amount.sub(gasWEI), amount, balance })
 
               // Mint max amount, after substracting fees
               // Gas price is best handled by the wallet. 
@@ -317,7 +322,7 @@ const AmountSelect = ({
             }
           } else {
             //  Custom amount of ERC20
-           let tx = await testForCTokenErrorAndSend(
+            let tx = await testForCTokenErrorAndSend(
               cToken.callStatic.mint,
               amount,
               cToken.mint,
@@ -329,13 +334,13 @@ const AmountSelect = ({
         } else if (mode === Mode.REPAY) {
           if (isETH) {
             const balance = await fuse.provider.getBalance(address)
-            
+
             if (
               // If they are repaying their whole balance:
               amount.eq(balance)
             ) {
               // Subtract gas for max ETH
-            
+
               // Get gas 
               const { gasWEI } = await fetchGasForCall(
                 cToken.estimateGas.repayBorrow,
@@ -371,26 +376,26 @@ const AmountSelect = ({
           }
           LogRocket.track("Fuse-Repay");
         }
-        } else if (mode === Mode.BORROW) {
-          await testForCTokenErrorAndSend(
-            cToken.callStatic.borrow,
-            amount,
-            cToken.borrow,
-            "Cannot borrow this amount right now!"
-          );
-          LogRocket.track("Fuse-Borrow");
-        } else if (mode === Mode.WITHDRAW) {
-          let tx = await testForCTokenErrorAndSend(
-            cToken.callStatic.redeemUnderlying,
-            amount,
-            cToken.redeemUnderlying,
-            "Cannot withdraw this amount right now!"
-          );
+      } else if (mode === Mode.BORROW) {
+        await testForCTokenErrorAndSend(
+          cToken.callStatic.borrow,
+          amount,
+          cToken.borrow,
+          "Cannot borrow this amount right now!"
+        );
+        LogRocket.track("Fuse-Borrow");
+      } else if (mode === Mode.WITHDRAW) {
+        let tx = await testForCTokenErrorAndSend(
+          cToken.callStatic.redeemUnderlying,
+          amount,
+          cToken.redeemUnderlying,
+          "Cannot withdraw this amount right now!"
+        );
 
-          await tx.wait(1)
+        await tx.wait(1)
 
-          LogRocket.track("Fuse-Withdraw");
-        }
+        LogRocket.track("Fuse-Withdraw");
+      }
 
       queryClient.refetchQueries();
 
@@ -687,6 +692,9 @@ const StatsColumn = ({
     amount,
   });
 
+  console.log({ assets, updatedAssets })
+
+
   // Define the old and new asset (same asset different numerical values)
   const asset = assets[index];
   const updatedAsset = updatedAssets ? updatedAssets[index] : null;
@@ -894,7 +902,7 @@ const TokenNameAndMaxButton = ({
 
   const [isMaxLoading, setIsMaxLoading] = useState(false);
 
-const setToMax = async () => {
+  const setToMax = async () => {
     setIsMaxLoading(true);
 
     try {
@@ -1047,7 +1055,7 @@ export const fetchGasForCall = async (
         value: amountBN.div(BigNumber.from(2)),
       })) *
       // 50% more gas for limit:
-      1.5
+      5
     ).toFixed(0)
   );
 
@@ -1057,11 +1065,13 @@ export const fetchGasForCall = async (
   // );
 
   const gasInfo = await fuse.provider.getFeeData()
-
   const gasPrice = gasInfo.maxFeePerGas
-  const gasWEI = gasPrice ? estimatedGas.mul(gasPrice) : null;
+  const gasWEI = gasPrice ? estimatedGas.mul(gasPrice).add(gasInfo.maxPriorityFeePerGas ?? constants.Zero) : null;
+  console.log({ gasWEI, gasPrice, gasInfo, estimatedGas })
 
-    return { gasWEI, gasPrice, estimatedGas };
+  return { gasWEI, gasPrice, estimatedGas };
+
+
 };
 
 async function fetchMaxAmount(

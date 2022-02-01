@@ -74,6 +74,7 @@ import { EditIcon } from "@chakra-ui/icons";
 import { getSymbol } from "utils/symbolUtils";
 import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
 import { formatUnits } from "ethers/lib/utils";
+import { testForComptrollerErrorAndSend } from "../FusePoolEditPage";
 
 const FuseRewardsBanner = ({
   rewardTokensData,
@@ -515,46 +516,38 @@ const AssetSupplyRow = ({
   const onToggleCollateral = async () => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
-    let call;
-    if (asset.membership) {
-      call = comptroller.exitMarket(asset.cToken);
-    } else {
-      call = comptroller.enterMarkets([asset.cToken]);
-    }
-
-    let response = await call.call({ from: address });
-    // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
-    if (response[0] !== "0") {
+    try {
+      let tx;
       if (asset.membership) {
-        toast({
-          title: "Error! Code: " + response,
-          description:
-            "You cannot disable this asset as collateral as you would not have enough collateral posted to keep your borrow. Try adding more collateral of another type or paying back some of your debt.",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
+        tx = await testForComptrollerErrorAndSend(
+          comptroller.callStatic.exitMarket(asset.cToken, { from: address }),
+          comptroller.exitMarket(asset.cToken, { from: address }),
+          address,
+          "You cannot disable this asset as collateral as you would not have enough collateral posted to keep your borrow. Try adding more collateral of another type or paying back some of your debt.",
+        )
+        // tx = await comptroller.exitMarket(asset.cToken, { from: address });
       } else {
-        toast({
-          title: "Error! Code: " + response,
-          description:
-            "You cannot enable this asset as collateral at this time.",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
+        tx = await testForComptrollerErrorAndSend(
+          comptroller.callStatic.enterMarkets([asset.cToken], { from: address }),
+          comptroller.enterMarkets([asset.cToken], { from: address }),
+          address,
+          "You cannot enable this asset as collateral at this time.",
+        )
       }
-
-      return;
+      await tx.wait(1)
+      LogRocket.track("Fuse-ToggleCollateral");
+      queryClient.refetchQueries();
+    } catch (err: any) {
+      toast({
+        title: "Error!",
+        description:
+          err?.message ?? "Oops",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
-
-    await call.send({ from: address });
-
-    LogRocket.track("Fuse-ToggleCollateral");
-
-    queryClient.refetchQueries();
   };
 
   const isStakedOHM =

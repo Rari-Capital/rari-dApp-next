@@ -130,11 +130,12 @@ export async function testForComptrollerErrorAndSend(
   failMessage: string
 ) {
   let response = await callStaticTxObject
+  let responseValue = Array.isArray(response) ? response[0] : response
 
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
-  if (!!response[0] && response[0].toString() !== "0") {
+  if (!!responseValue && responseValue.toString() !== "0") {
     const err = new Error(
-      failMessage + " Code: " + ComptrollerErrorCodes[response]
+      failMessage + " Code: " + ComptrollerErrorCodes[responseValue]
     );
 
     LogRocket.captureException(err);
