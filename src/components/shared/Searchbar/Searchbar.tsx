@@ -55,9 +55,11 @@ const Searchbar = ({
   const [focused, setFocused] = useState<boolean>(false);
   const [balances, balancesToSearchWith] = useAccountBalances();
 
+  const debouncedValue = useDebounce(val, 300)
+
   const debouncedSearch = useMemo(() => {
-    return [chainId, val, ...balancesToSearchWith]
-  }, [chainId, val, balancesToSearchWith.length])
+    return [chainId, debouncedValue, ...balancesToSearchWith]
+  }, [chainId, debouncedValue, balancesToSearchWith.length])
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,

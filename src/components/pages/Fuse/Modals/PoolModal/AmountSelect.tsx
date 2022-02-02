@@ -271,50 +271,58 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Approve");
         }
 
-        // if ur suplying, then
+
+        // 2.) If collateral, send enterMarkets()
         if (mode === Mode.SUPPLY) {
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
             const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
             // Don't await this, we don't care if it gets executed first!
-            let tx = await comptroller.enterMarkets([asset.cToken]);
-            await tx.wait(1)
+            await comptroller.enterMarkets([asset.cToken]);
 
             LogRocket.track("Fuse-ToggleCollateral");
           }
 
+          // 3 - supplying eth
           if (isETH) {
-            const call = cToken.mint; //
-
+            const balance = await fuse.provider.getBalance(address)
+            // console.log({ amount, balance })
             if (
               // If they are supplying their whole balance:
-              amount === (await fuse.provider.getBalance(address))
+              amount.eq(balance)
             ) {
-              // full balance of ETH
 
-              // Subtract gas for max ETH
-              const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
-                call,
+              // Get gas price of transaction in wei
+              const { gasWEI } = await fetchGasForCall(
+                cToken.estimateGas.mint,
                 amount,
                 fuse,
                 address
               );
 
-              let tx = await call({
+
+              // If there's an error fetching gas price return
+              if (!gasWEI) return
+
+              // console.log({ gasWEI, total: amount.sub(gasWEI), amount, balance })
+
+              // Mint max amount, after substracting fees
+              // Gas price is best handled by the wallet. 
+              // On our side we just make sure to leave enough balance to pay for fees.
+              let tx = await cToken.mint({
                 from: address,
                 value: amount.sub(gasWEI),
-
-                gasPrice,
-                gas: estimatedGas,
               });
+
               await tx.wait(1)
+
             } else {
-              // custom amount of ETH
-              await call({ value: amount });
+              // Custom amount of ETH
+              await cToken.mint({ value: amount });
             }
           } else {
             //  Custom amount of ERC20
-           let tx = await testForCTokenErrorAndSend(
+            let tx = await testForCTokenErrorAndSend(
               cToken.callStatic.mint,
               amount,
               cToken.mint,
@@ -325,29 +333,34 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Supply");
         } else if (mode === Mode.REPAY) {
           if (isETH) {
-            const call = cToken.repayBorrow();
+            const balance = await fuse.provider.getBalance(address)
+
             if (
               // If they are repaying their whole balance:
-              amount === (await fuse.provider.getBalance(address))
+              amount.eq(balance)
             ) {
               // Subtract gas for max ETH
 
-              const { gasWEI, gasPrice, estimatedGas } = await fetchGasForCall(
-                call,
+              // Get gas 
+              const { gasWEI } = await fetchGasForCall(
+                cToken.estimateGas.repayBorrow,
                 amount,
                 fuse,
                 address
               );
 
-              await call.send({
+              // If there was an error fetching gas return
+              if (!gasWEI) return
+
+              // Repay max amount, after substracting fees
+              // Gas price is best handled by the wallet. 
+              // On our side we just make sure to leave enough balance to pay for fees.
+              await cToken.repayBorrow({
                 from: address,
                 value: amount.sub(gasWEI),
-
-                gasPrice,
-                gas: estimatedGas,
               });
             } else {
-              await call.send({
+              await cToken.repayBorrow({
                 from: address,
                 value: amount,
               });
@@ -678,6 +691,9 @@ const StatsColumn = ({
     index,
     amount,
   });
+
+  console.log({ assets, updatedAssets })
+
 
   // Define the old and new asset (same asset different numerical values)
   const asset = assets[index];
@@ -1033,25 +1049,29 @@ export const fetchGasForCall = async (
 ) => {
   const estimatedGas = BigNumber.from(
     (
-      (await call.estimateGas({
+      (await call({
         from: address,
         // Cut amountBN in half in case it screws up the gas estimation by causing a fail in the event that it accounts for gasPrice > 0 which means there will not be enough ETH (after paying gas)
         value: amountBN.div(BigNumber.from(2)),
       })) *
       // 50% more gas for limit:
-      1.5
+      5
     ).toFixed(0)
   );
 
   // Ex: 100 (in GWEI)
-  const { standard } = await fetch("https://gasprice.poa.network").then((res) =>
-    res.json()
-  );
+  // const { standard } = await fetch("https://gasprice.poa.network").then((res) =>
+  //   res.json()
+  // );
 
-  const gasPrice = utils.parseUnits(standard.toString(), "gwei");
-  const gasWEI = estimatedGas.mul(gasPrice);
+  const gasInfo = await fuse.provider.getFeeData()
+  const gasPrice = gasInfo.maxFeePerGas
+  const gasWEI = gasPrice ? estimatedGas.mul(gasPrice).add(gasInfo.maxPriorityFeePerGas ?? constants.Zero) : null;
+  console.log({ gasWEI, gasPrice, gasInfo, estimatedGas })
 
   return { gasWEI, gasPrice, estimatedGas };
+
+
 };
 
 async function fetchMaxAmount(

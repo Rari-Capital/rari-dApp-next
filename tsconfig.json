@@ -1,4 +1,4 @@
-{ 
+{
   "compilerOptions": {
     "target": "es5",
     "lib": [
@@ -20,13 +20,14 @@
     "jsx": "preserve",
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "src",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src",
+    "src"
   ],
   "exclude": [
     "api",

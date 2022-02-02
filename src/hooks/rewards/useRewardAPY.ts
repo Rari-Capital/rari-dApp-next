@@ -163,15 +163,15 @@ export const useIncentivesWithRates = (
               borrowAPR,
             };
 
-            console.log({
-              supplyMantissaData,
-              borrowMantissaData,
-              supplyMantissa,
-              borrowMantissa,
-              supplyAPR,
-              borrowAPR,
-              cTokenData,
-            });
+            // console.log({
+            //   supplyMantissaData,
+            //   borrowMantissaData,
+            //   supplyMantissa,
+            //   borrowMantissa,
+            //   supplyAPR,
+            //   borrowAPR,
+            //   cTokenData,
+            // });
 
             return cTokenIncentiveDataWithAPYs;
           })
@@ -244,10 +244,10 @@ export const useCTokensDataForRewards = (
             }
           }
 
-          console.log({
-            underlying,
-            underlyingDecimals: underlyingDecimals.toString(),
-          });
+          // console.log({
+          //   underlying,
+          //   underlyingDecimals: underlyingDecimals.toString(),
+          // });
 
           const cTokenTotalSupply: BigNumber =
             await ctokenInstance.callStatic.totalSupply();
