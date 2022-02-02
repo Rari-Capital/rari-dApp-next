@@ -252,22 +252,24 @@ const ExplorePage = () => {
 
 
   useEffect(() => {
-    let addrs: string[] = []
+    const exploreDataUnderlyingAddresses = Object.values(results ?? {})
+      .map((cToken) => {
+        return cToken?.underlying.address;
+      })
+      .filter((address): address is string => !!address);
+    const poolUnderlyingAddresses = Object.values(poolsMap).flatMap((pool) => {
+      return pool.assets.map((asset) => asset.underlying.id);
+    });
+    const addresses = [
+      ...exploreDataUnderlyingAddresses,
+      ...poolUnderlyingAddresses,
+    ];
 
-    Object.values(results ?? {}).forEach(cToken => {
-      if (cToken) {
-        addrs.push(cToken.underlying.address)
+    fetchTokensAPIDataAsMap(addresses, chainId).then((tokensData) => {
+      if (Object.keys(tokensData).length > 0) {
+        setTokensData(tokensData);
       }
-    })
-    Object.values(poolsMap).forEach(pool => {
-      pool.assets.forEach(asset => addrs.push(asset.underlying.id))
-    })
-
-    fetchTokensAPIDataAsMap(addrs, chainId).then(tokensData => {
-      if (!!Object.keys(tokensData).length) {
-        setTokensData(tokensData)
-      }
-    })
+    });
   }, [poolsMap, chainId, results])
 
   return (
