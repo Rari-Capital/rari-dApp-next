@@ -88,7 +88,7 @@ export const usePoolRSS = (poolId: string | number | undefined) => {
           // just fetch this data from the live site in development:
           (process.env.NODE_ENV === "development"
             ? "https://legacy.rari.capital"
-            : "") +
+            : "https://legacy.rari.capital") +
             "/api/rss?poolID=" +
             poolId
         )
