@@ -112,7 +112,7 @@ export const AllAssetsList = () => {
   }, [chainId]);
 
   return (
-    <Box h="400px" w="100%" overflowY="scroll">
+    <Box h="800px" w="100%" overflowY="scroll">
       {!underlyingAssets.length ? (
         <Box w="100%" h="50px">
           <Center>
@@ -208,8 +208,8 @@ export const AssetRow = ({
   const isMobile = useIsMobile();
 
   const symbol = useMemo(() => {
-  return  asset.symbol.toLowerCase() === "sohm" ? "gOHM" : asset.symbol
-  }, [asset.symbol]) 
+    return asset.symbol.toLowerCase() === "sohm" ? "gOHM" : asset.symbol;
+  }, [asset.symbol]);
 
   return (
     <AppLink
