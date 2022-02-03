@@ -1,5 +1,5 @@
 import { PixelSize, Row } from "lib/chakraUtils";
-import { Flex, Icon, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Icon, Spacer, useDisclosure } from "@chakra-ui/react";
 
 //  Components
 import DashboardBox, { DASHBOARD_BOX_SPACING } from "../DashboardBox";
@@ -89,8 +89,10 @@ export const NewHeader = () => {
             /> */}
           </Row>
         )}
-
-        {!isMobile && <HeaderSearchbar />}
+        <Box alignSelf="flex-start" mr={5}>
+          {!isMobile && <HeaderSearchbar />}
+        </Box>
+        {!!isMobile && <Spacer />}
         <Flex>
           <AccountButton />
           {isMobile && (
