@@ -505,7 +505,7 @@ const AssetSupplyRow = ({
 
   const { fuse, address, isAuthed } = useRari();
 
-  const tokenData = useTokenData(asset.underlyingToken.toLowerCase());
+  const tokenData = useTokenData(asset.underlyingToken);
 
   const supplyAPY = convertMantissaToAPY(asset.supplyRatePerBlock, 365);
 

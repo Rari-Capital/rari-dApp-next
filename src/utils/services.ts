@@ -11,6 +11,19 @@ export const fetchTokenAPIData = async (
   if (address === ETH_TOKEN_DATA.address) return ETH_TOKEN_DATA;
   let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${chainId}`;
   const { data } = await axios.get(url);
+
+  if (address == "0xa693B19d2931d498c5B318dF961919BB4aee87a5") {
+    return {
+      symbol: "USTw",
+      name: "UST (Wormhole)",
+      decimals: 6,
+      logoURL:
+        "https://raw.githubusercontent.com/sushiswap/icons/master/token/ust.jpg",
+      color: "#5494fa",
+      overlayTextColor: "#fff",
+      address: "0xa693B19d2931d498c5B318dF961919BB4aee87a5",
+    };
+  }
   return data;
 };
 

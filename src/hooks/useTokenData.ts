@@ -79,8 +79,8 @@ export const fetchTokenData = async (
         address: address,
       };
 
-      // Todo - remove
-      if (address == "0xa693b19d2931d498c5b318df961919bb4aee87a5") {
+      // Todo - remove (UST hardcode)
+      if (address == "0xa693B19d2931d498c5B318dF961919BB4aee87a5") {
         data = {
           symbol: "USTw",
           name: "UST (Wormhole)",
