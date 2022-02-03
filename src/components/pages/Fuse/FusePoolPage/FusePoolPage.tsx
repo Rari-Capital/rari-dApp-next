@@ -583,12 +583,12 @@ const AssetSupplyRow = ({
 
   const displayedSupplyAPRLabel =
     hovered >= 0
-      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${rewardTokensData[supplyIncentives[hovered].rewardToken].symbol
+      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${rewardTokensData?.[supplyIncentives[hovered].rewardToken]?.symbol
       } distributions.`
       : `${displayedSupplyAPR.toFixed(
         2
       )}% total APR distributed in ${supplyIncentives
-        .map((incentive) => rewardTokensData[incentive.rewardToken].symbol)
+        .map((incentive) => rewardTokensData?.[incentive.rewardToken]?.symbol ?? "")
         .join(", ")}
          `;
 

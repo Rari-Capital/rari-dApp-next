@@ -107,7 +107,7 @@ export const useIncentivesWithRates = (
               rewardSpeed: supplySpeed,
               rewardEthPrice: tokenPrices.tokenPrices[rewardToken].ethPrice,
               underlyingTotalSupply: parseFloat(
-                cTokenData.totalSupply.toString()
+                cTokenData?.totalSupply?.toString() ?? "0"
               ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
@@ -122,7 +122,7 @@ export const useIncentivesWithRates = (
               rewardSpeed: borrowSpeed,
               rewardEthPrice: tokenPrices.tokenPrices[rewardToken].ethPrice,
               underlyingTotalSupply: parseFloat(
-                cTokenData.totalSupply.toString()
+                cTokenData?.totalSupply?.toString() ?? "0"
               ),
               underlyingEthPrice:
                 tokenPrices.tokenPrices[cTokenData.underlyingToken].ethPrice,
