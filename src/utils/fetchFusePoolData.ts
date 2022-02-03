@@ -71,6 +71,7 @@ export interface USDPricedFuseAsset extends FuseAsset {
   liquidityUSD: BigNumber;
 
   isPaused: boolean;
+  borrowGuardianPaused?: boolean;
 }
 
 export interface USDPricedFuseAssetWithTokenData extends USDPricedFuseAsset {

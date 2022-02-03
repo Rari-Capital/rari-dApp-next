@@ -875,7 +875,7 @@ const BorrowList = ({
 
             {nonBorrowedAssets.map((asset, index) => {
               // Don't show paused assets.
-              if (asset.isPaused) {
+              if (asset.isPaused || asset.borrowGuardianPaused) {
                 return null;
               }
 
