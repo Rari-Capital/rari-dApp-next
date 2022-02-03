@@ -82,7 +82,7 @@ export const fetchTokenData = async (
       // Todo - remove
       if (address == "0xa693b19d2931d498c5b318df961919bb4aee87a5") {
         data = {
-          symbol: "UST",
+          symbol: "USTw",
           name: "UST (Wormhole)",
           decimals: 6,
           logoURL:
