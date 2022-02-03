@@ -9,7 +9,7 @@ export const fetchTokenAPIData = async (
   chainId: number
 ): Promise<RariApiTokenData> => {
   if (address === ETH_TOKEN_DATA.address) return ETH_TOKEN_DATA;
-  let url = `https://rari-5fugyru8g-rari-capital.vercel.app/api/tokenData?address=${address}&chainId=${chainId}`;
+  let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${chainId}`;
   const { data } = await axios.get(url);
   return data;
 };
@@ -52,7 +52,7 @@ export async function fetchTokenDataWithCache(
   chainId: ChainID
 ) {
   if (typeof window === undefined) {
-    return await fetchTokenAPIData(address, chainId);
+    return await fetchTokenAPIData(address.toLowerCase(), chainId);
   }
   const storageKey = "tokenInfo:" + address;
   if (window.sessionStorage.getItem(storageKey)) {
@@ -60,7 +60,7 @@ export async function fetchTokenDataWithCache(
   }
 
   // if not in storage, fetch it fresh
-  const tokenData = await fetchTokenAPIData(address, chainId);
+  const tokenData = await fetchTokenAPIData(address.toLowerCase(), chainId);
   window.sessionStorage.setItem(storageKey, JSON.stringify(tokenData));
 
   return tokenData;

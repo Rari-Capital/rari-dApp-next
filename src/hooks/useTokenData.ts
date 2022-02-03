@@ -69,14 +69,29 @@ export const fetchTokenData = async (
 
   if (address !== ETH_TOKEN_DATA.address) {
     try {
+      console.log({ address }, address.toLowerCase());
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
-      let url = `https://rari-5fugyru8g-rari-capital.vercel.app/api/tokenData?address=${address}&chainId=${_chainId}`;
+      let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),
         address: address,
       };
+
+      // Todo - remove
+      if (address == "0xa693b19d2931d498c5b318df961919bb4aee87a5") {
+        data = {
+          symbol: "UST",
+          name: "UST (Wormhole)",
+          decimals: 6,
+          logoURL:
+            "https://raw.githubusercontent.com/sushiswap/icons/master/token/ust.jpg",
+          color: "#5494fa",
+          overlayTextColor: "#fff",
+          address: "0xa693B19d2931d498c5B318dF961919BB4aee87a5",
+        };
+      }
     } catch (e) {
       data = EMPTY_TOKEN_DATA;
     }
