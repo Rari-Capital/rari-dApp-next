@@ -10,7 +10,7 @@ export const GET_TOP_FUSE_POOLS = gql`
     $amount: Int = 3
     $metric: Pool_orderBy = "totalSupplyUSD"
   ) {
-    pools(orderBy: $metric, orderDirection: desc, first: $amount, where: {index_not_in: ["90", "23", "6", "18"]}) {
+    pools(orderBy: $metric, orderDirection: desc, first: $amount, where: {index_not_in: ["90", "23", "6", "18f"]}) {
       ...FusePoolFragment
       assets(first: 6, orderBy: totalSupplyUSD, orderDirection: desc) {
         ...CTokenFragment
