@@ -307,14 +307,14 @@ const CollateralRatioBar = ({
         <SimpleTooltip label={t("This is how much you have borrowed.")}>
           <Text flexShrink={0} mt="2px" mr={3} fontSize="10px">
             {
-              smallUsdFormatter(borrowUSD.toNumber()) //smallUsdFormatter
+              smallUsdFormatter(parseFloat(borrowUSD.toString())) //smallUsdFormatter
             }
           </Text>
         </SimpleTooltip>
 
         <SimpleTooltip
           label={`You're using ${ratio.toString()}% of your ${smallUsdFormatter(
-            maxBorrow.toNumber()
+            parseFloat(maxBorrow.toString())
           )} borrow limit.`}
         >
           <Box width="100%">
@@ -342,7 +342,7 @@ const CollateralRatioBar = ({
           )}
         >
           <Text flexShrink={0} mt="2px" ml={3} fontSize="10px">
-            {smallUsdFormatter(maxBorrow.toNumber())}
+            {smallUsdFormatter(parseFloat(maxBorrow.toString()))}
           </Text>
         </SimpleTooltip>
       </Row>
@@ -364,11 +364,11 @@ const SupplyList = ({
   const { t } = useTranslation();
 
   const suppliedAssets = assets.filter(
-    (asset) => asset.supplyBalanceUSD.toNumber() > 1
+    (asset) => asset.supplyBalanceUSD.gt(1)
   );
 
   const nonSuppliedAssets = assets.filter(
-    (asset) => asset.supplyBalanceUSD.toNumber() < 1
+    (asset) => asset.supplyBalanceUSD.lt(1)
   );
 
   const isMobile = useIsMobile();
@@ -739,7 +739,7 @@ const AssetSupplyRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            {smallUsdFormatter(asset.supplyBalanceUSD.toNumber())}
+            {smallUsdFormatter(parseFloat(asset.supplyBalanceUSD.toString()))}
           </Text>
 
           <Text fontSize="sm">
@@ -784,10 +784,10 @@ const BorrowList = ({
 }) => {
   const { t } = useTranslation();
   const borrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.toNumber() > 1
+    (asset) => asset.borrowBalanceUSD.gt(1)
   );
   const nonBorrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.toNumber() < 1
+    (asset) => asset.borrowBalanceUSD.lt(1)
   );
 
   const isMobile = useIsMobile();
@@ -1081,14 +1081,14 @@ const AssetBorrowRow = ({
             fontWeight="bold"
             fontSize="17px"
           >
-            {smallUsdFormatter(asset.borrowBalanceUSD.toNumber())}
+            {smallUsdFormatter(parseFloat(asset.borrowBalanceUSD.toString()))}
           </Text>
 
           <Text fontSize="sm">
-            {smallUsdFormatter(
+            {smallUsdFormatter(parseFloat(
               asset.borrowBalance
                 .div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                .toNumber()
+                .toString())
             ).replace("$", "")}{" "}
             {symbol}
           </Text>
@@ -1110,7 +1110,7 @@ const AssetBorrowRow = ({
                 fontWeight="bold"
                 fontSize="17px"
               >
-                {shortUsdFormatter(asset.liquidityUSD.toNumber())}
+                {shortUsdFormatter(parseFloat(asset.liquidityUSD.toString()))}
               </Text>
 
               <Text fontSize="sm">

@@ -58,7 +58,7 @@ import {
 } from "utils/bigUtils";
 
 // Ethers
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { formatUnits } from "ethers/lib/utils";
@@ -106,9 +106,9 @@ const FusePoolInfoPage = memo(() => {
               <OracleAndInterestRates
                 assets={data.assets}
                 name={data.name}
-                totalSuppliedUSD={data.totalSuppliedUSD.toNumber()}
-                totalBorrowedUSD={data.totalBorrowedUSD.toNumber()}
-                totalLiquidityUSD={data.totalLiquidityUSD.toNumber()}
+                totalSuppliedUSD={data.totalSuppliedUSD}
+                totalBorrowedUSD={data.totalBorrowedUSD}
+                totalLiquidityUSD={data.totalLiquidityUSD}
                 comptrollerAddress={data.comptroller}
               />
             ) : (
@@ -154,9 +154,9 @@ const OracleAndInterestRates = ({
 }: {
   assets: USDPricedFuseAsset[];
   name: string;
-  totalSuppliedUSD: number;
-  totalBorrowedUSD: number;
-  totalLiquidityUSD: number;
+  totalSuppliedUSD: BigNumber;
+  totalBorrowedUSD: BigNumber;
+  totalLiquidityUSD: BigNumber;
   comptrollerAddress: string;
 }) => {
   const router = useRouter();
@@ -252,19 +252,19 @@ const OracleAndInterestRates = ({
       >
         <StatRow
           statATitle={t("Total Supplied")}
-          statA={shortUsdFormatter(totalSuppliedUSD)}
+          statA={shortUsdFormatter(totalSuppliedUSD.toString())}
           statBTitle={t("Total Borrowed")}
-          statB={shortUsdFormatter(totalBorrowedUSD)}
+          statB={shortUsdFormatter(totalBorrowedUSD.toString())}
         />
 
         <StatRow
           statATitle={t("Available Liquidity")}
-          statA={shortUsdFormatter(totalLiquidityUSD)}
+          statA={shortUsdFormatter(totalLiquidityUSD.toString())}
           statBTitle={t("Pool Utilization")}
           statB={
             totalSuppliedUSD.toString() === "0"
               ? "0%"
-              : ((totalBorrowedUSD / totalSuppliedUSD) * 100).toFixed(2) + "%"
+              : parseFloat((totalBorrowedUSD.div(totalSuppliedUSD).mul(100)).toString()).toFixed(2) + "%"
           }
         />
 

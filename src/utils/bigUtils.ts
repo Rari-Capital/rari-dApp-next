@@ -27,16 +27,22 @@ export function stringUsdFormatter(num: string) {
   return formatter.format(parseFloat(num));
 }
 
-export function smallUsdFormatter(num: number) {
-  return smallFormatter.format(num);
+export function smallUsdFormatter(num: number | string) {
+  if (typeof num === typeof "") {
+    return smallFormatter.format(parseFloat(num as string));
+  }
+  return smallFormatter.format(num as number);
 }
 
 export function usdFormatter(num: number) {
   return formatter.format(num);
 }
 
-export function shortUsdFormatter(num: number) {
-  return "$" + shortFormatter.format(num);
+export function shortUsdFormatter(num: number | string) {
+  if (typeof num === typeof "") {
+    return "$" + shortFormatter.format(parseFloat(num as string));
+  }
+  return "$" + shortFormatter.format(num as number);
 }
 
 export const abbreviateAmount = (amount: number) => {
