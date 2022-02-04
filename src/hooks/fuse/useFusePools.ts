@@ -14,6 +14,11 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
+import { makeGqlRequest } from "utils/gql";
+import gql from "graphql-tag";
+import { ChainID } from "esm/utils/networks";
+
+import { BigNumber } from "ethers";
 
 // Ethers
 export interface FusePool {
@@ -67,6 +72,57 @@ const poolSort = (pools: MergedPool[]) => {
   });
 };
 
+export const fetchPoolsManual = async ({
+  fuse,
+  address,
+  verification = false,
+  chainId = 1,
+  blockNum,
+}: {
+  fuse: Fuse;
+  address: string;
+  verification?: boolean;
+  chainId?: number;
+  blockNum?: number;
+}) => {
+  // Query Directory
+  let fusePoolsDirectoryResult =
+    await fuse.contracts.FusePoolDirectory.callStatic.getPublicPoolsByVerification(
+      verification,
+      { from: address }
+    );
+
+  // Extract data from Directory call
+  let ids: string[] = (fusePoolsDirectoryResult[0] ?? []).map((bn: BigNumber) =>
+    bn.toString()
+  );
+  let fusePools: LensFusePool[] = fusePoolsDirectoryResult[1];
+  let comptrollers = fusePools.map(({ comptroller }) => comptroller);
+
+  // Query lens.getPoolSummary
+  let fusePoolsData: LensFusePoolData[] = await Promise.all(
+    comptrollers.map(async (comptroller) => {
+      const _data = await fuse.contracts.FusePoolLens.callStatic.getPoolSummary(
+        comptroller
+      );
+      const data: LensFusePoolData = {
+        totalSupply: _data[0],
+        totalBorrow: _data[1],
+        underlyingTokens: _data[2],
+        underlyingSymbols: _data[3],
+        whitelistedAdmin: _data[4],
+      };
+      return data;
+    })
+  ).catch((err) => {
+    console.error("Error querying poolSummaries", err);
+    return [];
+  });
+
+  const fetchETHPrice = fetchCurrentETHPrice();
+  return await createMergedPools(ids, fusePools, fusePoolsData, fetchETHPrice);
+};
+
 export const fetchPools = async ({
   fuse,
   address,
@@ -117,8 +173,15 @@ export const fetchPools = async ({
     3: errors,
   }: LensPoolsWithData = await req;
 
-  console.log({ ids, fusePools, fusePoolsData, fuse, Fuse });
+  return await createMergedPools(ids, fusePools, fusePoolsData, fetchETHPrice);
+};
 
+const createMergedPools = async (
+  ids: string[],
+  fusePools: LensFusePool[],
+  fusePoolsData: LensFusePoolData[],
+  fetchETHPrice: Promise<any>
+) => {
   const merged: MergedPool[] = [];
   for (let i = 0; i < ids.length; i++) {
     const id = parseFloat(ids[i]);
@@ -151,7 +214,17 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
 
   const { data: pools } = useQuery(
     `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
-    async () => await fetchPools({ fuse, address, filter })
+    async () => {
+      if (chainId === ChainID.ARBITRUM && filter === "unverified-pools") {
+        return await fetchPoolsManual({
+          fuse,
+          address,
+          verification: false,
+          chainId,
+        });
+      }
+      return await fetchPools({ fuse, address, filter });
+    }
   );
 
   const filteredPools = useMemo(() => {

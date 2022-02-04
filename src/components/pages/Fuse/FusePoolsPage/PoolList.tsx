@@ -17,6 +17,8 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
 
   const isMobile = useIsMobile();
 
+  console.log({ pools });
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -73,10 +75,10 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
               name={filterPoolName(pool.name)}
               tvl={pool.suppliedUSD}
               borrowed={pool.borrowedUSD}
-              tokens={pool.underlyingTokens.map((address, index) => ({
+              tokens={pool.underlyingTokens?.map((address, index) => ({
                 symbol: pool.underlyingSymbols[index],
                 address,
-              }))}
+              })) ?? []}
               noBottomDivider={index === pools.length - 1}
               isWhitelisted={pool.whitelistedAdmin}
               comptroller={pool.comptroller}

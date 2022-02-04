@@ -19,6 +19,8 @@ const FusePoolsPage = memo(() => {
   const filter = useFilter();
   const filteredPools = useFusePools(filter);
 
+  console.log({ filteredPools });
+
   return (
     <>
       <Column
