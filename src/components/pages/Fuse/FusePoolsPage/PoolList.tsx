@@ -17,8 +17,6 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
 
   const isMobile = useIsMobile();
 
-  console.log({ pools });
-
   return (
     <Column
       mainAxisAlignment="flex-start"
