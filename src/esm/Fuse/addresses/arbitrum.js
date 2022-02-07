@@ -25,19 +25,19 @@ export default {
     ORACLES: ["MasterPriceOracle", "ChainlinkPriceOracleV2"],
     oracles: {
         MasterPriceOracle: {
-            address: "0xc5a8c01509c1972895dfb23f6bdf304365cbcce0",
-            bytecodeHash: "0x9715c015e495c902550ebbb41e79ac57130863255b4715a7d73fc38c0d578acf",
+            address: "0x137a6Bf7D4C866fFd430cDd0107dE6C4828Ce54d",
+            bytecodeHash: "0x841c8cee670b29a8e8d2d56b6b1706b0a17beffc57ceeaa730d33821a7193eb8",
             deployable: false,
             oldVersions: {},
         },
         ChainlinkPriceOracleV2: {
-            address: "0xCc5F01efd5647C77861Ce15C923731f9e27E3132",
-            bytecodeHash: "0xc43e378a0381e1cbf6b3d5f2516e2dbc8265f973c107c62253f08d5b0d53bfda",
+            address: "0xd1A758149896530a114C7F5e4c4daf093FC184A6",
+            bytecodeHash: "0xe6c58b50e22444dda782858120184cbc86207e51be06e0f747561a8c9eb4c968",
             deployable: false,
             oldVersions: {},
         },
         FixedETHPriceOracle: {
-            address: "0xD7d2d97C61AfB3045039584Dc654B926694083C5",
+            address: "0xf826E4fE62c206Ec51B5744b29C71A2245DD540e",
             bytecodeHash: "0x009b75414e3135a12bb0d9ee0a420f96a41b198df7ee9c4a5667a05187860a1d",
             deployable: false,
             oldVersions: {},
