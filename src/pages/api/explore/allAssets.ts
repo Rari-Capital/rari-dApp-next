@@ -1,15 +1,11 @@
+import { ChainID } from "esm/utils/networks";
 import { NextApiRequest, NextApiResponse } from "next";
 import { queryAllUnderlyingAssets } from "services/gql";
-import { RariApiTokenData, TokensDataMap, UnderlyingAsset } from "types/tokens";
 
 import redis from "utils/redis";
-import { fetchTokensAPIDataAsMap } from "utils/services";
 import { SubgraphUnderlyingAsset } from ".";
 
-export interface AllAssetsResponse {
-  assets: SubgraphUnderlyingAsset[];
-  tokensData: { [address: string]: RariApiTokenData };
-}
+export type AllAssetsResponse = SubgraphUnderlyingAsset[];
 
 const REDIS_KEY_PREFIX = "explore-";
 
@@ -18,6 +14,10 @@ export default async function handler(
   res: NextApiResponse<AllAssetsResponse>
 ) {
   if (req.method === "GET") {
+    const chainId = req.query.chainId
+      ? parseFloat(req.query.chainId as string)
+      : ChainID.ETHEREUM;
+
     // Get Underlying Assets from subgraph
     try {
       // Redis query
@@ -31,17 +31,9 @@ export default async function handler(
           .json(JSON.parse(redisSearchData) as AllAssetsResponse);
       }
 
-      const underlyingAssets = await queryAllUnderlyingAssets();
+      const underlyingAssets = await queryAllUnderlyingAssets(chainId);
 
-      // Get TokenData (logo, color etc) from Rari API
-      const tokensDataMap: TokensDataMap = await fetchTokensAPIDataAsMap(
-        underlyingAssets.map((asset) => asset.id)
-      );
-
-      const result = {
-        assets: underlyingAssets,
-        tokensData: tokensDataMap,
-      };
+      const result = underlyingAssets;
 
       // Save results to redis every 30 minutes
       await redis.set(redisKey, JSON.stringify(result), "EX", 1800);

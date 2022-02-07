@@ -10,10 +10,14 @@ import { GQLSearchReturn } from "types/search";
 import { makeGqlRequest } from "utils/gql";
 
 // Gets all UnderlyingAssets
-export const queryAllUnderlyingAssets = async (): Promise<
-  SubgraphUnderlyingAsset[]
-> => {
-  const { underlyingAssets } = await makeGqlRequest(GET_ALL_UNDERLYING_ASSETS);
+export const queryAllUnderlyingAssets = async (
+  chainId: number
+): Promise<SubgraphUnderlyingAsset[]> => {
+  const { underlyingAssets } = await makeGqlRequest(
+    GET_ALL_UNDERLYING_ASSETS,
+    {},
+    chainId
+  );
   return underlyingAssets;
 };
 

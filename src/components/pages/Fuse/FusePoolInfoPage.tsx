@@ -58,7 +58,7 @@ import {
 } from "utils/bigUtils";
 
 // Ethers
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { formatUnits } from "ethers/lib/utils";

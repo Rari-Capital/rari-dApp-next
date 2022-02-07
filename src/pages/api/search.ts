@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { APISearchReturn, GQLSearchReturn } from "types/search";
 
-import { fetchTokensAPIDataAsMap } from "utils/services";
-
 import redis from "../../utils/redis";
 import {
   querySearchForToken,
@@ -25,8 +23,6 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     const { text, address, chainId: _chainId } = req.query;
-
-    console.log({text, address, _chainId});
 
     let chainId = parseInt(_chainId as string);
 

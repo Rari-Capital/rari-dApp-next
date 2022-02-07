@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
-import { Vaults, Fuse } from "../../esm/index";
+import { Fuse } from "../../esm/index";
 
 // Libraries
 import FuseJs from "fuse.js";
@@ -14,8 +14,6 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { formatDateToDDMMYY } from "utils/api/dateUtils";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
-import { makeGqlRequest } from "utils/gql";
-import gql from "graphql-tag";
 import { ChainID } from "esm/utils/networks";
 
 import { BigNumber } from "ethers";

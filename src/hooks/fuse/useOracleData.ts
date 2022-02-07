@@ -63,6 +63,8 @@ export const useIdentifyOracle = (
       // Identify type of oracle used
       const identity = await fuse.identifyPriceOracle(tokenOracle);
 
+      console.log("useIdentifyOracle", { identity, tokenOracle, tokenAddr });
+
       return identity;
     }
 
@@ -244,7 +246,7 @@ export const useGetOracleOptions = (
   );
 
   const { data: Chainlink_Oracle } = useQuery(
-    "Chainlink price feed check for: " + tokenAddress,
+    "Chainlink price feed check for: " + tokenAddress + " chainId " + chainId,
     async () => {
       if (
         !isValidAddress ||
@@ -253,10 +255,16 @@ export const useGetOracleOptions = (
       )
         return null;
 
+      let oracleAddress =
+        chainId === ChainID.ARBITRUM
+          ? fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
+              .ChainlinkPriceOracleV2
+          : fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
+              .ChainlinkPriceOracleV3;
+
       // If address is valid and admin can overwrite, get price for the asset from ChainlinkPriceOracle
       const oracleContract = createOracle(
-        fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
-          .ChainlinkPriceOracleV3,
+        oracleAddress,
         fuse,
         "ChainlinkPriceOracle"
       );
@@ -266,8 +274,7 @@ export const useGetOracleOptions = (
       // If price is zero, this means theres no pricefeed for the asset so return null
       // If we receive a price, return ChainlinkPriceOracle address
       if (oraclePrice <= 0) return null;
-      return fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
-        .ChainlinkPriceOracleV3;
+      return oracleAddress;
     }
   );
 
