@@ -9,8 +9,8 @@ import { useRari } from "./RariContext";
 export const BalancesContext = createContext<any | undefined>(undefined);
 
 // Fetchers
-const allTokensFetcher = async (): Promise<SubgraphUnderlyingAsset[]> => {
-  return await queryAllUnderlyingAssets();
+const allTokensFetcher = async (chainId: number): Promise<SubgraphUnderlyingAsset[]> => {
+  return await queryAllUnderlyingAssets(chainId);
 };
 
 export const BalancesContextProvider = ({

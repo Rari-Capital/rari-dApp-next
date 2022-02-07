@@ -10,7 +10,7 @@ import { GQLSearchReturn } from "types/search";
 import { makeGqlRequest } from "utils/gql";
 
 // Gets all UnderlyingAssets
-export const queryAllUnderlyingAssets = async (chainId: number): Promise<
+export const queryAllUnderlyingAssets = async (chainId: ChainID = 1): Promise<
   SubgraphUnderlyingAsset[]
 > => {
   const { underlyingAssets } = await makeGqlRequest(GET_ALL_UNDERLYING_ASSETS, {},chainId);

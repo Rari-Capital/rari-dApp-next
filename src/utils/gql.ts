@@ -29,7 +29,7 @@ const VAULTS_SUBGRAPH =
 export const makeGqlRequest = async (
   query: any,
   vars: any = {},
-  chainId: number
+  chainId: ChainID = 1
 ) => {
   try {
     let subgraphURL =
