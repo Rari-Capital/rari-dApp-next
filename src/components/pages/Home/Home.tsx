@@ -1,7 +1,6 @@
 // Next
 import dynamic from "next/dynamic";
 import {
-  Heading,
   Text,
   SimpleGrid,
   useBreakpointValue,
@@ -10,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { Column, Row } from "lib/chakraUtils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
+import { Card, Heading } from "rari-components";
 import Marquee from "react-fast-marquee";
 import HomeFuseCard from "./HomeFuseCard";
 
@@ -231,7 +231,7 @@ const Home = () => {
         width="100%"
       // background="purple"
       >
-        <DashboardBox width="100%" height="230px">
+        <Card width="100%" height="230px">
           <Row
             mainAxisAlignment="flex-start"
             crossAxisAlignment="flex-start"
@@ -300,7 +300,7 @@ const Home = () => {
               <HomeCarousel />
             </Column>
           </Row>
-        </DashboardBox>
+        </Card>
       </Row>
 
       {/* Easily Earn (Vaults) */}
