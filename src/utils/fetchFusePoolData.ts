@@ -172,8 +172,6 @@ export const fetchFusePoolData = async (
     // prefer rari because it has caching
     await getEthUsdPriceBN();
 
-  let promises = [];
-
   const comptrollerContract = useCreateComptroller(comptroller, fuse, isAuthed);
   let oracle: string = await comptrollerContract.callStatic.oracle();
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
@@ -186,13 +184,6 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
-
-    promises.push(
-      comptrollerContract.callStatic
-        .borrowGuardianPaused(asset.cToken)
-        // TODO: THIS WILL BE BUILT INTO THE LENS
-        .then((isPaused: boolean) => (asset.isPaused = isPaused))
-    );
 
     asset.supplyBalanceUSD = asset.supplyBalance
       .mul(asset.underlyingPrice)
@@ -227,8 +218,6 @@ export const fetchFusePoolData = async (
 
     totalLiquidityUSD.add(asset.liquidityUSD);
   }
-
-  await Promise.all(promises);
 
   return {
     assets: assets.sort((a, b) => (b.liquidityUSD.gt(a.liquidityUSD) ? 1 : -1)),
