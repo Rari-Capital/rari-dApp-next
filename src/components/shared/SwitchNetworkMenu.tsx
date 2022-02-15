@@ -10,13 +10,14 @@ import {
   Spacer,
   Text,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { useRari } from "context/RariContext";
 
 import DashboardBox from "./DashboardBox";
 import { getChainMetadata, getSupportedChains } from "esm/utils/networks";
 import { useRouter } from "next/router";
+import { ChainID } from "esm/utils/networks";
 
 const SwitchNetworkButton: React.FC<
   React.ComponentProps<typeof DashboardBox>
@@ -74,11 +75,32 @@ const SwitchNetworkButton: React.FC<
 
 const SwitchNetworkMenu: React.FC = () => {
   const { switchNetwork, chainId } = useRari();
-  const supportedChains = useMemo(() => getSupportedChains(), []);
+  const [devMode, setDevMode] = useState(false)
+  const supportedChains = useMemo(() => getSupportedChains().filter(({ chainId }: { chainId: number }) => {
+    if (!!devMode) return true
+    else return chainId !== ChainID.ARBITRUM_TESTNET
+  }), [devMode]);
   const router = useRouter();
 
+
+  // If user presses meta key or control key + slash they will toggle the private allocation claim mode.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      console.log(e.code)
+      if (e.code === "Slash") {
+        e.preventDefault();
+        setDevMode(true);
+      }
+    };
+
+    document.addEventListener("keydown", handler);
+
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+
   let chainMetadata;
-  if (chainId) {
+  if (!!chainId) {
     chainMetadata = getChainMetadata(chainId);
   }
 

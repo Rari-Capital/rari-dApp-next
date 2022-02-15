@@ -67,7 +67,7 @@ export const chainMetadata = {
         chainId: ChainID.ARBITRUM_TESTNET,
         name: "Arbi Rinkeby",
         imageUrl: "/static/networks/arbitrum.svg",
-        supported: false,
+        supported: true,
         rpcUrl: "https://arb-rinkeby.g.alchemy.com/v2/PkZ7ilUhTBT6tHUsgToel62IOcuyKcwb",
         blockExplorerURL: "https://testnet.arbiscan.io",
         color: "#28A0EF",

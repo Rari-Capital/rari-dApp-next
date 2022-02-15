@@ -78,7 +78,7 @@ const Home = () => {
   const { getNumberTVL } = useTVLFetchers();
 
   const { data } = useSWR(
-    [chainId, ...HOMEPAGE_FUSE_POOLS[chainId ?? 1].map((pool) => pool.id)],
+    [chainId, ...HOMEPAGE_FUSE_POOLS[chainId ?? 1]?.map((pool) => pool.id) ?? []],
     homepagePoolsFetcher
   );
 
@@ -152,7 +152,7 @@ const Home = () => {
       // px="20%"
       >
         <Marquee gradient={false} style={{ padding: "10px" }}>
-          {HOMEPAGE_FUSE_POOLS[chainId ?? 1].map((constantPool, i) => (
+          {HOMEPAGE_FUSE_POOLS[chainId ?? 1]?.map((constantPool, i) => (
             // <HoverCard w="100%" h="100%" mx={4}>
             //   <FuseAssetBoxNew
             //     pool={pools?.find(
@@ -167,7 +167,7 @@ const Home = () => {
               tokensData={tokensData}
               key={i}
             />
-          ))}
+          )) ?? null}
         </Marquee>
       </Row>
 
@@ -209,11 +209,11 @@ const Home = () => {
             {HomepageItems(chainId ?? 1)
               .slice(0, sliceNum)
               .map((opportunity: any, i: number) => (
-                <OpportunityCard 
-                  opportunity={opportunity} 
-                  key={i} 
-                  onClick={i === 1 && chainId === 1 
-                    ? () => switchNetwork(ChainID.ARBITRUM, router) 
+                <OpportunityCard
+                  opportunity={opportunity}
+                  key={i}
+                  onClick={i === 1 && chainId === 1
+                    ? () => switchNetwork(ChainID.ARBITRUM, router)
                     : null
                   } />
               ))}
