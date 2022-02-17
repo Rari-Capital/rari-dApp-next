@@ -1,16 +1,17 @@
 import { Avatar, AvatarGroup } from "@chakra-ui/avatar";
 import { useTokenData } from "hooks/useTokenData";
+import AppLink from "../AppLink";
 
-export const CTokenIcon = ({
+
+const CTokenAvatar = ({
   address,
   ...avatarProps
 }: {
   address: string;
-  chainId?: number;
   [key: string]: any;
 }) => {
-  const tokenData = useTokenData(address);
 
+  const tokenData = useTokenData(address);
   return (
     <Avatar
       {...avatarProps}
@@ -22,8 +23,24 @@ export const CTokenIcon = ({
         tokenData?.logoURL ??
         "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
       }
-    />
-  );
+    />)
+}
+
+export const CTokenIcon = ({
+  address,
+  hasLink = false,
+  ...avatarProps
+}: {
+  address: string;
+  hasLink?: boolean;
+  [key: string]: any;
+}) => {
+  return hasLink ? (
+    <AppLink href={`/token/${address.toLowerCase()}`} _hover={{ transform: "scale(1.1)", zIndex: 10, cursor: "pointer" }} onClick={(e: Event) => e.stopPropagation()}>
+      <CTokenAvatar address={address} {...avatarProps} />
+    </AppLink>
+  ) :
+    <CTokenAvatar address={address} {...avatarProps} />
 };
 
 export const CTokenAvatarGroup = ({
@@ -42,7 +59,7 @@ export const CTokenAvatarGroup = ({
           <CTokenIcon
             key={i}
             address={tokenAddress}
-            _hover={popOnHover ? { transform: "scale(1.2)", zIndex: 5 } : null}
+            hasLink={true}
           />
         );
       })}

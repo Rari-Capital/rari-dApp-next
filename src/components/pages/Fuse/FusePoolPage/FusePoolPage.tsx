@@ -635,14 +635,12 @@ const AssetSupplyRow = ({
             as="button"
             onClick={authedOpenModal}
           >
-            <Avatar
+            <CTokenIcon
+              address={asset.underlyingToken}
+              hasLink={true}
               bg="#FFF"
               boxSize="37px"
               name={symbol}
-              src={
-                tokenData?.logoURL ??
-                "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
-              }
             />
             <Text fontWeight="bold" fontSize="lg" ml={2} flexShrink={0}>
               {symbol}
@@ -986,14 +984,12 @@ const AssetBorrowRow = ({
           crossAxisAlignment="center"
           width="27%"
         >
-          <Avatar
+          <CTokenIcon
+            address={asset.underlyingToken}
+            hasLink={true}
             bg="#FFF"
             boxSize="37px"
             name={symbol}
-            src={
-              tokenData?.logoURL ??
-              "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
-            }
           />
           <Text fontWeight="bold" fontSize="lg" ml={2} flexShrink={0}>
             {symbol}
