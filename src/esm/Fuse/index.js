@@ -721,13 +721,11 @@ export default class Fuse {
         this.deployRewardsDistributor = function (rewardToken, options) {
             return __awaiter(this, void 0, void 0, function* () {
                 const distributor = new ContractFactory(JSON.parse(this.compoundContracts["contracts/RewardsDistributorDelegator.sol:RewardsDistributorDelegator"].abi), this.compoundContracts["contracts/RewardsDistributorDelegator.sol:RewardsDistributorDelegator"].bin, this.provider.getSigner());
-                const deployedDistributor = yield distributor.deploy({
-                    arguments: [
+                const deployedDistributor = yield distributor.deploy(
                         options.from,
                         rewardToken,
                         this.addresses.REWARDS_DISTRIBUTOR_DELEGATE_CONTRACT_ADDRESS,
-                    ],
-                });
+                );
                 // const rdAddress = distributor.options.address;
                 return deployedDistributor;
             });
