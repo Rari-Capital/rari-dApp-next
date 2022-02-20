@@ -368,18 +368,21 @@ const SupplyList = ({
   );
 
   const nonSuppliedAssets = assets.filter(
-    (asset) => {
+    (asset) => asset.supplyBalanceUSD.lt(1)
       // If its pool 6 or 7 UST return false
       // TODO - remove
-      if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
-        if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") {
-          return false
-        }
-        else return true
-      }
-      else if (asset.supplyBalanceUSD.gt(1)) return true
-    }
+      // if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
+      //   if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") {
+      //     return false
+      //   }
+      //   else return true
+      // }
+      // else if (asset.supplyBalanceUSD.gt(1)) return true
+    
   );
+
+
+  console.log(nonSuppliedAssets)
 
   const isMobile = useIsMobile();
 
