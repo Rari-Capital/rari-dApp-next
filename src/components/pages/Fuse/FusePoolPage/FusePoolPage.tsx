@@ -381,9 +381,6 @@ const SupplyList = ({
     }
   );
 
-
-  console.log(nonSuppliedAssets)
-
   const isMobile = useIsMobile();
 
   return (
@@ -604,8 +601,6 @@ const AssetSupplyRow = ({
         .map((incentive) => rewardTokensData?.[incentive.rewardToken]?.symbol ?? "")
         .join(", ")}
          `;
-
-  // console.log({ supplyIncentives });
 
   const _hovered = hovered > 0 ? hovered : 0;
 
@@ -928,7 +923,7 @@ const AssetBorrowRow = ({
   assets: USDPricedFuseAsset[];
   index: number;
   comptrollerAddress: string;
-  borrowIncentives: CTokenRewardsDistributorIncentives[];
+  borrowIncentives: CTokenRewardsDistributorIncentivesWithRates[];
   rewardTokensData: TokensDataMap;
   isPaused: boolean;
 }) => {
@@ -954,7 +949,7 @@ const AssetBorrowRow = ({
 
   const totalBorrowAPY =
     borrowIncentives?.reduce((prev, incentive) => {
-      const apy = incentive.borrowSpeed / 1e18;
+      const apy = incentive.borrowAPR;
       return prev + apy;
     }, 0) ?? 0;
 
@@ -965,11 +960,15 @@ const AssetBorrowRow = ({
 
   const displayedBorrowAPY =
     hovered >= 0
-      ? borrowIncentives[hovered].borrowSpeed / 1e18
+      ? borrowIncentives[hovered].borrowAPR
       : totalBorrowAPY;
 
   const symbol = getSymbol(tokenData, asset);
 
+  const _hovered = hovered > 0 ? hovered : 0;
+  const color =
+    rewardTokensData[borrowIncentives?.[_hovered]?.rewardToken]?.color ??
+    "white";
   return (
     <>
       <PoolModal
@@ -1052,16 +1051,8 @@ const AssetBorrowRow = ({
                     );
                   })}
                 </AvatarGroup>
-                <Text
-                  color={
-                    rewardTokensData[borrowIncentives?.[hovered]?.rewardToken]
-                      ?.color ?? "white"
-                  }
-                  pl={1}
-                  fontWeight="bold"
-                >
-                  {/* {(supplyIncentive.supplySpeed / 1e18).toString()}%  */}
-                  {displayedBorrowAPY}%
+                <Text color={color} fontWeight="bold" pl={1} fontSize="sm">
+                  {displayedBorrowAPY.toFixed(2)}% APR
                 </Text>
               </Row>
             )}
