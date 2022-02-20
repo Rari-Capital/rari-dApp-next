@@ -80,19 +80,6 @@ export const fetchTokenData = async (
         address: address,
       };
 
-      // Todo - remove (UST hardcode)
-      if (address == "0xa693B19d2931d498c5B318dF961919BB4aee87a5") {
-        data = {
-          symbol: "USTw",
-          name: "UST (Wormhole)",
-          decimals: 6,
-          logoURL:
-            "https://raw.githubusercontent.com/sushiswap/icons/master/token/ust.jpg",
-          color: "#5494fa",
-          overlayTextColor: "#fff",
-          address: "0xa693B19d2931d498c5B318dF961919BB4aee87a5",
-        };
-      }
     } catch (e) {
       data = EMPTY_TOKEN_DATA;
     }
