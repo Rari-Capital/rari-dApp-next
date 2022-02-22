@@ -872,6 +872,37 @@ const StatsColumn = ({
               ) : null}
             </Text>
           </Row>
+          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ? 
+          <Row
+            mainAxisAlignment="space-between"
+            crossAxisAlignment="center"
+            width="100%"
+          >
+            <Text fontWeight="bold" flexShrink={0}>
+              {isSupplyingOrWithdrawing ? t("Supply Cap") : t("Borrow Cap")}:
+            </Text>
+            <Text
+              fontWeight="bold"
+              fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+            >
+              {isSupplyingOrWithdrawing
+                ? 
+                utils.commify(
+                  parseFloat(
+                    utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
+                  ).toFixed(2)
+                )
+                :
+                utils.commify(
+                  parseFloat(
+                    utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
+                  ).toFixed(2)
+                )}
+            </Text>
+          </Row>
+          :
+          null
+              }
         </Column>
       ) : (
         <Center expand>
@@ -1089,7 +1120,8 @@ async function fetchMaxAmount(
       address
     );
 
-    return balance;
+    const maxSupply = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+    return maxSupply.gt(0) ? (balance.gt(maxSupply) ? maxSupply : balance) : balance;
   }
 
   if (mode === Mode.REPAY) {
@@ -1116,6 +1148,7 @@ async function fetchMaxAmount(
         );
 
       const amount = maxBorrow.mul(3).div(4);
+      //const maxBorrow = asset.borrowCap.sub(asset.totalBorrow)
 
       // const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
       console.log("fetchMaxAmount", { amount, maxBorrow, utils })

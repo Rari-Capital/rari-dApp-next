@@ -65,6 +65,9 @@ export interface USDPricedFuseAsset extends FuseAsset {
   supplyBalanceUSD: BigNumber;
   borrowBalanceUSD: BigNumber;
 
+  supplyCap: BigNumber;
+  borrowCap: BigNumber;
+
   totalSupplyUSD: BigNumber;
   totalBorrowUSD: BigNumber;
 
@@ -160,6 +163,7 @@ export const fetchFusePoolData = async (
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
 
+
   let totalLiquidityUSD = constants.Zero;
 
   let totalSupplyBalanceUSD = constants.Zero;
@@ -184,6 +188,8 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
+    asset.supplyCap = await comptrollerContract.callStatic.supplyCaps(asset.cToken)
+    asset.borrowCap = await comptrollerContract.callStatic.borrowCaps(asset.cToken)
 
     asset.supplyBalanceUSD = asset.supplyBalance
       .mul(asset.underlyingPrice)
