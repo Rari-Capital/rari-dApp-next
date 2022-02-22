@@ -34,7 +34,6 @@ import SwitchNetworkMenu from "./SwitchNetworkMenu";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { ClaimRGTModal } from "./ClaimRGTModal";
 import useENS from "hooks/useENS";
-import { add } from "mathjs";
 import { shortENS } from "utils/shortENS";
 
 export const AccountButton = memo(() => {
