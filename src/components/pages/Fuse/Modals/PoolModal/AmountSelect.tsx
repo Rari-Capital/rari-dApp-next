@@ -879,7 +879,7 @@ const StatsColumn = ({
             width="100%"
           >
             <Text fontWeight="bold" flexShrink={0}>
-              {isSupplyingOrWithdrawing ? t("Supply Cap") : t("Borrow Cap")}:
+              {isSupplyingOrWithdrawing ? t("Supply Remaining") : t("Borrow Remaining")}:
             </Text>
             <Text
               fontWeight="bold"
@@ -1120,8 +1120,8 @@ async function fetchMaxAmount(
       address
     );
 
-    const maxSupply = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
-    return maxSupply.gt(0) ? (balance.gt(maxSupply) ? maxSupply : balance) : balance;
+    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+    return supplyRemaining.gt(0) ? (balance.gt(supplyRemaining) ? supplyRemaining : balance) : balance;
   }
 
   if (mode === Mode.REPAY) {
@@ -1141,19 +1141,18 @@ async function fetchMaxAmount(
 
   if (mode === Mode.BORROW) {
     try {
-      const maxBorrow =
+      const maxBorrow = 
         await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxBorrow(
           address,
           asset.cToken
         );
 
       const amount = maxBorrow.mul(3).div(4);
-      //const maxBorrow = asset.borrowCap.sub(asset.totalBorrow)
 
-      // const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
-      console.log("fetchMaxAmount", { amount, maxBorrow, utils })
-
-      return amount.div(1);
+      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+      return borrowRemaining.gt(0) ? (amount.gt(borrowRemaining) ? borrowRemaining : amount.div(1)) : amount.div(1);
+      //const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
+      //console.log("fetchMaxAmount", { amount, maxBorrow, utils })
     } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
