@@ -460,7 +460,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
             </Center>
           ) : (
             <AssetChart
-              selectedAssetUtilization={selectedAssetUtilization}
+              selectedAssetUtilization={selectedAssetUtilization.toNumber()}
               selectedTokenData={selectedTokenData}
               data={data}
             />
