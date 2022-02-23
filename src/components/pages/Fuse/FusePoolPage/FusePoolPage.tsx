@@ -798,6 +798,8 @@ const BorrowList = ({
     return !(a.isPaused || !!a.borrowGuardianPaused) && (b.isPaused || !!b.borrowGuardianPaused) ? -1 : 0
   });
 
+  const [showPausedAssets, setShowPausedAssets] = useState(false)
+
   const isMobile = useIsMobile();
 
   return (
@@ -882,12 +884,12 @@ const BorrowList = ({
             {borrowedAssets.length > 0 ? <ModalDivider my={2} /> : null}
 
             {nonBorrowedAssets.map((asset, index) => {
-              // Don't show paused assets.
-              /*
-              if (asset.isPaused || asset.borrowGuardianPaused) {
+              // Don't show paused assets if not enabled
+              
+              if (!showPausedAssets && (asset.isPaused || asset.borrowGuardianPaused)) {
                 return null;
               }
-              */
+              
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -905,6 +907,24 @@ const BorrowList = ({
                 />
               );
             })}
+            <Row
+            mainAxisAlignment="flex-start"
+            crossAxisAlignment="flex-start"
+            width="100%"
+            px={4}
+            mt={4}
+            py={4}
+            cursor="pointer"
+            className="hover-row"
+            onClick={() => setShowPausedAssets(!showPausedAssets)}>
+              <Text 
+              textAlign={'center'}
+              width="100%"
+              >
+                {showPausedAssets ? t("Hide paused assets") : t("Show paused assets")}
+              </Text>
+              
+            </Row>
           </>
         ) : (
           <Center expand my={8}>
