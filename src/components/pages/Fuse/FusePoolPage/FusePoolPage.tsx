@@ -794,7 +794,9 @@ const BorrowList = ({
   );
   const nonBorrowedAssets = assets.filter(
     (asset) => asset.borrowBalanceUSD.lt(1)
-  );
+  ).sort((a, b) => {
+    return !(a.isPaused || !!a.borrowGuardianPaused) && (b.isPaused || !!b.borrowGuardianPaused) ? -1 : 0
+  });
 
   const isMobile = useIsMobile();
 
@@ -881,9 +883,11 @@ const BorrowList = ({
 
             {nonBorrowedAssets.map((asset, index) => {
               // Don't show paused assets.
+              /*
               if (asset.isPaused || asset.borrowGuardianPaused) {
                 return null;
               }
+              */
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -897,7 +901,7 @@ const BorrowList = ({
                   index={index}
                   borrowIncentives={incentivesForAsset}
                   rewardTokensData={incentivesData.rewardTokensData}
-                  isPaused={asset.isPaused}
+                  isPaused={asset.isPaused || !!asset.borrowGuardianPaused}
                 />
               );
             })}
@@ -989,7 +993,9 @@ const AssetBorrowRow = ({
         py={1.5}
         className="hover-row"
         as="button"
-        onClick={authedOpenModal}
+        onClick={isPaused ? () => {} : authedOpenModal}
+        opacity={isPaused ? 0.2 : 1.0}
+        cursor={isPaused ? 'initial' : 'pointer'}
       >
         <Row
           mainAxisAlignment="flex-start"
