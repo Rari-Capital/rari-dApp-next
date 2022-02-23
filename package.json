@@ -65,6 +65,7 @@
     "start": "next start",
     "build": "next build",
     "dev": "next dev",
+    "export": "next export",
     "translate": "npx i18next-scanner@2.11.0",
     "check-translations": "npm run translate && if grep -q \"__NOT_TRANSLATED__\" src/locales/*.json; then echo \"Translations missing!\"; exit 1; else echo \"All translations present!\"; fi",
     "analyze": "ANALYZE=true npm run build",
