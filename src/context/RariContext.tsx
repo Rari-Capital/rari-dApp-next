@@ -109,8 +109,10 @@ export const RariContext = createContext<RariContextData | undefined>(
 );
 
 export const RariProvider = ({ children }: { children: ReactNode }) => {
+  
   const router = useRouter();
-  const { address: requestedAddress } = router.query;
+  const { address: requestedAddress, network: networkQueryParameter } = router.query;
+
   const [firstRender, setFirstRender ] = useState(true);
   // Rari and Fuse get initally set already
   const [provider, setProvider] = useState(() => chooseBestWeb3Provider());
@@ -130,15 +132,23 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
 
   // Check the user's network:
+  // First render only
   useEffect(() => {
     Promise.all([
       provider.send("net_version", []),
       provider.getNetwork(),
     ]).then(([netId, network]) => {
+      // Get the network from the provider
       const { chainId: internalChainId } = network;
-      
-      if (firstRender && chainId === internalChainId) return
+
+      // If the chainID matches on first render, do nothing
+      if (firstRender && chainId === internalChainId && networkQueryParameter !== 'arbitrum') return
       console.log("Network ID: " + netId, "Chain ID: " + internalChainId);
+
+      if(networkQueryParameter === 'arbitrum' && internalChainId !== ChainID.ARBITRUM){
+        setFirstRender(false)
+        switchNetwork(ChainID.ARBITRUM, router)
+      }
 
       // // Don't show "wrong network" toasts if dev
       // if (process.env.NODE_ENV === "development") {
@@ -156,7 +166,8 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
           });
         }, 1500);
       }
-      
+
+      // Use what u get from   the metamask provider
       const provider = chooseBestWeb3Provider()
       const fuse = initFuseWithProviders(provider,internalChainId)
       setFuse(fuse)
@@ -165,7 +176,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       
       setChainId(internalChainId);
     });
-  }, [provider, toast, firstRender]);
+  }, [provider, toast, firstRender, networkQueryParameter]);
 
   useEffect(() => {
     queryClient.invalidateQueries()
@@ -280,12 +291,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const {pathname} = router
+
+      router.reload()
       
-      if(pathname === "/fuse/pool/[poolId]") {
-        window.location.href = "/fuse"
-      } else {
-        router.reload()
-      }
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
@@ -337,7 +345,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     [web3ModalProvider, login, logout, address, fuse, isAttemptingLogin, switchNetwork, switchingNetwork]
   );
 
-  return <RariContext.Provider value={value}>{children}</RariContext.Provider>;
+  return <RariContext.Provider value={value}>
+    {children}
+    </RariContext.Provider>;
 };
 
 // Hook
