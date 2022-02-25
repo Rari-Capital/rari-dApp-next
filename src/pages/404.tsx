@@ -24,7 +24,9 @@ const IndexPage: NextPage = () => {
         my={5}
       >
         <Heading color="white">404: Not Found</Heading>
-        <AppLink href="/" mt={4} color="grey">Go back home</AppLink>
+        <AppLink href="/" mt={4} color="grey">
+          Go back home
+        </AppLink>
       </Column>
     </>
   );

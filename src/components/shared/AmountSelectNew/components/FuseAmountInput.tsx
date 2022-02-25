@@ -155,7 +155,6 @@ export const TokenNameAndMaxButton = ({
           // Remove trailing zeroes
           .replace(/\.?0+$/, "");
 
-
         updateAmount(str);
       }
 

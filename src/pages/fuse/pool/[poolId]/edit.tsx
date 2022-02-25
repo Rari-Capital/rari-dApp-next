@@ -13,16 +13,15 @@ export async function getStaticProps({ locale }: { locale: string }) {
 }
 
 export const getStaticPaths = async () => {
-    return {
-      paths: [],
-      fallback: "blocking",
-    };
-  };``
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+``;
 
 const FusePoolEditPageNext: NextPage = () => {
-    return (
-        <FusePoolEditPage />
-    )
-}
+  return <FusePoolEditPage />;
+};
 
-export default FusePoolEditPageNext
+export default FusePoolEditPageNext;

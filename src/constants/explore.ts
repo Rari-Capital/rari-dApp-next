@@ -1,3 +1,1 @@
-
-
-export const EXPLORE_CONSTANT = ":)"
+export const EXPLORE_CONSTANT = ":)";

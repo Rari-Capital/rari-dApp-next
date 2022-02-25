@@ -7,7 +7,11 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
   const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const whitelist: any[] = [];
 
@@ -55,7 +59,11 @@ export const useExtraPoolInfo2 = (
   const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " extraPoolInfo", async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const poolOracle = createOracle(oracleAddress, fuse, "MasterPriceOracle");
 

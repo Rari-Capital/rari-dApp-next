@@ -10,7 +10,7 @@ import { MarketInfo } from "../types";
 import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
 // Ethers
-import { Contract } from 'ethers'
+import { Contract } from "ethers";
 import useVaultsSDK from "hooks/vaults/useVaultsSDK";
 
 type CTokenData = {
@@ -58,7 +58,11 @@ export default function useCompoundMarkets() {
       const marketData: CTokenData[] = [];
       await Promise.all(
         CTOKEN_LIST.map(async (cTokenAddress) => {
-          const cToken = new Contract(cTokenAddress, CErc20.abi, rari.provider.getSigner());
+          const cToken = new Contract(
+            cTokenAddress,
+            CErc20.abi,
+            rari.provider.getSigner()
+          );
 
           const symbol: string = await cToken.methods.symbol().call();
           const supplyRate: number = await cToken.methods

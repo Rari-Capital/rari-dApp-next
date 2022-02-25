@@ -7,5 +7,5 @@ export const getUniqueTokensForFusePools = (pools: SubgraphPool[]) => {
       addresses.add(asset.underlying.address);
     }
   }
-  return addresses
+  return addresses;
 };

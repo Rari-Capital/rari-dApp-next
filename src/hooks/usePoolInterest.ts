@@ -10,7 +10,6 @@ export const usePoolInterestEarned = (): PoolInterestEarned | undefined => {
   const { address } = useRari();
   const { rari } = useVaultsSDK();
 
-
   const { data } = useQuery(address + " interest earned", () => {
     return fetchPoolInterestEarned(rari, address);
   });

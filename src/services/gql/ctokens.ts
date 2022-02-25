@@ -24,7 +24,6 @@ export const queryTopFuseAsset = async (
     addresses,
   };
 
-
   const { ctokens } = await makeGqlRequest(query, vars, chainId);
 
   // console.log("queryTopFuseAsset", {vars, chainId, ctokens})

@@ -21,14 +21,14 @@ import { useRari } from "context/RariContext";
 const UniswapV2OrSushiPriceOracleConfigurator = ({
   type,
   checked,
-  setChecked
+  setChecked,
 }: {
   // Asset's Address. i.e DAI, USDC
 
   // Either SushiSwap or Uniswap V2
   type: string;
-  checked:boolean,
-  setChecked: Dispatch<SetStateAction<boolean>>
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { fuse, address } = useRari();
   const { t } = useTranslation();
@@ -36,15 +36,14 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
   // Will store oracle response. This helps us know if its safe to add it to Master Price Oracle
   const [checkedStepTwo, setCheckedStepTwo] = useState<boolean>(false);
 
-  const { 
-    tokenAddress, 
-    setOracleAddress, 
+  const {
+    tokenAddress,
+    setOracleAddress,
     setUniV3BaseTokenAddress,
     uniV3BaseTokenAddress,
     setActiveUniSwapPair,
-    activeUniSwapPair
-  } =
-    useAddAssetContext();
+    activeUniSwapPair,
+  } = useAddAssetContext();
 
   // Get pair options from sushiswap and uniswap
   const { SushiPairs, SushiError, UniV2Pairs, univ2Error } =
@@ -65,96 +64,97 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
     );
   };
 
-  
-
   // If pairs are still being fetched, if theres and error or if there are none, return nothing.
   if (Pairs === undefined || Error || Pairs === null) return null;
 
   return (
     <>
-    { !checked ?
-      <Row
-        crossAxisAlignment="center"
-        mainAxisAlignment="space-between"
-        width="260px"
-        mt={2}
-      >
-        <Checkbox isChecked={checked} onChange={() => setChecked(!checked)}>
-          <Text fontSize="10px" align="center">
-            Using a UniswapV2 Oracle requires you to continiously run a TWAP bot to keep it updated. Click to continue.
-          </Text>
-        </Checkbox>
-      </Row> : null
-    }
+      {!checked ? (
+        <Row
+          crossAxisAlignment="center"
+          mainAxisAlignment="space-between"
+          width="260px"
+          mt={2}
+        >
+          <Checkbox isChecked={checked} onChange={() => setChecked(!checked)}>
+            <Text fontSize="10px" align="center">
+              Using a UniswapV2 Oracle requires you to continiously run a TWAP
+              bot to keep it updated. Click to continue.
+            </Text>
+          </Checkbox>
+        </Row>
+      ) : null}
 
       {checked ? (
         <>
-        <Text fontSize="xs" align="left">
-          We'll help you set up the oracle.
-        </Text>
-        <Row
-          crossAxisAlignment="center"
-          mainAxisAlignment="space-between"
-          width="260px"
-          my={3}
-        >
-          {/* <Button colorScheme="teal">Check</Button> */}
-
-          <Text fontSize="xs" align="center">
-            1) Select the uniswap pair you'd like to use:
+          <Text fontSize="xs" align="left">
+            We'll help you set up the oracle.
           </Text>
-        </Row>
-      
-        <Row
-          crossAxisAlignment="center"
-          mainAxisAlignment="space-between"
-          width="260px"
-          my={2}
-        >
-          <SimpleTooltip
-            label={t(
-              "This field will determine which pool your oracle reads from. Its safer with more liquidity."
-            )}
+          <Row
+            crossAxisAlignment="center"
+            mainAxisAlignment="space-between"
+            width="260px"
+            my={3}
           >
-            <Text fontWeight="bold">
-              {t("Pool:")} <QuestionIcon ml={1} mb="4px" />
+            {/* <Button colorScheme="teal">Check</Button> */}
+
+            <Text fontSize="xs" align="center">
+              1) Select the uniswap pair you'd like to use:
             </Text>
-          </SimpleTooltip>
-          <Select
-            {...DASHBOARD_BOX_PROPS}
-            ml={2}
-            mb={2}
-            borderRadius="7px"
-            _focus={{ outline: "none" }}
-            width="180px"
-            placeholder={
-              activeUniSwapPair.length === 0 ? t("Choose Pool") : activeUniSwapPair
-            }
-            value={activeUniSwapPair}
-            disabled={!checked}
-            onChange={(event) => {
-              updateInfo(event.target.value);
-            }}
+          </Row>
+
+          <Row
+            crossAxisAlignment="center"
+            mainAxisAlignment="space-between"
+            width="260px"
+            my={2}
           >
-            {typeof Pairs !== undefined
-              ? Object.entries(Pairs).map(([key, value]: any[]) =>
-                  value.totalSupply !== null &&
-                  value.totalSupply !== undefined &&
-                  value.totalSupply >= 100 ? (
-                    <option
-                      className="black-bg-option"
-                      value={key}
-                      key={value.id}
-                    >
-                      {`${value.token0.symbol} / ${
-                        value.token1.symbol
-                      } (${shortUsdFormatter(value.totalSupply)})`}
-                    </option>
-                  ) : null
-                )
-              : null}
-          </Select>
-        </Row>
+            <SimpleTooltip
+              label={t(
+                "This field will determine which pool your oracle reads from. Its safer with more liquidity."
+              )}
+            >
+              <Text fontWeight="bold">
+                {t("Pool:")} <QuestionIcon ml={1} mb="4px" />
+              </Text>
+            </SimpleTooltip>
+            <Select
+              {...DASHBOARD_BOX_PROPS}
+              ml={2}
+              mb={2}
+              borderRadius="7px"
+              _focus={{ outline: "none" }}
+              width="180px"
+              placeholder={
+                activeUniSwapPair.length === 0
+                  ? t("Choose Pool")
+                  : activeUniSwapPair
+              }
+              value={activeUniSwapPair}
+              disabled={!checked}
+              onChange={(event) => {
+                updateInfo(event.target.value);
+              }}
+            >
+              {typeof Pairs !== undefined
+                ? Object.entries(Pairs).map(([key, value]: any[]) =>
+                    value.totalSupply !== null &&
+                    value.totalSupply !== undefined &&
+                    value.totalSupply >= 100 ? (
+                      <option
+                        className="black-bg-option"
+                        value={key}
+                        key={value.id}
+                      >
+                        {`${value.token0.symbol} / ${
+                          value.token1.symbol
+                        } (${shortUsdFormatter(value.totalSupply)})`}
+                      </option>
+                    ) : null
+                  )
+                : null}
+            </Select>
+          </Row>
         </>
       ) : null}
 
@@ -174,14 +174,14 @@ const UniswapV2OrSushiPriceOracleConfigurator = ({
             {activeUniSwapPair !== ""
               ? smallUsdFormatter(Pairs[activeUniSwapPair].totalSupply)
               : null}
-               <Link href={`https://analytics-arbitrum.sushi.com/pairs/${Pairs[activeUniSwapPair].id}`} isExternal>
-                <ExternalLinkIcon />
-          
-              </Link>
+            <Link
+              href={`https://analytics-arbitrum.sushi.com/pairs/${Pairs[activeUniSwapPair].id}`}
+              isExternal
+            >
+              <ExternalLinkIcon />
+            </Link>
           </h1>
-         
         </Row>
-
       ) : null}
     </>
   );

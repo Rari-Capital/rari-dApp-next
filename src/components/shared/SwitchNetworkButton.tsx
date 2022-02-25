@@ -13,7 +13,7 @@ const SwitchNetworkButton: React.FC = () => {
   const { switchNetwork, chainId } = useRari();
   const supportedChains = useMemo(() => getSupportedChains(), []);
 
-  const router = useRouter()
+  const router = useRouter();
 
   let chainMetadata;
   if (chainId) {

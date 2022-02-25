@@ -8,7 +8,7 @@ import { ChainID } from "esm/utils/networks";
 import { useRari } from "context/RariContext";
 
 export const useUnderlyingAssetsCount = (): SWRResponse<number, any> => {
-  const { chainId } = useRari()
+  const { chainId } = useRari();
   return useSWR("allAssetsCount " + chainId, async () => {
     const data = await makeGqlRequest(GET_UNDERLYING_ASSETS_COUNT, {}, chainId);
     const count = data.utility.underlyingCount;

@@ -6,7 +6,7 @@ import { TokensDataMap } from "types/tokens";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 
 // Rari
-import { Vaults } from "../../../esm/index"
+import { Vaults } from "../../../esm/index";
 import { EmptyAddress } from "context/RariContext";
 
 // Hooks
@@ -22,8 +22,8 @@ import { fetchTokensAPIDataAsMap } from "utils/services";
 import redis from "utils/redis";
 
 // Ethers
-import { utils } from 'ethers'
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 // Types
 export interface ExploreAsset extends USDPricedFuseAsset {

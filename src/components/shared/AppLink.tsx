@@ -11,11 +11,13 @@ const AppLink: any = ({
   children: ReactNodeArray;
   href: string;
   as: any;
-  linkProps: any,
+  linkProps: any;
 }) => {
   return (
     <NextLink href={href} passHref>
-      <Link as={as} {...linkProps}>{children}</Link>
+      <Link as={as} {...linkProps}>
+        {children}
+      </Link>
     </NextLink>
   );
 };

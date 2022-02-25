@@ -17,18 +17,18 @@ import { Spinner } from "@chakra-ui/spinner";
 import { useAddAssetContext } from "context/AddAssetContext";
 import UniswapV2TwapInfoForBot from "../OracleConfig/UniswapV2TwapInfoForBot";
 
-const Screen2 = ({ 
+const Screen2 = ({
   mode,
   checked,
-  setChecked
-}: { 
-  mode: string,
-  checked: boolean,
-  setChecked: any
+  setChecked,
+}: {
+  mode: string;
+  checked: boolean;
+  setChecked: any;
 }) => {
   // Only for UNIV2
-    // Checks if user has started the TWAP bot.
-  
+  // Checks if user has started the TWAP bot.
+
   const {
     feeTier,
     poolOracleModel,
@@ -147,7 +147,10 @@ const Screen2 = ({
             <BaseTokenOracleConfig />
           </Column>
         ) : null}
-        {activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle" && activeUniSwapPair !== ""  && uniV3BaseTokenAddress !== "" ? (
+        {activeOracleModel === "Uniswap_V2_Oracle" ||
+        (activeOracleModel === "SushiSwap_Oracle" &&
+          activeUniSwapPair !== "" &&
+          uniV3BaseTokenAddress !== "") ? (
           <Column
             width="50%"
             minW="50%"

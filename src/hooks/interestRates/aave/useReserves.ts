@@ -8,7 +8,7 @@ import { ETH_TOKEN_DATA } from "hooks/useTokenData";
 
 // Types
 import { MarketInfo, InterestRatesType } from "../types";
-import { Vaults } from "../../../esm/index"
+import { Vaults } from "../../../esm/index";
 
 // Ethers
 import { Contract } from "@ethersproject/contracts";
@@ -87,13 +87,17 @@ export default function useReserves() {
 
 async function fetchReserveData(
   assetAddress: string,
-  rari: Vaults  
+  rari: Vaults
 ): Promise<InterestRatesType> {
   // init LendingPool
-  const contract = new Contract(LendingPool.address, LendingPool.abi, rari.provider.getSigner());
+  const contract = new Contract(
+    LendingPool.address,
+    LendingPool.abi,
+    rari.provider.getSigner()
+  );
 
   // get reserve data from LendingPool
-  const reserveData = await contract.getReserveData(assetAddress)
+  const reserveData = await contract.getReserveData(assetAddress);
 
   // get lending and borrowing rates (converting from ray [1e27])
   const lendingRate = reserveData.currentLiquidityRate / 1e27;

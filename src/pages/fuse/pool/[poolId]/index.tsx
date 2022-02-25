@@ -21,7 +21,7 @@ export const getStaticPaths = async () => {
 
 const FusePage: NextPage = () => {
   // return <Heading>
-  return <FusePoolpage />
+  return <FusePoolpage />;
 };
 
 export default FusePage;

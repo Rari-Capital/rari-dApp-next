@@ -1,4 +1,10 @@
-import { Heading, useBreakpointValue, Image, Collapse, PopoverCloseButton } from "@chakra-ui/react";
+import {
+  Heading,
+  useBreakpointValue,
+  Image,
+  Collapse,
+  PopoverCloseButton,
+} from "@chakra-ui/react";
 import DashboardBox from "components/shared/DashboardBox";
 
 import {
@@ -22,10 +28,7 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 // Utils
 import { Column, Row, RowOrColumn } from "lib/chakraUtils";
 
-import {
-  APIExploreData,
-  SubgraphPool,
-} from "pages/api/explore";
+import { APIExploreData, SubgraphPool } from "pages/api/explore";
 import useSWR from "swr";
 
 import axios from "axios";
@@ -54,16 +57,16 @@ const exploreFetcher = async (route: string): Promise<APIExploreData> => {
   return data;
 };
 
-const topFusePoolsFetcher = async (chainId: ChainID): Promise<
-  SubgraphPool[]
-> => {
+const topFusePoolsFetcher = async (
+  chainId: ChainID
+): Promise<SubgraphPool[]> => {
   // const data = await getExploreData();
   const { pools }: { pools: SubgraphPool[] } = await makeGqlRequest(
     GET_TOP_FUSE_POOLS,
     {},
     chainId
   );
-  return pools
+  return pools;
 };
 
 interface RecommendedMarketsMap {
@@ -82,9 +85,9 @@ interface RecommendedPoolsReturn {
 }
 
 const recommendedPoolsFetcher = async (
-  chainId: number, ...tokenAddresses: string[]
+  chainId: number,
+  ...tokenAddresses: string[]
 ): Promise<RecommendedPoolsReturn> => {
-
   // Get all pools where any of these tokens exist
   const { underlyingAssets } = await makeGqlRequest(
     GET_UNDERLYING_ASSETS_WITH_POOLS,
@@ -201,7 +204,7 @@ const ExplorePage = () => {
   // const { getNumberTVL } = useTVLFetchers();
   // const { t } = useTranslation();
   const { chainId, switchNetwork } = useRari();
-  const router = useRouter()
+  const router = useRouter();
 
   const paddingX = useBreakpointValue({ base: 5, sm: 5, md: 15, lg: 20 });
   const isMobile =
@@ -214,20 +217,23 @@ const ExplorePage = () => {
 
   // Data
   // Fetchers
-  const { data, error } = useSWR("/api/explore?chainId=" + chainId, exploreFetcher);
-  const { data: topFusePools } = useSWR([chainId, "topFusePools"], topFusePoolsFetcher);
+  const { data, error } = useSWR(
+    "/api/explore?chainId=" + chainId,
+    exploreFetcher
+  );
+  const { data: topFusePools } = useSWR(
+    [chainId, "topFusePools"],
+    topFusePoolsFetcher
+  );
   const { results } = data ?? {};
 
-  const topPools = topFusePools ?? []
+  const topPools = topFusePools ?? [];
 
   const [balances, significantTokens] = useAccountBalances();
 
-  const {
-    recommended,
-    poolsMap,
-  } = useRecommendedPools(significantTokens);
+  const { recommended, poolsMap } = useRecommendedPools(significantTokens);
 
-  const [tokensData, setTokensData] = useState<any>({})
+  const [tokensData, setTokensData] = useState<any>({});
 
   const recommendedTokens = useMemo(
     () =>
@@ -241,15 +247,15 @@ const ExplorePage = () => {
     () => !!significantTokens.length,
     [significantTokens]
   );
-  const shouldShowRecommendedPools = chainId === 1 && hasBalances
+  const shouldShowRecommendedPools = chainId === 1 && hasBalances;
 
-  const { topEarningFuseStable,
+  const {
+    topEarningFuseStable,
     topEarningFuseAsset,
     mostPopularFuseAsset,
     mostBorrowedFuseAsset,
     cheapestStableBorrow,
   } = results ?? {};
-
 
   useEffect(() => {
     const exploreDataUnderlyingAddresses = Object.values(results ?? {})
@@ -270,7 +276,7 @@ const ExplorePage = () => {
         setTokensData(tokensData);
       }
     });
-  }, [poolsMap, chainId, results])
+  }, [poolsMap, chainId, results]);
 
   return (
     <Column
@@ -308,7 +314,10 @@ const ExplorePage = () => {
             overflow="hidden"
             flex={0}
           >
-            <AppLink href={"#"} onClick={() => switchNetwork(ChainID.ARBITRUM, router)}>
+            <AppLink
+              href={"#"}
+              onClick={() => switchNetwork(ChainID.ARBITRUM, router)}
+            >
               <Image h="100%" w="100%" src="static/arbitrum_banner.png" />
             </AppLink>
           </DashboardBox>
@@ -361,7 +370,11 @@ const ExplorePage = () => {
       </RowOrColumn>
 
       {/* Recommended Row */}
-      <Collapse in={shouldShowRecommendedPools} animateOpacity style={{ width: "100%" }}>
+      <Collapse
+        in={shouldShowRecommendedPools}
+        animateOpacity
+        style={{ width: "100%" }}
+      >
         <RowOrColumn
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
@@ -377,13 +390,13 @@ const ExplorePage = () => {
             crossAxisAlignment="flex-start"
             w="100%"
             h="100%"
-          // bg="coral"
+            // bg="coral"
           >
             <Row
               mainAxisAlignment="flex-start"
               crossAxisAlignment="flex-end"
               w="100%"
-            // h="20px"
+              // h="20px"
             >
               <Heading>Recommended</Heading>
               <Text ml={3} color="grey">
@@ -410,9 +423,7 @@ const ExplorePage = () => {
                     assetIndex={
                       recommended[tokenAddress]?.assetIndex ?? undefined
                     }
-                    tokenData={
-                      tokensData?.[tokenAddress] ?? undefined
-                    }
+                    tokenData={tokensData?.[tokenAddress] ?? undefined}
                     balance={balances[tokenAddress] ?? undefined}
                   />
                 </HoverCard>
@@ -431,20 +442,19 @@ const ExplorePage = () => {
         px={8}
         py={4}
         my={3}
-
       >
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           w="100%"
           h="100%"
-        // bg="coral"
+          // bg="coral"
         >
           <Row
             mainAxisAlignment="flex-start"
             crossAxisAlignment="flex-end"
             w="100%"
-          // h="20px"
+            // h="20px"
           >
             <Heading>Top Fuse Pools</Heading>
             <Text ml={3} color="grey">
@@ -458,24 +468,38 @@ const ExplorePage = () => {
             w="100%"
             h="100%"
             py={4}
-
           >
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
+            <HoverCard
+              w="100%"
+              h="100%"
+              flexBasis={"33%"}
+              maxW={!isMobile ? "33%" : "100%"}
+            >
               <ExploreFuseCard
                 pool={topPools[0]}
-              // tokensData={topFusePoolsTokensData}
+                // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
+            <HoverCard
+              w="100%"
+              h="100%"
+              flexBasis={"33%"}
+              maxW={!isMobile ? "33%" : "100%"}
+            >
               <ExploreFuseCard
                 pool={topPools[1]}
-              // tokensData={topFusePoolsTokensData}
+                // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
-            <HoverCard w="100%" h="100%" flexBasis={"33%"} maxW={!isMobile ? "33%" : "100%"}>
+            <HoverCard
+              w="100%"
+              h="100%"
+              flexBasis={"33%"}
+              maxW={!isMobile ? "33%" : "100%"}
+            >
               <ExploreFuseCard
                 pool={topPools[2]}
-              // tokensData={topFusePoolsTokensData}
+                // tokensData={topFusePoolsTokensData}
               />
             </HoverCard>
           </Stack>
@@ -502,7 +526,7 @@ const ExplorePage = () => {
           <TokenExplorer />
         </Column>
       </HStack>
-    </Column >
+    </Column>
   );
 };
 

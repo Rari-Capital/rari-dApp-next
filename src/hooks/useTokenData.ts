@@ -79,7 +79,6 @@ export const fetchTokenData = async (
         ...(await fetch(url).then((res) => res.json())),
         address: address,
       };
-
     } catch (e) {
       data = EMPTY_TOKEN_DATA;
     }

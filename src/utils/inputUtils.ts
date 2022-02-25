@@ -3,7 +3,7 @@ import { fetchTokenBalance } from "hooks/useTokenBalance";
 
 // Types
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-import { Fuse } from "../esm/index"
+import { Fuse } from "../esm/index";
 import {
   AmountSelectMode,
   AmountSelectUserAction,
@@ -24,9 +24,8 @@ import {
 } from "components/pages/Fuse/Modals/PoolModal/AmountSelect";
 import { handleGenericError } from "./errorHandling";
 
-
 // Ethers
-import { BigNumber, utils, constants } from 'ethers'
+import { BigNumber, utils, constants } from "ethers";
 
 // Gets the max amount based on the input mode, asset, and balances
 export const fetchMaxAmount = async (
@@ -35,7 +34,7 @@ export const fetchMaxAmount = async (
   address: string,
   asset: USDPricedFuseAsset,
   comptrollerAddress: string,
-  isAuthed: boolean,
+  isAuthed: boolean
 ) => {
   if (mode === AmountSelectMode.LEND) {
     const balance = await fetchTokenBalance(
@@ -63,19 +62,30 @@ export const fetchMaxAmount = async (
   }
 
   if (mode === AmountSelectMode.BORROW) {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
-    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(address, asset.cToken)
+    const { 0: err, 1: maxBorrow } = await comptroller.callStatic.getMaxBorrow(
+      address,
+      asset.cToken
+    );
 
     if (err !== 0) {
-      return maxBorrow.mul(utils.parseUnits("0.75"))
+      return maxBorrow.mul(utils.parseUnits("0.75"));
     } else {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }
   }
 
   if (mode === AmountSelectMode.WITHDRAW) {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const { 0: err, 1: maxRedeem } = await comptroller.methods
       .getMaxRedeem(address, asset.cToken)
@@ -109,7 +119,7 @@ export const onLendBorrowConfirm = async ({
   borrowAmount?: BigNumber;
   comptrollerAddress: string;
   setUserAction: (userAction: AmountSelectUserAction) => void;
-  isAuthed: boolean
+  isAuthed: boolean;
   toast?: any;
 }) => {
   try {
@@ -149,7 +159,11 @@ export const onLendBorrowConfirm = async ({
       }
 
       // By default, we enable the asset as collateral.
-      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+      const comptroller = useCreateComptroller(
+        comptrollerAddress,
+        fuse,
+        isAuthed
+      );
 
       // If we've already supplied this as collateral before, then we don't need to submit a new tx for this
       if (!asset.membership) {
@@ -166,11 +180,8 @@ export const onLendBorrowConfirm = async ({
       if (isETH) {
         const call = cToken.methods.mint(); //
 
-
         // If they are supplying their whole balance, we have to subtract an estimate of the gas cost.
-        if (
-          lendAmount === (await fuse.provider.getBalance(address))
-        ) {
+        if (lendAmount === (await fuse.provider.getBalance(address))) {
           // Get the estimated gas for this call
           const { gasWEI } = await fetchGasForCall(
             call,
@@ -179,7 +190,7 @@ export const onLendBorrowConfirm = async ({
             address
           );
 
-          if (!gasWEI) return
+          if (!gasWEI) return;
 
           // Send the call with fullAmount - estimatedGas
           await call.send({

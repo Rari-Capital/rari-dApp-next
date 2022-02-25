@@ -11,11 +11,8 @@ export async function getStaticProps({ locale }: { locale: string }) {
   };
 }
 
-
 const FusePage: NextPage = () => {
-    return (
-        <FuseLiquidationsPage />
-    )
-}
+  return <FuseLiquidationsPage />;
+};
 
-export default FusePage
+export default FusePage;

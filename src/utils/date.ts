@@ -1,6 +1,5 @@
+import dayjs from "dayjs";
 
-import dayjs from 'dayjs'
-
-export function unixToDate(unix: number, format = 'YYYY-MM-DD'): string {
-    return dayjs(unix).format(format)
-  }
+export function unixToDate(unix: number, format = "YYYY-MM-DD"): string {
+  return dayjs(unix).format(format);
+}

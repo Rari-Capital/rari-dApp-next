@@ -3,7 +3,11 @@ import { Contract } from "ethers";
 
 import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 
-export const useCreateComptroller = (comptrollerAddress: string, fuse: Fuse, isAuthed: boolean) => {
+export const useCreateComptroller = (
+  comptrollerAddress: string,
+  fuse: Fuse,
+  isAuthed: boolean
+) => {
   const comptroller = new Contract(
     comptrollerAddress,
     JSON.parse(
@@ -53,7 +57,7 @@ export const createOracle = (
   type: string,
   special?: boolean
 ): Contract => {
-  const provider = special ? fuse.provider : fuse.provider.getSigner()
+  const provider = special ? fuse.provider : fuse.provider.getSigner();
   const oracle = new Contract(
     oracleAddress,
     fuse.oracleContracts[type].abi,
@@ -63,8 +67,12 @@ export const createOracle = (
   return oracle;
 };
 
-export const createCToken = (fuse: Fuse, cTokenAddress: string, special?: boolean) => {
-  const provider = special ? fuse.provider : fuse.provider.getSigner()
+export const createCToken = (
+  fuse: Fuse,
+  cTokenAddress: string,
+  special?: boolean
+) => {
+  const provider = special ? fuse.provider : fuse.provider.getSigner();
   const cErc20Delegate = new Contract(
     cTokenAddress,
     JSON.parse(
@@ -86,7 +94,7 @@ export const createERC20 = (fuse: Fuse, cTokenAddress: string) => {
 };
 
 export const createMasterPriceOracle = (fuse: Fuse, special?: boolean) => {
-  const provider = special ? fuse.provider : fuse.provider.getSigner()
+  const provider = special ? fuse.provider : fuse.provider.getSigner();
   const masterPriceOracle = new Contract(
     fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle,
     fuse.oracleContracts["MasterPriceOracle"].abi,

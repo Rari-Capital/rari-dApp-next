@@ -32,7 +32,7 @@ import AppLink from "../AppLink";
 import { SimpleTooltip } from "../SimpleTooltip";
 
 // Ethers
-import { BigNumber, constants, utils } from 'ethers'
+import { BigNumber, constants, utils } from "ethers";
 
 const LendAndBorrow = ({
   token,
@@ -67,10 +67,14 @@ const LendAndBorrow = ({
 
   // State
   const [lendInput, setLendInput] = useState<string>("");
-  const [lendAmountBN, setLendAmountBN] = useState<BigNumber | undefined>(constants.Zero);
+  const [lendAmountBN, setLendAmountBN] = useState<BigNumber | undefined>(
+    constants.Zero
+  );
 
   const [borrowInput, setBorrowInput] = useState<string>("");
-  const [borrowAmountBN, setBorrowAmountBN] = useState<BigNumber | undefined>(constants.Zero);
+  const [borrowAmountBN, setBorrowAmountBN] = useState<BigNumber | undefined>(
+    constants.Zero
+  );
 
   // Bubbled up from StatsColumn
   const [error, setError] = useState<string | null>(null);
@@ -83,9 +87,13 @@ const LendAndBorrow = ({
 
       // Try to set the amount to BigNumber(newAmount):
       const bigAmount = utils.parseUnits(newAmount);
-        setLendAmountBN(
-            bigAmount.mul(lendAsset.underlyingDecimals.eq(18) ? constants.WeiPerEther : BigNumber.from(10).pow(lendAsset.underlyingDecimals))
-          );
+      setLendAmountBN(
+        bigAmount.mul(
+          lendAsset.underlyingDecimals.eq(18)
+            ? constants.WeiPerEther
+            : BigNumber.from(10).pow(lendAsset.underlyingDecimals)
+        )
+      );
     },
     [lendAsset]
   );
@@ -98,8 +106,12 @@ const LendAndBorrow = ({
       // Try to set the amount to BigNumber(newAmount):
       const bigAmount = utils.parseUnits(newAmount);
       setBorrowAmountBN(
-            bigAmount.mul(borrowAsset.underlyingDecimals.eq(18) ? constants.WeiPerEther : BigNumber.from(10).pow(borrowAsset.underlyingDecimals))
-          );
+        bigAmount.mul(
+          borrowAsset.underlyingDecimals.eq(18)
+            ? constants.WeiPerEther
+            : BigNumber.from(10).pow(borrowAsset.underlyingDecimals)
+        )
+      );
     },
     [borrowAsset]
   );
@@ -208,7 +220,8 @@ const LendAndBorrow = ({
       >
         {error
           ? error
-          : lendAmountBN?.gt(constants.Zero) && borrowAmountBN?.gt(constants.Zero)
+          : lendAmountBN?.gt(constants.Zero) &&
+            borrowAmountBN?.gt(constants.Zero)
           ? "Lend & Borrow"
           : lendAmountBN?.gt(constants.Zero)
           ? "Lend"
@@ -290,7 +303,9 @@ const StatsColumn = ({
   const oldRatio =
     borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.div(borrowLimit);
   const updatedRatio =
-    updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.div(updatedBorrowLimit);
+    updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.div(
+      updatedBorrowLimit
+    );
 
   // At Liquidation Risk?
   // const atRiskOfLiquidation = oldRatio > 0.95;
@@ -410,15 +425,17 @@ const StatsColumn = ({
               </Text>
 
               <Text fontWeight="bold" flexShrink={0} fontSize={"xs"}>
-                {
-                  asset.supplyBalance.div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                .toString()}
+                {asset.supplyBalance
+                  .div(BigNumber.from(10).pow(asset.underlyingDecimals))
+                  .toString()}
                 {isSupplyingOrWithdrawing && updatedAsset ? (
                   <>
                     {" → "}
-                    {
-                      updatedAsset!.supplyBalance.div(BigNumber.from(10).pow(updatedAsset.underlyingDecimals)).toString()
-                   }
+                    {updatedAsset!.supplyBalance
+                      .div(
+                        BigNumber.from(10).pow(updatedAsset.underlyingDecimals)
+                      )
+                      .toString()}
                   </>
                 ) : null}{" "}
                 {asset.underlyingSymbol}
@@ -444,16 +461,20 @@ const StatsColumn = ({
                   {t("Borrow Balance")}:
                 </Text>
                 <Text fontWeight="bold" flexShrink={0} fontSize={"xs"}>
-                  {
-                    borrowAsset.borrowBalance.div(BigNumber.from(10).pow(borrowAsset.underlyingDecimals)).toString()
-                  
-                  }
+                  {borrowAsset.borrowBalance
+                    .div(BigNumber.from(10).pow(borrowAsset.underlyingDecimals))
+                    .toString()}
                   <>
                     {" → "}
-                    { updatedBorrowAsset ?
-                      updatedBorrowAsset!.borrowBalance.div(BigNumber.from(10).pow(updatedBorrowAsset?.underlyingDecimals)).toString()
-                      : null
-                    }
+                    {updatedBorrowAsset
+                      ? updatedBorrowAsset!.borrowBalance
+                          .div(
+                            BigNumber.from(10).pow(
+                              updatedBorrowAsset?.underlyingDecimals
+                            )
+                          )
+                          .toString()
+                      : null}
                   </>{" "}
                   {borrowAsset.underlyingSymbol}
                 </Text>
@@ -607,44 +628,45 @@ const StatsColumn = ({
 
           {/* Total Debt Balance  */}
           {borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.gt(constants.Zero) ||
-            updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.gt(constants.Zero) && (
-            <SimpleTooltip
-              label={`Total USD debt balance in pool ${pool?.id} after this transaction succeeds`}
-              placement="bottom-end"
-            >
-              <Row
-                mainAxisAlignment="space-between"
-                crossAxisAlignment="center"
-                width="100%"
-                color="white"
+            (updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.gt(
+              constants.Zero
+            ) && (
+              <SimpleTooltip
+                label={`Total USD debt balance in pool ${pool?.id} after this transaction succeeds`}
+                placement="bottom-end"
               >
-                <Text fontWeight="bold" fontSize="md">
-                  {t("Total Debt")}:
-                </Text>
-                <Row mainAxisAlignment="flex-start" crossAxisAlignment="center">
-                  <Text fontWeight="bold" fontSize={"xs"}>
-                    {
-                      borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()
-                    }
+                <Row
+                  mainAxisAlignment="space-between"
+                  crossAxisAlignment="center"
+                  width="100%"
+                  color="white"
+                >
+                  <Text fontWeight="bold" fontSize="md">
+                    {t("Total Debt")}:
                   </Text>
-                  <Text ml={1} fontWeight="bold" fontSize={"xs"}>
-                    {" → "}
-                  </Text>
-                  <Text
-                    ml={1}
-                    fontWeight="bold"
-                    fontSize={updatedAtRiskOfLiquidation ? "md" : "xs"}
-                    color={updatedAtRiskOfLiquidation ? "red" : ""}
+                  <Row
+                    mainAxisAlignment="flex-start"
+                    crossAxisAlignment="center"
                   >
-                    {
-                      updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()
-                    }{" "}
-                    ({!updatedRatio && (updatedRatio * 100).toFixed(0)}%)
-                  </Text>
+                    <Text fontWeight="bold" fontSize={"xs"}>
+                      {borrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()}
+                    </Text>
+                    <Text ml={1} fontWeight="bold" fontSize={"xs"}>
+                      {" → "}
+                    </Text>
+                    <Text
+                      ml={1}
+                      fontWeight="bold"
+                      fontSize={updatedAtRiskOfLiquidation ? "md" : "xs"}
+                      color={updatedAtRiskOfLiquidation ? "red" : ""}
+                    >
+                      {updatedBorrowAndSupplyBalanceUSD.totalBorrowBalanceUSD.toString()}{" "}
+                      ({!updatedRatio && (updatedRatio * 100).toFixed(0)}%)
+                    </Text>
+                  </Row>
                 </Row>
-              </Row>
-            </SimpleTooltip>
-          )}
+              </SimpleTooltip>
+            ))}
 
           {/* Fuse Pool  */}
           <Row

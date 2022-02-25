@@ -45,7 +45,7 @@ import { handleGenericError } from "utils/errorHandling";
 
 // Styles
 const activeStyle = { bg: "#FFF", color: "#000" };
-const noop = () => { };
+const noop = () => {};
 
 const useRewardsDistributorInstance = (rDAddress: string) => {
   const { fuse } = useRari();
@@ -53,7 +53,11 @@ const useRewardsDistributorInstance = (rDAddress: string) => {
 };
 
 // Gets Reward Speed of CToken
-const useRewardSpeedsOfCToken = (rDAddress: any, decimals: number, cTokenAddress?: string,) => {
+const useRewardSpeedsOfCToken = (
+  rDAddress: any,
+  decimals: number,
+  cTokenAddress?: string
+) => {
   const { fuse } = useRari();
 
   const [supplySpeed, setSupplySpeed] = useState<number>(0);
@@ -109,7 +113,7 @@ const EditRewardsDistributorModal = ({
   const toast = useToast();
 
   // Inputs
-  const [sendAmt, setSendAmt] = useState<string>('');
+  const [sendAmt, setSendAmt] = useState<string>("");
 
   const [supplySpeed, setSupplySpeed] = useState<number>(0.001);
   const [borrowSpeed, setBorrowSpeed] = useState<number>(0.001);
@@ -127,7 +131,7 @@ const EditRewardsDistributorModal = ({
   const [supplySpeedForCToken, borrowSpeedForCToken] = useRewardSpeedsOfCToken(
     rewardsDistributor.address,
     tokenData?.decimals ?? 18,
-    selectedAsset?.cToken,
+    selectedAsset?.cToken
   );
 
   const { hasCopied, onCopy } = useClipboard(rewardsDistributor?.address ?? "");
@@ -138,19 +142,17 @@ const EditRewardsDistributorModal = ({
     const token = createERC20(fuse, rewardsDistributor.rewardToken);
 
     try {
-      if (!sendAmt) throw new Error('No Send Amount Specified')
+      if (!sendAmt) throw new Error("No Send Amount Specified");
 
       setFundingDistributor(true);
-      const sendAmtBn = parseUnits((parseInt(sendAmt)).toString(), tokenData?.decimals)
-      let tx = await token
-        .transfer(
-          rewardsDistributor.address,
-          sendAmtBn,
-          {
-            from: address,
-          }
-        )
-      await tx.wait(1)
+      const sendAmtBn = parseUnits(
+        parseInt(sendAmt).toString(),
+        tokenData?.decimals
+      );
+      let tx = await token.transfer(rewardsDistributor.address, sendAmtBn, {
+        from: address,
+      });
+      await tx.wait(1);
       setFundingDistributor(false);
     } catch (err) {
       handleGenericError(err, toast);
@@ -162,16 +164,18 @@ const EditRewardsDistributorModal = ({
   const changeSupplySpeed = async () => {
     try {
       setChangingSpeed(true);
-      const supplySpeedBN = parseUnits(supplySpeed.toString(), tokenData?.decimals ?? 18)
-      console.log({ supplySpeedBN })
+      const supplySpeedBN = parseUnits(
+        supplySpeed.toString(),
+        tokenData?.decimals ?? 18
+      );
+      console.log({ supplySpeedBN });
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-      let tx = await rewardsDistributorInstance
-        ._setCompSupplySpeed(
-          selectedAsset?.cToken,
-          supplySpeedBN,
-          { from: address }
-        )
-      await tx.wait(1)
+      let tx = await rewardsDistributorInstance._setCompSupplySpeed(
+        selectedAsset?.cToken,
+        supplySpeedBN,
+        { from: address }
+      );
+      await tx.wait(1);
       setChangingSpeed(false);
     } catch (err) {
       handleGenericError(err, toast);
@@ -183,16 +187,18 @@ const EditRewardsDistributorModal = ({
   const changeBorrowSpeed = async () => {
     try {
       setChangingBorrowSpeed(true);
-      const borrowSpeedBN = parseUnits(borrowSpeed.toString(), tokenData?.decimals ?? 18)
-      console.log({ borrowSpeedBN })
+      const borrowSpeedBN = parseUnits(
+        borrowSpeed.toString(),
+        tokenData?.decimals ?? 18
+      );
+      console.log({ borrowSpeedBN });
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
-      let tx = await rewardsDistributorInstance
-        ._setCompBorrowSpeed(
-          selectedAsset?.cToken,
-          borrowSpeedBN,
-          { from: address }
-        )
-      await tx.wait(1)
+      let tx = await rewardsDistributorInstance._setCompBorrowSpeed(
+        selectedAsset?.cToken,
+        borrowSpeedBN,
+        { from: address }
+      );
+      await tx.wait(1);
       setChangingBorrowSpeed(false);
     } catch (err) {
       handleGenericError(err, toast);
@@ -204,10 +210,7 @@ const EditRewardsDistributorModal = ({
     try {
       setSeizing(true);
       if (isAdmin) {
-        await rewardsDistributorInstance._grantComp(
-          address,
-          balanceERC20
-        );
+        await rewardsDistributorInstance._grantComp(address, balanceERC20);
       } else {
         toast({
           title: "Admin Only!",
@@ -218,8 +221,7 @@ const EditRewardsDistributorModal = ({
           position: "top-right",
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       toast({
         title: "Error Seizing Tokens",
@@ -274,7 +276,9 @@ const EditRewardsDistributorModal = ({
             </Heading>
             <Text>
               {balanceERC20
-                ? parseFloat(formatUnits(balanceERC20!, tokenData?.decimals)).toFixed(3)
+                ? parseFloat(
+                    formatUnits(balanceERC20!, tokenData?.decimals)
+                  ).toFixed(3)
                 : 0}{" "}
               {tokenData?.symbol}
             </Text>
@@ -448,10 +452,7 @@ const EditRewardsDistributorModal = ({
                   mainAxisAlignment="flex-start"
                   crossAxisAlignment="flex-start"
                 >
-                  <Text>
-                    Supply Speed:{" "}
-                    {supplySpeedForCToken.toFixed(5)}
-                  </Text>
+                  <Text>Supply Speed: {supplySpeedForCToken.toFixed(5)}</Text>
                 </Row>
               </Column>
 
@@ -496,11 +497,7 @@ const EditRewardsDistributorModal = ({
                   mainAxisAlignment="flex-start"
                   crossAxisAlignment="flex-start"
                 >
-                  <Text>
-                    Borrow Speed:{" "}
-                    {borrowSpeedForCToken.toFixed(5)}
-
-                  </Text>
+                  <Text>Borrow Speed: {borrowSpeedForCToken.toFixed(5)}</Text>
                 </Row>
               </Column>
             </Column>

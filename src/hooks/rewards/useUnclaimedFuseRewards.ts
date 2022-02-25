@@ -22,8 +22,8 @@ export function useUnclaimedFuseRewards() {
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
     "unclaimedRewards for " + address + " " + chainId,
     async () => {
-      if (!isAuthed) return null
-      
+      if (!isAuthed) return null;
+
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
           address
@@ -139,9 +139,9 @@ export function useUnclaimedFuseRewards() {
 
   //  4.  getUnclaimedRewardsByDistributors
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
-    "unclaimed for " + address +  ' ' + chainId,
+    "unclaimed for " + address + " " + chainId,
     async () => {
-      if (!isAuthed) return undefined
+      if (!isAuthed) return undefined;
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,

@@ -1,2 +1,2 @@
-import LBRW from "./LBRW"
-export default LBRW
+import LBRW from "./LBRW";
+export default LBRW;

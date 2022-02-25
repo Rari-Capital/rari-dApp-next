@@ -85,8 +85,8 @@ export const FuseAssetGridBox = ({
         data?.pool?.index
           ? `/fuse/pool/${data.pool.index}`
           : data?.underlying?.id
-            ? `/token/${data?.underlying?.id}`
-            : `#`
+          ? `/token/${data?.underlying?.id}`
+          : `#`
       }
       className="no-underline"
       w="100%"
@@ -163,7 +163,7 @@ export const FuseAssetGridBox = ({
   );
 };
 
-export const  VaultGridBox = ({
+export const VaultGridBox = ({
   bg,
   heading = "Newest Vault",
 }: {
@@ -175,7 +175,13 @@ export const  VaultGridBox = ({
   const loading = !poolAPY;
 
   return (
-    <AppLink href={"https://v2.rari.capital/pools/usdc"} isExternal className="no-underline" w="100%" h="100%">
+    <AppLink
+      href={"https://v2.rari.capital/pools/usdc"}
+      isExternal
+      className="no-underline"
+      w="100%"
+      h="100%"
+    >
       <Column
         w="100%"
         h="100%"

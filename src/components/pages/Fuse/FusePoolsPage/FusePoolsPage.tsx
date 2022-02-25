@@ -17,7 +17,7 @@ import { useFusePools } from "hooks/fuse/useFusePools";
 const FusePoolsPage = memo(() => {
   const isMobile = useIsSmallScreen();
   const filter = useFilter();
-const filteredPools = useFusePools(filter);
+  const filteredPools = useFusePools(filter);
 
   return (
     <>

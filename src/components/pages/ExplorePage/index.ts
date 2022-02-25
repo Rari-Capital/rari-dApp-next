@@ -1,2 +1,2 @@
-import ExplorePage from './ExplorePage'
-export default ExplorePage
+import ExplorePage from "./ExplorePage";
+export default ExplorePage;

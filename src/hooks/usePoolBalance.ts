@@ -5,8 +5,8 @@ import { useRari } from "../context/RariContext";
 import { getSDKPool } from "../utils/poolUtils";
 import { PoolInterface } from "constants/pools";
 import { fromWei, toBN } from "utils/ethersUtils";
-import { Vaults } from "../esm/index"
-import { BigNumber } from 'ethers'
+import { Vaults } from "../esm/index";
+import { BigNumber } from "ethers";
 import useVaultsSDK from "./vaults/useVaultsSDK";
 
 interface UseQueryResponse {
@@ -31,7 +31,6 @@ export const fetchPoolBalance = async ({
 export const usePoolBalance = (pool: Pool): UseQueryResponse => {
   const { address } = useRari();
   const { rari } = useVaultsSDK();
-
 
   const { data, isLoading, error } = useQuery(
     address + " " + pool + " balance",
@@ -84,9 +83,7 @@ export const useTotalPoolsBalance = (): UseQueryResponse => {
         rari.getEthUsdPriceBN(),
       ]);
 
-      const ethBal = ethBalInETH.mul(
-        ethPriceBN.div(toBN(1e18))
-      );
+      const ethBal = ethBalInETH.mul(ethPriceBN.div(toBN(1e18)));
 
       return parseFloat(fromWei(stableBal.add(yieldBal).add(ethBal)));
     }

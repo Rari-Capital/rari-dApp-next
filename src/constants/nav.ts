@@ -43,11 +43,18 @@ export const UTILS_DROPDOWN_ITEMS: MenuItemInterface[] = [
   },
   {
     type: MenuItemType.LINK,
-    link: { name: "Metrics (Mainnet)", route: "https://rari.grafana.net/goto/61kctV_Gk" },
+    link: {
+      name: "Metrics (Mainnet)",
+      route: "https://rari.grafana.net/goto/61kctV_Gk",
+    },
   },
   {
     type: MenuItemType.LINK,
-    link: { name: "Metrics (Arbitrum)", route: "https://metrics.rari.capital/d/BOdF7Hbnk/fuse-overview-arbitrum?orgId=1&refresh=5m&from=now-5m&to=now" },
+    link: {
+      name: "Metrics (Arbitrum)",
+      route:
+        "https://metrics.rari.capital/d/BOdF7Hbnk/fuse-overview-arbitrum?orgId=1&refresh=5m&from=now-5m&to=now",
+    },
   },
   {
     type: MenuItemType.LINK,
@@ -69,7 +76,11 @@ export const UTILS_DROPDOWN_ITEMS_ARBITRUM: MenuItemInterface[] = [
   },
   {
     type: MenuItemType.LINK,
-    link: { name: "Metrics", route: "https://metrics.rari.capital/d/BOdF7Hbnk/fuse-overview-arbitrum?orgId=1&refresh=5m&from=now-5m&to=now" },
+    link: {
+      name: "Metrics",
+      route:
+        "https://metrics.rari.capital/d/BOdF7Hbnk/fuse-overview-arbitrum?orgId=1&refresh=5m&from=now-5m&to=now",
+    },
   },
   {
     type: MenuItemType.LINK,
@@ -80,7 +91,8 @@ export const UTILS_DROPDOWN_ITEMS_ARBITRUM: MenuItemInterface[] = [
   },
 ];
 
-
 export const UtilLinks = (chainId: number) => {
-  return chainId === ChainID.ETHEREUM ? UTILS_DROPDOWN_ITEMS : UTILS_DROPDOWN_ITEMS_ARBITRUM
-}
+  return chainId === ChainID.ETHEREUM
+    ? UTILS_DROPDOWN_ITEMS
+    : UTILS_DROPDOWN_ITEMS_ARBITRUM;
+};

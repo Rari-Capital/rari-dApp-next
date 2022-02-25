@@ -1,2 +1,2 @@
-import AssetBalance from './AssetBalance'
-export default AssetBalance
+import AssetBalance from "./AssetBalance";
+export default AssetBalance;

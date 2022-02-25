@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
-import { Fuse } from "../../esm/index"
+import { Fuse } from "../../esm/index";
 import { fromWei } from "utils/ethersUtils";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 

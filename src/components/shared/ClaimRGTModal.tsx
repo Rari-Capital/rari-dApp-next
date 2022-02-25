@@ -25,10 +25,7 @@ import {
   useUnclaimedFuseRewards,
 } from "hooks/rewards/useUnclaimedFuseRewards";
 import DashboardBox from "./DashboardBox";
-import {
-  TokenData,
-  useTokensDataAsMap,
-} from "hooks/useTokenData";
+import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { claimRewardsFromRewardsDistributors } from "utils/rewards";
 import { SimpleTooltip } from "./SimpleTooltip";
@@ -165,7 +162,7 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
       const rDs = rewardTokensMap[rewardToken];
       const rDAddresses = rDs.map((rD) => rD.rewardsDistributorAddress); // all rewardsdistributors for this token
 
-      console.log({ rDs, rDAddresses })
+      console.log({ rDs, rDAddresses });
 
       if (!!rDs.length) {
         setClaimingToken(rewardToken);
@@ -303,8 +300,10 @@ const ClaimableRow = ({
   };
 
   const unclaimedAmount = useMemo(() => {
-    return parseFloat(unclaimed.unclaimed.toString()) /
-      (1 * 10 ** (rewardTokenData?.decimals ?? 18));
+    return (
+      parseFloat(unclaimed.unclaimed.toString()) /
+      (1 * 10 ** (rewardTokenData?.decimals ?? 18))
+    );
   }, [unclaimed.unclaimed, rewardTokenData]);
 
   return (
@@ -341,7 +340,7 @@ const ClaimableRow = ({
                 crossAxisAlignment="center"
                 px={6}
                 py={4}
-              // bg="aqua"
+                // bg="aqua"
               >
                 <ul>
                   {pools.map((p) => (
@@ -365,7 +364,7 @@ const ClaimableRow = ({
                 crossAxisAlignment="center"
                 px={6}
                 py={2}
-              // bg="aqua"
+                // bg="aqua"
               >
                 <ul>
                   <motion.li
@@ -393,8 +392,9 @@ const ClaimableRow = ({
               h="100%"
             >
               <SimpleTooltip
-                label={`${unclaimedAmount.toString()} ${rewardTokenData?.symbol
-                  }`}
+                label={`${unclaimedAmount.toString()} ${
+                  rewardTokenData?.symbol
+                }`}
               >
                 <Text fontWeight="bold" ml={3}>
                   {unclaimedAmount.toFixed(3)} {rewardTokenData?.symbol}

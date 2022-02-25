@@ -54,7 +54,6 @@ const Chart = ({
     return !data ? (dataPrev ? dataPrev : undefined) : data;
   }, [data, dataPrev]);
 
-
   // Used on X-Axis
   const timeFormatter = useCallback(
     (unixTime: number) => {
@@ -79,23 +78,20 @@ const Chart = ({
     [marketInterval]
   );
 
-
- const onMouseHover = useCallback(
-   (
-    value: number,
-    name: string,
-    props: { payload: { time: string; value: number } }
-  ) => {
-    if (setValue && parsedValue !== props.payload.value) {
-      setValue(props.payload.value);
-    }
-    const formattedTime = dayjs(props.payload.time).format(
-      "MMM D, YYYY"
-    );
-    if (setLabel && label !== formattedTime) setLabel(formattedTime);
-  },
-  [setValue, setLabel, label, parsedValue]
- ) 
+  const onMouseHover = useCallback(
+    (
+      value: number,
+      name: string,
+      props: { payload: { time: string; value: number } }
+    ) => {
+      if (setValue && parsedValue !== props.payload.value) {
+        setValue(props.payload.value);
+      }
+      const formattedTime = dayjs(props.payload.time).format("MMM D, YYYY");
+      if (setLabel && label !== formattedTime) setLabel(formattedTime);
+    },
+    [setValue, setLabel, label, parsedValue]
+  );
 
   return (
     <ResponsiveContainer width="99%" height="100%">
@@ -134,7 +130,7 @@ const Chart = ({
         {/* <Tooltip /> */}
         <Tooltip
           cursor={{ stroke: "pink" }}
-          contentStyle={{display: 'none'}}
+          contentStyle={{ display: "none" }}
           formatter={onMouseHover}
         />
         <Area

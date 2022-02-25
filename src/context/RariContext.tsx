@@ -109,11 +109,11 @@ export const RariContext = createContext<RariContextData | undefined>(
 );
 
 export const RariProvider = ({ children }: { children: ReactNode }) => {
-  
   const router = useRouter();
-  const { address: requestedAddress, network: networkQueryParameter } = router.query;
+  const { address: requestedAddress, network: networkQueryParameter } =
+    router.query;
 
-  const [firstRender, setFirstRender ] = useState(true);
+  const [firstRender, setFirstRender] = useState(true);
   // Rari and Fuse get initally set already
   const [provider, setProvider] = useState(() => chooseBestWeb3Provider());
   const [fuse, setFuse] = useState<Fuse>(() => initFuseWithProviders());
@@ -134,53 +134,60 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   // Check the user's network:
   // First render only
   useEffect(() => {
-    Promise.all([
-      provider.send("net_version", []),
-      provider.getNetwork(),
-    ]).then(([netId, network]) => {
-      // Get the network from the provider
-      const { chainId: internalChainId } = network;
+    Promise.all([provider.send("net_version", []), provider.getNetwork()]).then(
+      ([netId, network]) => {
+        // Get the network from the provider
+        const { chainId: internalChainId } = network;
 
-      // If the chainID matches on first render, do nothing
-      if (firstRender && chainId === internalChainId && networkQueryParameter !== 'arbitrum') return
-      console.log("Network ID: " + netId, "Chain ID: " + internalChainId);
+        // If the chainID matches on first render, do nothing
+        if (
+          firstRender &&
+          chainId === internalChainId &&
+          networkQueryParameter !== "arbitrum"
+        )
+          return;
+        console.log("Network ID: " + netId, "Chain ID: " + internalChainId);
 
-      if(networkQueryParameter === 'arbitrum' && internalChainId !== ChainID.ARBITRUM){
-        setFirstRender(false)
-        switchNetwork(ChainID.ARBITRUM, router)
+        if (
+          networkQueryParameter === "arbitrum" &&
+          internalChainId !== ChainID.ARBITRUM
+        ) {
+          setFirstRender(false);
+          switchNetwork(ChainID.ARBITRUM, router);
+        }
+
+        // // Don't show "wrong network" toasts if dev
+        // if (process.env.NODE_ENV === "development") {
+        //   return;
+        // }
+        if (!isSupportedChainId(internalChainId)) {
+          setTimeout(() => {
+            toast({
+              title: "Unsupported network!",
+              description: "Supported Networks: Mainnet, Arbitrum, Optimism",
+              status: "warning",
+              position: "bottom-right",
+              duration: 300000,
+              isClosable: true,
+            });
+          }, 1500);
+        }
+
+        // Use what u get from   the metamask provider
+        const provider = chooseBestWeb3Provider();
+        const fuse = initFuseWithProviders(provider, internalChainId);
+        setFuse(fuse);
+        setFirstRender(false);
+        queryClient.refetchQueries();
+
+        setChainId(internalChainId);
       }
-
-      // // Don't show "wrong network" toasts if dev
-      // if (process.env.NODE_ENV === "development") {
-      //   return;
-      // }
-      if (!isSupportedChainId(internalChainId)) {
-        setTimeout(() => {
-          toast({
-            title: "Unsupported network!",
-            description: "Supported Networks: Mainnet, Arbitrum, Optimism",
-            status: "warning",
-            position: "bottom-right",
-            duration: 300000,
-            isClosable: true,
-          });
-        }, 1500);
-      }
-
-      // Use what u get from   the metamask provider
-      const provider = chooseBestWeb3Provider()
-      const fuse = initFuseWithProviders(provider,internalChainId)
-      setFuse(fuse)
-      setFirstRender(false)
-      queryClient.refetchQueries()
-      
-      setChainId(internalChainId);
-    });
+    );
   }, [provider, toast, firstRender, networkQueryParameter]);
 
   useEffect(() => {
-    queryClient.invalidateQueries()
-  },[fuse])
+    queryClient.invalidateQueries();
+  }, [fuse]);
 
   // We need to give rari the new provider.
   const setRariAndAddressFromModal = useCallback(
@@ -188,7 +195,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       const provider = new Web3Provider(modalProvider);
       const { chainId } = await provider.getNetwork();
       const fuseInstance = initFuseWithProviders(provider, chainId);
-      setSwitchingNetwork(false)
+      setSwitchingNetwork(false);
 
       setFuse(fuseInstance);
 
@@ -257,7 +264,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     if (web3ModalProvider !== null && web3ModalProvider.on) {
       web3ModalProvider.on("accountsChanged", refetchAccountData);
       web3ModalProvider.on("chainChanged", () => {
-        console.log("chain Changed")
+        console.log("chain Changed");
         refetchAccountData();
       });
     }
@@ -280,20 +287,19 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     const chainMetadata = getChainMetadata(newChainId);
 
     // TODO: We could just start fuse with our providers if theres no wallet and user changes chain.
-    if (typeof window === undefined) return
+    if (typeof window === undefined) return;
 
     try {
-      setSwitchingNetwork(true)
-      
+      setSwitchingNetwork(true);
+
       await window.ethereum!.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${hexChainId}` }],
       });
 
-      const {pathname} = router
+      const { pathname } = router;
 
-      router.reload()
-      
+      router.reload();
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if ((switchError as any).code === 4902) {
@@ -309,21 +315,20 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
             ],
           });
 
-          setChainId(newChainId)
-
+          setChainId(newChainId);
         } catch (addError) {
           // handle "add" error
         }
       }
-      
+
       // This error code indicates that the user aborted chain switch from wallet interface.
-      if((switchError as any).code === 4001) {
-        setSwitchingNetwork(false)
+      if ((switchError as any).code === 4001) {
+        setSwitchingNetwork(false);
       }
 
-      console.log({switchError})
+      console.log({ switchError });
       // handle other "switch" errors
-    } 
+    }
     // finally {
     //   refetchAccountData();
     // }
@@ -340,14 +345,21 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       isAttemptingLogin,
       chainId,
       switchNetwork,
-      switchingNetwork
+      switchingNetwork,
     }),
-    [web3ModalProvider, login, logout, address, fuse, isAttemptingLogin, switchNetwork, switchingNetwork]
+    [
+      web3ModalProvider,
+      login,
+      logout,
+      address,
+      fuse,
+      isAttemptingLogin,
+      switchNetwork,
+      switchingNetwork,
+    ]
   );
 
-  return <RariContext.Provider value={value}>
-    {children}
-    </RariContext.Provider>;
+  return <RariContext.Provider value={value}>{children}</RariContext.Provider>;
 };
 
 // Hook

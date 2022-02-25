@@ -42,7 +42,7 @@ export const useAssetsArrayWithTokenData = (
     [tokensData]
   );
 
-  // Returns the original 2D assets Array but with tokenData filled in 
+  // Returns the original 2D assets Array but with tokenData filled in
   const assetsArrayWithTokenData: USDPricedFuseAssetWithTokenData[][] | null =
     useMemo(
       () =>

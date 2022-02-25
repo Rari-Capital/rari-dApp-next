@@ -3,13 +3,13 @@ import {
   USDPricedFuseAsset,
   USDPricedFuseAssetWithTokenData,
 } from "utils/fetchFusePoolData";
-import { Fuse } from "../esm/index"
+import { Fuse } from "../esm/index";
 
 // Hooks
 import { ETH_TOKEN_DATA, TokenData } from "hooks/useTokenData";
 
 // Ethers
-import { Contract, BigNumber } from 'ethers'
+import { Contract, BigNumber } from "ethers";
 
 import Tokens from "../static/compiled/tokens.json";
 
@@ -110,21 +110,18 @@ export const checkHasApprovedEnough = async ({
   approveForAddress: string;
   approvedForAmount: BigNumber;
 }) => {
-  return (await token.allowance(userAddress, approveForAddress))
-    .gte(approvedForAmount);
+  return (await token.allowance(userAddress, approveForAddress)).gte(
+    approvedForAmount
+  );
 };
 
-export const MAX_APPROVAL_AMOUNT = BigNumber.from(2)
-  .pow(256)
-  .sub(1); // big fucking #
-
+export const MAX_APPROVAL_AMOUNT = BigNumber.from(2).pow(256).sub(1); // big fucking #
 
 const ETH_AND_WETH = [
   "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
   "0x0000000000000000000000000000000000000000",
-  "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+  "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
 ];
-
 
 export const isTokenETHOrWETH = (tokenAddress: string) =>
   ETH_AND_WETH.includes(tokenAddress.toLowerCase());

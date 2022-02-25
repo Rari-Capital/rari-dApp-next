@@ -6,7 +6,11 @@ export const useIsUpgradeable = (comptrollerAddress: string) => {
   const { fuse, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const isUpgradeable: boolean =
       await comptroller.callStatic.adminHasRights();

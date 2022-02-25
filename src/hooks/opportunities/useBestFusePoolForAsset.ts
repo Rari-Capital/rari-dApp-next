@@ -1,11 +1,10 @@
 import { useFuseDataForAsset } from "hooks/fuse/useFuseDataForAsset";
-import {  useMemo, } from "react";
+import { useMemo } from "react";
 import {
   FusePoolData,
   USDPricedFuseAssetWithTokenData,
 } from "utils/fetchFusePoolData";
-import {BigNumber, constants} from 'ethers'
-
+import { BigNumber, constants } from "ethers";
 
 interface BestPoolForAssetReturn {
   bestPool: FusePoolData | undefined;
@@ -16,7 +15,6 @@ interface BestPoolForAssetReturn {
 export const useBestFusePoolForAsset = (
   tokenAddress?: string
 ): BestPoolForAssetReturn => {
-
   // Get all the Fuse pools with this Asset
   const fuseData = useFuseDataForAsset(tokenAddress);
 
@@ -26,7 +24,7 @@ export const useBestFusePoolForAsset = (
 
     if (poolsWithThisAsset?.length) {
       let bestPoolIndex: number = 0;
-      let highestSupplyRatePerBlock: BigNumber =  constants.Zero;
+      let highestSupplyRatePerBlock: BigNumber = constants.Zero;
 
       for (let i = 0; i < poolsWithThisAsset.length ?? 0; i++) {
         const pool = poolsWithThisAsset[i];

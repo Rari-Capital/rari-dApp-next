@@ -112,23 +112,16 @@ const FuseRewardsBanner = ({
   );
 };
 
-const FuseUniV3Alert = ({
-  univ3Tokens,
-}: {
-  univ3Tokens?: string[];
-}) => {
-  if (!univ3Tokens || !univ3Tokens.length) return null
+const FuseUniV3Alert = ({ univ3Tokens }: { univ3Tokens?: string[] }) => {
+  if (!univ3Tokens || !univ3Tokens.length) return null;
   return (
-    <Alert
-      colorScheme={"yellow"}
-      borderRadius={5}
-      mt="5"
-    >
+    <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
       <AlertIcon />
       <span style={{ color: "black" }}>
-        🚧 Warning - The following tokens in this pool utilize Univ3 Oracles - Use pool with caution: {univ3Tokens.join(', ')}
+        🚧 Warning - The following tokens in this pool utilize Univ3 Oracles -
+        Use pool with caution: {univ3Tokens.join(", ")}
       </span>
-    </Alert >
+    </Alert>
   );
 };
 
@@ -145,30 +138,29 @@ const FusePoolPage = memo(() => {
   const { hasIncentives } = incentivesData;
   const isAdmin = useIsComptrollerAdmin(data?.comptroller);
 
-  const { data: univ3Assets }: UseQueryResult<string[]> = useQuery("univ3 assets for " + data?.assets?.map(a => a.cToken),
+  const { data: univ3Assets }: UseQueryResult<string[]> = useQuery(
+    "univ3 assets for " + data?.assets?.map((a) => a.cToken),
     async () => {
-      if (!data) return []
-      let res: string[] = []
-      data.assets.forEach(
-
-        async asset => {
-          const identity = await fuse.identifyPriceOracle(asset.oracle)
-          const includes = [
-            "UniswapV3TwapPriceOracle_Uniswap_3000",
-            "UniswapV3TwapPriceOracle_Uniswap_10000",
-            "UniswapV3TwapPriceOracleV2_Uniswap_500_USDC",
-            "UniswapV3TwapPriceOracleV2_Uniswap_3000_USDC",
-            "UniswapV3TwapPriceOracleV2_Uniswap_10000_USDC",
-            "UniswapV3TwapPriceOracleV2"
-          ].includes(identity)
-          if (!!includes) {
-            res.push(asset.underlyingSymbol)
-          }
+      if (!data) return [];
+      let res: string[] = [];
+      data.assets.forEach(async (asset) => {
+        const identity = await fuse.identifyPriceOracle(asset.oracle);
+        const includes = [
+          "UniswapV3TwapPriceOracle_Uniswap_3000",
+          "UniswapV3TwapPriceOracle_Uniswap_10000",
+          "UniswapV3TwapPriceOracleV2_Uniswap_500_USDC",
+          "UniswapV3TwapPriceOracleV2_Uniswap_3000_USDC",
+          "UniswapV3TwapPriceOracleV2_Uniswap_10000_USDC",
+          "UniswapV3TwapPriceOracleV2",
+        ].includes(identity);
+        if (!!includes) {
+          res.push(asset.underlyingSymbol);
         }
-      )
+      });
 
-      return res
-    })
+      return res;
+    }
+  );
 
   return (
     <>
@@ -285,7 +277,11 @@ const CollateralRatioBar = ({
 
   const maxBorrow = useBorrowLimit(assets);
 
-  const ratio = useMemo(() => !maxBorrow.isZero() ? borrowUSD.mul(100).div(maxBorrow) : constants.Zero, [maxBorrow, borrowUSD]);
+  const ratio = useMemo(
+    () =>
+      !maxBorrow.isZero() ? borrowUSD.mul(100).div(maxBorrow) : constants.Zero,
+    [maxBorrow, borrowUSD]
+  );
 
   useEffect(() => {
     if (ratio.gt(95)) {
@@ -325,10 +321,10 @@ const CollateralRatioBar = ({
                 ratio.lte(40)
                   ? "whatsapp"
                   : ratio.lte(60)
-                    ? "yellow"
-                    : ratio.lte(80)
-                      ? "orange"
-                      : "red"
+                  ? "yellow"
+                  : ratio.lte(80)
+                  ? "orange"
+                  : "red"
               }
               borderRadius="10px"
               value={toInt(ratio)}
@@ -363,23 +359,25 @@ const SupplyList = ({
 }) => {
   const { t } = useTranslation();
 
-  const suppliedAssets = assets.filter(
-    (asset) => asset.supplyBalanceUSD.gt(1)
-  );
+  const suppliedAssets = assets.filter((asset) => asset.supplyBalanceUSD.gt(1));
 
-  const nonSuppliedAssets = assets.filter(
-    (asset) => {
-      // If its pool 6 or 7 UST return false
-      // TODO - remove
-      if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
-        if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") {
-          return false
-        }
-        else return true
-      }
-      else if (asset.supplyBalanceUSD.lt(1)) return true
-    }
-  );
+  const nonSuppliedAssets = assets.filter((asset) => {
+    // If its pool 6 or 7 UST return false
+    // TODO - remove
+    if (
+      [
+        "0x814b02c1ebc9164972d888495927fe1697f0fb4c",
+        "0xfb558ecd2d24886e8d2956775c619deb22f154ef",
+      ].includes(comptrollerAddress.toLowerCase())
+    ) {
+      if (
+        asset.underlyingToken.toLowerCase() ===
+        "0xa47c8bf37f92abed4a126bda807a7b7498661acd"
+      ) {
+        return false;
+      } else return true;
+    } else if (asset.supplyBalanceUSD.lt(1)) return true;
+  });
 
   const isMobile = useIsMobile();
 
@@ -443,7 +441,6 @@ const SupplyList = ({
               const supplyIncentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
-
 
               return (
                 <AssetSupplyRow
@@ -524,7 +521,11 @@ const AssetSupplyRow = ({
   const toast = useToast();
 
   const onToggleCollateral = async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       let tx;
@@ -533,25 +534,26 @@ const AssetSupplyRow = ({
           comptroller.callStatic.exitMarket(asset.cToken, { from: address }),
           comptroller.exitMarket(asset.cToken, { from: address }),
           address,
-          "You cannot disable this asset as collateral as you would not have enough collateral posted to keep your borrow. Try adding more collateral of another type or paying back some of your debt.",
-        )
+          "You cannot disable this asset as collateral as you would not have enough collateral posted to keep your borrow. Try adding more collateral of another type or paying back some of your debt."
+        );
         // tx = await comptroller.exitMarket(asset.cToken, { from: address });
       } else {
         tx = await testForComptrollerErrorAndSend(
-          comptroller.callStatic.enterMarkets([asset.cToken], { from: address }),
+          comptroller.callStatic.enterMarkets([asset.cToken], {
+            from: address,
+          }),
           comptroller.enterMarkets([asset.cToken], { from: address }),
           address,
-          "You cannot enable this asset as collateral at this time.",
-        )
+          "You cannot enable this asset as collateral at this time."
+        );
       }
-      await tx.wait(1)
+      await tx.wait(1);
       LogRocket.track("Fuse-ToggleCollateral");
       queryClient.refetchQueries();
     } catch (err: any) {
       toast({
         title: "Error!",
-        description:
-          err?.message ?? "Oops",
+        description: err?.message ?? "Oops",
         status: "error",
         duration: 9000,
         isClosable: true,
@@ -593,13 +595,17 @@ const AssetSupplyRow = ({
 
   const displayedSupplyAPRLabel =
     hovered >= 0
-      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${rewardTokensData?.[supplyIncentives[hovered].rewardToken]?.symbol
-      } distributions.`
+      ? `${supplyIncentives[hovered].supplyAPR.toFixed(2)} % APR in ${
+          rewardTokensData?.[supplyIncentives[hovered].rewardToken]?.symbol
+        } distributions.`
       : `${displayedSupplyAPR.toFixed(
-        2
-      )}% total APR distributed in ${supplyIncentives
-        .map((incentive) => rewardTokensData?.[incentive.rewardToken]?.symbol ?? "")
-        .join(", ")}
+          2
+        )}% total APR distributed in ${supplyIncentives
+          .map(
+            (incentive) =>
+              rewardTokensData?.[incentive.rewardToken]?.symbol ?? ""
+          )
+          .join(", ")}
          `;
 
   const _hovered = hovered > 0 ? hovered : 0;
@@ -726,7 +732,6 @@ const AssetSupplyRow = ({
                 {parseFloat(asset.collateralFactor.toString()) / 1e16}% LTV
               </Text>
             </SimpleTooltip>
-
           </Column>
         )}
 
@@ -789,16 +794,17 @@ const BorrowList = ({
   incentivesData: IncentivesData;
 }) => {
   const { t } = useTranslation();
-  const borrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.gt(1)
-  );
-  const nonBorrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.lt(1)
-  ).sort((a, b) => {
-    return !(a.isPaused || !!a.borrowGuardianPaused) && (b.isPaused || !!b.borrowGuardianPaused) ? -1 : 0
-  });
+  const borrowedAssets = assets.filter((asset) => asset.borrowBalanceUSD.gt(1));
+  const nonBorrowedAssets = assets
+    .filter((asset) => asset.borrowBalanceUSD.lt(1))
+    .sort((a, b) => {
+      return !(a.isPaused || !!a.borrowGuardianPaused) &&
+        (b.isPaused || !!b.borrowGuardianPaused)
+        ? -1
+        : 0;
+    });
 
-  const [showPausedAssets, setShowPausedAssets] = useState(false)
+  const [showPausedAssets, setShowPausedAssets] = useState(false);
 
   const isMobile = useIsMobile();
 
@@ -885,11 +891,13 @@ const BorrowList = ({
 
             {nonBorrowedAssets.map((asset, index) => {
               // Don't show paused assets if not enabled
-              
-              if (!showPausedAssets && (asset.isPaused || asset.borrowGuardianPaused)) {
+
+              if (
+                !showPausedAssets &&
+                (asset.isPaused || asset.borrowGuardianPaused)
+              ) {
                 return null;
               }
-              
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -908,22 +916,21 @@ const BorrowList = ({
               );
             })}
             <Row
-            mainAxisAlignment="flex-start"
-            crossAxisAlignment="flex-start"
-            width="100%"
-            px={4}
-            mt={4}
-            py={4}
-            cursor="pointer"
-            className="hover-row"
-            onClick={() => setShowPausedAssets(!showPausedAssets)}>
-              <Text 
-              textAlign={'center'}
+              mainAxisAlignment="flex-start"
+              crossAxisAlignment="flex-start"
               width="100%"
-              >
-                {showPausedAssets ? t("Hide paused assets") : t("Show paused assets")}
+              px={4}
+              mt={4}
+              py={4}
+              cursor="pointer"
+              className="hover-row"
+              onClick={() => setShowPausedAssets(!showPausedAssets)}
+            >
+              <Text textAlign={"center"} width="100%">
+                {showPausedAssets
+                  ? t("Hide paused assets")
+                  : t("Show paused assets")}
               </Text>
-              
             </Row>
           </>
         ) : (
@@ -983,9 +990,7 @@ const AssetBorrowRow = ({
   const handleMouseLeave = () => setHovered(-1);
 
   const displayedBorrowAPY =
-    hovered >= 0
-      ? borrowIncentives[hovered].borrowAPR
-      : totalBorrowAPY;
+    hovered >= 0 ? borrowIncentives[hovered].borrowAPR : totalBorrowAPY;
 
   const symbol = getSymbol(tokenData, asset);
 
@@ -1015,7 +1020,7 @@ const AssetBorrowRow = ({
         as="button"
         onClick={isPaused ? () => {} : authedOpenModal}
         opacity={isPaused ? 0.2 : 1.0}
-        cursor={isPaused ? 'initial' : 'pointer'}
+        cursor={isPaused ? "initial" : "pointer"}
       >
         <Row
           mainAxisAlignment="flex-start"
@@ -1093,7 +1098,6 @@ const AssetBorrowRow = ({
                 TVL
               </Text>
             </SimpleTooltip>
-
           </Column>
         )}
 
@@ -1111,10 +1115,12 @@ const AssetBorrowRow = ({
           </Text>
 
           <Text fontSize="sm">
-            {smallUsdFormatter(parseFloat(
-              asset.borrowBalance
-                .div(BigNumber.from(10).pow(asset.underlyingDecimals))
-                .toString())
+            {smallUsdFormatter(
+              parseFloat(
+                asset.borrowBalance
+                  .div(BigNumber.from(10).pow(asset.underlyingDecimals))
+                  .toString()
+              )
             ).replace("$", "")}{" "}
             {symbol}
           </Text>

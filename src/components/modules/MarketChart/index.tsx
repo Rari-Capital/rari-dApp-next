@@ -1,2 +1,2 @@
-import MarketChart from './MarketChart'
-export default MarketChart
+import MarketChart from "./MarketChart";
+export default MarketChart;

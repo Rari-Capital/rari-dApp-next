@@ -126,7 +126,10 @@ const FusePoolInfoPage = memo(() => {
           >
             {data ? (
               data.assets.length > 0 ? (
-                <AssetAndOtherInfo assets={data.assets} poolOracle={data.oracle} />
+                <AssetAndOtherInfo
+                  assets={data.assets}
+                  poolOracle={data.oracle}
+                />
               ) : (
                 <Center expand>{t("There are no assets in this pool.")}</Center>
               )
@@ -264,7 +267,9 @@ const OracleAndInterestRates = ({
           statB={
             totalSuppliedUSD.toString() === "0"
               ? "0%"
-              : parseFloat((totalBorrowedUSD.div(totalSuppliedUSD).mul(100)).toString()).toFixed(2) + "%"
+              : parseFloat(
+                  totalBorrowedUSD.div(totalSuppliedUSD).mul(100).toString()
+                ).toFixed(2) + "%"
           }
         />
 
@@ -343,7 +348,13 @@ const StatRow = ({
   );
 };
 
-const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[], poolOracle: string }) => {
+const AssetAndOtherInfo = ({
+  assets,
+  poolOracle,
+}: {
+  assets: USDPricedFuseAsset[];
+  poolOracle: string;
+}) => {
   const router = useRouter();
   const poolId = router.query.poolId as string;
 
@@ -355,15 +366,15 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
     assets.length > 3 ? assets[2] : assets[0]
   );
   const selectedTokenData = useTokenData(selectedAsset.underlyingToken);
-  console.log({ selectedAsset })
+  console.log({ selectedAsset });
 
   const selectedAssetUtilization =
     // @ts-ignore
     selectedAsset.totalSupply.isZero()
       ? constants.Zero
-      : selectedAsset.totalBorrow.mul(100).div(selectedAsset.totalSupply)
+      : selectedAsset.totalBorrow.mul(100).div(selectedAsset.totalSupply);
 
-  console.log({ selectedAssetUtilization })
+  console.log({ selectedAssetUtilization });
 
   const { data } = useQuery(selectedAsset.cToken + " curves", async () => {
     const interestRateModel = await fuse.getInterestRateModel(
@@ -377,16 +388,16 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
     return convertIRMtoCurve(interestRateModel);
   });
 
-
   const oracleIdentity = useIdentifyOracle(
     selectedAsset.oracle,
     poolOracle,
-    selectedAsset.underlyingToken,
+    selectedAsset.underlyingToken
   );
 
   // Link to MPO if asset is ETH
   const oracleAddress =
-    (selectedAsset.underlyingToken === ETH_TOKEN_DATA.address || selectedAsset.oracle === ETH_TOKEN_DATA.address)
+    selectedAsset.underlyingToken === ETH_TOKEN_DATA.address ||
+    selectedAsset.oracle === ETH_TOKEN_DATA.address
       ? poolOracle
       : selectedAsset.oracle;
 
@@ -591,10 +602,12 @@ export const convertIRMtoCurve = (interestRateModel: any) => {
   for (var i = 0; i <= 100; i++) {
     const supplyLevel =
       (Math.pow(
-        (interestRateModel.getSupplyRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
+        (interestRateModel.getSupplyRate(
+          BigNumber.from(i).mul(BigNumber.from(10).pow(16))
+        ) /
           1e18) *
-        (4 * 60 * 24) +
-        1,
+          (4 * 60 * 24) +
+          1,
         365
       ) -
         1) *
@@ -602,10 +615,12 @@ export const convertIRMtoCurve = (interestRateModel: any) => {
 
     const borrowLevel =
       (Math.pow(
-        (interestRateModel.getBorrowRate(BigNumber.from(i).mul(BigNumber.from(10).pow(16))) /
+        (interestRateModel.getBorrowRate(
+          BigNumber.from(i).mul(BigNumber.from(10).pow(16))
+        ) /
           1e18) *
-        (4 * 60 * 24) +
-        1,
+          (4 * 60 * 24) +
+          1,
         365
       ) -
         1) *

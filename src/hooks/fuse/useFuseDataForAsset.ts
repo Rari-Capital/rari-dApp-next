@@ -6,7 +6,7 @@ import {
 } from "utils/fetchFusePoolData";
 import useAllFusePools from "./useAllFusePools";
 
-import { constants, BigNumber} from 'ethers'
+import { constants, BigNumber } from "ethers";
 
 interface AssetInFuse {
   totalBorrowedUSD: BigNumber;

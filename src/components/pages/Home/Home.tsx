@@ -31,10 +31,7 @@ import OpportunityCard from "./OpportunityCard";
 import HomeCarousel from "./HomeCarousel";
 
 // constants
-import {
-  HOMEPAGE_FUSE_POOLS,
-  HomepageItems,
-} from "constants/homepage";
+import { HOMEPAGE_FUSE_POOLS, HomepageItems } from "constants/homepage";
 // import { SearchIcon } from "@chakra-ui/icons";
 import DashboardBox from "components/shared/DashboardBox";
 import AppLink from "components/shared/AppLink";
@@ -61,13 +58,16 @@ const homepagePoolsFetcher = async (
 }> => {
   const pools = await queryFusePools(ids, chainId);
   const addresses = getUniqueTokensForFusePools(pools);
-  const tokensData = await fetchTokensAPIDataAsMap([...Array.from(addresses)], chainId);
+  const tokensData = await fetchTokensAPIDataAsMap(
+    [...Array.from(addresses)],
+    chainId
+  );
   return { pools, tokensData };
 };
 
 const Home = () => {
   const { chainId, switchNetwork } = useRari();
-  const router = useRouter()
+  const router = useRouter();
 
   const chainMetadata = useMemo(
     () => getChainMetadata(chainId ?? 1),
@@ -78,7 +78,10 @@ const Home = () => {
   const { getNumberTVL } = useTVLFetchers();
 
   const { data } = useSWR(
-    [chainId, ...HOMEPAGE_FUSE_POOLS[chainId ?? 1]?.map((pool) => pool.id) ?? []],
+    [
+      chainId,
+      ...(HOMEPAGE_FUSE_POOLS[chainId ?? 1]?.map((pool) => pool.id) ?? []),
+    ],
     homepagePoolsFetcher
   );
 
@@ -104,7 +107,7 @@ const Home = () => {
         width="100%"
         height={{ sm: "300px", md: "350px" }}
         px={{ sm: "0", md: "15%" }}
-      // bg="pink"
+        // bg="pink"
       >
         <Column
           mainAxisAlignment="flex-start"
@@ -114,7 +117,7 @@ const Home = () => {
           width="100%"
           height="100%"
           padding="10%"
-        // bg="aqua"
+          // bg="aqua"
         >
           <motion.div
             initial={{ opacity: 0, y: -40 }}
@@ -135,9 +138,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
           >
-            <Searchbar
-              width={{ base: "xs", sm: "sm", md: "md", lg: "2xl" }}
-            />
+            <Searchbar width={{ base: "xs", sm: "sm", md: "md", lg: "2xl" }} />
           </motion.div>
         </Column>
       </Row>
@@ -149,7 +150,7 @@ const Home = () => {
         width="100%"
         height="100%"
         mb={5}
-      // px="20%"
+        // px="20%"
       >
         <Marquee gradient={false} style={{ padding: "10px" }}>
           {HOMEPAGE_FUSE_POOLS[chainId ?? 1]?.map((constantPool, i) => (
@@ -179,13 +180,13 @@ const Home = () => {
         my={10}
         px={["5%", "15%", "15%", "15%"]}
         width="100%"
-      // background="purple"
+        // background="purple"
       >
         <Column
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           width="100%"
-        // bg="pink"
+          // bg="pink"
         >
           <Row
             width="100%"
@@ -212,10 +213,12 @@ const Home = () => {
                 <OpportunityCard
                   opportunity={opportunity}
                   key={i}
-                  onClick={i === 1 && chainId === 1
-                    ? () => switchNetwork(ChainID.ARBITRUM, router)
-                    : null
-                  } />
+                  onClick={
+                    i === 1 && chainId === 1
+                      ? () => switchNetwork(ChainID.ARBITRUM, router)
+                      : null
+                  }
+                />
               ))}
           </SimpleGrid>
         </Column>
@@ -229,7 +232,7 @@ const Home = () => {
         my={10}
         px={{ base: "5%", sm: "5%", md: "15%" }}
         width="100%"
-      // background="purple"
+        // background="purple"
       >
         <Card width="100%" height="230px">
           <Row
@@ -264,7 +267,7 @@ const Home = () => {
                   captionSize="md"
                   caption={""}
                   crossAxisAlignment="flex-start"
-                // captionFirst={false}
+                  // captionFirst={false}
                 />
                 <Text
                   textTransform="uppercase"

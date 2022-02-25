@@ -57,9 +57,8 @@ const FuseLiquidationsPage = memo(() => {
   const { fuse, isAuthed } = useRari();
 
   const { data: liquidations } = useQuery("liquidations", async () => {
-    const pools = await fuse.contracts.FusePoolDirectory
-      .callStatic
-      .getAllPools()
+    const pools =
+      await fuse.contracts.FusePoolDirectory.callStatic.getAllPools();
 
     let liquidationEvents: LiquidationEvent[] = [];
 
@@ -76,8 +75,7 @@ const FuseLiquidationsPage = memo(() => {
       }
 
       poolFetches.push(
-        fuse.contracts.FusePoolLens
-          .callStatic
+        fuse.contracts.FusePoolLens.callStatic
           .getPoolAssetsWithData(pool.comptroller)
           .then(async (assets: FuseAsset[]) => {
             let eventFetches: Promise<any>[] = [];
@@ -94,7 +92,7 @@ const FuseLiquidationsPage = memo(() => {
                   fuse.compoundContracts[
                     "contracts/CEtherDelegate.sol:CEtherDelegate"
                   ].abi
-                ),
+                )
               );
 
               const events = await cToken.queryFilter(
@@ -103,16 +101,14 @@ const FuseLiquidationsPage = memo(() => {
                 "latest"
               );
 
-
               let promises: Promise<any>[] = [];
               for (const event of events) {
-
-                const suppliedToken = assets.find(
-                  a => {
-                    return a.cToken.toLowerCase() ===
-                      event!.args!.cTokenCollateral.toLowerCase()
-                  })!;
-
+                const suppliedToken = assets.find((a) => {
+                  return (
+                    a.cToken.toLowerCase() ===
+                    event!.args!.cTokenCollateral.toLowerCase()
+                  );
+                })!;
 
                 promises.push(
                   fuse.provider
@@ -123,13 +119,11 @@ const FuseLiquidationsPage = memo(() => {
                         cTokenBorrowed: asset.cToken,
 
                         borrowedTokenAddress: asset.underlyingToken,
-                        suppliedTokenAddress:
-                          suppliedToken.underlyingToken,
+                        suppliedTokenAddress: suppliedToken.underlyingToken,
 
                         borrowedTokenUnderlyingDecimals:
                           asset.underlyingDecimals,
-                        borrowedTokenUnderlyingSymbol:
-                          asset.underlyingSymbol,
+                        borrowedTokenUnderlyingSymbol: asset.underlyingSymbol,
 
                         poolID,
 
@@ -148,7 +142,6 @@ const FuseLiquidationsPage = memo(() => {
             await Promise.all(eventFetches);
           })
       );
-
     }
 
     await Promise.all(poolFetches);
@@ -400,7 +393,7 @@ const LiquidationRow = ({
                 />
                 {smallUsdFormatter(
                   liquidation.repayAmount /
-                  10 ** liquidation.borrowedTokenUnderlyingDecimals
+                    10 ** liquidation.borrowedTokenUnderlyingDecimals
                 ).replace("$", "")}{" "}
                 {liquidation.borrowedTokenUnderlyingSymbol}
               </Column>
