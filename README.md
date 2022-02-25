@@ -2,6 +2,10 @@
 
 Rari Capital's Web3 Portal.
 
+## Getting Started
+
+Run `npm run dev` to start the development server.
+
 ## Requirements
 
 - node: `v14.17.0`
