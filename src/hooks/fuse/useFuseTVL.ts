@@ -5,8 +5,9 @@ import { Vaults, Fuse } from "../../esm/index";
 import { fromWei } from "utils/ethersUtils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { ChainID } from "esm/utils/networks";
 
-export const fetchFuseNumberTVL = async (fuse: Fuse, chainId: ChainID) => {
+export const fetchFuseNumberTVL = async (fuse: Fuse, chainId: ChainID  = 1) => {
   const tvlETH = await fetchFuseTVL(fuse, chainId);
 
   const ethPrice: number = fromWei(await getEthUsdPriceBN()) as any;
