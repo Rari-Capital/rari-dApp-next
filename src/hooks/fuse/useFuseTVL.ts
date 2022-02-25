@@ -6,8 +6,8 @@ import { fromWei } from "utils/ethersUtils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
-export const fetchFuseNumberTVL = async (fuse: Fuse) => {
-  const tvlETH = await fetchFuseTVL(fuse);
+export const fetchFuseNumberTVL = async (fuse: Fuse, chainId: ChainID) => {
+  const tvlETH = await fetchFuseTVL(fuse, chainId);
 
   const ethPrice: number = fromWei(await getEthUsdPriceBN()) as any;
 
@@ -22,6 +22,6 @@ export const useFuseTVL = () => {
 
   return useQuery("fuseTVL chain " + chainId, async () => {
     if (!chainId) return undefined;
-    return fetchFuseNumberTVL(fuse);
+    return fetchFuseNumberTVL(fuse, chainId);
   });
 };
