@@ -26,7 +26,6 @@ export const fetchFuseTVL = async (fuse: Fuse, chainId: ChainID) => {
     );
 
     // console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
-    console.log({ totalSuppliedETH });
     switch (chainId) {
       case ChainID.ARBITRUM:
         return totalSuppliedETH
@@ -76,8 +75,6 @@ export const perPoolTVL = async (
       .mul(ethPriceBN)
       .div(constants.WeiPerEther);
 
-    console.log({ fuseTVL });
-
     return {
       stableTVL,
       yieldTVL,
@@ -117,8 +114,6 @@ export const fetchTVL = async (
             .add(tvls.fuseTVL)
             .div(constants.WeiPerEther)
         : tvls.fuseTVL;
-
-    console.log({ total: total.toString() });
 
     return total;
   } catch (err) {
