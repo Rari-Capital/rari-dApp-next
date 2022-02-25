@@ -1,29 +1,37 @@
-import React, { useRef, useState, useEffect, useCallback, Dispatch, SetStateAction, ReactNode } from 'react'
-import { createChart, IChartApi } from 'lightweight-charts'
-import usePrevious from 'hooks/usePrevious'
-import { shortUsdFormatter } from 'utils/bigUtils'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+} from "react";
+import { createChart, IChartApi } from "lightweight-charts";
+import usePrevious from "hooks/usePrevious";
+import { shortUsdFormatter } from "utils/bigUtils";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
-const DEFAULT_HEIGHT = 300
+const DEFAULT_HEIGHT = 300;
 
 export type LineChartProps = {
-  data: any[]
-  color?: string | undefined
-  height?: number | undefined
-  minHeight?: number
-  setValue?: Dispatch<SetStateAction<number | undefined>> // used for value on hover
-  setLabel?: Dispatch<SetStateAction<string | undefined>> // used for label value
-  topLeft?: ReactNode | undefined
-  topRight?: ReactNode | undefined
-  bottomLeft?: ReactNode | undefined
-  bottomRight?: ReactNode | undefined
-} & React.HTMLAttributes<HTMLDivElement>
+  data: any[];
+  color?: string | undefined;
+  height?: number | undefined;
+  minHeight?: number;
+  setValue?: Dispatch<SetStateAction<number | undefined>>; // used for value on hover
+  setLabel?: Dispatch<SetStateAction<string | undefined>>; // used for label value
+  topLeft?: ReactNode | undefined;
+  topRight?: ReactNode | undefined;
+  bottomLeft?: ReactNode | undefined;
+  bottomRight?: ReactNode | undefined;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const LineChart = ({
   data,
-  color = '#56B2A4',
+  color = "#56B2A4",
   setValue,
   setLabel,
   topLeft,
@@ -35,41 +43,44 @@ const LineChart = ({
   ...rest
 }: LineChartProps) => {
   // theming
-  const textColor = 'lime'
+  const textColor = "lime";
 
   // chart pointer
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [chartCreated, setChart] = useState<IChartApi | undefined>()
-  const dataPrev = usePrevious(data)
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chartCreated, setChart] = useState<IChartApi | undefined>();
+  const dataPrev = usePrevious(data);
 
   // reset on new data
   useEffect(() => {
     if (dataPrev !== data && chartCreated) {
-      chartCreated.resize(0, 0)
-      setChart(undefined)
+      chartCreated.resize(0, 0);
+      setChart(undefined);
     }
-  }, [data, dataPrev, chartCreated])
+  }, [data, dataPrev, chartCreated]);
 
   // for reseting value on hover exit
-  const currentValue = data[data.length - 1]?.value
+  const currentValue = data[data.length - 1]?.value;
 
   const handleResize = useCallback(() => {
     if (chartCreated && chartRef?.current?.parentElement) {
-      chartCreated.resize(chartRef.current.parentElement.clientWidth - 32, height)
-      chartCreated.timeScale().fitContent()
-      chartCreated.timeScale().scrollToPosition(0, false)
+      chartCreated.resize(
+        chartRef.current.parentElement.clientWidth - 32,
+        height
+      );
+      chartCreated.timeScale().fitContent();
+      chartCreated.timeScale().scrollToPosition(0, false);
     }
-  }, [chartCreated, chartRef, height])
+  }, [chartCreated, chartRef, height]);
 
-//   add event listener for resize
-  const isClient = typeof window === 'object'
+  //   add event listener for resize
+  const isClient = typeof window === "object";
   useEffect(() => {
     if (!isClient) {
-      return
+      return;
     }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [isClient, chartRef, handleResize]) // Empty array ensures that effect is only run on mount and unmount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isClient, chartRef, handleResize]); // Empty array ensures that effect is only run on mount and unmount
 
   // if chart not instantiated in canvas, create it
   useEffect(() => {
@@ -78,9 +89,9 @@ const LineChart = ({
         height: height,
         width: chartRef.current.parentElement.clientWidth - 32,
         layout: {
-          backgroundColor: 'transparent',
-          textColor: '#565A69',
-          fontFamily: 'Inter var',
+          backgroundColor: "transparent",
+          textColor: "#565A69",
+          fontFamily: "Inter var",
         },
         rightPriceScale: {
           scaleMargins: {
@@ -89,13 +100,13 @@ const LineChart = ({
           },
           drawTicks: false,
           borderVisible: false,
-          visible: false
+          visible: false,
         },
         timeScale: {
           borderVisible: false,
         },
         watermark: {
-          color: 'rgba(0, 0, 0, 0)',
+          color: "rgba(0, 0, 0, 0)",
         },
         grid: {
           horzLines: {
@@ -114,71 +125,77 @@ const LineChart = ({
             visible: true,
             style: 0,
             width: 2,
-            color: '#505050',
+            color: "#505050",
             labelVisible: false,
           },
         },
         handleScroll: false,
         handleScale: false,
-
-      })
-      chart.timeScale().fitContent()
-      setChart(chart)
+      });
+      chart.timeScale().fitContent();
+      setChart(chart);
     }
-  }, [color, chartCreated, currentValue, data, height, setValue, textColor])
-
+  }, [color, chartCreated, currentValue, data, height, setValue, textColor]);
 
   // console.log({chartCreated})
 
- // Set the data once the chart is created
+  // Set the data once the chart is created
   useEffect(() => {
     if (chartCreated && data) {
       const series = chartCreated.addAreaSeries({
         lineColor: color,
-        topColor: 'blue',
-        bottomColor: 'lime',
+        topColor: "blue",
+        bottomColor: "lime",
         lineWidth: 2,
         priceLineVisible: false,
-      })
-      series.setData(data)
-      chartCreated.timeScale().fitContent()
-      chartCreated.timeScale().scrollToRealTime()
+      });
+      series.setData(data);
+      chartCreated.timeScale().fitContent();
+      chartCreated.timeScale().scrollToRealTime();
 
       series.applyOptions({
         priceFormat: {
-          type: 'custom',
+          type: "custom",
           minMove: 0.02,
           formatter: (price: any) => shortUsdFormatter(price),
         },
-      })
+      });
 
-    //   update the title when hovering on the chart
+      //   update the title when hovering on the chart
       chartCreated.subscribeCrosshairMove(function (param) {
         if (
           chartRef?.current &&
           (param === undefined ||
             param.time === undefined ||
             (param && param.point && param.point.x < 0) ||
-            (param && param.point && param.point.x > chartRef.current.clientWidth) ||
+            (param &&
+              param.point &&
+              param.point.x > chartRef.current.clientWidth) ||
             (param && param.point && param.point.y < 0) ||
             (param && param.point && param.point.y > height))
         ) {
-          setValue && setValue(undefined)
-          setLabel && setLabel(undefined)
+          setValue && setValue(undefined);
+          setLabel && setLabel(undefined);
         } else if (series && param) {
-          const price = parseFloat(param?.seriesPrices?.get(series)?.toString() ?? currentValue)
-          const time = param?.time as { day: number; year: number; month: number }
-          const timeString = dayjs(time.year + '-' + time.month + '-' + time.day).format('MMM D, YYYY')
-          setValue && setValue(price)
-          setLabel && timeString && setLabel(timeString)
+          const price = parseFloat(
+            param?.seriesPrices?.get(series)?.toString() ?? currentValue
+          );
+          const time = param?.time as {
+            day: number;
+            year: number;
+            month: number;
+          };
+          const timeString = dayjs(
+            time.year + "-" + time.month + "-" + time.day
+          ).format("MMM D, YYYY");
+          setValue && setValue(price);
+          setLabel && timeString && setLabel(timeString);
         }
-      })
+      });
     }
-  }, [chartCreated, color, currentValue, data, height, setLabel, setValue])
+  }, [chartCreated, color, currentValue, data, height, setLabel, setValue]);
 
-  return (
-      <div ref={chartRef} id={'line-chart'} {...rest} />
-  )
-}
+  return <div ref={chartRef} id={"line-chart"} {...rest} />;
+};
 
-export default LineChart
+export default LineChart;

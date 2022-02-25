@@ -3,143 +3,143 @@
 /* eslint-disable */
 import { utils, Contract, ContractFactory } from "ethers";
 const _abi = [
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "_rootOracle",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "_logic",
-                type: "address",
-            },
-        ],
-        stateMutability: "nonpayable",
-        type: "constructor",
-    },
-    {
-        inputs: [],
-        name: "WETH",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-        constant: true,
-    },
-    {
-        inputs: [],
-        name: "logic",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-        constant: true,
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        name: "oracles",
-        outputs: [
-            {
-                internalType: "contract UniswapTwapPriceOracleV2",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-        constant: true,
-    },
-    {
-        inputs: [],
-        name: "rootOracle",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-        constant: true,
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "uniswapV2Factory",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "baseToken",
-                type: "address",
-            },
-        ],
-        name: "deploy",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_rootOracle",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_logic",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "WETH",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [],
+    name: "logic",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "oracles",
+    outputs: [
+      {
+        internalType: "contract UniswapTwapPriceOracleV2",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [],
+    name: "rootOracle",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "uniswapV2Factory",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "baseToken",
+        type: "address",
+      },
+    ],
+    name: "deploy",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
-const _bytecode = "0x60c060405234801561001057600080fd5b506040516105893803806105898339818101604052604081101561003357600080fd5b5080516020909101516001600160a01b0382166100815760405162461bcd60e51b815260040180806020018281038252602981526020018061051d6029913960400191505060405180910390fd5b6001600160a01b0381166100c65760405162461bcd60e51b81526004018080602001828103825260438152602001806105466043913960600191505060405180910390fd5b6001600160601b0319606092831b8116608052911b1660a05260805160601c60a05160601c61040b610112600039806101bc52806102ea5250806101f4528061030e525061040b6000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806352a03c031461005c578063545e7c61146100a6578063ad5c4648146100d4578063d7dfa0dd146100dc578063e3cb23a5146100e4575b600080fd5b61008a6004803603604081101561007257600080fd5b506001600160a01b03813581169160200135166100ec565b604080516001600160a01b039092168252519081900360200190f35b61008a600480360360408110156100bc57600080fd5b506001600160a01b038135811691602001351661010f565b61008a6102d0565b61008a6102e8565b61008a61030c565b60006020818152928152604080822090935290815220546001600160a01b031681565b60006001600160a01b0382166101375773c02aaa39b223fe8d0a0e5c4f27ead9083c756cc291505b6001600160a01b03808416600090815260208181526040808320868516845290915290205416801561016a5790506102ca565b6000848460405160200180836001600160a01b031660601b8152601401826001600160a01b031660601b81526014019250505060405160208183030381529060405280519060200120905060006101e17f000000000000000000000000000000000000000000000000000000000000000083610330565b9050806001600160a01b031663c0c53b8b7f000000000000000000000000000000000000000000000000000000000000000088886040518463ffffffff1660e01b815260040180846001600160a01b03168152602001836001600160a01b03168152602001826001600160a01b031681526020019350505050600060405180830381600087803b15801561027457600080fd5b505af1158015610288573d6000803e3d6000fd5b505050506001600160a01b038681166000908152602081815260408083208985168452909152902080546001600160a01b031916918316919091179055925050505b92915050565b73c02aaa39b223fe8d0a0e5c4f27ead9083c756cc281565b7f000000000000000000000000000000000000000000000000000000000000000081565b7f000000000000000000000000000000000000000000000000000000000000000081565b6000604051733d602d80600a3d3981f3363d3d373d3d3d363d7360601b81528360601b60148201526e5af43d82803e903d91602b57fd5bf360881b6028820152826037826000f59150506001600160a01b0381166102ca576040805162461bcd60e51b815260206004820152601760248201527f455243313136373a2063726561746532206661696c6564000000000000000000604482015290519081900360640190fdfea264697066735822122060bdc654e01b6600803b45f7d31a7d09f0e77069b7ec024c52b994bff031639f64736f6c634300060c0033556e69737761705477617050726963654f7261636c655632526f6f74206e6f7420646566696e65642e556e69737761705477617050726963654f7261636c65563220696d706c656d656e746174696f6e2f6c6f67696320636f6e7472616374206e6f7420646566696e65642e";
+const _bytecode =
+  "0x60c060405234801561001057600080fd5b506040516105893803806105898339818101604052604081101561003357600080fd5b5080516020909101516001600160a01b0382166100815760405162461bcd60e51b815260040180806020018281038252602981526020018061051d6029913960400191505060405180910390fd5b6001600160a01b0381166100c65760405162461bcd60e51b81526004018080602001828103825260438152602001806105466043913960600191505060405180910390fd5b6001600160601b0319606092831b8116608052911b1660a05260805160601c60a05160601c61040b610112600039806101bc52806102ea5250806101f4528061030e525061040b6000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806352a03c031461005c578063545e7c61146100a6578063ad5c4648146100d4578063d7dfa0dd146100dc578063e3cb23a5146100e4575b600080fd5b61008a6004803603604081101561007257600080fd5b506001600160a01b03813581169160200135166100ec565b604080516001600160a01b039092168252519081900360200190f35b61008a600480360360408110156100bc57600080fd5b506001600160a01b038135811691602001351661010f565b61008a6102d0565b61008a6102e8565b61008a61030c565b60006020818152928152604080822090935290815220546001600160a01b031681565b60006001600160a01b0382166101375773c02aaa39b223fe8d0a0e5c4f27ead9083c756cc291505b6001600160a01b03808416600090815260208181526040808320868516845290915290205416801561016a5790506102ca565b6000848460405160200180836001600160a01b031660601b8152601401826001600160a01b031660601b81526014019250505060405160208183030381529060405280519060200120905060006101e17f000000000000000000000000000000000000000000000000000000000000000083610330565b9050806001600160a01b031663c0c53b8b7f000000000000000000000000000000000000000000000000000000000000000088886040518463ffffffff1660e01b815260040180846001600160a01b03168152602001836001600160a01b03168152602001826001600160a01b031681526020019350505050600060405180830381600087803b15801561027457600080fd5b505af1158015610288573d6000803e3d6000fd5b505050506001600160a01b038681166000908152602081815260408083208985168452909152902080546001600160a01b031916918316919091179055925050505b92915050565b73c02aaa39b223fe8d0a0e5c4f27ead9083c756cc281565b7f000000000000000000000000000000000000000000000000000000000000000081565b7f000000000000000000000000000000000000000000000000000000000000000081565b6000604051733d602d80600a3d3981f3363d3d373d3d3d363d7360601b81528360601b60148201526e5af43d82803e903d91602b57fd5bf360881b6028820152826037826000f59150506001600160a01b0381166102ca576040805162461bcd60e51b815260206004820152601760248201527f455243313136373a2063726561746532206661696c6564000000000000000000604482015290519081900360640190fdfea264697066735822122060bdc654e01b6600803b45f7d31a7d09f0e77069b7ec024c52b994bff031639f64736f6c634300060c0033556e69737761705477617050726963654f7261636c655632526f6f74206e6f7420646566696e65642e556e69737761705477617050726963654f7261636c65563220696d706c656d656e746174696f6e2f6c6f67696320636f6e7472616374206e6f7420646566696e65642e";
 const isSuperArgs = (xs) => xs.length > 1;
 export class UniswapTwapPriceOracleV2Factory__factory extends ContractFactory {
-    constructor(...args) {
-        if (isSuperArgs(args)) {
-            super(...args);
-        }
-        else {
-            super(_abi, _bytecode, args[0]);
-        }
+  constructor(...args) {
+    if (isSuperArgs(args)) {
+      super(...args);
+    } else {
+      super(_abi, _bytecode, args[0]);
     }
-    deploy(_rootOracle, _logic, overrides) {
-        return super.deploy(_rootOracle, _logic, overrides || {});
-    }
-    getDeployTransaction(_rootOracle, _logic, overrides) {
-        return super.getDeployTransaction(_rootOracle, _logic, overrides || {});
-    }
-    attach(address) {
-        return super.attach(address);
-    }
-    connect(signer) {
-        return super.connect(signer);
-    }
-    static createInterface() {
-        return new utils.Interface(_abi);
-    }
-    static connect(address, signerOrProvider) {
-        return new Contract(address, _abi, signerOrProvider);
-    }
+  }
+  deploy(_rootOracle, _logic, overrides) {
+    return super.deploy(_rootOracle, _logic, overrides || {});
+  }
+  getDeployTransaction(_rootOracle, _logic, overrides) {
+    return super.getDeployTransaction(_rootOracle, _logic, overrides || {});
+  }
+  attach(address) {
+    return super.attach(address);
+  }
+  connect(signer) {
+    return super.connect(signer);
+  }
+  static createInterface() {
+    return new utils.Interface(_abi);
+  }
+  static connect(address, signerOrProvider) {
+    return new Contract(address, _abi, signerOrProvider);
+  }
 }
 UniswapTwapPriceOracleV2Factory__factory.bytecode = _bytecode;
 UniswapTwapPriceOracleV2Factory__factory.abi = _abi;

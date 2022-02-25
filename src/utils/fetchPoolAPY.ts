@@ -1,4 +1,4 @@
-import { Vaults } from "../esm/index"
+import { Vaults } from "../esm/index";
 import { fromWei, toBN } from "./ethersUtils";
 
 import { getSDKPool, Pool } from "./poolUtils";

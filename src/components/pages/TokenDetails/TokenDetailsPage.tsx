@@ -28,7 +28,10 @@ import {
 } from "gql/ctokens/getBestCTokensForUnderlying";
 import { ChainID } from "esm/utils/networks";
 
-const fetchBestCTokensForUnderlying = async (tokenAddress: string, chainId?: ChainID) => {
+const fetchBestCTokensForUnderlying = async (
+  tokenAddress: string,
+  chainId?: ChainID
+) => {
   const data: GQLBestCTokenForUnderlyings = await makeGqlRequest(
     GET_BEST_CTOKENS_FOR_UNDERLYING,
     {
@@ -91,7 +94,7 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
         isRow={!isMobile}
         width="100%"
         h="100%"
-      // bg="red"
+        // bg="red"
       >
         {/* Column 1 */}
         <Column
@@ -123,7 +126,6 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
           bg=""
           ml={3}
         >
-
           {/* Inactive: Vaults */}
           {/* <AppLink
             href={`/vaults/${token.address}`}
@@ -192,14 +194,12 @@ const TokenDetails = ({ token }: { token: TokenData }) => {
                 subtitle={
                   !!bestLTVCToken?.collateralFactor
                     ? `${(
-                      parseFloat(bestLTVCToken.collateralFactor) / 1e16
-                    ).toFixed()}%`
+                        parseFloat(bestLTVCToken.collateralFactor) / 1e16
+                      ).toFixed()}%`
                     : undefined
                 }
                 href={
-                  bestLTVCToken
-                    ? `/fuse/pool/${bestLTVCToken.pool.index}`
-                    : "#"
+                  bestLTVCToken ? `/fuse/pool/${bestLTVCToken.pool.index}` : "#"
                 }
               />
             </VStack>
@@ -258,7 +258,7 @@ const Header = ({
           mainAxisAlignment="flex-start"
           crossAxisAlignment="center"
           flexBasis={"75%"}
-        //   bg="purple"
+          //   bg="purple"
         >
           <Image
             src={

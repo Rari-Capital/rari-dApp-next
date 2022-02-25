@@ -109,7 +109,6 @@ const FuseTabBar = () => {
           </>
         )}
 
-
         {poolId ? (
           <>
             <DashboardBox

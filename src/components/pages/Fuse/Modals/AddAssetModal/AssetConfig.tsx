@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from "react";
 
 // Chakra and UI
 import { Text, Select, useToast } from "@chakra-ui/react";
@@ -47,10 +47,10 @@ const formatPercentage = (value: number) => value.toFixed(1) + "%";
 
 const AssetConfig = ({
   checked,
-  setChecked
-} : {
-  checked: boolean,
-  setChecked: Dispatch<SetStateAction<boolean>>
+  setChecked,
+}: {
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
 }) => {
   const queryClient = useQueryClient();
   const { fuse, address, isAuthed } = useRari();
@@ -117,7 +117,11 @@ const AssetConfig = ({
 
   // Determines if users can borrow an asset or not.
   const togglePause = async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await comptroller._setBorrowPaused(cTokenAddress, !isBorrowPaused, {
@@ -134,7 +138,11 @@ const AssetConfig = ({
 
   // Updates loan to Value ratio.
   const updateCollateralFactor = async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     // 70% -> 0.7 * 1e18
     const bigCollateralFactor = new BigNumber(collateralFactor)
@@ -144,7 +152,10 @@ const AssetConfig = ({
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.callStatic._setCollateralFactor(cTokenAddress, bigCollateralFactor),
+        comptroller.callStatic._setCollateralFactor(
+          cTokenAddress,
+          bigCollateralFactor
+        ),
         comptroller._setCollateralFactor(cTokenAddress, bigCollateralFactor),
         address,
         ""
@@ -270,8 +281,8 @@ const AssetConfig = ({
           </SimpleTooltip>
 
           {cTokenData !== undefined &&
-            mode === "Editing" &&
-            collateralFactor !==
+          mode === "Editing" &&
+          collateralFactor !==
             scaleCollateralFactor(cTokenData?.collateralFactorMantissa) ? (
             <SaveButton ml={3} onClick={updateCollateralFactor} />
           ) : null}
@@ -285,9 +296,9 @@ const AssetConfig = ({
             max={
               liquidationIncentiveMantissa
                 ? // 100% CF - Liquidation Incentive (ie: 8%) - 5% buffer
-                100 -
-                (liquidationIncentiveMantissa.toString() / 1e16 - 100) -
-                5
+                  100 -
+                  (liquidationIncentiveMantissa.toString() / 1e16 - 100) -
+                  5
                 : 90
             }
           />
@@ -330,7 +341,7 @@ const AssetConfig = ({
           </SimpleTooltip>
 
           {cTokenData &&
-            reserveFactor !==
+          reserveFactor !==
             scaleReserveFactor(cTokenData.reserveFactorMantissa) ? (
             <SaveButton ml={3} onClick={updateReserveFactor} />
           ) : null}
@@ -357,7 +368,7 @@ const AssetConfig = ({
           </SimpleTooltip>
 
           {cTokenData &&
-            adminFee !== scaleAdminFee(cTokenData.adminFeeMantissa) ? (
+          adminFee !== scaleAdminFee(cTokenData.adminFeeMantissa) ? (
             <SaveButton ml={3} onClick={updateAdminFee} />
           ) : null}
 
@@ -378,7 +389,7 @@ const AssetConfig = ({
           !isTokenETHOrWETH(tokenAddress) &&
           mode === "Editing" && (
             <>
-              <OracleConfig  checked={checked} setChecked={setChecked}/>
+              <OracleConfig checked={checked} setChecked={setChecked} />
 
               <ModalDivider />
             </>
@@ -423,7 +434,7 @@ const AssetConfig = ({
           </Select>
 
           {cTokenData &&
-            cTokenData.interestRateModelAddress.toLowerCase() !==
+          cTokenData.interestRateModelAddress.toLowerCase() !==
             interestRateModel.toLowerCase() ? (
             <SaveButton
               height="40px"

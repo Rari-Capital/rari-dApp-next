@@ -7,19 +7,17 @@ import { useMemo, useState, useEffect } from "react";
 import NewHeader from "../Header2/NewHeader";
 import Footer from "./Footer";
 
-
 const Layout = ({ children }) => {
-  const { chainId } = useRari()
+  const { chainId } = useRari();
 
   const bg = useMemo(() => {
     switch (chainId) {
       case ChainID.ARBITRUM:
-        return "linear-gradient(45deg, hsla(0, 0%, 0%, 1) 76%, hsla(220, 47%, 36%, 0.9) 100%);"
+        return "linear-gradient(45deg, hsla(0, 0%, 0%, 1) 76%, hsla(220, 47%, 36%, 0.9) 100%);";
       default:
-        return 'black'
+        return "black";
     }
-
-  }, [chainId])
+  }, [chainId]);
 
   const [showShader, setShowShader] = useState<boolean>(false);
 
@@ -37,7 +35,6 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-
   return (
     <Column
       height="100%"
@@ -47,7 +44,6 @@ const Layout = ({ children }) => {
       crossAxisAlignment="flex-start"
       bg={bg}
       zIndex={-2}
-
     >
       {/* { showShader &&  <iframe frameborder="0" src="https://www.shadertoy.com/embed/7slcWj?gui=false&t=10&paused=false&muted=true" allowfullscreen
         style={{
@@ -66,7 +62,5 @@ const Layout = ({ children }) => {
     </Column>
   );
 };
-
-
 
 export default Layout;

@@ -1,2 +1,2 @@
-import AmountSelectNew from "./AmountSelectNew"
-export default AmountSelectNew
+import AmountSelectNew from "./AmountSelectNew";
+export default AmountSelectNew;

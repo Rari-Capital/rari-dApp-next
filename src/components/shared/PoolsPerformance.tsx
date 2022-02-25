@@ -46,7 +46,6 @@ const PoolsPerformanceChart = ({ size }: { size: number }) => {
   const stableAPY = usePoolAPY(Pool.USDC);
   const yieldAPY = usePoolAPY(Pool.YIELD);
 
-
   const points = useMemo(() => {
     if (ethAPY && stableAPY && yieldAPY) {
       const ethAPYPercentPerDay = parseFloat(ethAPY) / 100 / 365;

@@ -44,12 +44,14 @@ const SwitchNetworkButton: React.FC<
       border="1px solid"
       opacity={0.9}
       _hover={{
-        opacity: 1
+        opacity: 1,
       }}
-    // borderColor={chainMetadata?.color}
+      // borderColor={chainMetadata?.color}
     >
       <Center>
-        {switchingNetwork ? "Switching..." : chainMetadata ? (
+        {switchingNetwork ? (
+          "Switching..."
+        ) : chainMetadata ? (
           <>
             {chainMetadata.imageUrl && (
               <Img
@@ -75,18 +77,21 @@ const SwitchNetworkButton: React.FC<
 
 const SwitchNetworkMenu: React.FC = () => {
   const { switchNetwork, chainId } = useRari();
-  const [devMode, setDevMode] = useState(false)
-  const supportedChains = useMemo(() => getSupportedChains().filter(({ chainId }: { chainId: number }) => {
-    if (!!devMode) return true
-    else return chainId !== ChainID.ARBITRUM_TESTNET
-  }), [devMode]);
+  const [devMode, setDevMode] = useState(false);
+  const supportedChains = useMemo(
+    () =>
+      getSupportedChains().filter(({ chainId }: { chainId: number }) => {
+        if (!!devMode) return true;
+        else return chainId !== ChainID.ARBITRUM_TESTNET;
+      }),
+    [devMode]
+  );
   const router = useRouter();
-
 
   // If user presses meta key or control key + slash they will toggle the private allocation claim mode.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      console.log(e.code)
+      console.log(e.code);
       if (e.code === "Slash") {
         e.preventDefault();
         setDevMode(true);
@@ -97,7 +102,6 @@ const SwitchNetworkMenu: React.FC = () => {
 
     return () => document.removeEventListener("keydown", handler);
   }, []);
-
 
   let chainMetadata;
   if (!!chainId) {

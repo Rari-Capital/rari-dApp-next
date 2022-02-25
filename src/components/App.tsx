@@ -157,5 +157,5 @@
 // });
 
 import { memo } from "react";
-const App = memo(() => (<div/>))
+const App = memo(() => <div />);
 export default App;

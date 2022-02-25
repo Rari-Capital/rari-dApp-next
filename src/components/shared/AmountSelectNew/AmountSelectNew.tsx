@@ -7,7 +7,7 @@ import AwaitingTransactions from "./AwaitingTransactions";
 
 // Hooks
 import { useState } from "react";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 
 // Types
 import { TokenData } from "hooks/useTokenData";
@@ -23,7 +23,7 @@ export enum AmountSelectMode {
   BORROW = "Borrow",
   REPAY = "Repay",
   LENDANDBORROW = "Lend/Borrow",
-  REPAYANDWITHDRAW = "Repay/Withdraw"
+  REPAYANDWITHDRAW = "Repay/Withdraw",
 }
 
 export enum AmountSelectUserAction {
@@ -51,7 +51,6 @@ const AmountSelectNew = ({
   comptrollerAddress,
 }: Props) => {
   const [mode, setMode] = useState<AmountSelectMode>(modes[0]);
-
 
   // @ts-ignore
   const [userAction, setUserAction] = useState(
@@ -81,9 +80,7 @@ const AmountSelectNew = ({
             bg=""
             expand
           >
-            {mode === AmountSelectMode.LENDANDBORROW && (
-              <LBRW token={token} />
-            )}
+            {mode === AmountSelectMode.LENDANDBORROW && <LBRW token={token} />}
             {mode === AmountSelectMode.BORROW && (
               <Box h="300px">
                 <Heading>BORROW</Heading>
@@ -149,8 +146,8 @@ const TabBar = ({
           isFitted
           width="100%"
           align="center"
-          onChange={(index: number) =>{ 
-            setMode(modes[index])
+          onChange={(index: number) => {
+            setMode(modes[index]);
           }}
         >
           <TabList>

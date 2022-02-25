@@ -1,6 +1,6 @@
 // Rari
 import { EmptyAddress } from "context/RariContext";
-import { Vaults } from "../../../esm/index"
+import { Vaults } from "../../../esm/index";
 
 // Hooks
 import { fetchPools } from "hooks/fuse/useFusePools";
@@ -13,8 +13,8 @@ import { fetchFusePoolData } from "utils/fetchFusePoolData";
 import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 
 // Ethers
-import { utils } from 'ethers'
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 export default async function handler(
   req: NextApiRequest,
@@ -58,9 +58,7 @@ export default async function handler(
         )
       );
 
-      return res
-        .status(200)
-        .json({ pools: fusePoolsData, userAddress });
+      return res.status(200).json({ pools: fusePoolsData, userAddress });
     } catch (error) {
       console.log({ error });
       return res.status(400).json({ error });
@@ -101,9 +99,7 @@ export default async function handler(
         )
       );
 
-      return res
-        .status(200)
-        .json({ pools: fusePoolsData, userAddress });
+      return res.status(200).json({ pools: fusePoolsData, userAddress });
     } catch (error) {
       console.log({ error });
       return res.status(400).json({ error });

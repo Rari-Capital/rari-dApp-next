@@ -1,12 +1,11 @@
 import { useRouter } from "next/router";
 
-export function useFilter() : string | null {
+export function useFilter(): string | null {
   const router = useRouter();
-  const { filter } = router.query
+  const { filter } = router.query;
 
   // Check if the query params are an array
-  if (typeof filter === "object") return filter[0]
-
+  if (typeof filter === "object") return filter[0];
   // Else return the filter or null
   else return filter ?? null;
 }

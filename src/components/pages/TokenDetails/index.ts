@@ -1,2 +1,2 @@
-import TokenDetailsPage from './TokenDetailsPage'
-export default TokenDetailsPage
+import TokenDetailsPage from "./TokenDetailsPage";
+export default TokenDetailsPage;

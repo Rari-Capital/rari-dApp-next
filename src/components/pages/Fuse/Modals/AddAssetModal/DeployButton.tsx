@@ -37,10 +37,14 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     tokenAddress,
     uniV3BaseTokenAddress,
     activeOracleModel,
-    activeUniSwapPair
+    activeUniSwapPair,
   } = useAddAssetContext();
 
-  const isItReady = useCheckUniV2Oracle(tokenAddress, uniV3BaseTokenAddress, activeOracleModel)
+  const isItReady = useCheckUniV2Oracle(
+    tokenAddress,
+    uniV3BaseTokenAddress,
+    activeOracleModel
+  );
   // If user hasnt edited the form and we have a default oracle price for this asset
   const hasDefaultOraclePriceAndHasntEdited =
     hasDefaultOracle && hasPriceForAsset && oracleAddress === defaultOracle;
@@ -68,12 +72,12 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     if (hasDefaultOraclePriceAndHasntEdited) return true;
 
     // If its depending on a twap bot wait for it to be ready
-      // once isItReady is true disabled should be false..
+    // once isItReady is true disabled should be false..
     if (
-      activeOracleModel === "Uniswap_V2_Oracle"
-      || activeOracleModel === "SushiSwap_Oracle"
+      activeOracleModel === "Uniswap_V2_Oracle" ||
+      activeOracleModel === "SushiSwap_Oracle"
     ) {
-      return isItReady
+      return isItReady;
     }
 
     // If the oracle address is not set at all, then disable until it is set.
@@ -85,7 +89,6 @@ const DeployButton = ({ steps, deploy }: { deploy: any; steps: any }) => {
     shouldShowUniV3BaseTokenOracleForm,
     uniV3BaseTokenOracle
   );
-
 
   return (
     <Column

@@ -20,7 +20,11 @@ export const useCTokenData = (
 
   const { data } = useQuery(cTokenAddress + " cTokenData", async () => {
     if (comptrollerAddress && cTokenAddress) {
-      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+      const comptroller = useCreateComptroller(
+        comptrollerAddress,
+        fuse,
+        isAuthed
+      );
       const cToken = createCToken(fuse, cTokenAddress);
 
       const [

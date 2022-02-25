@@ -2,7 +2,7 @@
 import { fetchPools } from "hooks/fuse/useFusePools";
 
 // RAri
-import { Vaults } from "../../../../esm/index"
+import { Vaults } from "../../../../esm/index";
 
 // Next JS
 import { NextApiRequest, NextApiResponse } from "next";
@@ -14,8 +14,8 @@ import { initFuseWithProviders, providerURL } from "utils/web3Providers";
 import { blockNumberToTimeStamp } from "utils/web3Utils";
 
 // Ethers
-import { utils,constants } from 'ethers'
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils, constants } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 interface APIAccountsFuseBalancesResponse {
   userAddress: string;
@@ -94,19 +94,31 @@ export default async function handler(
           ...pool,
           assets:
             pool?.assets.filter(
-              (asset) => asset.borrowBalance.gt(constants.Zero) || asset.supplyBalance.gt(constants.Zero)
+              (asset) =>
+                asset.borrowBalance.gt(constants.Zero) ||
+                asset.supplyBalance.gt(constants.Zero)
             ) ?? [],
         } as FusePoolData;
       });
 
       const totalBorrowsUSD =
         fusePoolsData?.reduce((a, b) => {
-          return a + (b?.totalBorrowBalanceUSD ?  parseInt(b?.totalBorrowBalanceUSD.toString()) : 0);
+          return (
+            a +
+            (b?.totalBorrowBalanceUSD
+              ? parseInt(b?.totalBorrowBalanceUSD.toString())
+              : 0)
+          );
         }, 0) ?? 0;
 
       const totalSuppliedUSD =
         fusePoolsDataWithFilteredAssets?.reduce((a, b) => {
-          return a + (b?.totalSupplyBalanceUSD ? parseInt(b?.totalBorrowBalanceUSD.toString()) :  0);
+          return (
+            a +
+            (b?.totalSupplyBalanceUSD
+              ? parseInt(b?.totalBorrowBalanceUSD.toString())
+              : 0)
+          );
         }, 0) ?? 0;
 
       // Calc totals

@@ -13,7 +13,7 @@ import { ETH_TOKEN_DATA } from "./useTokenData";
 // Ethers
 import { Contract, BigNumber as EthersBigNumber, constants } from "ethers";
 
-import { providers } from "@0xsequence/multicall"
+import { providers } from "@0xsequence/multicall";
 
 export const fetchTokenBalance = async (
   tokenAddress: string | undefined,
@@ -59,27 +59,33 @@ export function useTokenBalance(
   );
 }
 
-
 export const useTokenBalances = (tokenAddresses: string[]): number[] => {
   //TODO BalancesContext calls this multiple times with empty tokenAddresses array
-  const { fuse, address, isAuthed} = useRari();
+  const { fuse, address, isAuthed } = useRari();
 
-  const multiCallProvider = new providers.MulticallProvider(fuse.provider)
-  return useQuery<number[] | undefined>(
-    address + ' balancesMulticall ' + tokenAddresses.join(' '),
-    () => {
-      if (!isAuthed) return undefined
-      return Promise.all<number>(
-        tokenAddresses.map( (tokenAddress: string) => {
-          if(tokenAddress === ETH_TOKEN_DATA.address)
-            return fuse.provider.getBalance(address)
-          
-          let contract = new Contract(tokenAddress, ERC20ABI as any, multiCallProvider)
-          return contract.balanceOf(address)
-            .then((balance: number) => parseFloat(balance.toString()))
-            .catch((_err: any) => { })
-        })
-      )
-    }
-  ).data || []
-}
+  const multiCallProvider = new providers.MulticallProvider(fuse.provider);
+  return (
+    useQuery<number[] | undefined>(
+      address + " balancesMulticall " + tokenAddresses.join(" "),
+      () => {
+        if (!isAuthed) return undefined;
+        return Promise.all<number>(
+          tokenAddresses.map((tokenAddress: string) => {
+            if (tokenAddress === ETH_TOKEN_DATA.address)
+              return fuse.provider.getBalance(address);
+
+            let contract = new Contract(
+              tokenAddress,
+              ERC20ABI as any,
+              multiCallProvider
+            );
+            return contract
+              .balanceOf(address)
+              .then((balance: number) => parseFloat(balance.toString()))
+              .catch((_err: any) => {});
+          })
+        );
+      }
+    ).data || []
+  );
+};

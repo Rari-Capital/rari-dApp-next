@@ -8,7 +8,7 @@ const CloseIconButton = ({ alignRight = true }: { alignRight?: boolean }) => {
       aria-label="Close"
       icon={<CloseIcon />}
       color="white"
-      _hover={{ color: "grey"}}
+      _hover={{ color: "grey" }}
     />
   );
 };

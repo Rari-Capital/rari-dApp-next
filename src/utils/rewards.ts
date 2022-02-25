@@ -22,7 +22,6 @@ export const claimRewardsFromRewardsDistributors = async (
     // return rd.interface.function claimRewards(address);
   });
 
-
   const returnDatas = await sendWithMultiCall(fuse, encodedCalls, address);
 
   console.log({ returnDatas });

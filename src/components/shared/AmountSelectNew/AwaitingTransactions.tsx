@@ -17,7 +17,6 @@ const AwaitingTransactions = ({
   token?: TokenData;
   mode: AmountSelectUserAction;
 }) => {
-
   const renderText = useMemo(() => {
     switch (mode) {
       case AmountSelectUserAction.WAITING_FOR_LEND_APPROVAL:

@@ -142,11 +142,11 @@ export const fetchFusePoolData = async (
   fuse: Fuse,
   blockNum: string | number = "latest",
   isAuthed: boolean,
-  dev?: boolean,
+  dev?: boolean
 ): Promise<FusePoolData | undefined> => {
   if (!poolId) return undefined;
 
-  const addressToUse = address === EmptyAddress ? "" : address
+  const addressToUse = address === EmptyAddress ? "" : address;
   const {
     comptroller,
     name: _unfiliteredName,
@@ -162,7 +162,6 @@ export const fetchFusePoolData = async (
       { from: addressToUse }
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
-
 
   let totalLiquidityUSD = constants.Zero;
 
@@ -188,8 +187,12 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
-    asset.supplyCap = await comptrollerContract.callStatic.supplyCaps(asset.cToken)
-    asset.borrowCap = await comptrollerContract.callStatic.borrowCaps(asset.cToken)
+    asset.supplyCap = await comptrollerContract.callStatic.supplyCaps(
+      asset.cToken
+    );
+    asset.borrowCap = await comptrollerContract.callStatic.borrowCaps(
+      asset.cToken
+    );
 
     asset.supplyBalanceUSD = asset.supplyBalance
       .mul(asset.underlyingPrice)

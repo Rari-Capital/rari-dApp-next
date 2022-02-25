@@ -22,7 +22,7 @@ import { getPoolLogo } from "utils/poolIconUtils";
 import { Pool, getPoolName, getPoolCaption } from "utils/poolUtils";
 
 // Ethers
-import { BigNumber, constants } from 'ethers'
+import { BigNumber, constants } from "ethers";
 import useVaultsSDK from "./vaults/useVaultsSDK";
 
 export const usePoolInfo = (poolType: Pool) => {
@@ -97,7 +97,8 @@ export const useAggregatePoolInfos = (): AggregatePoolsInfoReturn => {
       poolInfos.map((poolInfo: PoolInterface, index: number) => {
         // @ts-ignore
         const poolAPY: number | null = poolAPYs[index] ?? null;
-        const poolBalance: BigNumber = poolBalances[index]?.data ?? constants.Zero;
+        const poolBalance: BigNumber =
+          poolBalances[index]?.data ?? constants.Zero;
 
         const formattedPoolBalance: string | null = formatBalanceBN(
           rari,

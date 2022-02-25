@@ -25,7 +25,7 @@ import {
 } from "hooks/useTokenData";
 import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
 
-import { filterPoolName } from "utils/fetchFusePoolData"
+import { filterPoolName } from "utils/fetchFusePoolData";
 
 export enum ExploreGridBoxMetric {
   TOTAL_BORROWS,
@@ -75,8 +75,8 @@ export const FuseAssetBoxNew = ({
         pool?.index
           ? `/fuse/pool/${pool.index}`
           : cToken?.underlying?.id
-            ? `/token/${cToken?.underlying?.id}`
-            : `#`
+          ? `/token/${cToken?.underlying?.id}`
+          : `#`
       }
       className="no-underline"
       w="100%"
@@ -91,8 +91,8 @@ export const FuseAssetBoxNew = ({
         // border="1px solid #272727"
         p={5}
         px={7}
-      // maxW="200px"
-      //  bg="lime"
+        // maxW="200px"
+        //  bg="lime"
       >
         <Row
           mainAxisAlignment="flex-start"

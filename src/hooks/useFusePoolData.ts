@@ -17,7 +17,7 @@ export const useFusePoolData = (
   const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(poolId + " poolData " + address, () => {
-    return fetchFusePoolData(poolId, address, fuse, undefined , isAuthed, dev);
+    return fetchFusePoolData(poolId, address, fuse, undefined, isAuthed, dev);
   });
 
   return data;
@@ -32,7 +32,13 @@ export const useFusePoolsData = (poolIds: number[]): FusePoolData[] | null => {
       return {
         queryKey: id + " apy",
         queryFn: () => {
-          return fetchFusePoolData(id.toString(), address, fuse, undefined, isAuthed);
+          return fetchFusePoolData(
+            id.toString(),
+            address,
+            fuse,
+            undefined,
+            isAuthed
+          );
         },
       };
     })

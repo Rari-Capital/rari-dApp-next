@@ -20,7 +20,7 @@ import { useRari } from "context/RariContext";
 import { ChainID } from "esm/utils/networks";
 
 const UniswapV3PriceOracleConfigurator = () => {
-  const { chainId } = useRari()
+  const { chainId } = useRari();
   const { t } = useTranslation();
 
   const {
@@ -36,18 +36,17 @@ const UniswapV3PriceOracleConfigurator = () => {
   const { data: liquidity, error } = useQuery(
     `UniswapV3 pool liquidity for ${tokenAddress} on ChainID: ${chainId}`,
     async () => {
-      const tokenAddressFormatted = tokenAddress.toLowerCase()
-      
+      const tokenAddressFormatted = tokenAddress.toLowerCase();
+
       // TODO: Config file
-      const graphUrl = chainId === ChainID.ETHEREUM ? 
-        "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3" 
-        : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
+      const graphUrl =
+        chainId === ChainID.ETHEREUM
+          ? "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3"
+          : "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal";
 
       return (
-        await axios.post(
-          graphUrl,
-          {
-            query: `{
+        await axios.post(graphUrl, {
+          query: `{
             token(id:"${tokenAddressFormatted}") {
               whitelistPools {
                 id,
@@ -67,13 +66,11 @@ const UniswapV3PriceOracleConfigurator = () => {
               }
             }
           }`,
-          }
-        )
-      ).data.data 
+        })
+      ).data.data;
     },
     { refetchOnMount: false }
   );
-
 
   // When user selects an option this function will be called.
   // Active pool, fee Tier, and base token are updated and we set the oracle address to the address of the pool we chose.
@@ -91,8 +88,7 @@ const UniswapV3PriceOracleConfigurator = () => {
   };
 
   // If liquidity is undefined, theres an error or theres no token found return nothing.
-  if (liquidity === undefined || liquidity.token === undefined)
-    return null;
+  if (liquidity === undefined || liquidity.token === undefined) return null;
 
   // Sort whitelisted pools by TVL. Greatest to smallest. Greater TVL is safer for users so we show it first.
   // Filter out pools where volume is less than $100,000

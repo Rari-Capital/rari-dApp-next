@@ -24,9 +24,9 @@ export type CrossAxisAlignmentStrings =
 export type CrossAxisAlignment =
   | CrossAxisAlignmentStrings
   | {
-    md: CrossAxisAlignmentStrings;
-    base: CrossAxisAlignmentStrings;
-  };
+      md: CrossAxisAlignmentStrings;
+      base: CrossAxisAlignmentStrings;
+    };
 
 export class PixelMeasurement {
   size: number;
@@ -305,7 +305,7 @@ export const RowOrColumn = ({
  */
 export const useWindowSize = () => {
   const [windowSize, setWindowSize] = useState({
-    width: 100,  // assume desktop until client-side render
+    width: 100, // assume desktop until client-side render
     height: 100,
   });
 
@@ -371,11 +371,16 @@ export function useLockedViewHeight({
  * Returns whether the width of the window makes it likely a mobile device.
  * */
 export function useIsMobile() {
-  return useBreakpointValue({
-    base: true,
-    sm: true,
-    md: false,
-  }, 'md') ?? false
+  return (
+    useBreakpointValue(
+      {
+        base: true,
+        sm: true,
+        md: false,
+      },
+      "md"
+    ) ?? false
+  );
 }
 
 /**

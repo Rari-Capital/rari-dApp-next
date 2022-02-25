@@ -18,7 +18,11 @@ export const useRewardsDistributorsForPool = (
     comptrollerAddress + " rewardsDistributors",
     async () => {
       if (!comptrollerAddress) return [];
-      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+      const comptroller = useCreateComptroller(
+        comptrollerAddress,
+        fuse,
+        isAuthed
+      );
 
       // console.log({ comptroller });
 

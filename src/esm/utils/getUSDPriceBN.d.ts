@@ -1,1 +1,3 @@
-export declare const getEthUsdPriceBN: () => Promise<import("ethers").BigNumber>;
+export declare const getEthUsdPriceBN: () => Promise<
+  import("ethers").BigNumber
+>;

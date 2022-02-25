@@ -17,7 +17,10 @@ import {
 import { useQueryClient } from "react-query";
 import { useToast } from "@chakra-ui/toast";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
-import { useCreateComptroller, createUnitroller } from "utils/createComptroller";
+import {
+  useCreateComptroller,
+  createUnitroller,
+} from "utils/createComptroller";
 import LogRocket from "logrocket";
 import { handleGenericError } from "utils/errorHandling";
 import BigNumber from "bignumber.js";
@@ -59,7 +62,11 @@ const PoolConfiguration = ({
   );
 
   const changeWhitelistStatus = async (enforce: boolean) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
@@ -78,7 +85,11 @@ const PoolConfiguration = ({
   };
 
   const addToWhitelist = async (newUser: string) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const newList = [...data!.whitelist, newUser];
 
@@ -105,7 +116,11 @@ const PoolConfiguration = ({
   };
 
   const removeFromWhitelist = async (removeUser: string) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const whitelist = data!.whitelist;
     try {
@@ -223,7 +238,11 @@ const PoolConfiguration = ({
       .multipliedBy(1e18)
       .toFixed(0);
 
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
@@ -249,11 +268,17 @@ const PoolConfiguration = ({
       .multipliedBy(1e18)
       .toFixed(0);
 
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.callStatic._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller.callStatic._setLiquidationIncentive(
+          bigLiquidationIncentive
+        ),
         comptroller._setLiquidationIncentive(bigLiquidationIncentive),
         address,
         ""
@@ -419,7 +444,7 @@ const PoolConfiguration = ({
               <Text fontWeight="bold">{t("Liquidation Incentive")}:</Text>
 
               {data &&
-                scaleLiquidationIncentive(data.liquidationIncentive) !==
+              scaleLiquidationIncentive(data.liquidationIncentive) !==
                 liquidationIncentive ? (
                 <SaveButton onClick={updateLiquidationIncentive} />
               ) : null}

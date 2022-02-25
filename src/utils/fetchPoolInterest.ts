@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { Vaults } from "../esm/index"
+import { Vaults } from "../esm/index";
 import { stringUsdFormatter } from "utils/bigUtils";
 import { fromWei, toBN } from "./ethersUtils";
 

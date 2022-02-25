@@ -1,8 +1,8 @@
-import EthereumPool from '../esm/Vaults/pools/ethereum'
-import StablePool from '../esm/Vaults/pools/stable'
-import DAIPool from '../esm/Vaults/pools/dai'
-import YieldPool from '../esm/Vaults/pools/yield'
-import { Vaults } from "../esm/index"
+import EthereumPool from "../esm/Vaults/pools/ethereum";
+import StablePool from "../esm/Vaults/pools/stable";
+import DAIPool from "../esm/Vaults/pools/dai";
+import YieldPool from "../esm/Vaults/pools/yield";
+import { Vaults } from "../esm/index";
 
 export enum Pool {
   STABLE = "stable",
@@ -60,7 +60,7 @@ export const getPoolName = (pool: Pool, t: any) => {
     case Pool.YIELD:
       return t("Yield Pool");
     case Pool.STABLE:
-      return t("Stable Pool")
+      return t("Stable Pool");
     default:
       return t("Yield Pool");
   }

@@ -13,7 +13,7 @@ import { TokenData } from "hooks/useTokenData";
 import useReserves from "hooks/interestRates/aave/useReserves";
 import useCompoundMarkets from "hooks/interestRates/compound/useCompoundMarkets";
 import useFuseMarkets from "hooks/interestRates/fuse/useFuseMarkets";
-import { fetchTokenDataWithCache } from 'utils/services';
+import { fetchTokenDataWithCache } from "utils/services";
 
 // Types
 import { MarketInfo } from "hooks/interestRates/types";
@@ -199,5 +199,3 @@ export default function InterestRatesView() {
     </InterestRatesContext.Provider>
   );
 }
-
-

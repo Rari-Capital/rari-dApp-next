@@ -13,7 +13,7 @@ const HomeCarousel = () => {
   const isMobile = useIsSmallScreen();
 
   // const { totals: pools } = useFuseDataForAssets(ASSETS);
-  return null
+  return null;
 
   // return (
   //   <Column

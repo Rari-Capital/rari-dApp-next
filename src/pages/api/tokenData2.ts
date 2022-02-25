@@ -4,14 +4,14 @@ import { Palette } from "node-vibrant/lib/color";
 import fetch from "node-fetch";
 
 // Rari
-import ERC20ABI from "../../esm/Vaults/abi/ERC20.json"
+import ERC20ABI from "../../esm/Vaults/abi/ERC20.json";
 
 import { providerURL } from "utils/web3Providers";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Ethers
-import { utils, Contract } from 'ethers'
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils, Contract } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 const web3 = new JsonRpcProvider(providerURL);
 
@@ -24,9 +24,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   const tokenContract = new Contract(address, ERC20ABI as any, web3);
 
   const [decimals, rawData] = await Promise.all([
-    tokenContract
-      .decimals()
-      .then((res: any) => parseFloat(res)),
+    tokenContract.decimals().then((res: any) => parseFloat(res)),
 
     fetch(
       "https://api.coingecko.com/api/v3/coins/ethereum/contract/" + address
@@ -101,8 +99,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
   }
 
   if (
-    address ===
-    utils.getAddress("0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9")
+    address === utils.getAddress("0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9")
   ) {
     // FTX swapped the name and symbol so we will correct for that.
     symbol = "FTT";
@@ -111,8 +108,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   // OT-aUSDC
   if (
-    address ===
-    utils.getAddress("0x8fcb1783bf4b71a51f702af0c266729c4592204a")
+    address === utils.getAddress("0x8fcb1783bf4b71a51f702af0c266729c4592204a")
   ) {
     // OT token names are too long.
     symbol = "OT-aUSDC22";
@@ -121,8 +117,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   // OT-cDAI22
   if (
-    address ===
-    utils.getAddress("0x3d4e7f52efafb9e0c70179b688fc3965a75bcfea")
+    address === utils.getAddress("0x3d4e7f52efafb9e0c70179b688fc3965a75bcfea")
   ) {
     // OT token names are too long.
     symbol = "OT-cDAI22";
@@ -131,8 +126,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   // xSDT
   if (
-    address ===
-    utils.getAddress("0xaC14864ce5A98aF3248Ffbf549441b04421247D3")
+    address === utils.getAddress("0xaC14864ce5A98aF3248Ffbf549441b04421247D3")
   ) {
     logoURL =
       "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/logos/stakedao/xSDT.png";
@@ -140,8 +134,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   // sd3Crv
   if (
-    address ===
-    utils.getAddress("0xB17640796e4c27a39AF51887aff3F8DC0daF9567")
+    address === utils.getAddress("0xB17640796e4c27a39AF51887aff3F8DC0daF9567")
   ) {
     logoURL =
       "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/logos/stakedao/sd3Crv.png";
@@ -149,8 +142,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
   // sdeursCRV
   if (
-    address ===
-    utils.getAddress("0xCD6997334867728ba14d7922f72c893fcee70e84")
+    address === utils.getAddress("0xCD6997334867728ba14d7922f72c893fcee70e84")
   ) {
     logoURL =
       "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/logos/stakedao/sdeursCRV.png";

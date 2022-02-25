@@ -9,8 +9,11 @@ import { useRari } from "./RariContext";
 export const BalancesContext = createContext<any | undefined>(undefined);
 
 // Fetchers
-const allTokensFetcher = async (isAuthed: boolean, chainId: number): Promise<SubgraphUnderlyingAsset[]> => {
-  if (!isAuthed) return []
+const allTokensFetcher = async (
+  isAuthed: boolean,
+  chainId: number
+): Promise<SubgraphUnderlyingAsset[]> => {
+  if (!isAuthed) return [];
 
   return await queryAllUnderlyingAssets(chainId);
 };
@@ -22,11 +25,15 @@ export const BalancesContextProvider = ({
 }) => {
   const { isAuthed, chainId } = useRari();
 
-  const { data: underlyingAssets } = useSWR([isAuthed, chainId], allTokensFetcher, {
-    dedupingInterval: 3600000,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data: underlyingAssets } = useSWR(
+    [isAuthed, chainId],
+    allTokensFetcher,
+    {
+      dedupingInterval: 3600000,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
   const tokenAddresses = useMemo(
     () =>

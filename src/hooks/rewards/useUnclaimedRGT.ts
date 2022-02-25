@@ -11,7 +11,7 @@ export function useUnclaimedRGT() {
   const { data: unclaimedRGT } = useQuery(
     address + " unclaimed RGT chain " + chainId,
     async () => {
-      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined
+      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined;
       return parseFloat(
         (
           await rari.governance.rgt.distributions.getUnclaimed(address)
@@ -23,7 +23,7 @@ export function useUnclaimedRGT() {
   const { data: privateUnclaimedRGT } = useQuery(
     address + " privateUnclaimed RGT chain " + chainId,
     async () => {
-      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined
+      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined;
       return parseFloat(
         (await rari.governance.rgt.vesting.getUnclaimed(address)).toString()
       );
@@ -33,7 +33,7 @@ export function useUnclaimedRGT() {
   const { data: pool2UnclaimedRGT } = useQuery(
     address + " pool2Unclaimed RGT chain " + chainId,
     async () => {
-      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined
+      if (chainId !== ChainID.ETHEREUM || !isAuthed) return undefined;
       return parseFloat(
         (
           await rari.governance.rgt.sushiSwapDistributions.getUnclaimed(address)

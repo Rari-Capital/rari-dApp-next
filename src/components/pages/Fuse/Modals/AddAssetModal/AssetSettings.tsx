@@ -252,11 +252,11 @@ const AssetSettings = ({
   // Set transaction steps based on type of Oracle deployed
   const steps: string[] =
     activeOracleModel === "Rari_Default_Oracle" ||
-      activeOracleModel === "Chainlink_Oracle"
+    activeOracleModel === "Chainlink_Oracle"
       ? SimpleDeployment
       : activeOracleModel === "Uniswap_V3_Oracle"
-        ? UniSwapV3DeploymentSimple
-        : SimpleDeployment;
+      ? UniSwapV3DeploymentSimple
+      : SimpleDeployment;
 
   const increaseActiveStep = (step: string) => {
     setActiveStep(steps.indexOf(step));
@@ -410,7 +410,6 @@ const AssetSettings = ({
       decimals: 8,
     };
 
-
     await fuse.deployAsset(
       conf,
       bigCollateralFactor,
@@ -460,7 +459,6 @@ const AssetSettings = ({
         _retryFlag = 3;
       }
 
-
       console.log({ _retryFlag });
 
       // if (activeOracleModel === "Uniswap_V2_Oracle" || activeOracleModel === "SushiSwap_Oracle") {
@@ -494,7 +492,6 @@ const AssetSettings = ({
         setNeedsRetry(false);
 
         console.log({ _retryFlag });
-
 
         await deployAssetToPool();
 
@@ -622,7 +619,7 @@ const AssetSettings = ({
           crossAxisAlignment={"center"}
           w="100%"
           flexBasis={"10%"}
-        // bg="green"
+          // bg="green"
         >
           <Title stage={stage} />
         </Row>
@@ -636,7 +633,7 @@ const AssetSettings = ({
           overflowY="auto"
           flexBasis={"80%"}
           flexGrow={1}
-        // bg="red"
+          // bg="red"
         >
           {stage === 1 ? (
             <Column
@@ -660,9 +657,13 @@ const AssetSettings = ({
               crossAxisAlignment="center"
               alignItems="center"
               justifyContent="center"
-            // bg="aqua"
+              // bg="aqua"
             >
-              <Screen2 mode="Adding" checked={checked} setChecked={setChecked} />
+              <Screen2
+                mode="Adding"
+                checked={checked}
+                setChecked={setChecked}
+              />
             </Row>
           ) : (
             <Screen3 />

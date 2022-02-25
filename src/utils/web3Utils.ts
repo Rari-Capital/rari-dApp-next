@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 // Converts block Number to Unix Timestamp
 export const blockNumberToTimeStamp = async (

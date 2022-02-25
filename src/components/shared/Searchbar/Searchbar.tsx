@@ -55,18 +55,17 @@ const Searchbar = ({
   const [focused, setFocused] = useState<boolean>(false);
   const [balances, balancesToSearchWith] = useAccountBalances();
 
-  const debouncedValue = useDebounce(val, 300)
+  const debouncedValue = useDebounce(val, 300);
 
   const debouncedSearch = useMemo(() => {
-    return [chainId, debouncedValue, ...balancesToSearchWith]
-  }, [chainId, debouncedValue, balancesToSearchWith.length])
+    return [chainId, debouncedValue, ...balancesToSearchWith];
+  }, [chainId, debouncedValue, balancesToSearchWith.length]);
 
   const { data } = useSWR(debouncedSearch, searchFetcher, {
     dedupingInterval: 60000,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-
 
   const hasResults = useMemo(() => {
     if (!data) return false;
@@ -89,7 +88,7 @@ const Searchbar = ({
       width="100%"
       position="relative"
       bg="white"
-      border={(smaller || hasResultsUnfocused) ? "2px solid" : "4px solid"}
+      border={smaller || hasResultsUnfocused ? "2px solid" : "4px solid"}
       borderRadius="xl"
       borderColor={hasResultsUnfocused ? "green" : "grey"}
       zIndex={2}
@@ -117,19 +116,17 @@ const Searchbar = ({
         <Input
           height="100%"
           width="100%"
-          placeholder={
-            isMobile ? "Search..." : "Search by token..."
-          }
+          placeholder={isMobile ? "Search..." : "Search by token..."}
           _placeholder={{
             color: "grey",
             fontWeight: 600,
             fontSize: smaller
               ? "sm"
               : {
-                base: "sm",
-                sm: "sm",
-                md: "md",
-              },
+                  base: "sm",
+                  sm: "sm",
+                  md: "md",
+                },
             width: "100%",
           }}
           _focus={{ borderColor: "grey" }}
@@ -154,7 +151,6 @@ const Searchbar = ({
             right="0"
             mr={1}
           >
-
             <AppLink href="/explore">
               <Button colorScheme="green" _hover={{ transform: "scale(1.04)" }}>
                 Explore

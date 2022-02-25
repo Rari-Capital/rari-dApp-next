@@ -20,7 +20,7 @@ const useOraclesForPool = (
       // const contract = new ethers.Contract(address, abi, provider.getSigner(0));
       let eventFilter = mpo.filters.NewOracle();
 
-      let events = await mpo.queryFilter(eventFilter, );
+      let events = await mpo.queryFilter(eventFilter);
 
       console.log({ events, eventFilter });
 

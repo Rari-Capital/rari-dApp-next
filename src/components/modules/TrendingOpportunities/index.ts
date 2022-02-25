@@ -1,2 +1,2 @@
-import TrendingOpportunities from './TrendingOpportunities'
-export default TrendingOpportunities
+import TrendingOpportunities from "./TrendingOpportunities";
+export default TrendingOpportunities;

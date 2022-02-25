@@ -15,12 +15,16 @@ const OpportunityCard = ({
   onClick,
 }: {
   opportunity: HomepageOpportunity;
-  onClick?: null | { (): void }
+  onClick?: null | { (): void };
 }) => {
   const subheading: string | null = useOpportunitySubtitle(opportunity);
   const link = useMemo(() => getOpportunityLink(opportunity), [opportunity]);
   return (
-    <AppLink href={link} style={{ textDecoration: "none" }} isExternal={opportunity.isExternal ?? false}>
+    <AppLink
+      href={link}
+      style={{ textDecoration: "none" }}
+      isExternal={opportunity.isExternal ?? false}
+    >
       <Box
         bg={opportunity.bgColor}
         height={{
@@ -38,7 +42,7 @@ const OpportunityCard = ({
           transform: "translateY(-5px)",
           boxShadow: ".2px .3px 1px white;",
         }}
-        onClick={onClick ? () => onClick(): undefined}
+        onClick={onClick ? () => onClick() : undefined}
       >
         <Row
           mainAxisAlignment="flex-start"

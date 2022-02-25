@@ -1,7 +1,7 @@
 import { stringUsdFormatter } from "./bigUtils";
 import { fromWei } from "./ethersUtils";
-import { BigNumber } from "ethers"
-import { Vaults } from "../esm/index"
+import { BigNumber } from "ethers";
+import { Vaults } from "../esm/index";
 
 // Formats a BN balance USD or ETH denominated string
 export const formatBalanceBN = (
@@ -11,9 +11,7 @@ export const formatBalanceBN = (
 ): string | null => {
   if (!balanceData) return null;
 
-  let formattedBalance = stringUsdFormatter(
-    fromWei(balanceData!)
-  );
+  let formattedBalance = stringUsdFormatter(fromWei(balanceData!));
 
   if (shouldFormatETH)
     formattedBalance = formattedBalance.replace("$", "") + " ETH";

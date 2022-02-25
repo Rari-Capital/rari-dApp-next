@@ -11,8 +11,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { fetchFusePoolData } from "utils/fetchFusePoolData";
 
 // Ethers
-import { utils } from 'ethers'
-import { JsonRpcProvider } from "@ethersproject/providers"
+import { utils } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,7 +42,7 @@ export default async function handler(
         poolIndex,
         userAddress,
         fuse,
-        undefined, 
+        undefined,
         false
       );
 

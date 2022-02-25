@@ -24,7 +24,7 @@ const SearchResults = ({
   balances?: { [address: string]: number };
 }) => {
   const { tokens, fuse, fuseTokensMap } = results;
-  const tokensData = useTokensDataAsMap(tokens.map((asset) => asset.id))
+  const tokensData = useTokensDataAsMap(tokens.map((asset) => asset.id));
 
   const renderFuseOpportunities = useCallback(() => {
     // Which token do we want to display for this fuse pool in the Searchbar?
@@ -41,7 +41,7 @@ const SearchResults = ({
       // Alternate between logos
       return tokensData[
         intersection[i % intersection.length] ??
-        supportedUnderlyings[i % supportedUnderlyings.length]
+          supportedUnderlyings[i % supportedUnderlyings.length]
       ];
     };
 

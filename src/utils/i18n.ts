@@ -29,7 +29,10 @@ const findBrowserLang = () => {
 };
 
 const findBestLang = () => {
-  const lang = (typeof localStorage !== "undefined" ? localStorage.getItem("rariLang") : null );
+  const lang =
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem("rariLang")
+      : null;
 
   if (!lang) {
     return findBrowserLang();

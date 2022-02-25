@@ -80,7 +80,7 @@ import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
-const noop = () => { };
+const noop = () => {};
 
 const formatPercentage = (value: number) => value.toFixed(0) + "%";
 
@@ -112,7 +112,11 @@ export const useIsUpgradeable = (comptrollerAddress: string) => {
   const { fuse, isAuthed } = useRari();
 
   const { data } = useQuery(comptrollerAddress + " isUpgradeable", async () => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const isUpgradeable: boolean =
       await comptroller.callStatic.adminHasRights();
@@ -129,8 +133,8 @@ export async function testForComptrollerErrorAndSend(
   caller: string,
   failMessage: string
 ) {
-  let response = await callStaticTxObject
-  let responseValue = Array.isArray(response) ? response[0] : response
+  let response = await callStaticTxObject;
+  let responseValue = Array.isArray(response) ? response[0] : response;
 
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string number.
   if (!!responseValue && responseValue.toString() !== "0") {
@@ -146,7 +150,6 @@ export async function testForComptrollerErrorAndSend(
 }
 
 const FusePoolEditPage = memo(() => {
-
   const isMobile = useIsSemiSmallScreen();
 
   const {
@@ -177,13 +180,17 @@ const FusePoolEditPage = memo(() => {
   const data = useFusePoolData(poolId);
 
   const { fuse, isAuthed } = useRari();
-  const comptroller = useCreateComptroller(data?.comptroller ?? "", fuse, isAuthed);
+  const comptroller = useCreateComptroller(
+    data?.comptroller ?? "",
+    fuse,
+    isAuthed
+  );
 
   // Maps underlying to oracle
   const oraclesMap = useOraclesForPool(
     data?.oracle,
     data?.assets?.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ??
-    []
+      []
   );
 
   // console.log({ oraclesMap });
@@ -246,7 +253,7 @@ const FusePoolEditPage = memo(() => {
         mx="auto"
         width={isMobile ? "100%" : "1150px"}
         px={isMobile ? 4 : 0}
-      // bg="pink"
+        // bg="pink"
       >
         <FuseStatsBar />
 
@@ -423,7 +430,11 @@ const PoolConfiguration = ({
   const data = useExtraPoolInfo(comptrollerAddress);
 
   const changeWhitelistStatus = async (enforce: boolean) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
@@ -442,7 +453,11 @@ const PoolConfiguration = ({
   };
 
   const addToWhitelist = async (newUser: string) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const newList = [...data!.whitelist, newUser];
 
@@ -469,7 +484,11 @@ const PoolConfiguration = ({
   };
 
   const removeFromWhitelist = async (removeUser: string) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     const whitelist = data!.whitelist;
     try {
@@ -547,7 +566,11 @@ const PoolConfiguration = ({
       (closeFactor / 100).toString()
     );
 
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
@@ -571,11 +594,17 @@ const PoolConfiguration = ({
       (liquidationIncentive / 100 + 1).toString()
     );
 
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     try {
       await testForComptrollerErrorAndSend(
-        comptroller.callStatic._setLiquidationIncentive(bigLiquidationIncentive),
+        comptroller.callStatic._setLiquidationIncentive(
+          bigLiquidationIncentive
+        ),
         comptroller._setLiquidationIncentive(bigLiquidationIncentive),
         address,
         ""
@@ -717,7 +746,7 @@ const PoolConfiguration = ({
               <Text fontWeight="bold">{t("Liquidation Incentive")}:</Text>
 
               {data &&
-                scaleLiquidationIncentive(data.liquidationIncentive) !==
+              scaleLiquidationIncentive(data.liquidationIncentive) !==
                 liquidationIncentive ? (
                 <SaveButton onClick={updateLiquidationIncentive} />
               ) : null}
@@ -986,7 +1015,7 @@ const RewardsDistributorRow = ({
   const { data: rDBalance } = useTokenBalance(
     rewardsDistributor.rewardToken,
     rewardsDistributor.address
-  )
+  );
 
   const underlyingsMap = useCTokensUnderlying(activeCTokens);
   const underlyings = Object.values(underlyingsMap);
@@ -1028,7 +1057,9 @@ const RewardsDistributorRow = ({
         </Td>
 
         <Td>
-          {parseFloat(formatUnits(rDBalance ?? constants.Zero, tokenData?.decimals ?? 18)).toFixed(3) ?? "0"}
+          {parseFloat(
+            formatUnits(rDBalance ?? constants.Zero, tokenData?.decimals ?? 18)
+          ).toFixed(3) ?? "0"}
           {tokenData?.symbol}
         </Td>
 

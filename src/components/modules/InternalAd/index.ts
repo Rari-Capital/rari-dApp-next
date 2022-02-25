@@ -1,2 +1,2 @@
-import InternalAd from './InternalAd'
-export default InternalAd
+import InternalAd from "./InternalAd";
+export default InternalAd;

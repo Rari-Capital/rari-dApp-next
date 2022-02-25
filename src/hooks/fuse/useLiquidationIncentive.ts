@@ -11,7 +11,11 @@ export const useLiquidationIncentive = (comptrollerAddress: string) => {
   const { data } = useQuery(
     comptrollerAddress + " comptrollerData",
     async () => {
-      const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+      const comptroller = useCreateComptroller(
+        comptrollerAddress,
+        fuse,
+        isAuthed
+      );
 
       return comptroller.callStatic.liquidationIncentiveMantissa();
     }

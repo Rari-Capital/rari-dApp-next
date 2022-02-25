@@ -5,12 +5,13 @@ import { Dispatch, SetStateAction } from "react";
 // Components
 import AssetConfig from "../AssetConfig";
 
-
-const Screen1 = ({ checked, setChecked }: {
-  checked: boolean,
-  setChecked: Dispatch<SetStateAction<boolean>>
+const Screen1 = ({
+  checked,
+  setChecked,
+}: {
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
 }) => {
-
   return (
     <>
       <Row
@@ -29,4 +30,4 @@ const Screen1 = ({ checked, setChecked }: {
   );
 };
 
-export default Screen1
+export default Screen1;

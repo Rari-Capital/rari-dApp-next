@@ -10,8 +10,8 @@ export const toBN = (input: BigNumberish) => {
 };
 
 export const toInt = (input: BigNumber) => {
-  if (!input) return 0
-  return parseInt(input.toString())
-}
+  if (!input) return 0;
+  return parseInt(input.toString());
+};
 
 export const fromWei = (bn: BigNumber) => utils.formatEther(bn);

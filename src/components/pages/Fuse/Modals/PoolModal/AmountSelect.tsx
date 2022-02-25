@@ -220,7 +220,6 @@ const AmountSelect = ({
     try {
       setUserAction(UserAction.WAITING_FOR_TRANSACTIONS);
 
-
       const isETH = asset.underlyingToken === ETH_TOKEN_DATA.address;
 
       const isRepayingMax =
@@ -234,15 +233,15 @@ const AmountSelect = ({
         asset.cToken,
         isETH
           ? JSON.parse(
-            fuse.compoundContracts[
-              "contracts/CEtherDelegate.sol:CEtherDelegate"
-            ].abi
-          )
+              fuse.compoundContracts[
+                "contracts/CEtherDelegate.sol:CEtherDelegate"
+              ].abi
+            )
           : JSON.parse(
-            fuse.compoundContracts[
-              "contracts/CErc20Delegate.sol:CErc20Delegate"
-            ].abi
-          ),
+              fuse.compoundContracts[
+                "contracts/CErc20Delegate.sol:CErc20Delegate"
+              ].abi
+            ),
         fuse.provider.getSigner()
       );
 
@@ -265,18 +264,21 @@ const AmountSelect = ({
 
           if (!hasApprovedEnough) {
             let approveTx = await token.approve(cToken.address, max);
-            await approveTx.wait(1)
+            await approveTx.wait(1);
           }
 
           LogRocket.track("Fuse-Approve");
         }
 
-
         // 2.) If collateral, send enterMarkets()
         if (mode === Mode.SUPPLY) {
           // If they want to enable as collateral now, enter the market:
           if (enableAsCollateral) {
-            const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+            const comptroller = useCreateComptroller(
+              comptrollerAddress,
+              fuse,
+              isAuthed
+            );
             // Don't await this, we don't care if it gets executed first!
             await comptroller.enterMarkets([asset.cToken]);
 
@@ -285,13 +287,12 @@ const AmountSelect = ({
 
           // 3 - supplying eth
           if (isETH) {
-            const balance = await fuse.provider.getBalance(address)
+            const balance = await fuse.provider.getBalance(address);
             // console.log({ amount, balance })
             if (
               // If they are supplying their whole balance:
               amount.eq(balance)
             ) {
-
               // Get gas price of transaction in wei
               const { gasWEI } = await fetchGasForCall(
                 cToken.estimateGas.mint,
@@ -300,22 +301,20 @@ const AmountSelect = ({
                 address
               );
 
-
               // If there's an error fetching gas price return
-              if (!gasWEI) return
+              if (!gasWEI) return;
 
               // console.log({ gasWEI, total: amount.sub(gasWEI), amount, balance })
 
               // Mint max amount, after substracting fees
-              // Gas price is best handled by the wallet. 
+              // Gas price is best handled by the wallet.
               // On our side we just make sure to leave enough balance to pay for fees.
               let tx = await cToken.mint({
                 from: address,
                 value: amount.sub(gasWEI),
               });
 
-              await tx.wait(1)
-
+              await tx.wait(1);
             } else {
               // Custom amount of ETH
               await cToken.mint({ value: amount });
@@ -328,12 +327,12 @@ const AmountSelect = ({
               cToken.mint,
               "Cannot deposit this amount right now!"
             );
-            await tx.wait(1)
+            await tx.wait(1);
           }
           LogRocket.track("Fuse-Supply");
         } else if (mode === Mode.REPAY) {
           if (isETH) {
-            const balance = await fuse.provider.getBalance(address)
+            const balance = await fuse.provider.getBalance(address);
 
             if (
               // If they are repaying their whole balance:
@@ -341,7 +340,7 @@ const AmountSelect = ({
             ) {
               // Subtract gas for max ETH
 
-              // Get gas 
+              // Get gas
               const { gasWEI } = await fetchGasForCall(
                 cToken.estimateGas.repayBorrow,
                 amount,
@@ -350,10 +349,10 @@ const AmountSelect = ({
               );
 
               // If there was an error fetching gas return
-              if (!gasWEI) return
+              if (!gasWEI) return;
 
               // Repay max amount, after substracting fees
-              // Gas price is best handled by the wallet. 
+              // Gas price is best handled by the wallet.
               // On our side we just make sure to leave enough balance to pay for fees.
               await cToken.repayBorrow({
                 from: address,
@@ -372,7 +371,7 @@ const AmountSelect = ({
               cToken.repayBorrow,
               "Cannot repay this amount right now!"
             );
-            await tx.wait(1)
+            await tx.wait(1);
           }
           LogRocket.track("Fuse-Repay");
         }
@@ -392,7 +391,7 @@ const AmountSelect = ({
           "Cannot withdraw this amount right now!"
         );
 
-        await tx.wait(1)
+        await tx.wait(1);
 
         LogRocket.track("Fuse-Withdraw");
       }
@@ -551,8 +550,8 @@ const AmountSelect = ({
               // If the size is small, this means the text is large and we don't want the font size scale animation.
               className={
                 isMobile ||
-                  depositOrWithdrawAlertFontSize === "14px" ||
-                  depositOrWithdrawAlertFontSize === "15px"
+                depositOrWithdrawAlertFontSize === "14px" ||
+                depositOrWithdrawAlertFontSize === "15px"
                   ? "confirm-button-disable-font-size-scale"
                   : ""
               }
@@ -692,8 +691,7 @@ const StatsColumn = ({
     amount,
   });
 
-  console.log({ assets, updatedAssets })
-
+  console.log({ assets, updatedAssets });
 
   // Define the old and new asset (same asset different numerical values)
   const asset = assets[index];
@@ -725,20 +723,19 @@ const StatsColumn = ({
     ? Math.abs(updatedSupplyAPY - supplyAPY) > 0.1
     : Math.abs(updatedBorrowAPR - borrowAPR) > 0.1;
 
-
-  const parsedBorrowLimit = "$" + utils.commify(parseFloat(borrowLimit.toString()))
+  const parsedBorrowLimit =
+    "$" + utils.commify(parseFloat(borrowLimit.toString()));
   const parsedUpdatedBorrowLimit = utils.formatEther(
     updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
   );
 
-  const parsedDebtBalance = asset
-    ?
-    asset.borrowBalanceUSD.toString()
-    : "0.00";
+  const parsedDebtBalance = asset ? asset.borrowBalanceUSD.toString() : "0.00";
   const parsedUpdatedDebtBalance = updatedAsset
     ? utils.formatEther(
-      updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther).div(constants.WeiPerEther)
-    )
+        updatedAsset.borrowBalanceUSD
+          .div(constants.WeiPerEther)
+          .div(constants.WeiPerEther)
+      )
     : "0.00";
 
   return (
@@ -768,7 +765,10 @@ const StatsColumn = ({
             >
               {utils.commify(
                 parseFloat(
-                  utils.formatUnits(asset.supplyBalance, asset.underlyingDecimals)
+                  utils.formatUnits(
+                    asset.supplyBalance,
+                    asset.underlyingDecimals
+                  )
                 ).toFixed(2)
               )}
               {isSupplyingOrWithdrawing ? (
@@ -779,7 +779,8 @@ const StatsColumn = ({
                       utils.formatUnits(
                         updatedAsset.supplyBalance,
                         updatedAsset.underlyingDecimals
-                      )).toFixed(2)
+                      )
+                    ).toFixed(2)
                   )}
                 </>
               ) : null}{" "}
@@ -828,7 +829,6 @@ const StatsColumn = ({
               fontSize={isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {parsedBorrowLimit}
-
               {" → "}{" "}
               {"$" +
                 utils.commify(
@@ -851,66 +851,68 @@ const StatsColumn = ({
               fontSize={!isSupplyingOrWithdrawing ? "sm" : "lg"}
             >
               {
-                "$" +
-                utils.commify(
-                  parsedDebtBalance
-                ) // smallUsdFormatter(
+                "$" + utils.commify(parsedDebtBalance) // smallUsdFormatter(
               }
               {!isSupplyingOrWithdrawing ? (
                 <>
                   {" → "}
                   {
                     "$" +
-                    utils.commify(
-                      parsedUpdatedDebtBalance.slice(
-                        0,
-                        parsedUpdatedDebtBalance.indexOf(".") + 3
-                      )
-                    ) // smallUsdFormatter(
+                      utils.commify(
+                        parsedUpdatedDebtBalance.slice(
+                          0,
+                          parsedUpdatedDebtBalance.indexOf(".") + 3
+                        )
+                      ) // smallUsdFormatter(
                   }
                 </>
               ) : null}
             </Text>
           </Row>
-          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ? 
-          <Row
-            mainAxisAlignment="space-between"
-            crossAxisAlignment="center"
-            width="100%"
-          >
-            <Text fontWeight="bold" flexShrink={0}>
-              {isSupplyingOrWithdrawing ? t("Supply Remaining") : t("Borrow Remaining")}:
-            </Text>
-            <Text
-              fontWeight="bold"
-              fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+          {(isSupplyingOrWithdrawing && asset.supplyCap.gt(0)) ||
+          (!isSupplyingOrWithdrawing && asset.borrowCap.gt(0)) ? (
+            <Row
+              mainAxisAlignment="space-between"
+              crossAxisAlignment="center"
+              width="100%"
             >
-              {isSupplyingOrWithdrawing
-                ? 
-                utils.commify(
-                  parseFloat(
-                    utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
-                  ).toFixed(2)
-                )
+              <Text fontWeight="bold" flexShrink={0}>
+                {isSupplyingOrWithdrawing
+                  ? t("Supply Remaining")
+                  : t("Borrow Remaining")}
                 :
-                utils.commify(
-                  parseFloat(
-                    utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
-                  ).toFixed(2)
-                )}
-            </Text>
-          </Row>
-          :
-          null
-              }
+              </Text>
+              <Text
+                fontWeight="bold"
+                fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+              >
+                {isSupplyingOrWithdrawing
+                  ? utils.commify(
+                      parseFloat(
+                        utils.formatUnits(
+                          asset.supplyCap.sub(asset.totalSupply),
+                          asset.underlyingDecimals
+                        )
+                      ).toFixed(2)
+                    )
+                  : utils.commify(
+                      parseFloat(
+                        utils.formatUnits(
+                          asset.borrowCap.sub(asset.totalBorrow),
+                          asset.underlyingDecimals
+                        )
+                      ).toFixed(2)
+                    )}
+              </Text>
+            </Row>
+          ) : null}
         </Column>
       ) : (
         <Center expand>
           <Spinner />
         </Center>
-      )
-      }
-    </DashboardBox >
+      )}
+    </DashboardBox>
   );
 };
 
@@ -1095,14 +1097,16 @@ export const fetchGasForCall = async (
   //   res.json()
   // );
 
-  const gasInfo = await fuse.provider.getFeeData()
-  const gasPrice = gasInfo.maxFeePerGas
-  const gasWEI = gasPrice ? estimatedGas.mul(gasPrice).add(gasInfo.maxPriorityFeePerGas ?? constants.Zero) : null;
-  console.log({ gasWEI, gasPrice, gasInfo, estimatedGas })
+  const gasInfo = await fuse.provider.getFeeData();
+  const gasPrice = gasInfo.maxFeePerGas;
+  const gasWEI = gasPrice
+    ? estimatedGas
+        .mul(gasPrice)
+        .add(gasInfo.maxPriorityFeePerGas ?? constants.Zero)
+    : null;
+  console.log({ gasWEI, gasPrice, gasInfo, estimatedGas });
 
   return { gasWEI, gasPrice, estimatedGas };
-
-
 };
 
 async function fetchMaxAmount(
@@ -1112,7 +1116,6 @@ async function fetchMaxAmount(
   asset: USDPricedFuseAsset,
   comptrollerAddress: string
 ) {
-
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(
       asset.underlyingToken,
@@ -1120,8 +1123,14 @@ async function fetchMaxAmount(
       address
     );
 
-    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
-    return supplyRemaining.gt(0) ? (balance.gt(supplyRemaining) ? supplyRemaining : balance) : balance;
+    const supplyRemaining = asset.supplyCap
+      .sub(asset.totalSupply)
+      .div(BigNumber.from(10).pow(asset.underlyingDecimals));
+    return supplyRemaining.gt(0)
+      ? balance.gt(supplyRemaining)
+        ? supplyRemaining
+        : balance
+      : balance;
   }
 
   if (mode === Mode.REPAY) {
@@ -1141,7 +1150,7 @@ async function fetchMaxAmount(
 
   if (mode === Mode.BORROW) {
     try {
-      const maxBorrow = 
+      const maxBorrow =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxBorrow(
           address,
           asset.cToken
@@ -1149,8 +1158,14 @@ async function fetchMaxAmount(
 
       const amount = maxBorrow.mul(3).div(4);
 
-      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow).div(BigNumber.from(10).pow(asset.underlyingDecimals))
-      return borrowRemaining.gt(0) ? (amount.gt(borrowRemaining) ? borrowRemaining : amount.div(1)) : amount.div(1);
+      const borrowRemaining = asset.borrowCap
+        .sub(asset.totalBorrow)
+        .div(BigNumber.from(10).pow(asset.underlyingDecimals));
+      return borrowRemaining.gt(0)
+        ? amount.gt(borrowRemaining)
+          ? borrowRemaining
+          : amount.div(1)
+        : amount.div(1);
       //const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
       //console.log("fetchMaxAmount", { amount, maxBorrow, utils })
     } catch (err) {

@@ -170,7 +170,11 @@ const AddRewardsDistributorModal = ({
     rDAddress: string,
     fuse: Fuse
   ) => {
-    const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
+    const comptroller = useCreateComptroller(
+      comptrollerAddress,
+      fuse,
+      isAuthed
+    );
 
     if (!comptroller || !comptroller.methods._addRewardsDistributor) {
       throw new Error("Could not create Comptroller");

@@ -8,5 +8,5 @@ export type GQLSearchReturn = {
 export interface APISearchReturn {
   tokens: GQLUnderlyingAsset[];
   fuse: GQLFusePool[];
-  fuseTokensMap: { [comptroller: string]: string[] }
+  fuseTokensMap: { [comptroller: string]: string[] };
 }

@@ -100,11 +100,12 @@ const AddAssetModal = ({
             >
               <CloseButton />
             </Box>
-
           </Box>
-          {chainId === ChainID.ARBITRUM && <AppLink href={`https://arbiscan.io/tokens`} isExternal={true}>
-            Arbitrum Token List
-          </AppLink>}
+          {chainId === ChainID.ARBITRUM && (
+            <AppLink href={`https://arbiscan.io/tokens`} isExternal={true}>
+              Arbitrum Token List
+            </AppLink>
+          )}
         </VStack>
 
         <ModalDivider />
@@ -189,7 +190,7 @@ const AddAssetModal = ({
                 flexDirection="column"
                 justifyContent="flex-start"
                 alignContent="flex-start"
-              // bg="green"
+                // bg="green"
               >
                 <AssetSettings
                   mode="Adding"
@@ -209,7 +210,7 @@ const AddAssetModal = ({
           ) : null}
         </Column>
       </ModalContent>
-    </Modal >
+    </Modal>
   );
 };
 

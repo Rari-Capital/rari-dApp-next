@@ -65,37 +65,42 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
         width="100%"
         h="100%"
       >
-        {!!pools ? !!pools.length ? pools.map((pool, index) => {
-          return (
-            <PoolRow
-              key={pool.id}
-              poolNumber={pool.id}
-              name={filterPoolName(pool.name)}
-              tvl={pool.suppliedUSD}
-              borrowed={pool.borrowedUSD}
-              tokens={pool.underlyingTokens?.map((address, index) => ({
-                symbol: pool.underlyingSymbols[index],
-                address,
-              })) ?? []}
-              noBottomDivider={index === pools.length - 1}
-              isWhitelisted={pool.whitelistedAdmin}
-              comptroller={pool.comptroller}
-            />
+        {!!pools ? (
+          !!pools.length ? (
+            pools.map((pool, index) => {
+              return (
+                <PoolRow
+                  key={pool.id}
+                  poolNumber={pool.id}
+                  name={filterPoolName(pool.name)}
+                  tvl={pool.suppliedUSD}
+                  borrowed={pool.borrowedUSD}
+                  tokens={
+                    pool.underlyingTokens?.map((address, index) => ({
+                      symbol: pool.underlyingSymbols[index],
+                      address,
+                    })) ?? []
+                  }
+                  noBottomDivider={index === pools.length - 1}
+                  isWhitelisted={pool.whitelistedAdmin}
+                  comptroller={pool.comptroller}
+                />
+              );
+            })
+          ) : (
+            <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
+              <Center w="100%" h="100%">
+                <Text>No Pools </Text>
+              </Center>
+            </Box>
           )
-        }) : (
-          <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
-            <Center w="100%" h="100%">
-              <Text>No Pools </Text>
-            </Center>
-          </Box>
         ) : (
           <Box width="100%" height="90px" pl={4} pr={1} flexDir="row">
             <Center>
               <Spinner />
             </Center>
           </Box>
-        )
-        }
+        )}
       </Column>
     </Column>
   );

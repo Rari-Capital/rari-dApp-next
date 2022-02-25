@@ -41,7 +41,11 @@ const InternalAd = ({ ...boxProps }: { [x: string]: any }) => {
             {parseFloat(asset.supplyAPY).toFixed(2)}% APY
           </span>
         </Heading>
-        <AppLink href={`/fuse/pool/${asset.pool?.index}`} mt={2} className="no-underline">
+        <AppLink
+          href={`/fuse/pool/${asset.pool?.index}`}
+          mt={2}
+          className="no-underline"
+        >
           <Button
             colorScheme="green"
             _hover={{ transform: "scale(1.04)" }}
