@@ -55,7 +55,7 @@ import {
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
-import { formatEther, formatUnits } from "ethers/lib/utils";
+import { formatUnits } from "ethers/lib/utils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 enum UserAction {
@@ -104,6 +104,8 @@ const AmountSelect = ({
   isBorrowPaused = false,
 }: Props) => {
   const asset = assets[index];
+
+  console.log('AmountSelect', {assets})
 
   const { address, fuse, isAuthed } = useRari();
 
@@ -377,6 +379,7 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Repay");
         }
       } else if (mode === Mode.BORROW) {
+        // console.log({ cToken, amount })
         await testForCTokenErrorAndSend(
           cToken.callStatic.borrow,
           amount,
@@ -692,8 +695,6 @@ const StatsColumn = ({
     amount,
   });
 
-  console.log({ assets, updatedAssets })
-
 
   // Define the old and new asset (same asset different numerical values)
   const asset = assets[index];
@@ -703,7 +704,9 @@ const StatsColumn = ({
   const borrowLimit = useBorrowLimit(assets);
   const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
-  });
+  }, `new limit`);
+
+  console.log({ assets, updatedAssets })
 
   const isSupplyingOrWithdrawing =
     mode === Mode.SUPPLY || mode === Mode.WITHDRAW;
@@ -727,9 +730,7 @@ const StatsColumn = ({
 
 
   const parsedBorrowLimit = "$" + utils.commify(parseFloat(borrowLimit.toString()))
-  const parsedUpdatedBorrowLimit = utils.formatEther(
-    updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
-  );
+  const parsedUpdatedBorrowLimit = "$" + utils.commify(parseFloat(updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther).div(constants.WeiPerEther).toString()))
 
   const parsedDebtBalance = asset
     ?
@@ -829,14 +830,12 @@ const StatsColumn = ({
             >
               {parsedBorrowLimit}
 
-              {" → "}{" "}
-              {"$" +
-                utils.commify(
-                  parsedUpdatedBorrowLimit.slice(
-                    0,
-                    parsedUpdatedBorrowLimit.indexOf(".") + 3
-                  )
-                )}
+              {borrowLimit.eq(updatedBorrowLimit) ? null : (
+                <>
+                  {" → "}
+                  {parsedUpdatedBorrowLimit}
+                </>
+              )}
             </Text>
           </Row>
 
@@ -872,37 +871,37 @@ const StatsColumn = ({
               ) : null}
             </Text>
           </Row>
-          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ? 
-          <Row
-            mainAxisAlignment="space-between"
-            crossAxisAlignment="center"
-            width="100%"
-          >
-            <Text fontWeight="bold" flexShrink={0}>
-              {isSupplyingOrWithdrawing ? t("Supply Remaining") : t("Borrow Remaining")}:
-            </Text>
-            <Text
-              fontWeight="bold"
-              fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ?
+            <Row
+              mainAxisAlignment="space-between"
+              crossAxisAlignment="center"
+              width="100%"
             >
-              {isSupplyingOrWithdrawing
-                ? 
-                utils.commify(
-                  parseFloat(
-                    utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
-                  ).toFixed(2)
-                )
-                :
-                utils.commify(
-                  parseFloat(
-                    utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
-                  ).toFixed(2)
-                )}
-            </Text>
-          </Row>
-          :
-          null
-              }
+              <Text fontWeight="bold" flexShrink={0}>
+                {isSupplyingOrWithdrawing ? t("Supply Remaining") : t("Borrow Remaining")}:
+              </Text>
+              <Text
+                fontWeight="bold"
+                fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+              >
+                {isSupplyingOrWithdrawing
+                  ?
+                  utils.commify(
+                    parseFloat(
+                      utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
+                    ).toFixed(2)
+                  )
+                  :
+                  utils.commify(
+                    parseFloat(
+                      utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
+                    ).toFixed(2)
+                  )}
+              </Text>
+            </Row>
+            :
+            null
+          }
         </Column>
       ) : (
         <Center expand>
@@ -1051,6 +1050,8 @@ export async function testForCTokenErrorAndSend(
 
       let msg = ComptrollerErrorCodes[comptrollerResponse];
 
+      console.log({ msg , comptrollerResponse, txObjectStaticCall, txArgs})
+
       if (msg === "BORROW_BELOW_MIN") {
         msg =
           "As part of our guarded launch, you cannot borrow less than 1 ETH worth of tokens at the moment.";
@@ -1141,7 +1142,7 @@ async function fetchMaxAmount(
 
   if (mode === Mode.BORROW) {
     try {
-      const maxBorrow = 
+      const maxBorrow =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getMaxBorrow(
           address,
           asset.cToken
