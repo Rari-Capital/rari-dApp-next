@@ -971,7 +971,6 @@ const AssetBorrowRow = ({
   isPaused: boolean;
 }) => {
   const asset = assets[index];
-  console.log({ asset })
 
   const {
     isOpen: isModalOpen,

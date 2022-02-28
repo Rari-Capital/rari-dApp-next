@@ -379,7 +379,7 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Repay");
         }
       } else if (mode === Mode.BORROW) {
-        // console.log({ cToken, amount })
+        console.log({ cToken, amount })
         await testForCTokenErrorAndSend(
           cToken.callStatic.borrow,
           amount,
