@@ -887,13 +887,9 @@ const BorrowList = ({
             {borrowedAssets.length > 0 ? <ModalDivider my={2} /> : null}
 
             {assets.map((asset, index) => {
-
               if (!asset.borrowBalanceUSD.lt(1)) return null
               // Don't show paused assets if not enabled
               if (asset.isPaused || asset.borrowGuardianPaused) return null
-              // if (!showPausedAssets && (asset.isPaused || asset.borrowGuardianPaused)) {
-              //   return null;
-              // }
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -918,7 +914,7 @@ const BorrowList = ({
                 <AssetBorrowRow
                   comptrollerAddress={comptrollerAddress}
                   key={asset.underlyingToken}
-                  assets={assets}
+                  assets={disabledAssets}
                   index={index}
                   borrowIncentives={[]}
                   rewardTokensData={{}}
