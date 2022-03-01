@@ -86,12 +86,14 @@ export const PoolRow = ({
                 boxSize={"15px"}
                 mb="2px"
               />
-              <Row mainAxisAlignment="flex-start" crossAxisAlignment={"center"}>
-                <Text>{name}</Text>
+              <Row mainAxisAlignment="flex-start"
+              crossAxisAlignment="center"> 
+                <Text>{name.length > 20 && rewardTokens.length > 0 ? name.substring(0, 20) + '...' : name}</Text>
                 {rewardTokens.length > 0 ? (
                   <>
-                    <Text fontSize={14} ml={2} color={"rgb(200, 00, 150)"}>
-                      🎉 Offering rewards
+                  <Text mx={2} fontWeight={'bold'}>·</Text>
+                    <Text fontSize={14} color={"rgb(200, 128, 200)"}>
+                    🎉 Offering rewards
                     </Text>
                     <AvatarGroup size="2xs" max={30} ml={2}>
                       {rewardTokens.map((address) => {
@@ -100,8 +102,8 @@ export const PoolRow = ({
                     </AvatarGroup>
                   </>
                 ) : null}
+                </Row>
               </Row>
-            </Row>
           </Column>
 
           {isMobile ? null : (

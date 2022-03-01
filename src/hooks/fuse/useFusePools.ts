@@ -120,7 +120,7 @@ export const fetchPoolsManual = async ({
   });
 
   const multicallProvider = new providers.MulticallProvider(fuse.provider)
-  const multicallFuse = new Fuse(multicallProvider, 1)
+  const multicallFuse = new Fuse(multicallProvider, chainId)
   const poolRewardTokens = await Promise.all(fusePools.map( (pool) => {
     return multicallFuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
       pool.comptroller
@@ -139,11 +139,13 @@ export const fetchPools = async ({
   address,
   filter,
   blockNum,
+  chainId = 1
 }: {
   fuse: Fuse;
   address: string;
   filter: string | null;
   blockNum?: number;
+  chainId?: number
 }) => {
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
@@ -167,7 +169,7 @@ export const fetchPools = async ({
     : fetchCurrentETHPrice();
 
   const multicallProvider = new providers.MulticallProvider(fuse.provider)
-  const multicallFuse = new Fuse(multicallProvider, 1)
+  const multicallFuse = new Fuse(multicallProvider, chainId)
 
   const req = isMyPools
     ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
@@ -187,6 +189,8 @@ export const fetchPools = async ({
       )]
     ).then(([verifiedPools, unverifiedPools]) => {
       //Join the two results
+      console.log('FINISHED')
+      console.log(verifiedPools)
       return [
         [...verifiedPools[0], ...unverifiedPools[0]],
         [...verifiedPools[1], ...unverifiedPools[1]],
@@ -271,7 +275,7 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
           chainId,
         });
       }
-      return await fetchPools({ fuse, address, filter });
+      return await fetchPools({ fuse, address, filter, chainId});
     }
   );
 
