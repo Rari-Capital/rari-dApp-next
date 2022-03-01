@@ -98,6 +98,10 @@ const FuseTabBar = () => {
           route="/fuse?filter=unverified-pools"
           text={t("Unverified Pools")}
         />
+        <TabLink
+          route="/fuse?filter=rewarded-pools"
+          text={t("Rewarded Pools")}
+        />
 
         {isAuthed && (
           <>
