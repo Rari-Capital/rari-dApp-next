@@ -189,8 +189,6 @@ export const fetchPools = async ({
       )]
     ).then(([verifiedPools, unverifiedPools]) => {
       //Join the two results
-      console.log('FINISHED')
-      console.log(verifiedPools)
       return [
         [...verifiedPools[0], ...unverifiedPools[0]],
         [...verifiedPools[1], ...unverifiedPools[1]],
