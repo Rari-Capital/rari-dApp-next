@@ -161,7 +161,7 @@ const AddRewardsDistributorModal = ({
       position: "top-right",
     });
 
-    const rDAddress = deployedDistributor.options.address;
+    const rDAddress = deployedDistributor.address;
     return rDAddress;
   };
 
