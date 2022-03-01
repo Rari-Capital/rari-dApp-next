@@ -161,7 +161,7 @@ const AddRewardsDistributorModal = ({
       position: "top-right",
     });
 
-    const rDAddress = deployedDistributor.options.address;
+    const rDAddress = deployedDistributor.address;
     return rDAddress;
   };
 
@@ -172,14 +172,12 @@ const AddRewardsDistributorModal = ({
   ) => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
-    if (!comptroller || !comptroller.methods._addRewardsDistributor) {
+    if (!comptroller || !comptroller._addRewardsDistributor) {
       throw new Error("Could not create Comptroller");
     }
 
     // Add distributor to pool Comptroller
-    await comptroller
-      ._addRewardsDistributor(rDAddress)
-      .send({ from: userAddress });
+    await comptroller._addRewardsDistributor(rDAddress)
 
     toast({
       title: "RewardsDistributor Added to Pool",
@@ -223,13 +221,13 @@ const AddRewardsDistributorModal = ({
 
         <Box h="100%" w="100%" bg="">
           <Row
-            mainAxisAlignment="flex-start"
-            crossAxisAlignment="flex-start"
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
             bg=""
             p={4}
           >
             <RadioGroup onChange={(value: Nav) => setNav(value)} value={nav}>
-              <Stack direction="row">
+              <Stack direction="row" alignSelf="center">
                 <Radio value={Nav.CREATE} disabled={isDeploying}>
                   Create
                 </Radio>
@@ -273,10 +271,8 @@ const AddRewardsDistributorModal = ({
                 textAlign="center"
                 placeholder={
                   nav === Nav.CREATE
-                    ? t(
-                        "Token Address: 0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-                      )
-                    : t("RewardsDistributor Address:")
+                  ? "Address of erc20 to distribute: 0x00...00"
+                  : "Rewards distributor address: 0x00...00"
                 }
                 height="40px"
                 variant="filled"
