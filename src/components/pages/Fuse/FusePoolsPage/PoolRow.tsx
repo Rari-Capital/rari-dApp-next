@@ -23,6 +23,7 @@ export const PoolRow = ({
   noBottomDivider,
   isWhitelisted,
   comptroller,
+  rewardTokens,
 }: {
   tokens: { symbol: string; address: string }[];
   poolNumber: number;
@@ -32,6 +33,7 @@ export const PoolRow = ({
   noBottomDivider?: boolean;
   isWhitelisted: boolean;
   comptroller: string;
+  rewardTokens: string[];
 }) => {
   const isEmpty = tokens.length === 0;
 
@@ -84,7 +86,21 @@ export const PoolRow = ({
                 boxSize={"15px"}
                 mb="2px"
               />
-              <Text>{name}</Text>
+              <Row mainAxisAlignment="flex-start" crossAxisAlignment={"center"}>
+                <Text>{name}</Text>
+                {rewardTokens.length > 0 ? (
+                  <>
+                    <Text fontSize={14} ml={2} color={"rgb(200, 00, 150)"}>
+                      🎉 Offering rewards
+                    </Text>
+                    <AvatarGroup size="2xs" max={30} ml={2}>
+                      {rewardTokens.map((address) => {
+                        return <CTokenIcon key={address} address={address} />;
+                      })}
+                    </AvatarGroup>
+                  </>
+                ) : null}
+              </Row>
             </Row>
           </Column>
 

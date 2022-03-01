@@ -88,6 +88,7 @@ const FuseOpportunities = ({ token }: { token: TokenData }) => {
               noBottomDivider={index === sortedPools.length - 1}
               isWhitelisted={pool.isAdminWhitelisted}
               comptroller={pool.comptroller}
+              rewardTokens={[]}
             />
           );
         })
