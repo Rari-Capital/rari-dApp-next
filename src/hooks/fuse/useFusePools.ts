@@ -17,6 +17,7 @@ import { fetchCurrentETHPrice, fetchETHPriceAtDate } from "utils/coingecko";
 import { ChainID } from "esm/utils/networks";
 
 import { BigNumber } from "ethers";
+import { providers } from "@0xsequence/multicall";
 
 // Ethers
 export interface FusePool {
@@ -135,6 +136,7 @@ export const fetchPools = async ({
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
   const isNonWhitelistedPools = filter === "unverified-pools";
+  const isRewardedPools = filter === "rewarded-pools";
 
   // We need the latest blockNumber
   const latestBlockNumber = await fuse.provider.getBlockNumber();
@@ -170,6 +172,27 @@ export const fetchPools = async ({
     2: fusePoolsData,
     3: errors,
   }: LensPoolsWithData = await req;
+
+  if(isRewardedPools){
+    const multicallProvider = new providers.MulticallProvider(fuse.provider)
+    const multicallFuse = new Fuse(multicallProvider, 1)
+    let rewardedPoolsIndexes = (await Promise.all(fusePools.map( (pool, index) => {
+      return multicallFuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
+        pool.comptroller
+      ).then(rewards => {
+        return !!rewards[1][0] && !!rewards[2][0] ? index : -1
+      })
+    }))).filter((poolIndex) => {
+      return poolIndex !== -1
+    })
+
+    let fIds = ids.filter((_, index) => rewardedPoolsIndexes.includes(index))
+    let fFusePools = fusePools.filter((_, index) => rewardedPoolsIndexes.includes(index))
+    let ffusePoolsData = fusePoolsData.filter((_, index) => rewardedPoolsIndexes.includes(index))
+
+    return await createMergedPools(fIds, fFusePools, ffusePoolsData, fetchETHPrice);
+  }
+
 
   return await createMergedPools(ids, fusePools, fusePoolsData, fetchETHPrice);
 };
@@ -209,6 +232,7 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
   const isMyPools = filter === "my-pools";
   const isCreatedPools = filter === "created-pools";
   const isNonWhitelistedPools = filter === "unverified-pools";
+  const isRewardedPools = filter === "rewarded-pools";
 
   const { data: pools } = useQuery(
     `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
@@ -238,9 +262,10 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
       return poolSort(pools);
     }
 
-    if (isMyPools || isCreatedPools || isNonWhitelistedPools) {
+    if (isMyPools || isCreatedPools || isNonWhitelistedPools || isRewardedPools) {
       return poolSort(pools);
     }
+
 
     const options = {
       keys: ["pool.name", "id", "underlyingTokens", "underlyingSymbols"],
