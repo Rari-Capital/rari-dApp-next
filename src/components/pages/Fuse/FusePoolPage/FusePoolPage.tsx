@@ -284,7 +284,6 @@ const CollateralRatioBar = ({
   const { t } = useTranslation();
 
   const maxBorrow = useBorrowLimit(assets);
-
   const ratio = useMemo(() => !maxBorrow.isZero() ? borrowUSD.mul(100).div(maxBorrow) : constants.Zero, [maxBorrow, borrowUSD]);
 
   useEffect(() => {
@@ -439,7 +438,8 @@ const SupplyList = ({
       >
         {assets.length > 0 ? (
           <>
-            {suppliedAssets.map((asset, index) => {
+            {assets.map((asset, index) => {
+              if (!asset.supplyBalanceUSD.gt(1)) return null
               const supplyIncentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
@@ -449,7 +449,7 @@ const SupplyList = ({
                 <AssetSupplyRow
                   comptrollerAddress={comptrollerAddress}
                   key={asset.underlyingToken}
-                  assets={suppliedAssets}
+                  assets={assets}
                   index={index}
                   supplyIncentives={supplyIncentivesForAsset}
                   rewardTokensData={incentivesData.rewardTokensData}
@@ -460,7 +460,12 @@ const SupplyList = ({
 
             {suppliedAssets.length > 0 ? <ModalDivider my={2} /> : null}
 
-            {nonSuppliedAssets.map((asset, index) => {
+            {assets.map((asset, index) => {
+              if (!asset.supplyBalanceUSD.lt(1)) return null
+              if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
+                if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") return null
+              }
+
               const supplyIncentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
@@ -469,7 +474,7 @@ const SupplyList = ({
                 <AssetSupplyRow
                   comptrollerAddress={comptrollerAddress}
                   key={asset.underlyingToken}
-                  assets={nonSuppliedAssets}
+                  assets={assets}
                   index={index}
                   supplyIncentives={supplyIncentivesForAsset}
                   rewardTokensData={incentivesData.rewardTokensData}
@@ -794,7 +799,12 @@ const BorrowList = ({
   );
   const nonBorrowedAssets = assets.filter(
     (asset) => asset.borrowBalanceUSD.lt(1)
-  );
+  )
+  const disabledAssets = assets.filter(
+    (a) => (a.isPaused || !!a.borrowGuardianPaused)
+  )
+
+  const [showPausedAssets, setShowPausedAssets] = useState(false)
 
   const isMobile = useIsMobile();
 
@@ -854,11 +864,8 @@ const BorrowList = ({
       >
         {assets.length > 0 ? (
           <>
-            {borrowedAssets.map((asset, index) => {
-              // Don't show paused assets.
-              // if (asset.isPaused) {
-              //   return null;
-              // }
+            {assets.map((asset, index) => {
+              if (!asset.borrowBalanceUSD.gt(1)) return null
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -868,7 +875,7 @@ const BorrowList = ({
                 <AssetBorrowRow
                   comptrollerAddress={comptrollerAddress}
                   key={asset.underlyingToken}
-                  assets={borrowedAssets}
+                  assets={assets}
                   index={index}
                   borrowIncentives={incentivesForAsset}
                   rewardTokensData={incentivesData.rewardTokensData}
@@ -879,11 +886,10 @@ const BorrowList = ({
 
             {borrowedAssets.length > 0 ? <ModalDivider my={2} /> : null}
 
-            {nonBorrowedAssets.map((asset, index) => {
-              // Don't show paused assets.
-              if (asset.isPaused || asset.borrowGuardianPaused) {
-                return null;
-              }
+            {assets.map((asset, index) => {
+              if (!asset.borrowBalanceUSD.lt(1)) return null
+              // Don't show paused assets if not enabled
+              if (asset.isPaused || asset.borrowGuardianPaused) return null
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -893,14 +899,47 @@ const BorrowList = ({
                 <AssetBorrowRow
                   comptrollerAddress={comptrollerAddress}
                   key={asset.underlyingToken}
-                  assets={nonBorrowedAssets}
+                  assets={assets}
                   index={index}
                   borrowIncentives={incentivesForAsset}
                   rewardTokensData={incentivesData.rewardTokensData}
-                  isPaused={asset.isPaused}
+                  isPaused={asset.isPaused || !!asset.borrowGuardianPaused}
                 />
               );
             })}
+
+
+            {showPausedAssets && disabledAssets.map((asset, index) => {
+              return (
+                <AssetBorrowRow
+                  comptrollerAddress={comptrollerAddress}
+                  key={asset.underlyingToken}
+                  assets={disabledAssets}
+                  index={index}
+                  borrowIncentives={[]}
+                  rewardTokensData={{}}
+                  isPaused={asset.isPaused || !!asset.borrowGuardianPaused}
+                />
+              );
+            })}
+            <Row
+              mainAxisAlignment="flex-start"
+              crossAxisAlignment="flex-start"
+              width="100%"
+              px={4}
+              mt={4}
+              py={4}
+              cursor="pointer"
+              className="hover-row"
+              onClick={() => setShowPausedAssets(!showPausedAssets)}>
+              <Text
+                textAlign={'center'}
+                width="100%"
+              >
+                {!assets.length ? null : showPausedAssets ? t("Hide unborrowable assets") : t("Show unborrowable assets")}
+              </Text>
+
+            </Row>
           </>
         ) : (
           <Center expand my={8}>
@@ -989,7 +1028,9 @@ const AssetBorrowRow = ({
         py={1.5}
         className="hover-row"
         as="button"
-        onClick={authedOpenModal}
+        onClick={isPaused ? () => { } : authedOpenModal}
+        opacity={isPaused ? 0.2 : 1.0}
+        cursor={isPaused ? 'initial' : 'pointer'}
       >
         <Row
           mainAxisAlignment="flex-start"

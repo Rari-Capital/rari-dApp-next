@@ -94,7 +94,7 @@ export default class Fuse {
                         priceOracleAddress,
                         options,
                     });
-                    let tx = yield contract.deployPool(poolName, comptrollerImplementationAddress, enforceWhitelist, closeFactor, liquidationIncentive, priceOracleAddress, options);
+                    let tx = yield contract.deployPool(poolName, comptrollerImplementationAddress, enforceWhitelist, closeFactor, liquidationIncentive, priceOracleAddress);
                     receipt = yield tx.wait(1);
                     // receipt = await contract.deployPool(
                     //   poolName,

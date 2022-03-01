@@ -65,6 +65,9 @@ export interface USDPricedFuseAsset extends FuseAsset {
   supplyBalanceUSD: BigNumber;
   borrowBalanceUSD: BigNumber;
 
+  supplyCap: BigNumber;
+  borrowCap: BigNumber;
+
   totalSupplyUSD: BigNumber;
   totalBorrowUSD: BigNumber;
 
@@ -160,6 +163,7 @@ export const fetchFusePoolData = async (
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
 
+
   let totalLiquidityUSD = constants.Zero;
 
   let totalSupplyBalanceUSD = constants.Zero;
@@ -174,9 +178,9 @@ export const fetchFusePoolData = async (
 
   const comptrollerContract = useCreateComptroller(comptroller, fuse, isAuthed);
   let oracle: string = await comptrollerContract.callStatic.oracle();
+  let admin = await comptrollerContract.callStatic.admin();
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
 
-  const admin = await comptrollerContract.callStatic.admin();
 
   // Whitelisted (Verified)
   const isAdminWhitelisted =
@@ -184,7 +188,14 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
-
+    asset.supplyCap = constants.Zero
+    asset.borrowCap = constants.Zero
+    try {
+      asset.supplyCap = await comptrollerContract.callStatic.supplyCaps(asset.cToken)
+      asset.borrowCap = await comptrollerContract.callStatic.borrowCaps(asset.cToken)
+    } catch (err){
+      console.error(`${asset.cToken} error with supply/borrow caps`)
+    }
     asset.supplyBalanceUSD = asset.supplyBalance
       .mul(asset.underlyingPrice)
       .mul(ethPrice)
@@ -219,7 +230,7 @@ export const fetchFusePoolData = async (
     totalLiquidityUSD.add(asset.liquidityUSD);
   }
 
-  return {
+  const data = {
     assets: assets.sort((a, b) => (b.liquidityUSD.gt(a.liquidityUSD) ? 1 : -1)),
     comptroller,
     name,
@@ -237,4 +248,5 @@ export const fetchFusePoolData = async (
     totalBorrowBalanceUSD,
     isAdminWhitelisted,
   };
+  return data
 };

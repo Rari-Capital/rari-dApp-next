@@ -21,6 +21,14 @@ module.exports = withBundleAnalyzer({
       config.resolve.fallback.net = false;
       config.resolve.fallback.tls = false;
     }
+
+    config.module.rules.push({
+      test: /\.tsx?/,
+      // Transpile rari-components, even though it is in node_modules
+      include: [/node_modules\/rari-components/],
+      use: "next-swc-loader",
+    });
+
     return config;
   },
 });

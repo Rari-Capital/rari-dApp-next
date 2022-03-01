@@ -4,7 +4,8 @@ import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
 
 export const useBorrowLimit = (
   assets: USDPricedFuseAsset[],
-  options?: { ignoreIsEnabledCheckFor?: string }
+  options?: { ignoreIsEnabledCheckFor?: string },
+  id?: string,
 ): BigNumber => {
   const maxBorrow = useMemo(() => {
     let _maxBorrow = constants.Zero;
@@ -21,7 +22,9 @@ export const useBorrowLimit = (
       }
     }
 
-    return _maxBorrow.div(constants.WeiPerEther);
+    const result = _maxBorrow.div(constants.WeiPerEther);
+    // console.log({result, _maxBorrow, id})
+    return result
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 
   return maxBorrow;

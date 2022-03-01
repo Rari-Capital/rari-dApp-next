@@ -4,9 +4,10 @@ import dynamic from "next/dynamic";
 import { appWithTranslation } from "next-i18next";
 
 // Providers
-import { ChakraProvider, theme } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import theme from "rari-components/theme";
 
 // Providers
 import { RariProvider } from "context/RariContext";
@@ -41,11 +42,6 @@ const AuthMiddleware = dynamic(() => import("components/Auth"), {
 
 const customTheme = {
   ...theme,
-  fonts: {
-    ...theme.fonts,
-    body: `'Avenir Next', ${theme.fonts.body}`,
-    heading: `'Avenir Next', ${theme.fonts.heading}`,
-  },
   colors: {
     ...theme.colors,
     nav: {
@@ -66,8 +62,6 @@ const customTheme = {
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
-  console.log("render MyApp");
-
   return (
     <ChakraProvider theme={customTheme}>
       <QueryClientProvider client={queryClient}>

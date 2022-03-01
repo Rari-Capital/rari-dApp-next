@@ -55,7 +55,7 @@ import {
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
-import { formatEther, formatUnits } from "ethers/lib/utils";
+import { formatUnits } from "ethers/lib/utils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 
 enum UserAction {
@@ -104,6 +104,8 @@ const AmountSelect = ({
   isBorrowPaused = false,
 }: Props) => {
   const asset = assets[index];
+
+  console.log('AmountSelect', {assets})
 
   const { address, fuse, isAuthed } = useRari();
 
@@ -377,6 +379,7 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Repay");
         }
       } else if (mode === Mode.BORROW) {
+        console.log({ cToken, amount })
         await testForCTokenErrorAndSend(
           cToken.callStatic.borrow,
           amount,
@@ -692,8 +695,6 @@ const StatsColumn = ({
     amount,
   });
 
-  console.log({ assets, updatedAssets })
-
 
   // Define the old and new asset (same asset different numerical values)
   const asset = assets[index];
@@ -703,7 +704,9 @@ const StatsColumn = ({
   const borrowLimit = useBorrowLimit(assets);
   const updatedBorrowLimit = useBorrowLimit(updatedAssets ?? [], {
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
-  });
+  }, `new limit`);
+
+  console.log({ assets, updatedAssets })
 
   const isSupplyingOrWithdrawing =
     mode === Mode.SUPPLY || mode === Mode.WITHDRAW;
@@ -727,9 +730,7 @@ const StatsColumn = ({
 
 
   const parsedBorrowLimit = "$" + utils.commify(parseFloat(borrowLimit.toString()))
-  const parsedUpdatedBorrowLimit = utils.formatEther(
-    updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther)
-  );
+  const parsedUpdatedBorrowLimit = "$" + utils.commify(parseFloat(updatedBorrowLimit.div(constants.WeiPerEther).div(constants.WeiPerEther).div(constants.WeiPerEther).toString()))
 
   const parsedDebtBalance = asset
     ?
@@ -829,14 +830,12 @@ const StatsColumn = ({
             >
               {parsedBorrowLimit}
 
-              {" → "}{" "}
-              {"$" +
-                utils.commify(
-                  parsedUpdatedBorrowLimit.slice(
-                    0,
-                    parsedUpdatedBorrowLimit.indexOf(".") + 3
-                  )
-                )}
+              {borrowLimit.eq(updatedBorrowLimit) ? null : (
+                <>
+                  {" → "}
+                  {parsedUpdatedBorrowLimit}
+                </>
+              )}
             </Text>
           </Row>
 
@@ -872,6 +871,37 @@ const StatsColumn = ({
               ) : null}
             </Text>
           </Row>
+          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ?
+            <Row
+              mainAxisAlignment="space-between"
+              crossAxisAlignment="center"
+              width="100%"
+            >
+              <Text fontWeight="bold" flexShrink={0}>
+                {isSupplyingOrWithdrawing ? t("Supply Remaining") : t("Borrow Remaining")}:
+              </Text>
+              <Text
+                fontWeight="bold"
+                fontSize={updatedAPYDiffIsLarge ? "sm" : "lg"}
+              >
+                {isSupplyingOrWithdrawing
+                  ?
+                  utils.commify(
+                    parseFloat(
+                      utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
+                    ).toFixed(2)
+                  )
+                  :
+                  utils.commify(
+                    parseFloat(
+                      utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
+                    ).toFixed(2)
+                  )}
+              </Text>
+            </Row>
+            :
+            null
+          }
         </Column>
       ) : (
         <Center expand>
@@ -1020,6 +1050,8 @@ export async function testForCTokenErrorAndSend(
 
       let msg = ComptrollerErrorCodes[comptrollerResponse];
 
+      console.log({ msg , comptrollerResponse, txObjectStaticCall, txArgs})
+
       if (msg === "BORROW_BELOW_MIN") {
         msg =
           "As part of our guarded launch, you cannot borrow less than 1 ETH worth of tokens at the moment.";
@@ -1089,7 +1121,8 @@ async function fetchMaxAmount(
       address
     );
 
-    return balance;
+    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+    return supplyRemaining.gt(0) ? (balance.gt(supplyRemaining) ? supplyRemaining : balance) : balance;
   }
 
   if (mode === Mode.REPAY) {
@@ -1117,10 +1150,10 @@ async function fetchMaxAmount(
 
       const amount = maxBorrow.mul(3).div(4);
 
-      // const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
-      console.log("fetchMaxAmount", { amount, maxBorrow, utils })
-
-      return amount.div(1);
+      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+      return borrowRemaining.gt(0) ? (amount.gt(borrowRemaining) ? borrowRemaining : amount.div(1)) : amount.div(1);
+      //const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
+      //console.log("fetchMaxAmount", { amount, maxBorrow, utils })
     } catch (err) {
       throw new Error("Could not fetch your max borrow amount! Code: " + err);
     }

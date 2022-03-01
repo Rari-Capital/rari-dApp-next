@@ -10,6 +10,7 @@ import {
   Text,
   Spinner,
   Stack,
+  Image,
 } from "@chakra-ui/react";
 
 import { Row, Column, Center } from "lib/chakraUtils";
@@ -32,10 +33,11 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import SwitchNetworkMenu from "./SwitchNetworkMenu";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { ClaimRGTModal } from "./ClaimRGTModal";
+import useENS from "hooks/useENS";
+import { shortENS } from "utils/shortENS";
 
 export const AccountButton = memo(() => {
-
-  const { hasClaimableRewards } = useClaimable()
+  const { hasClaimableRewards } = useClaimable();
 
   const {
     isOpen: isSettingsModalOpen,
@@ -60,7 +62,6 @@ export const AccountButton = memo(() => {
         onClose={closeClaimRGTModal}
       />
 
-
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={closeSettingsModal}
@@ -77,12 +78,13 @@ export const AccountButton = memo(() => {
 
 const Buttons = ({
   openModal,
-  hasClaimableRewards
+  hasClaimableRewards,
 }: {
   openModal: () => any;
   hasClaimableRewards: boolean;
 }) => {
   const { address, isAuthed, login, isAttemptingLogin } = useRari();
+  const { ensName, ensAvatar } = useENS(address);
 
   const { t } = useTranslation();
 
@@ -94,7 +96,6 @@ const Buttons = ({
     } else login();
   }, [isAuthed, login, openModal]);
 
-
   return (
     <Row mainAxisAlignment="center" crossAxisAlignment="center">
       {isMobile ? null : (
@@ -104,7 +105,10 @@ const Buttons = ({
       )}
 
       {/* Connect + Account button */}
-      <ButtonOrGlowButton onClick={handleAccountButtonClick} glow={hasClaimableRewards} >
+      <ButtonOrGlowButton
+        onClick={handleAccountButtonClick}
+        glow={hasClaimableRewards}
+      >
         <Row
           expand
           mainAxisAlignment="space-around"
@@ -128,10 +132,20 @@ const Buttons = ({
                 direction="row"
                 spacing={4}
               >
-                <Jazzicon diameter={23} seed={jsNumberForAddress(address)} />
+                {ensAvatar ? (
+                  <Image
+                    src={ensAvatar}
+                    alt={address}
+                    height={23}
+                    width={23}
+                    rounded="full"
+                  />
+                ) : (
+                  <Jazzicon diameter={23} seed={jsNumberForAddress(address)} />
+                )}
               </Stack>
               <Text ml={2} fontWeight="semibold">
-                {shortAddress(address)}
+                {shortENS(ensName) || shortAddress(address)}
               </Text>
             </Center>
           )}
@@ -141,45 +155,57 @@ const Buttons = ({
   );
 };
 
-const ButtonOrGlowButton = ({ children, onClick, glow }: { children: any, onClick: () => any, glow: boolean }) => {
-
-  return !!glow ? <DarkGlowingButton
-    label={''}
-    onClick={onClick}
-    height="40px"
-    flexShrink={0}
-    flexGrow={0}
-    width="133px"
-    fontSize="15px"
-    fontWeight="bold"
-    ml={{ base: 0, sm: 4 }}
-    opacity={0.9}
-    _hover={{
-      opacity: 1
-    }}
-
-  >
-    {children}
-  </DarkGlowingButton> : <DashboardBox
-    as="button"
-    height="40px"
-    flexShrink={0}
-    flexGrow={0}
-    width="133px"
-    onClick={onClick}
-    ml={{ base: 0, sm: 4 }}
-    opacity={0.9}
-    _hover={{
-      opacity: 1
-    }}
-  >{children}</DashboardBox>
-}
+const ButtonOrGlowButton = ({
+  children,
+  onClick,
+  glow,
+}: {
+  children: any;
+  onClick: () => any;
+  glow: boolean;
+}) => {
+  return !!glow ? (
+    <DarkGlowingButton
+      label={""}
+      onClick={onClick}
+      height="40px"
+      flexShrink={0}
+      flexGrow={0}
+      width="133px"
+      fontSize="15px"
+      fontWeight="bold"
+      ml={{ base: 0, sm: 4 }}
+      opacity={0.9}
+      _hover={{
+        opacity: 1,
+      }}
+    >
+      {children}
+    </DarkGlowingButton>
+  ) : (
+    <DashboardBox
+      as="button"
+      height="40px"
+      flexShrink={0}
+      flexGrow={0}
+      width="133px"
+      onClick={onClick}
+      ml={{ base: 0, sm: 4 }}
+      opacity={0.9}
+      _hover={{
+        opacity: 1,
+      }}
+    >
+      {children}
+    </DashboardBox>
+  );
+};
 
 export const SettingsModal = ({
   isOpen,
   onClose,
   openClaimRGTModal,
-  hasClaimableRewards
+  hasClaimableRewards,
 }: {
   isOpen: boolean;
   onClose: () => any;
@@ -224,8 +250,7 @@ export const SettingsModal = ({
           crossAxisAlignment="center"
           p={4}
         >
-
-          {!hasClaimableRewards ?
+          {!hasClaimableRewards ? (
             <Button
               bg={"white"}
               opacity={0.8}
@@ -242,19 +267,18 @@ export const SettingsModal = ({
             >
               Claim Rewards
             </Button>
-            : (
-              <GlowingButton
-                label={t("Claim RGT")}
-                onClick={onClaimRGT}
-                width="100%"
-                height="51px"
-                mb={4}
-                innerTextColor="black"
-              >
-                Claim Rewards
-              </GlowingButton>
-            )}
-
+          ) : (
+            <GlowingButton
+              label={t("Claim RGT")}
+              onClick={onClaimRGT}
+              width="100%"
+              height="51px"
+              mb={4}
+              innerTextColor="black"
+            >
+              Claim Rewards
+            </GlowingButton>
+          )}
 
           <Button
             bg={"whatsapp.500"}

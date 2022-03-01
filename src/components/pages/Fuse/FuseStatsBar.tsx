@@ -135,7 +135,7 @@ const FuseStatsBar = ({ data }: { data?: FusePoolData }) => {
               fetchInterval={40000}
               loadingPlaceholder="$?"
               apyInterval={100}
-              fetch={() => fetchFuseNumberTVL(fuse)}
+              fetch={() => fetchFuseNumberTVL(fuse, chainId)}
               queryKey={"fuseTVL chainId " + chainId}
               apy={0.15}
               statSize="3xl"

@@ -58,7 +58,7 @@ import {
 } from "utils/bigUtils";
 
 // Ethers
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { formatUnits } from "ethers/lib/utils";
@@ -355,11 +355,15 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
     assets.length > 3 ? assets[2] : assets[0]
   );
   const selectedTokenData = useTokenData(selectedAsset.underlyingToken);
+  console.log({ selectedAsset })
+
   const selectedAssetUtilization =
     // @ts-ignore
     selectedAsset.totalSupply.isZero()
-      ? 0
-      : selectedAsset.totalBorrow.div(selectedAsset.totalSupply).mul(100);
+      ? constants.Zero
+      : selectedAsset.totalBorrow.mul(100).div(selectedAsset.totalSupply)
+
+  console.log({ selectedAssetUtilization })
 
   const { data } = useQuery(selectedAsset.cToken + " curves", async () => {
     const interestRateModel = await fuse.getInterestRateModel(
@@ -456,7 +460,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
             </Center>
           ) : (
             <AssetChart
-              selectedAssetUtilization={selectedAssetUtilization}
+              selectedAssetUtilization={selectedAssetUtilization.toNumber()}
               selectedTokenData={selectedTokenData}
               data={data}
             />
@@ -555,12 +559,9 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
         {isMobile ? null : (
           <CaptionedStat
             stat={
-              selectedAsset.totalSupplyUSD.toString() === "0"
+              selectedAssetUtilization.isZero()
                 ? "0%"
-                : selectedAsset.totalBorrowUSD
-                  .div(selectedAsset.totalSupplyUSD)
-                  .mul(100)
-                  .toString() + "%"
+                : `${selectedAssetUtilization.toString()}%`
             }
             statSize="lg"
             captionSize="xs"

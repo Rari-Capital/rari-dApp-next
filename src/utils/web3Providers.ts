@@ -19,6 +19,7 @@ export function chooseBestWeb3Provider(
   vaults?: boolean
 ): JsonRpcProvider | Web3Provider {
   let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
+  // return new JsonRpcProvider(providerURL);
 
   const isClient = typeof window === "object";
   if (!isClient || vaults) {

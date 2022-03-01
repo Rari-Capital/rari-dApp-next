@@ -9,11 +9,11 @@ const useVaultAPY = (vault: SubgraphVault | undefined) => {
   const maxLockedProfit = BigNumber.from(vault.maxLockedProfit);
   const harvestDelay = BigNumber.from(vault.harvestDelay);
 
-  const numerator = Math.log(
-    totalStrategyHoldings
-      .div(totalStrategyHoldings.sub(maxLockedProfit))
-      .toNumber()
-  );
+  // Check against division by zero
+  const remaining = totalStrategyHoldings.sub(maxLockedProfit);
+  const numerator = remaining.eq(0)
+    ? 0
+    : Math.log(totalStrategyHoldings.div(remaining).toNumber());
 
   const denominator = harvestDelay.toNumber() / 3154e7;
 
