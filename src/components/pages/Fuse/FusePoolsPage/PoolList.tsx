@@ -80,6 +80,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
               noBottomDivider={index === pools.length - 1}
               isWhitelisted={pool.whitelistedAdmin}
               comptroller={pool.comptroller}
+              rewardTokens={pool.rewardTokens}
             />
           )
         }) : (

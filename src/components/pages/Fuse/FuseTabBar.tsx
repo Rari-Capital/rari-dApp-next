@@ -12,6 +12,7 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { useFilter } from "hooks/useFilter";
 import { useRouter } from "next/router";
 import { useRari } from "context/RariContext";
+import { ChainID } from "esm/utils/networks";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 
@@ -27,7 +28,7 @@ const FuseTabBar = () => {
   const { poolId } = router.query;
 
   const [val, setVal] = useState("");
-  const { isAuthed } = useRari();
+  const { isAuthed, chainId } = useRari();
 
   useEffect(() => {
     if (router.pathname === "/fuse") {
@@ -98,7 +99,14 @@ const FuseTabBar = () => {
           route="/fuse?filter=unverified-pools"
           text={t("Unverified Pools")}
         />
-
+        {chainId === ChainID.ETHEREUM ? 
+        <TabLink
+          route="/fuse?filter=rewarded-pools"
+          text={t("Rewarded Pools")}
+        />
+        :
+        null
+      }
         {isAuthed && (
           <>
             <TabLink route="/fuse?filter=my-pools" text={t("My Pools")} />
