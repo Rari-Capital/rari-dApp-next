@@ -54,7 +54,7 @@ const FuseTabBar = () => {
         {chainId === ChainID.ETHEREUM ?
           <TabLink
             route="/fuse?filter=rewarded-pools"
-            text={t("Rewarded Pools")}
+            text={t("🎉 Rewarded Pools ")}
           />
           :
           null
