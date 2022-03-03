@@ -1,9 +1,9 @@
 // Components
-import { DeleteIcon, SmallAddIcon } from "@chakra-ui/icons";
-import { ButtonGroup, Input, Link, Text } from "@chakra-ui/react";
+import { SmallAddIcon } from "@chakra-ui/icons";
+import {Link, Text } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
 import DashboardBox from "components/shared/DashboardBox";
-import { RowOrColumn, Row, Center } from "lib/chakraUtils";
+import { RowOrColumn, Center } from "lib/chakraUtils";
 
 // Hooks
 import { useEffect, useState } from "react";
@@ -46,36 +46,19 @@ const FuseTabBar = () => {
         crossAxisAlignment="center"
         p={4}
       >
-        {(router.pathname === "/fuse" || !!filter) && (
-          <ButtonGroup size="sm" isAttached variant="outline" height="35px">
-            {filter ? (
-              <DashboardBox
-                bg="#282727"
-                ml={-1}
-                _hover={{ cursor: "pointer" }}
-                onClick={() => setVal("")}
-              >
-                <Center expand pr={2} fontWeight="bold">
-                  <DeleteIcon mb="2px" />
-                </Center>
-              </DashboardBox>
-            ) : null}
-          </ButtonGroup>
-        )}
-
         <TabLink route="/fuse" text={t("Verified Pools")} />
         <TabLink
           route="/fuse?filter=unverified-pools"
           text={t("Unverified Pools")}
         />
-        {chainId === ChainID.ETHEREUM ? 
-        <TabLink
-          route="/fuse?filter=rewarded-pools"
-          text={t("Rewarded Pools")}
-        />
-        :
-        null
-      }
+        {chainId === ChainID.ETHEREUM ?
+          <TabLink
+            route="/fuse?filter=rewarded-pools"
+            text={t("Rewarded Pools")}
+          />
+          :
+          null
+        }
         {isAuthed && (
           <>
             <TabLink route="/fuse?filter=my-pools" text={t("My Pools")} />
@@ -126,7 +109,7 @@ const FuseTabBar = () => {
   );
 };
 
-const TabLink = ({ route, text }: { route: string; text: string }) => {
+const TabLink = ({ route, text, ...props }: { route: string; text: string, [x: string]: any }) => {
   const isMobile = useIsSmallScreen();
   const router = useRouter();
 
@@ -140,6 +123,7 @@ const TabLink = ({ route, text }: { route: string; text: string }) => {
       <DashboardBox
         height="35px"
         {...(route === router.asPath.replace(/\/+$/, "") ? activeStyle : noop)}
+        {...props}
       >
         <Center expand px={2} fontWeight="bold">
           <Text>{text}</Text>
@@ -179,10 +163,10 @@ const NewPoolButton = () => {
       mt={isMobile ? 4 : 0}
       ml={isMobile ? 0 : "auto"}
       height="35px"
-      // {...("/fuse/new-pool" ===
-      // router.pathname.replace(/\/+$/, "") + window.location.search
-      //   ? activeStyle
-      //   : noop)}
+    // {...("/fuse/new-pool" ===
+    // router.pathname.replace(/\/+$/, "") + window.location.search
+    //   ? activeStyle
+    //   : noop)}
     >
       <AppLink href={`/fuse/create`} className="no-underline">
         <Center expand pl={2} pr={3} fontWeight="bold">
