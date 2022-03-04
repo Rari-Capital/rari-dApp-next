@@ -105,8 +105,6 @@ const AmountSelect = ({
 }: Props) => {
   const asset = assets[index];
 
-  console.log('AmountSelect', {assets})
-
   const { address, fuse, isAuthed } = useRari();
 
   const toast = useToast();
@@ -379,7 +377,6 @@ const AmountSelect = ({
           LogRocket.track("Fuse-Repay");
         }
       } else if (mode === Mode.BORROW) {
-        console.log({ cToken, amount })
         await testForCTokenErrorAndSend(
           cToken.callStatic.borrow,
           amount,
@@ -706,7 +703,7 @@ const StatsColumn = ({
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
   }, `new limit`);
 
-  console.log({ assets, updatedAssets })
+  // console.log({ assets, updatedAssets })
 
   const isSupplyingOrWithdrawing =
     mode === Mode.SUPPLY || mode === Mode.WITHDRAW;
@@ -1050,7 +1047,7 @@ export async function testForCTokenErrorAndSend(
 
       let msg = ComptrollerErrorCodes[comptrollerResponse];
 
-      console.log({ msg , comptrollerResponse, txObjectStaticCall, txArgs})
+      console.log({ msg, comptrollerResponse, txObjectStaticCall, txArgs })
 
       if (msg === "BORROW_BELOW_MIN") {
         msg =
@@ -1099,7 +1096,6 @@ export const fetchGasForCall = async (
   const gasInfo = await fuse.provider.getFeeData()
   const gasPrice = gasInfo.maxFeePerGas
   const gasWEI = gasPrice ? estimatedGas.mul(gasPrice).add(gasInfo.maxPriorityFeePerGas ?? constants.Zero) : null;
-  console.log({ gasWEI, gasPrice, gasInfo, estimatedGas })
 
   return { gasWEI, gasPrice, estimatedGas };
 
@@ -1121,8 +1117,10 @@ async function fetchMaxAmount(
       address
     );
 
-    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply).div(BigNumber.from(10).pow(asset.underlyingDecimals))
-    return supplyRemaining.gt(0) ? (balance.gt(supplyRemaining) ? supplyRemaining : balance) : balance;
+    // 
+    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply)
+    const value = supplyRemaining.gt(0) ? (balance.lt(supplyRemaining) ? balance : supplyRemaining) : balance;
+    return value
   }
 
   if (mode === Mode.REPAY) {
@@ -1150,7 +1148,7 @@ async function fetchMaxAmount(
 
       const amount = maxBorrow.mul(3).div(4);
 
-      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow).div(BigNumber.from(10).pow(asset.underlyingDecimals))
+      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow)
       return borrowRemaining.gt(0) ? (amount.gt(borrowRemaining) ? borrowRemaining : amount.div(1)) : amount.div(1);
       //const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
       //console.log("fetchMaxAmount", { amount, maxBorrow, utils })

@@ -69,8 +69,6 @@ export const fetchTokenData = async (
 
   if (address !== ETH_TOKEN_DATA.address) {
     try {
-      console.log({ address }, address.toLowerCase());
-
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
       let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
