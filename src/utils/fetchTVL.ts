@@ -25,16 +25,6 @@ export const fetchFuseTVL = async (fuse: Fuse, chainId: ChainID) => {
       constants.Zero
     );
 
-    // console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
-    switch (chainId) {
-      case ChainID.ARBITRUM:
-        return totalSuppliedETH
-          ? totalSuppliedETH.div(constants.WeiPerEther)
-          : constants.Zero;
-      default:
-        return totalSuppliedETH ? totalSuppliedETH : constants.Zero;
-    }
-
     return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
     console.error("Error retrieving fuseTVL: " + err.message);
@@ -113,8 +103,7 @@ export const fetchTVL = async (
             .add(tvls.stakedTVL)
             .add(tvls.fuseTVL)
             .div(constants.WeiPerEther)
-        : tvls.fuseTVL;
-
+        : tvls.fuseTVL.div(constants.WeiPerEther);
     return total;
   } catch (err) {
     console.log({ err });
