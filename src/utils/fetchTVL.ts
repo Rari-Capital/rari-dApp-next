@@ -103,8 +103,7 @@ export const fetchTVL = async (
             .add(tvls.stakedTVL)
             .add(tvls.fuseTVL)
             .div(constants.WeiPerEther)
-        : tvls.fuseTVL;
-
+        : tvls.fuseTVL.div(constants.WeiPerEther);
     return total;
   } catch (err) {
     console.log({ err });
