@@ -25,16 +25,6 @@ export const fetchFuseTVL = async (fuse: Fuse, chainId: ChainID) => {
       constants.Zero
     );
 
-    // console.log("4 - Tried FusePoolLens pools call", { totalSuppliedETH, fuse });
-    switch (chainId) {
-      case ChainID.ARBITRUM:
-        return totalSuppliedETH
-          ? totalSuppliedETH.div(constants.WeiPerEther)
-          : constants.Zero;
-      default:
-        return totalSuppliedETH ? totalSuppliedETH : constants.Zero;
-    }
-
     return totalSuppliedETH ?? constants.Zero;
   } catch (err: any) {
     console.error("Error retrieving fuseTVL: " + err.message);
