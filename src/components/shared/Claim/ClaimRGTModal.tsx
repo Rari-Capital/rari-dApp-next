@@ -15,26 +15,27 @@ import { Column, Row } from "lib/chakraUtils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useRari } from "../../context/RariContext";
+import { useRari } from "context/RariContext";
 
-import { GlowingButton } from "./GlowingButton";
-import { ModalDivider, ModalTitleWithCloseButton, MODAL_PROPS } from "./Modal";
+import { GlowingButton } from "../GlowingButton";
+import { ModalDivider, ModalTitleWithCloseButton, MODAL_PROPS } from "../Modal";
 
 import {
   UnclaimedReward,
   useUnclaimedFuseRewards,
 } from "hooks/rewards/useUnclaimedFuseRewards";
-import DashboardBox from "./DashboardBox";
+import DashboardBox from "../DashboardBox";
 import {
   TokenData,
   useTokensDataAsMap,
 } from "hooks/useTokenData";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { claimRewardsFromRewardsDistributors } from "utils/rewards";
-import { SimpleTooltip } from "./SimpleTooltip";
+import { SimpleTooltip } from "../SimpleTooltip";
 
 import { useQueryClient } from "react-query";
 import useVaultsSDK from "hooks/vaults/useVaultsSDK";
+import { ConvexRewardsRow } from "./ConvexRewardsRow";
 
 export type ClaimMode = "pool2" | "private" | "yieldagg" | "fuse";
 
@@ -54,6 +55,7 @@ export const ClaimRGTModal = ({
   const [amount, setAmount] = useState(0);
 
   const { fuse } = useRari();
+
 
   // pool2
   // private
@@ -107,6 +109,8 @@ export const ClaimRGTModal = ({
 const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
   const { fuse, address } = useRari();
   const { t } = useTranslation();
+  const toast = useToast();
+  const queryClient = useQueryClient();
 
   const {
     rewardsDistributorsMap,
@@ -115,14 +119,13 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
   } = useUnclaimedFuseRewards();
 
   const { allClaimable, allRewardsTokens } = useClaimable(showPrivate);
-  const toast = useToast();
+
 
   const [claimingAll, setClaimingAll] = useState(false);
   const [claimingToken, setClaimingToken] = useState<string | undefined>();
 
   const rewardTokensData = useTokensDataAsMap(allRewardsTokens);
 
-  const queryClient = useQueryClient();
 
   // Claims all Fuse LM rewards at once
   const handleClaimAll = useCallback(() => {
@@ -204,6 +207,7 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
       expand
       p={3}
     >
+      <ConvexRewardsRow />
       {allClaimable.length ? (
         allClaimable.map((claimable, i) => {
           const pools =
@@ -229,9 +233,7 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
           );
         })
       ) : (
-        <Heading textAlign="center" size="md">
-          No Claimable Rewards.
-        </Heading>
+        <ModalDivider />
       )}
       {!!allClaimable.length && (
         <GlowingButton
@@ -247,6 +249,8 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
     </Column>
   );
 };
+
+
 
 const ClaimableRow = ({
   unclaimed,

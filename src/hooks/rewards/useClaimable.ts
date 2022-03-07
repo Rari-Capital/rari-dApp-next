@@ -1,3 +1,4 @@
+import { useConvexMaxClaimable } from "hooks/convex/useConvexRewards";
 import { useMemo } from "react";
 import {
   UnclaimedReward,
@@ -6,9 +7,7 @@ import {
 import { useUnclaimedRGT } from "./useUnclaimedRGT";
 
 /**
- *
  * Claimable Rewards won't tell you the APY, only the claimable amt.
- *
  * **/
 
 export type ClaimMode = "pool2" | "private" | "yieldagg" | "fuse";
@@ -37,7 +36,7 @@ export type FuseReward = {
   unclaimedBalancesForPool: CTokenUnclaimedForPool[];
 };
 
-interface CTokenUnclaimedForPool {}
+interface CTokenUnclaimedForPool { }
 
 const RGT = "0xd291e7a03283640fdc51b121ac401383a46cc623";
 
@@ -54,13 +53,17 @@ export function useClaimable(showPrivate: boolean = false): UseClaimableReturn {
   const { unclaimedRGT, privateUnclaimedRGT, pool2UnclaimedRGT } =
     useUnclaimedRGT();
 
+  // Only for visually indicating claimable in the header
+  const { hasClaimable } = useConvexMaxClaimable()
+
   // console.log({ unclaimedRGT, privateUnclaimedRGT, pool2UnclaimedRGT });
 
   const hasClaimableRewards: boolean = useMemo(() => {
     if (
       (!!pool2UnclaimedRGT && amountIsNotDust(pool2UnclaimedRGT)) ||
       (!!privateUnclaimedRGT && amountIsNotDust(privateUnclaimedRGT)) ||
-      (!!unclaimedRGT && amountIsNotDust(DUST_THRESHOLD))
+      (!!unclaimedRGT && amountIsNotDust(DUST_THRESHOLD)) ||
+      (!!hasClaimable)
     )
       return true;
 

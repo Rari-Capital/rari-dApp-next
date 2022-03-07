@@ -32,7 +32,7 @@ import { useAuthedCallback } from "hooks/useAuthedCallback";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import SwitchNetworkMenu from "./SwitchNetworkMenu";
 import { useClaimable } from "hooks/rewards/useClaimable";
-import { ClaimRGTModal } from "./ClaimRGTModal";
+import { ClaimRGTModal } from "./Claim/ClaimRGTModal";
 import useENS from "hooks/useENS";
 import { shortENS } from "utils/shortENS";
 
