@@ -13,6 +13,8 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import Marquee from "react-fast-marquee";
 import HomeFuseCard from "./HomeFuseCard";
 
+import { Card } from "rari-components"
+
 import { motion } from "framer-motion";
 
 import { smallStringUsdFormatter } from "utils/bigUtils";
@@ -231,7 +233,7 @@ const Home = () => {
         width="100%"
       // background="purple"
       >
-        <DashboardBox>
+        <Card w="100%" height="230px">
           <Row
             mainAxisAlignment="flex-start"
             crossAxisAlignment="flex-start"
@@ -300,7 +302,7 @@ const Home = () => {
               <HomeCarousel />
             </Column>
           </Row>
-        </DashboardBox>
+        </Card>
       </Row>
 
       {/* Easily Earn (Vaults) */}

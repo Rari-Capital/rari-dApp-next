@@ -580,7 +580,7 @@ const PluginIncentivesRow: React.FC<{
         }}
       >
         <Text fontWeight="bold" mr={1}>
-          +
+          🔌
         </Text>
         <SimpleTooltip label={"Click for more info"}>
           <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1} >
