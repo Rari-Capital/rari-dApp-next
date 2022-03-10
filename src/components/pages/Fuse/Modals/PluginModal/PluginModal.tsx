@@ -1,4 +1,3 @@
-import { Button } from "rari-components"
 import {
     Modal,
     ModalOverlay,
@@ -11,7 +10,8 @@ import {
     Avatar,
     Spinner,
     Flex,
-    Link
+    Link,
+    Button
 } from "@chakra-ui/react"
 import { TokenData } from "hooks/useTokenData"
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
@@ -25,18 +25,17 @@ export const PluginModal = ({
     market: USDPricedFuseAsset,
     isOpen: boolean,
     onClose: () => void,
-    tokenData: TokenData
+    tokenData: TokenData | undefined
 }) => {
 
-    const index = elegibleTokens.indexOf(market.underlyingSymbol)
-    console.log({ index }, market.underlyingSymbol)
+    const index = eligibleTokens.indexOf(market.underlyingSymbol)
     return (
         <>
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader display="flex" width="100%" alignSelf="center">
-                        {tokenData ? <Avatar src={tokenData.logoURL} mr={4} /> : <Spinner />}
+                        {tokenData ? <Avatar src={tokenData?.logoURL} mr={4} /> : <Spinner />}
                         <Text fontSize="lg" mr={1} alignSelf="center">{tokenData?.symbol ?? market.underlyingSymbol}</Text>
                         <Text fontSize="lg" mr={4} alignSelf="center">
                             Market Information
@@ -94,7 +93,7 @@ type tokenInfoType = {
     }
 }
 
-const elegibleTokens = ["FRAX3CRV-f", "steCRV", "UST_whv23CRV-f", "crv3crypto", "D3-f", "FEI3CRV3CRV-f", "alUSD3CRV-f"]
+const eligibleTokens = ["FRAX3CRV-f", "steCRV", "UST_whv23CRV-f", "crv3crypto", "D3-f", "FEI3CRV3CRV-f", "alUSD3CRV-f"]
 
 const tokenInfo: tokenInfoType = {
     "FRAX3CRV-f": {

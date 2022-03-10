@@ -1,6 +1,5 @@
 import { InfoIcon } from "@chakra-ui/icons";
 import { Box, VStack, Text, Button, HStack, Heading, Spinner, Image, Avatar } from "@chakra-ui/react";
-// import { Card} from "rari-components";
 import { flywheels, useConvexMaxClaimable } from "hooks/convex/useConvexRewards"
 import { formatEther } from "ethers/lib/utils";
 import DashboardBox from "../DashboardBox";

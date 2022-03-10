@@ -273,21 +273,14 @@ export const useConvexPoolIncentives = (comptroller?: string): FlywheelIncentive
   const { data } = useQuery(`plugin incentives for pool ${comptroller}`, async () => {
     if (comptroller?.toLowerCase() !== "0x07cd53380fe9b2a5e64099591b498c73f0efaa66") return undefined
     const lens = createFlywheelLens(provider)
-    console.log({ lens, comptroller })
     let result: MarketRewardInfo[] = await lens.callStatic.getMarketRewardsInfo(comptroller)
-
-    console.log({ result })
     let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {}
     let flywheelCTokensMap: FlywheelCTokensMap = {}
     let uniqueRewardTokens: Set<string> = new Set<string>()
 
     if (result) {
-      console.log({ result })
-
       result.forEach(marketRewardInfo => {
         const { market, rewardsInfo } = marketRewardInfo
-
-        console.log({ rewardsInfo })
 
         rewardsInfo.forEach(flywheelData => {
           const { flywheel, formattedAPR, rewardToken } = filterOnlyObjectProperties(flywheelData)
@@ -303,13 +296,10 @@ export const useConvexPoolIncentives = (comptroller?: string): FlywheelIncentive
               ...cTokenPluginRewardsMap[market],
               [flywheel]: obj
             }
-            console.log({ cTokenPluginRewardsMap })
           }
         })
       })
     }
-
-    console.log({ cTokenPluginRewardsMap, flywheelCTokensMap, uniqueRewardTokens, result })
 
     const rewardTokens = Array.from(uniqueRewardTokens)
 

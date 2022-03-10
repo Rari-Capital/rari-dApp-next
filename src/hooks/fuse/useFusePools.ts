@@ -226,7 +226,7 @@ const createMergedPools = async (
   ids: string[],
   fusePools: LensFusePool[],
   fusePoolsData: LensFusePoolData[],
-  rewardTokens: string[],
+  rewardTokens: string[][],
   fetchETHPrice: Promise<any>
 ) => {
   const merged: MergedPool[] = [];

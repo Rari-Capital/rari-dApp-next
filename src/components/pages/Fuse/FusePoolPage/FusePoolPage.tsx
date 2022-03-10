@@ -559,12 +559,9 @@ const RDIncentivesRow: React.FC<{
 const PluginIncentivesRow: React.FC<{
   incentives: FlywheelPluginRewardsMap,
   market: USDPricedFuseAsset,
-  tokenData: TokenData
+  tokenData: TokenData | undefined
 }> = ({ incentives, market, tokenData }) => {
 
-  // Object.keys(incentives).map(flywheel => {
-  //   flywheel.
-  // })
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (

@@ -97,7 +97,7 @@ export interface FusePoolData {
   totalBorrowBalanceUSD: BigNumber;
   id?: number;
   admin: string;
-  isAdminWhitelisted?: boolean;
+  isAdminWhitelisted: boolean;
 }
 
 export enum FusePoolMetric {
@@ -186,12 +186,16 @@ export const fetchFusePoolData = async (
   let [[admin], [oracle]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["admin", "oracle"], [[], []])
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
 
+  // Whitelisted (Verified)
+  const isAdminWhitelisted =
+    await fuse.contracts.FusePoolDirectory.callStatic.adminWhitelist(admin);
+
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
     asset.supplyCap = constants.Zero
     asset.borrowCap = constants.Zero
     try {
-     let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
+      let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
       asset.supplyCap = supplyCap
       asset.borrowCap = borrowCap
     } catch (err) {
@@ -247,6 +251,7 @@ export const fetchFusePoolData = async (
 
     totalSupplyBalanceUSD,
     totalBorrowBalanceUSD,
+    isAdminWhitelisted
   };
   return data
 };
