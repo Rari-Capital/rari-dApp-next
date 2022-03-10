@@ -8,13 +8,15 @@ import { useCreateComptroller } from "./createComptroller";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { utils } from "ethers";
 import { EmptyAddress } from "context/RariContext";
+import { callInterfaceWithMulticall, sendWithMultiCall } from "./multicall";
+import { Interface } from "ethers/lib/utils";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
 
-export function filterOnlyObjectProperties(obj: any) {
+export function filterOnlyObjectProperties<T>(obj: T) {
   return Object.fromEntries(
     Object.entries(obj).filter(([k]) => isNaN(k as any))
-  ) as any;
+  ) as T
 }
 
 export function filterOnlyObjectPropertiesBNtoNumber(obj: any) {
@@ -147,11 +149,16 @@ export const fetchFusePoolData = async (
   if (!poolId) return undefined;
 
   const addressToUse = address === EmptyAddress ? "" : address
+
   const {
     comptroller,
     name: _unfiliteredName,
     isPrivate,
   } = await fuse.contracts.FusePoolDirectory.pools(poolId);
+
+  const IComptroller = new Interface(JSON.parse(
+    fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
+  ))
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
@@ -176,11 +183,8 @@ export const fetchFusePoolData = async (
     // prefer rari because it has caching
     await getEthUsdPriceBN();
 
-  const comptrollerContract = useCreateComptroller(comptroller, fuse, isAuthed);
-  let oracle: string = await comptrollerContract.callStatic.oracle();
-  let admin = await comptrollerContract.callStatic.admin();
+  let [[admin], [oracle]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["admin", "oracle"], [[], []])
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
-
 
   // Whitelisted (Verified)
   const isAdminWhitelisted =
@@ -191,9 +195,10 @@ export const fetchFusePoolData = async (
     asset.supplyCap = constants.Zero
     asset.borrowCap = constants.Zero
     try {
-      asset.supplyCap = await comptrollerContract.callStatic.supplyCaps(asset.cToken)
-      asset.borrowCap = await comptrollerContract.callStatic.borrowCaps(asset.cToken)
-    } catch (err){
+      let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
+      asset.supplyCap = supplyCap
+      asset.borrowCap = borrowCap
+    } catch (err) {
       console.error(`${asset.cToken} error with supply/borrow caps`)
     }
     asset.supplyBalanceUSD = asset.supplyBalance
@@ -246,7 +251,7 @@ export const fetchFusePoolData = async (
 
     totalSupplyBalanceUSD,
     totalBorrowBalanceUSD,
-    isAdminWhitelisted,
+    isAdminWhitelisted
   };
   return data
 };

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Box, Link, Spinner, Text } from "@chakra-ui/react";
 import { Column, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
 import { useTranslation } from "react-i18next";

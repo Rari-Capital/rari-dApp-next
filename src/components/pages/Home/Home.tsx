@@ -6,10 +6,10 @@ import {
   useBreakpointValue,
   VStack,
   chakra,
+  Heading,
 } from "@chakra-ui/react";
 import { Column, Row } from "lib/chakraUtils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
-import { Card, Heading } from "rari-components";
 import Marquee from "react-fast-marquee";
 import HomeFuseCard from "./HomeFuseCard";
 
@@ -231,7 +231,7 @@ const Home = () => {
         width="100%"
       // background="purple"
       >
-        <Card width="100%" height="230px">
+        <DashboardBox>
           <Row
             mainAxisAlignment="flex-start"
             crossAxisAlignment="flex-start"
@@ -300,7 +300,7 @@ const Home = () => {
               <HomeCarousel />
             </Column>
           </Row>
-        </Card>
+        </DashboardBox>
       </Row>
 
       {/* Easily Earn (Vaults) */}

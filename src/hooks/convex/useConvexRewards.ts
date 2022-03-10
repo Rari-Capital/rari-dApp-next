@@ -6,6 +6,7 @@ import { useQuery } from "react-query";
 // import { formatEther } from "ethers/lib/utils";
 import { useCallback } from "react";
 import { Web3Provider } from "@ethersproject/providers";
+import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 // import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 // import { FusePoolData } from "utils/fetchFusePoolData";
 // import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
@@ -13,7 +14,14 @@ import { Web3Provider } from "@ethersproject/providers";
 // import { pools } from "constants/pools";
 // import useCTokensWithRewardsPlugin from "./useMarketsWithPlugins";
 
-const FLYWHEEL_LENS_ROUTER = "0x8301bfd36b10e02464ebc64c3362caf18a44203e";
+const FLYWHEEL_LENS_ROUTER = "0xe7813367804d5a8bc19c27a143c8b837d373e3b7";
+
+const createFlywheelLens = (provider: any) => new Contract(
+  FLYWHEEL_LENS_ROUTER,
+  JSON.stringify(FlywheelLensABI),
+  provider
+);
+
 
 type FlywheelData = {
   [flywheel: string]: {
@@ -26,12 +34,12 @@ type FlywheelData = {
 // @todo - remove hardcoded flywheel data 
 // Applies only to Pool 156
 export const flywheels: FlywheelData = {
-  "0x65DFbde18D7f12a680480aBf6e17F345d8637829": {
+  "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
     rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     rewardTokenSymbol: "CRV",
     rewardTokenDecimals: 18,
   },
-  "0x18B9aE8499e560bF94Ef581420c38EC4CfF8559C": {
+  "0x18b9ae8499e560bf94ef581420c38ec4cff8559c": {
     rewardToken: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
     rewardTokenSymbol: "CVX",
     rewardTokenDecimals: 18,
@@ -55,8 +63,6 @@ type FlywheelRewardsTotalUSD = {
 export type FlywheelRewardsByMarket = {
   [cToken: string]: FlywheelRewardsTotal;
 };
-
-
 interface FlywheelMaxClaimable {
   call: () => any;
   flywheelRewardsTotals: FlywheelRewardsTotal,
@@ -70,11 +76,7 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   const { fuse, address } = useRari();
   const { provider } = fuse
 
-  const lens = new Contract(
-    FLYWHEEL_LENS_ROUTER,
-    JSON.stringify(FlywheelLensABI),
-    provider
-  );
+  const lens = createFlywheelLens(provider)
 
   // TODO - remove hardcoded flywheel data
   const flywheelAddresses = Object.keys(flywheels);
@@ -150,7 +152,8 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
       });
   }, [address, cTokens, provider]);
 
-  return { ...data, call };
+  const obj = { ...data, call };
+  return obj
 };
 
 /**
@@ -226,4 +229,90 @@ const POOL_156_MARKETS_WITH_PLUGINS = [
 export const useConvexMaxClaimable = () => {
   const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(POOL_156_MARKETS_WITH_PLUGINS)
   return convexRewards
-} 
+}
+
+
+interface CTokenPluginRewardsMap {
+  [cToken: string]: FlywheelPluginRewardsMap
+}
+
+export type FlywheelPluginRewardsMap = {
+  [flywheel: string]: {
+    rewardToken: string;
+    formattedAPR: number;
+  }
+}
+
+
+export interface FlywheelCTokensMap {
+  [flywheel: string]: string[]
+}
+
+interface MarketRewardInfo {
+  market: string;
+  rewardsInfo: RewardsInfo[];
+}
+
+interface RewardsInfo {
+  flywheel: string,
+  formattedAPR: BigNumber,
+  rewardToken: string
+}
+
+export interface FlywheelIncentivesData {
+  hasIncentives: boolean;
+  incentives: CTokenPluginRewardsMap;
+  rewardsDistributorCtokens: FlywheelCTokensMap;
+  rewardTokens: string[];
+}
+
+export const useConvexPoolIncentives = (comptroller?: string): FlywheelIncentivesData | undefined => {
+  const { fuse } = useRari();
+  const { provider } = fuse
+
+  const { data } = useQuery(`plugin incentives for pool ${comptroller}`, async () => {
+    if (comptroller?.toLowerCase() !== "0x07cd53380fe9b2a5e64099591b498c73f0efaa66") return undefined
+    const lens = createFlywheelLens(provider)
+    let result: MarketRewardInfo[] = await lens.callStatic.getMarketRewardsInfo(comptroller)
+    let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {}
+    let flywheelCTokensMap: FlywheelCTokensMap = {}
+    let uniqueRewardTokens: Set<string> = new Set<string>()
+
+    if (result) {
+      result.forEach(marketRewardInfo => {
+        const { market, rewardsInfo } = marketRewardInfo
+
+        rewardsInfo.forEach(flywheelData => {
+          const { flywheel, formattedAPR, rewardToken } = filterOnlyObjectProperties(flywheelData)
+          const obj = {
+            rewardToken,
+            formattedAPR: parseFloat(formattedAPR.toString()) / 1e16,
+          }
+
+          if (!formattedAPR.isZero()) {
+            uniqueRewardTokens.add(rewardToken)
+            // flywheelCTokensMap[flywheel] = [...flywheelCTokensMap[flywheel], market]
+            cTokenPluginRewardsMap[market] = {
+              ...cTokenPluginRewardsMap[market],
+              [flywheel]: obj
+            }
+          }
+        })
+      })
+    }
+
+    const rewardTokens = Array.from(uniqueRewardTokens)
+
+    const _result: FlywheelIncentivesData = {
+      incentives: cTokenPluginRewardsMap,
+      hasIncentives: !!rewardTokens.length,
+      rewardTokens,
+      rewardsDistributorCtokens: flywheelCTokensMap
+    }
+
+    return _result
+  })
+
+  return data
+
+}

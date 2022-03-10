@@ -34,7 +34,7 @@ import { useQueryClient } from "react-query";
 import { useBorrowLimit } from "hooks/useBorrowLimit";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
-import { useTokenData } from "hooks/useTokenData";
+import { TokenData, useTokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { useAuthedCallback } from "hooks/useAuthedCallback";
 import {
   CTokenRewardsDistributorIncentives,
@@ -75,12 +75,17 @@ import { getSymbol } from "utils/symbolUtils";
 import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
 import { formatUnits } from "ethers/lib/utils";
 import { testForComptrollerErrorAndSend } from "../FusePoolEditPage";
+import { FlywheelIncentivesData, FlywheelPluginRewardsMap, useConvexPoolIncentives } from "hooks/convex/useConvexRewards";
+import PluginModal from "../Modals/PluginModal";
 
 const FuseRewardsBanner = ({
   rewardTokensData,
 }: {
   rewardTokensData: TokensDataMap;
 }) => {
+
+  if (!Object.keys(rewardTokensData).length) return null
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -142,7 +147,14 @@ const FusePoolPage = memo(() => {
   const data = useFusePoolData(poolId as string | undefined, true);
 
   const incentivesData: IncentivesData = usePoolIncentives(data?.comptroller);
-  const { hasIncentives } = incentivesData;
+  const { rewardTokens: rdRewardTokens } = incentivesData;
+
+  const pluginIncentives = useConvexPoolIncentives(data?.comptroller);
+  const { rewardTokens: pluginRewardTokens = [] } = pluginIncentives ?? {}
+
+  const rewardTokens = useMemo(() => [...rdRewardTokens, ...pluginRewardTokens], [pluginRewardTokens, rdRewardTokens])
+  const rewardTokensData = useTokensDataAsMap(rewardTokens)
+
   const isAdmin = useIsComptrollerAdmin(data?.comptroller);
 
   const { data: univ3Assets }: UseQueryResult<string[]> = useQuery("univ3 assets for " + data?.assets?.map(a => a.cToken),
@@ -216,11 +228,9 @@ const FusePoolPage = memo(() => {
           <PendingAdminAlert comptroller={data?.comptroller} />
         )}
 
-        {hasIncentives && (
-          <FuseRewardsBanner
-            rewardTokensData={incentivesData.rewardTokensData}
-          />
-        )}
+        <FuseRewardsBanner
+          rewardTokensData={rewardTokensData}
+        />
 
         <FuseUniV3Alert univ3Tokens={univ3Assets} />
 
@@ -240,6 +250,8 @@ const FusePoolPage = memo(() => {
                 comptrollerAddress={data.comptroller}
                 supplyBalanceUSD={data.totalSupplyBalanceUSD.toNumber()}
                 incentivesData={incentivesData}
+                pluginIncentives={pluginIncentives}
+                rewardTokensData={rewardTokensData}
               />
             ) : (
               <Center height="200px">
@@ -259,6 +271,7 @@ const FusePoolPage = memo(() => {
                 assets={data.assets}
                 borrowBalanceUSD={data.totalBorrowBalanceUSD.toNumber()}
                 incentivesData={incentivesData}
+                rewardTokensData={rewardTokensData}
               />
             ) : (
               <Center height="200px">
@@ -354,32 +367,21 @@ const SupplyList = ({
   supplyBalanceUSD,
   comptrollerAddress,
   incentivesData,
+  pluginIncentives,
+  rewardTokensData,
 }: {
   assets: USDPricedFuseAsset[];
   supplyBalanceUSD: number;
   comptrollerAddress: string;
   incentivesData: IncentivesData;
+  pluginIncentives: FlywheelIncentivesData | undefined
+  rewardTokensData: TokensDataMap;
 }) => {
   const { t } = useTranslation();
 
   const suppliedAssets = assets.filter(
     (asset) => asset.supplyBalanceUSD.gt(1)
   );
-
-  const nonSuppliedAssets = assets.filter(
-    (asset) => {
-      // If its pool 6 or 7 UST return false
-      // TODO - remove
-      if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
-        if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") {
-          return false
-        }
-        else return true
-      }
-      else if (asset.supplyBalanceUSD.lt(1)) return true
-    }
-  );
-
   const isMobile = useIsMobile();
 
   return (
@@ -430,6 +432,8 @@ const SupplyList = ({
         </Row>
       ) : null}
 
+
+
       <Column
         mainAxisAlignment="flex-start"
         crossAxisAlignment="flex-start"
@@ -439,10 +443,17 @@ const SupplyList = ({
         {assets.length > 0 ? (
           <>
             {assets.map((asset, index) => {
+
               if (!asset.supplyBalanceUSD.gt(1)) return null
+
               const supplyIncentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
+
+              const pluginIncentivesForAsset = pluginIncentives?.incentives?.[asset.cToken] ?? {}
+              if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
+
+              // if (!!pluginIncentivesForAsset.length) console.log({pluginIncentivesForAsset})
 
 
               return (
@@ -452,7 +463,8 @@ const SupplyList = ({
                   assets={assets}
                   index={index}
                   supplyIncentives={supplyIncentivesForAsset}
-                  rewardTokensData={incentivesData.rewardTokensData}
+                  pluginIncentives={pluginIncentivesForAsset}
+                  rewardTokensData={rewardTokensData}
                   isPaused={asset.isPaused}
                 />
               );
@@ -470,6 +482,9 @@ const SupplyList = ({
                 incentivesData?.incentives?.[asset.cToken] ?? []
               ).filter(({ supplySpeed }) => !!supplySpeed);
 
+              const pluginIncentivesForAsset = pluginIncentives?.incentives?.[asset.cToken] ?? {}
+              if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
+
               return (
                 <AssetSupplyRow
                   comptrollerAddress={comptrollerAddress}
@@ -477,7 +492,8 @@ const SupplyList = ({
                   assets={assets}
                   index={index}
                   supplyIncentives={supplyIncentivesForAsset}
-                  rewardTokensData={incentivesData.rewardTokensData}
+                  pluginIncentives={pluginIncentivesForAsset}
+                  rewardTokensData={rewardTokensData}
                   isPaused={asset.isPaused}
                 />
               );
@@ -493,18 +509,119 @@ const SupplyList = ({
   );
 };
 
+const RDIncentivesRow: React.FC<{
+  incentives: CTokenRewardsDistributorIncentivesWithRates[],
+  handleMouseEnter: any,
+  handleMouseLeave: any,
+  color: string,
+  label: string,
+  apr: number,
+}> = ({ incentives, handleMouseEnter, handleMouseLeave, color, label, apr }) => {
+  return (
+    <Row
+      // ml={1}
+      // mb={.5}
+      crossAxisAlignment="center"
+      mainAxisAlignment="flex-end"
+      py={2}
+    >
+      <Text fontWeight="bold" mr={1}>
+        +
+      </Text>
+      <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1}>
+        {incentives?.map((supplyIncentive, i) => {
+          return (
+            <CTokenIcon
+              key={i}
+              address={supplyIncentive.rewardToken}
+              boxSize="20px"
+              onMouseEnter={() => handleMouseEnter(i)}
+              onMouseLeave={() => handleMouseLeave()}
+              _hover={{
+                zIndex: 9,
+                border: ".5px solid white",
+                transform: "scale(1.3);",
+              }}
+            />
+          );
+        })}
+      </AvatarGroup>
+      <SimpleTooltip label={label}>
+        <Text color={color} fontWeight="bold" pl={1} fontSize="sm">
+          {/* {(supplyIncentive.supplySpeed / 1e18).toString()}%  */}
+          {apr.toFixed(2)}% APR
+        </Text>
+      </SimpleTooltip>
+    </Row>
+  )
+}
+
+const PluginIncentivesRow: React.FC<{
+  incentives: FlywheelPluginRewardsMap,
+  market: USDPricedFuseAsset,
+  tokenData: TokenData | undefined
+}> = ({ incentives, market, tokenData }) => {
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  return (
+    <>
+      <PluginModal market={market} isOpen={isOpen} onClose={onClose} tokenData={tokenData} />
+      <Row
+        // ml={1}
+        // mb={.5}
+        crossAxisAlignment="center"
+        mainAxisAlignment="flex-end"
+        py={2}
+        zIndex={10}
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen();
+        }}
+      >
+        <Text fontWeight="bold" mr={1}>
+          +
+        </Text>
+        <SimpleTooltip label={"Click for more info"}>
+          <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1} >
+            {Object.keys(incentives).map((flywheel, i) => {
+              return (
+                <CTokenIcon
+                  key={i}
+                  address={incentives[flywheel].rewardToken}
+                  boxSize="20px"
+                  // onMouseEnter={() => handleMouseEnter(i)}
+                  // onMouseLeave={() => handleMouseLeave()}
+                  _hover={{
+                    zIndex: 9,
+                    border: ".5px solid white",
+                    transform: "scale(1.3);",
+                  }}
+                />
+              );
+            })}
+          </AvatarGroup>
+        </SimpleTooltip>
+      </Row>
+    </>
+  )
+}
+
+
 const AssetSupplyRow = ({
   assets,
   index,
   comptrollerAddress,
   supplyIncentives,
   rewardTokensData,
+  pluginIncentives,
   isPaused,
 }: {
   assets: USDPricedFuseAsset[];
   index: number;
   comptrollerAddress: string;
   supplyIncentives: CTokenRewardsDistributorIncentivesWithRates[];
+  pluginIncentives: FlywheelPluginRewardsMap
   rewardTokensData: TokensDataMap;
   isPaused: boolean;
 }) => {
@@ -582,6 +699,7 @@ const AssetSupplyRow = ({
   const { t } = useTranslation();
 
   const hasSupplyIncentives = !!supplyIncentives.length;
+  const hasPluginIncentives = !!Object.keys(pluginIncentives).length
   const totalSupplyAPR =
     supplyIncentives?.reduce((prev, incentive) => {
       const apr = incentive.supplyAPR;
@@ -589,7 +707,6 @@ const AssetSupplyRow = ({
     }, 0) ?? 0;
 
   const [hovered, setHovered] = useState<number>(-1);
-
   const handleMouseEnter = (index: number) => setHovered(index);
   const handleMouseLeave = () => setHovered(-1);
 
@@ -610,7 +727,7 @@ const AssetSupplyRow = ({
   const _hovered = hovered > 0 ? hovered : 0;
 
   const color =
-    rewardTokensData[supplyIncentives?.[_hovered]?.rewardToken]?.color ??
+    rewardTokensData?.[supplyIncentives?.[_hovered]?.rewardToken]?.color ??
     "white";
 
   const symbol = getSymbol(tokenData, asset);
@@ -640,6 +757,8 @@ const AssetSupplyRow = ({
           mainAxisAlignment="flex-start"
           crossAxisAlignment="flex-start"
           width="27%"
+          // bg="orange"
+          flexWrap="wrap"
         >
           <Row
             mainAxisAlignment="flex-start"
@@ -655,87 +774,66 @@ const AssetSupplyRow = ({
               boxSize="37px"
               name={symbol}
             />
-            <Text fontWeight="bold" fontSize="lg" ml={2} flexShrink={0}>
+            <Text fontWeight="bold" fontSize="lg" ml={2} flexShrink={1} overflowWrap={"break-word"}>
               {symbol}
             </Text>
           </Row>
         </Column>
 
         {/* APY */}
-        {isMobile ? null : (
-          <Column
-            mainAxisAlignment="flex-start"
-            crossAxisAlignment="flex-end"
-            width="27%"
-            as="button"
-            onClick={authedOpenModal}
+        <Column
+          mainAxisAlignment="flex-start"
+          crossAxisAlignment="flex-end"
+          width="27%"
+          as="button"
+          onClick={authedOpenModal}
+          // bg="pink"
+          ml={"auto"}
+        >
+          <Text
+            color={tokenData?.color ?? "#FF"}
+            fontWeight="bold"
+            fontSize="17px"
           >
-            <Text
-              color={tokenData?.color ?? "#FF"}
-              fontWeight="bold"
-              fontSize="17px"
-            >
-              {isStakedOHM
-                ? stakedOHMApyData
-                  ? (stakedOHMApyData.supplyApy * 100).toFixed(2)
-                  : "?"
-                : supplyAPY.toFixed(2)}
-              %
-            </Text>
+            {isStakedOHM
+              ? stakedOHMApyData
+                ? (stakedOHMApyData.supplyApy * 100).toFixed(2)
+                : "?"
+              : supplyAPY.toFixed(2)}
+            %
+          </Text>
 
-            {/* Demo Supply Incentives */}
-            {hasSupplyIncentives && (
-              <Row
-                // ml={1}
-                // mb={.5}
-                crossAxisAlignment="center"
-                mainAxisAlignment="flex-end"
-                py={2}
-              >
-                <Text fontWeight="bold" mr={1}>
-                  +
-                </Text>
-                <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1}>
-                  {supplyIncentives?.map((supplyIncentive, i) => {
-                    return (
-                      <CTokenIcon
-                        key={i}
-                        address={supplyIncentive.rewardToken}
-                        boxSize="20px"
-                        onMouseEnter={() => handleMouseEnter(i)}
-                        onMouseLeave={() => handleMouseLeave()}
-                        _hover={{
-                          zIndex: 9,
-                          border: ".5px solid white",
-                          transform: "scale(1.3);",
-                        }}
-                      />
-                    );
-                  })}
-                </AvatarGroup>
-                <SimpleTooltip label={displayedSupplyAPRLabel}>
-                  <Text color={color} fontWeight="bold" pl={1} fontSize="sm">
-                    {/* {(supplyIncentive.supplySpeed / 1e18).toString()}%  */}
-                    {displayedSupplyAPR.toFixed(2)}% APR
-                  </Text>
-                </SimpleTooltip>
-              </Row>
+
+          {/* RewardsDistributor Supply Incentives */}
+          {hasSupplyIncentives && <RDIncentivesRow
+            incentives={supplyIncentives}
+            label={displayedSupplyAPRLabel}
+            apr={displayedSupplyAPR}
+            color={color}
+            handleMouseEnter={handleMouseEnter}
+            handleMouseLeave={handleMouseLeave}
+          />}
+
+          {/* Flywheel Supply Incentives */}
+          {hasPluginIncentives && <PluginIncentivesRow
+            incentives={pluginIncentives}
+            market={asset}
+            tokenData={tokenData}
+          />}
+
+          <SimpleTooltip
+            label={t(
+              "The Loan to Value (LTV) ratio defines the maximum amount of tokens in the pool that can be borrowed with a specific collateral. It’s expressed in percentage: if in a pool ETH has 75% LTV, for every 1 ETH worth of collateral, borrowers will be able to borrow 0.75 ETH worth of other tokens in the pool."
             )}
+          >
+            <Text fontSize="sm">
+              {parseFloat(asset.collateralFactor.toString()) / 1e16}% LTV
+            </Text>
+          </SimpleTooltip>
 
-            <SimpleTooltip
-              label={t(
-                "The Loan to Value (LTV) ratio defines the maximum amount of tokens in the pool that can be borrowed with a specific collateral. It’s expressed in percentage: if in a pool ETH has 75% LTV, for every 1 ETH worth of collateral, borrowers will be able to borrow 0.75 ETH worth of other tokens in the pool."
-              )}
-            >
-              <Text fontSize="sm">
-                {parseFloat(asset.collateralFactor.toString()) / 1e16}% LTV
-              </Text>
-            </SimpleTooltip>
+        </Column>
 
-          </Column>
-        )}
-
-        {/* Incentives */}
+        {/* End Incentives */}
 
         {/* Balance */}
         <Column
@@ -787,19 +885,18 @@ const BorrowList = ({
   borrowBalanceUSD,
   comptrollerAddress,
   incentivesData,
+  rewardTokensData
 }: {
   assets: USDPricedFuseAsset[];
   borrowBalanceUSD: number;
   comptrollerAddress: string;
   incentivesData: IncentivesData;
+  rewardTokensData: TokensDataMap
 }) => {
   const { t } = useTranslation();
   const borrowedAssets = assets.filter(
     (asset) => asset.borrowBalanceUSD.gt(1)
   );
-  const nonBorrowedAssets = assets.filter(
-    (asset) => asset.borrowBalanceUSD.lt(1)
-  )
   const disabledAssets = assets.filter(
     (a) => (a.isPaused || !!a.borrowGuardianPaused)
   )
@@ -878,7 +975,7 @@ const BorrowList = ({
                   assets={assets}
                   index={index}
                   borrowIncentives={incentivesForAsset}
-                  rewardTokensData={incentivesData.rewardTokensData}
+                  rewardTokensData={rewardTokensData}
                   isPaused={asset.isPaused}
                 />
               );
@@ -890,6 +987,10 @@ const BorrowList = ({
               if (!asset.borrowBalanceUSD.lt(1)) return null
               // Don't show paused assets if not enabled
               if (asset.isPaused || asset.borrowGuardianPaused) return null
+              // Don't show UST on Pool 6/7
+              if (["0x814b02c1ebc9164972d888495927fe1697f0fb4c", "0xfb558ecd2d24886e8d2956775c619deb22f154ef"].includes(comptrollerAddress.toLowerCase())) {
+                if (asset.underlyingToken.toLowerCase() === "0xa47c8bf37f92abed4a126bda807a7b7498661acd") return null
+              }
 
               const incentivesForAsset = (
                 incentivesData?.incentives?.[asset.cToken] ?? []
@@ -902,7 +1003,7 @@ const BorrowList = ({
                   assets={assets}
                   index={index}
                   borrowIncentives={incentivesForAsset}
-                  rewardTokensData={incentivesData.rewardTokensData}
+                  rewardTokensData={rewardTokensData}
                   isPaused={asset.isPaused || !!asset.borrowGuardianPaused}
                 />
               );
@@ -1006,7 +1107,7 @@ const AssetBorrowRow = ({
 
   const _hovered = hovered > 0 ? hovered : 0;
   const color =
-    rewardTokensData[borrowIncentives?.[_hovered]?.rewardToken]?.color ??
+    rewardTokensData?.[borrowIncentives?.[_hovered]?.rewardToken]?.color ??
     "white";
   return (
     <>
@@ -1064,40 +1165,14 @@ const AssetBorrowRow = ({
             </Text>
 
             {/* Demo Borrow Incentives */}
-            {hasBorrowIncentives && (
-              <Row
-                // ml={1}
-                // mb={.5}
-                crossAxisAlignment="center"
-                mainAxisAlignment="flex-end"
-                py={1}
-              >
-                <Text fontWeight="bold" mr={1}>
-                  +
-                </Text>
-                <AvatarGroup size="xs" max={30} ml={2} mr={2} spacing={1}>
-                  {borrowIncentives?.map((borrowIncentive, i) => {
-                    return (
-                      <CTokenIcon
-                        address={borrowIncentive.rewardToken}
-                        boxSize="20px"
-                        _hover={{
-                          zIndex: 9,
-                          border: ".5px solid white",
-                          transform: "scale(1.3);",
-                        }}
-                        onMouseEnter={() => handleMouseEnter(i)}
-                        onMouseLeave={handleMouseLeave}
-                      />
-                    );
-                  })}
-                </AvatarGroup>
-                <Text color={color} fontWeight="bold" pl={1} fontSize="sm">
-                  {displayedBorrowAPY.toFixed(2)}% APR
-                </Text>
-              </Row>
-            )}
-
+            {hasBorrowIncentives && <RDIncentivesRow
+              incentives={borrowIncentives}
+              label={''}
+              apr={displayedBorrowAPY}
+              color={color}
+              handleMouseEnter={handleMouseEnter}
+              handleMouseLeave={handleMouseLeave}
+            />}
             <SimpleTooltip
               label={t(
                 "Total Value Lent (TVL) measures how much of this asset has been supplied in total. TVL does not account for how much of the lent assets have been borrowed, use 'liquidity' to determine the total unborrowed assets lent."

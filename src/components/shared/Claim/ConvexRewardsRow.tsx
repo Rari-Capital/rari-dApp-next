@@ -1,6 +1,5 @@
 import { InfoIcon } from "@chakra-ui/icons";
 import { Box, VStack, Text, Button, HStack, Heading, Spinner, Image, Avatar } from "@chakra-ui/react";
-// import { Card} from "rari-components";
 import { flywheels, useConvexMaxClaimable } from "hooks/convex/useConvexRewards"
 import { formatEther } from "ethers/lib/utils";
 import DashboardBox from "../DashboardBox";
@@ -53,7 +52,8 @@ export const ConvexRewardsRow = () => {
                         crossAxisAlignment="flex-start"
                         py={2}
                     >
-                        {flywheelRewardsTotals && Object.keys(flywheelRewardsTotals).map(f => {
+                        {flywheelRewardsTotals && Object.keys(flywheelRewardsTotals).map(_f => {
+                            let f = _f.toLowerCase()
                             const flywheelTotal = flywheelRewardsTotals[f]
                             const tokenSymbol = flywheels[f].rewardTokenSymbol;
                             const tokenAddress = flywheels[f].rewardToken;
