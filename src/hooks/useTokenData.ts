@@ -5,7 +5,6 @@ import ERC20ABI from "../esm/Vaults/abi/ERC20.json";
 import { useRari } from "../context/RariContext";
 
 import { Contract } from "ethers";
-import { ChainID } from "esm/utils/networks";
 
 export const ETH_TOKEN_DATA = {
   symbol: "ETH",
@@ -71,7 +70,7 @@ export const fetchTokenData = async (
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
-      let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
+      let url = `https://v2.rari.capital/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),

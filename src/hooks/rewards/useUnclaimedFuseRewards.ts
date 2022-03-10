@@ -2,6 +2,7 @@ import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
 import { createRewardsDistributor } from "utils/createComptroller";
 import { ChainID } from "esm/utils/networks";
+import { flywheels } from "hooks/convex/useConvexRewards";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {
@@ -23,7 +24,7 @@ export function useUnclaimedFuseRewards() {
     "unclaimedRewards for " + address + " " + chainId,
     async () => {
       if (!isAuthed) return null
-      
+
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
           address
@@ -62,13 +63,14 @@ export function useUnclaimedFuseRewards() {
   });
 
   // 2. Reduce this 2D array into a single deduped array of RewardsDistributors
+  // New: Filter out Flywheels (hardcoded for now)
   const uniqueRDs: string[] = [
     ...new Set(
       rewardsDistributorsByFusePool?.reduce(function (prev, curr) {
         return prev.concat(curr);
       }, []) ?? []
     ),
-  ];
+  ].filter(rd => !Object.keys(flywheels).includes(rd.toLowerCase()));
 
   // 3. Create map of {[rewardToken: string] : RewardDistributor[] }
 
@@ -137,16 +139,22 @@ export function useUnclaimedFuseRewards() {
       }
     });
 
+
+
+
+
   //  4.  getUnclaimedRewardsByDistributors
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
-    "unclaimed for " + address +  ' ' + chainId,
+    "unclaimed for " + address + ' ' + chainId,
     async () => {
       if (!isAuthed) return undefined
+
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,
           uniqueRDs
         );
+
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 

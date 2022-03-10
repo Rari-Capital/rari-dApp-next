@@ -9,7 +9,7 @@ export const fetchTokenAPIData = async (
   chainId: number
 ): Promise<RariApiTokenData> => {
   if (address === ETH_TOKEN_DATA.address) return ETH_TOKEN_DATA;
-  let url = `https://rari-git-l2tokendata-rari-capital.vercel.app/api/tokenData?address=${address.toLowerCase()}&chainId=${chainId}`;
+  let url = `https://v2.rari.capital/api/tokenData?address=${address.toLowerCase()}&chainId=${chainId}`;
   const { data } = await axios.get(url);
 
   if (address == "0xa693B19d2931d498c5B318dF961919BB4aee87a5") {

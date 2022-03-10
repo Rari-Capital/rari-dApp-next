@@ -162,7 +162,7 @@ const FusePoolListForToken = ({ token }: { token: TokenData }) => {
         </Thead>
         <Tbody w="100%">
           {filteredPools.map((pool) => (
-            <FusePoolRow pool={pool} token={token} />
+            <FusePoolRow pool={pool} token={token} key={pool.id} />
           ))}
         </Tbody>
       </Table>

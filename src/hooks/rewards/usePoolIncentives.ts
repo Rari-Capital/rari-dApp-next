@@ -10,7 +10,7 @@ import {
 
 export interface CTokenRewardsDistributorIncentives {
   rewardsDistributorAddress: string;
-  rewardToken: string;
+  rewardToken: string;    
   borrowSpeed: number;
   supplySpeed: number;
 }
@@ -28,7 +28,7 @@ export interface IncentivesData {
   hasIncentives: boolean;
   incentives: CTokenRewardsDistributorIncentivesWithRatesMap;
   rewardsDistributorCtokens: RewardsDistributorCTokensMap;
-  rewardTokensData: TokensDataMap;
+  rewardTokens: string[];
 }
 
 export function usePoolIncentives(comptroller?: string): IncentivesData {
@@ -128,7 +128,7 @@ export function usePoolIncentives(comptroller?: string): IncentivesData {
   return {
     hasIncentives,
     incentives: incentivesWithRates,
-    rewardTokensData,
+    rewardTokens,
     rewardsDistributorCtokens,
   };
 }

@@ -35,6 +35,7 @@ import { useTranslation } from "next-i18next";
 import { fetchTokenBalance } from "../../../../../hooks/useTokenBalance";
 import {
   ETH_TOKEN_DATA,
+  TokenData,
   useTokenData,
 } from "../../../../../hooks/useTokenData";
 import { useBorrowLimit } from "../../../../../hooks/useBorrowLimit";
@@ -181,18 +182,19 @@ const AmountSelect = ({
     }
   } else if (amountIsValid === undefined) {
     depositOrWithdrawAlert = t("Loading your balance of {{token}}...", {
-      token: asset.underlyingSymbol,
+      token: tokenData?.symbol,
+
     });
   } else if (!amountIsValid) {
     if (mode === Mode.SUPPLY) {
       depositOrWithdrawAlert = t("You don't have enough {{token}}!", {
-        token: asset.underlyingSymbol,
+        token: tokenData?.symbol,
       });
     } else if (mode === Mode.REPAY) {
       depositOrWithdrawAlert = t(
         "You don't have enough {{token}} or are over-repaying!",
         {
-          token: asset.underlyingSymbol,
+          token: tokenData?.symbol,
         }
       );
     } else if (mode === Mode.WITHDRAW) {
@@ -456,7 +458,7 @@ const AmountSelect = ({
             <Heading fontSize="27px" ml={3}>
               {!isMobile && asset.underlyingName.length < 25
                 ? asset.underlyingName
-                : asset.underlyingSymbol}
+                : tokenData?.symbol}
             </Heading>
           </Row>
 
@@ -493,10 +495,7 @@ const AmountSelect = ({
                   <TokenNameAndMaxButton
                     comptrollerAddress={comptrollerAddress}
                     mode={mode}
-                    logoURL={
-                      tokenData?.logoURL ??
-                      "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
-                    }
+                    tokenData={tokenData}
                     asset={asset}
                     updateAmount={updateAmount}
                   />
@@ -506,7 +505,7 @@ const AmountSelect = ({
 
             <StatsColumn
               amount={amount}
-              color={tokenData?.color ?? "#FFF"}
+              tokenData={tokenData}
               assets={assets}
               index={index}
               mode={mode}
@@ -522,12 +521,12 @@ const AmountSelect = ({
                 >
                   <Text fontWeight="bold">{t("Enable As Collateral")}:</Text>
                   <SwitchCSS
-                    symbol={asset.underlyingSymbol}
+                    symbol={tokenData?.symbol ?? asset.underlyingSymbol}
                     color={tokenData?.color}
                   />
                   <Switch
                     h="20px"
-                    className={asset.underlyingSymbol + "-switch"}
+                    className={tokenData?.symbol ?? asset.underlyingSymbol + "-switch"}
                     isChecked={enableAsCollateral}
                     onChange={() => {
                       setEnableAsCollateral((past) => !past);
@@ -668,19 +667,19 @@ const TabBar = ({
 };
 
 const StatsColumn = ({
-  color,
   mode,
   assets,
   index,
   amount,
   enableAsCollateral,
+  tokenData,
 }: {
-  color: string;
   mode: Mode;
   assets: USDPricedFuseAsset[];
   index: number;
   amount: BigNumber;
   enableAsCollateral: boolean;
+  tokenData: TokenData | undefined
 }) => {
   const { t } = useTranslation();
 
@@ -691,6 +690,8 @@ const StatsColumn = ({
     index,
     amount,
   });
+
+  const color = tokenData?.color ?? "#FFF"
 
 
   // Define the old and new asset (same asset different numerical values)
@@ -781,7 +782,7 @@ const StatsColumn = ({
                   )}
                 </>
               ) : null}{" "}
-              {asset.underlyingSymbol}
+              {tokenData?.symbol ?? asset.underlyingSymbol}
             </Text>
           </Row>
 
@@ -912,12 +913,12 @@ const StatsColumn = ({
 
 const TokenNameAndMaxButton = ({
   updateAmount,
-  logoURL,
+  tokenData,
   asset,
   mode,
   comptrollerAddress,
 }: {
-  logoURL: string;
+  tokenData: TokenData | undefined,
   asset: USDPricedFuseAsset;
   mode: Mode;
   comptrollerAddress: string;
@@ -970,12 +971,13 @@ const TokenNameAndMaxButton = ({
             height="100%"
             borderRadius="50%"
             backgroundImage={`url(/static/small-white-circle.png)`}
-            src={logoURL}
+            src={tokenData?.logoURL ??
+              "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"}
             alt=""
           />
         </Box>
         <Heading fontSize="24px" mr={2} flexShrink={0}>
-          {asset.underlyingSymbol}
+          {tokenData?.symbol ?? asset.underlyingSymbol}
         </Heading>
       </Row>
 
