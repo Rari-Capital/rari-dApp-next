@@ -73,7 +73,7 @@ interface FlywheelMaxClaimable {
 // Notice: All cTokens passed in MUST be able to call `cToken.plugin().claimRewards()`
 // Only used on Mainnnet Pool 156 data right now.
 export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
-  const { fuse, address } = useRari();
+  const { fuse, address, chainId } = useRari();
   const { provider } = fuse
 
   const lens = createFlywheelLens(provider)
@@ -86,7 +86,7 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   const { data, error } = useQuery(
     `Unclaimed by ${address} for markets ${cTokens?.join(" + ")}`,
     async () => {
-      if (!cTokens || !cTokens.length || !address) return undefined;
+      if (!cTokens || !cTokens.length || !address || chainId !== 1) return undefined;
       let flywheelRewardsTotals: FlywheelRewardsTotal = {};
 
       try {

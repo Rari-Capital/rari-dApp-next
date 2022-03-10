@@ -89,7 +89,8 @@ export const decodeCall = (
 
 
 
-const MULTICALL_ADDRESS = "0xeefba1e63905ef1d7acba5a8513c70307c1ce441";
+  
+const MULTICALL_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 const MultiCallAbi = [
   {
