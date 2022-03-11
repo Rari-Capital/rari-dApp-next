@@ -13,13 +13,18 @@ export type SortDir = "asc" | "desc";
 
 // Returns the sort icon based on whether this column is actively sorted and sort dir
 export const getSortIcon = (isActive: boolean, sortDir?: SortDir) => {
-  // If inactive, render ChevronDownArrow
-  if (!isActive) return ChevronDownIcon;
   // If actively sorting desc, render TriangleDownIcon
-  if (sortDir === "desc") return TriangleDownIcon;
+  if (sortDir === "desc") {
+    return TriangleDownIcon;
+  }
+
   // If actively sorting asc, render TriangleDownIcon
-  else if (sortDir === "asc") return TriangleUpIcon;
-  else return ChevronDownIcon;
+  if (sortDir === "asc") {
+    return TriangleUpIcon;
+  }
+
+  // Otherwise/if inactive, render ChevronDownArrow
+  return ChevronDownIcon;
 };
 
 // Helpers for sortable list
@@ -60,21 +65,25 @@ export const sortItems = <T extends IObject>(
   if (
     !key || // no key specified
     !items.length || // empty array
-    typeof items[0][key] === typeof {} || // value is not a number or string
+    typeof items[0][key] === "object" || // value is not a number or string
     !dir
   ) {
     return _items;
   }
 
   // If this value is a string type, check if we can parse it as a number, then try to convert it to a number
-  if (typeof items[0][key] === typeof "") {
+  if (typeof items[0][key] === "string") {
     _items = _items.map((item) => ({
       ...item,
       [key]: isNaN(parseFloat(item[key])) ? item[key] : parseFloat(item[key]),
     }));
   }
 
-  if (dir === "asc") return _items.sort((a, b) => (a[key] > b[key] ? 1 : -1));
-  if (dir === "desc") return _items.sort((a, b) => (a[key] < b[key] ? 1 : -1));
+  // By default, sort ascending
+  _items.sort((a, b) => (a[key] > b[key] ? 1 : -1));
+  // If the desired direction is actually descending, reverse
+  if (dir === "desc") {
+    _items.reverse();
+  }
   return _items;
 };
