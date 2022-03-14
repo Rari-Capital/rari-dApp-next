@@ -991,7 +991,7 @@ const RewardsDistributorRow = ({
   const underlyingsMap = useCTokensUnderlying(activeCTokens);
   const underlyings = Object.values(underlyingsMap);
 
-  console.log({ activeCTokens, underlyingsMap, underlyings });
+  console.log({ underlyings })
 
   return (
     <>
@@ -1021,7 +1021,7 @@ const RewardsDistributorRow = ({
 
         <Td>
           {!!underlyings.length ? (
-            <CTokenAvatarGroup tokenAddresses={underlyings} popOnHover={true} />
+            <CTokenAvatarGroup tokenAddresses={Object.values(underlyingsMap)} popOnHover={true} />
           ) : (
             <Badge colorScheme="red">Inactive</Badge>
           )}

@@ -243,7 +243,7 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
           height="51px"
           my={4}
         >
-          {claimingAll ? <Spinner /> : t("Claim All")}
+          {claimingAll ? <Spinner /> : t("Claim All Fuse Rewards")}
         </GlowingButton>
       )}
     </Column>

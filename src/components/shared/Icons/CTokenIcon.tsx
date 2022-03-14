@@ -27,7 +27,7 @@ const CTokenAvatar = ({
 }
 
 export const CTokenIcon = ({
-  address,
+  address = '',
   hasLink = false,
   ...avatarProps
 }: {
@@ -35,8 +35,9 @@ export const CTokenIcon = ({
   hasLink?: boolean;
   [key: string]: any;
 }) => {
+
   return hasLink ? (
-    <AppLink href={`/token/${address.toLowerCase()}`} _hover={{ transform: "scale(1.1)", zIndex: 10, cursor: "pointer" }} onClick={(e: Event) => e.stopPropagation()}>
+    <AppLink href={!!address ? `/token/${address.toLowerCase()}` : '#'} _hover={{ transform: "scale(1.1)", zIndex: 10, cursor: "pointer" }} onClick={(e: Event) => e.stopPropagation()}>
       <CTokenAvatar address={address} {...avatarProps} />
     </AppLink>
   ) :
