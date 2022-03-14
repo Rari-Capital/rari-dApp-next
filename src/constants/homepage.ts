@@ -109,6 +109,7 @@ export interface HomepageOpportunity {
   fusePoolId?: number;
   fuseMetric?: FusePoolMetric;
   isExternal?: boolean;
+  textColor?: string;
 }
 
 export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
@@ -154,12 +155,13 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   },
   {
     type: HomepageOpportunityType.FusePool,
-    title: "Olympus Pool Party",
-    subtitle: "Collateralize and borrow off gOHM.",
-    bgColor: "#00BEFF",
-    icon: "/static/icons/olympus-pool.svg",
-    fusePoolId: 18,
+    title: "Tribe Convex Pool",
+    subtitle: "Borrow off your Curve LPs while earning Convex rewards.",
+    bgColor: "#242424",
+    icon: "/static/icons/convex.svg",
+    fusePoolId: 156,
     fuseMetric: FusePoolMetric.TotalSuppliedUSD,
+    // textColor: "#000",
   },
 ];
 

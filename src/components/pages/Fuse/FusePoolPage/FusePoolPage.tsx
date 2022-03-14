@@ -564,9 +564,11 @@ const PluginIncentivesRow: React.FC<{
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
+  const rewardTokens = Object.keys(incentives).map((flywheel, i) => incentives[flywheel].rewardToken)
+
   return (
     <>
-      <PluginModal market={market} isOpen={isOpen} onClose={onClose} tokenData={tokenData} />
+      <PluginModal market={market} rewardTokens={rewardTokens} isOpen={isOpen} onClose={onClose} tokenData={tokenData} />
       <Row
         // ml={1}
         // mb={.5}
@@ -580,15 +582,15 @@ const PluginIncentivesRow: React.FC<{
         }}
       >
         <Text fontWeight="bold" mr={1}>
-          🔌
+          +
         </Text>
         <SimpleTooltip label={"Click for more info"}>
           <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1} >
-            {Object.keys(incentives).map((flywheel, i) => {
+            {rewardTokens.map((rewardToken, i) => {
               return (
                 <CTokenIcon
                   key={i}
-                  address={incentives[flywheel].rewardToken}
+                  address={rewardToken}
                   boxSize="20px"
                   // onMouseEnter={() => handleMouseEnter(i)}
                   // onMouseLeave={() => handleMouseLeave()}

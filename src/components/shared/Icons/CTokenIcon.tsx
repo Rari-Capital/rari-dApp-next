@@ -60,7 +60,7 @@ export const CTokenAvatarGroup = ({
           <CTokenIcon
             key={i}
             address={tokenAddress}
-            hasLink={true}
+            hasLink={popOnHover}
           />
         );
       })}

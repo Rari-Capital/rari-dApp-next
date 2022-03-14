@@ -39,6 +39,7 @@ const OpportunityCard = ({
           boxShadow: ".2px .3px 1px white;",
         }}
         onClick={onClick ? () => onClick(): undefined}
+        color={opportunity.textColor ?? "#FFF"}
       >
         <Row
           mainAxisAlignment="flex-start"

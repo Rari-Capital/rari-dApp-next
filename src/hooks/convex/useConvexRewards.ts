@@ -81,7 +81,7 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   // TODO - remove hardcoded flywheel data
   const flywheelAddresses = Object.keys(flywheels);
   const accrueForAll = new Array(flywheelAddresses.length).fill(true);
-  const claimRewards = new Array(cTokens.length).fill(true);
+  const claimRewards = new Array(cTokens.length).fill(false);
 
   const { data, error } = useQuery(
     `Unclaimed by ${address} for markets ${cTokens?.join(" + ")}`,
