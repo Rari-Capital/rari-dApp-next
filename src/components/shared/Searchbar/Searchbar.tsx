@@ -91,9 +91,10 @@ const Searchbar = ({
       bg="white"
       border={(smaller || hasResultsUnfocused) ? "2px solid" : "4px solid"}
       borderRadius="xl"
-      borderColor={hasResultsUnfocused ? "green" : "grey"}
+      borderColor={"grey"}
       zIndex={2}
       id="Searchbox"
+      overflow="hidden"
     >
       <InputGroup width={width ?? "100%"} h={height}>
         <InputLeftElement
