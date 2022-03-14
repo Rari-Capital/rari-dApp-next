@@ -51,7 +51,7 @@ export const PluginModal = ({
         <>
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
-                <ModalContent {...MODAL_PROPS}>
+                <ModalContent>
                     <ModalHeader display="flex" width="100%" alignSelf="center">
                         {tokenData ? <Avatar src={tokenData?.logoURL} mr={4} /> : <Spinner />}
                         <Text fontSize="lg" mr={1} alignSelf="center">{symbol}</Text>
@@ -65,8 +65,14 @@ export const PluginModal = ({
                             <Flex direction="column" height="100%">
                                 {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                                 <VStack align={"flex-start"} my={2}>
-                                    <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} />
-                                    <Text>This market uses a <b>plugin</b> to stream rewards for  <b>{tokenInfo[market.underlyingSymbol].curvePoolName}</b> Curve LPs from the <b>{tokenInfo[market.underlyingSymbol].convexPoolName}</b> Convex pool.</Text>
+                                    <InfoIcon size="15px" />
+                                    <HStack>
+                                        <Text>This market uses a <b>plugin</b> to stream </Text>
+                                        <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} />
+                                        <Text>rewards</Text>
+                                    </HStack>
+                                    <Text> from the <b>{tokenInfo[market.underlyingSymbol].convexPoolName}</b> Convex pool</Text>
+                                    <Text>for <b>{tokenInfo[market.underlyingSymbol].curvePoolName}</b> Curve LPs. </Text>
                                     {/* <Text fontSize="sm"> Deposit your {tokenInfo[market.underlyingSymbol].curvePoolName} Curve LP tokens into Fuse to borrow against it while earning all the same rewards from Convex.</Text> */}
                                     {/* <Text py={1}>View reward rates for <b>{tokenInfo[market.underlyingSymbol].convexPoolName}</b> on Convex </Text> */}
                                 </VStack>

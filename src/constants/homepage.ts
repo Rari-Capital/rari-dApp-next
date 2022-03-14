@@ -13,14 +13,14 @@ export interface HomepageFusePool {
 export const HOMEPAGE_FUSE_POOLS: { [chainId: number]: HomepageFusePool[] } = {
   [ChainID.ETHEREUM]: [
     {
-      id: 0,
+      id: 6,
     },
     {
       id: 8,
     },
 
     {
-      id: 6,
+      id: 156,
     },
     {
       id: 18,
@@ -29,14 +29,14 @@ export const HOMEPAGE_FUSE_POOLS: { [chainId: number]: HomepageFusePool[] } = {
       id: 9,
     },
     {
-      id: 3,
+      id: 146,
     },
 
     {
-      id: 24,
+      id: 136,
     },
     {
-      id: 21,
+      id: 27,
     },
     {
       id: 23,
