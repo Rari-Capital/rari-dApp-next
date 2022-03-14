@@ -1,12 +1,14 @@
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
+import { Interface } from "ethers/lib/utils";
+import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 
 export const createMultiCall = (
   ethersProvider: JsonRpcProvider | Web3Provider
 ) => new Contract(MULTICALL_ADDRESS, MULTICALL_ABI, ethersProvider);
 
 export const sendWithMultiCall = async (
-  provider:  JsonRpcProvider | Web3Provider,
+  provider: JsonRpcProvider | Web3Provider,
   encodedCalls: any,
   address: string
 ) => {
@@ -18,6 +20,67 @@ export const sendWithMultiCall = async (
 
   return returnDatas;
 };
+
+export const callInterfaceWithMulticall = async (
+  provider: JsonRpcProvider | Web3Provider,
+  iface: Interface,
+  contractAddress: string,
+  functionNames: string[],
+  params: any[][]
+) => {
+  const encodedCalls = functionNames.map((funcName, i) =>
+    encodeCall(iface, contractAddress, funcName, params[i])
+  );
+
+  let result: { blockNum: BigNumber; returnData: string[] } =
+    filterOnlyObjectProperties(
+      await callStaticWithMultiCall(provider, encodedCalls)
+    );
+  const { returnData } = result;
+
+  const decodedCalls = functionNames.map((funcName, i) =>
+    decodeCall(iface, funcName, returnData[i])
+  );
+
+  return decodedCalls;
+};
+
+
+type EncodedCall = [string, any];
+
+export const callStaticWithMultiCall = async (
+  provider: JsonRpcProvider | Web3Provider,
+  encodedCalls: EncodedCall[],
+  address?: string
+) => {
+  const multicall = createMultiCall(provider);
+  let options: any = {};
+  if (!!address) options.address = address;
+
+  const returnDatas = await multicall.callStatic.aggregate(
+    encodedCalls,
+    options
+  );
+
+  return returnDatas;
+};
+
+export const encodeCall = (
+  iface: Interface,
+  contractAddress: string,
+  functionName: string,
+  params: any[]
+): EncodedCall => [
+    contractAddress,
+    iface.encodeFunctionData(functionName, [...params]),
+  ];
+
+export const decodeCall = (
+  iface: Interface,
+  functionName: string,
+  txResult: any
+): any => iface.decodeFunctionResult(functionName, txResult);
+
 
 const MULTICALL_ADDRESS = "0xeefba1e63905ef1d7acba5a8513c70307c1ce441";
 
