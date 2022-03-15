@@ -10,7 +10,7 @@ import { PluginInfoModal } from '../../Modals/PluginModal/PluginInfoModal';
 
 export const FuseRewardsBanner = ({
   rewardTokensData,
-  hasPluginIncentives
+  hasPluginIncentives = false
 }: {
   rewardTokensData: TokensDataMap;
   hasPluginIncentives: boolean
