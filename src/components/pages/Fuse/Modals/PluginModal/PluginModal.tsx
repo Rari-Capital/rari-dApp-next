@@ -48,7 +48,7 @@ export const PluginModal = ({
                 <ModalContent>
                     <ModalHeader display="flex" width="100%" alignSelf="center">
                         {tokenData ? <Avatar src={tokenData?.logoURL} mr={4} /> : <Spinner />}
-                        <Text fontSize="lg" mr={1} alignSelf="center">{symbol}</Text>
+                        <Text fontSize="lg" mr={1} alignSelf="center"> 🔌 {symbol}</Text>
                         <Text fontSize="lg" mr={4} alignSelf="center">
                             Rewards
                         </Text>
