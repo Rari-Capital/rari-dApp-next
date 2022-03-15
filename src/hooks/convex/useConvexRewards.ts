@@ -10,7 +10,7 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 // import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 // import { FusePoolData } from "utils/fetchFusePoolData";
 // import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
-import { useConvexPoolSuppliedCTokens} from "hooks/fuse/useConvexPoolSuppliedCTokens";
+import { useConvexPoolSuppliedCTokens } from "hooks/fuse/useConvexPoolSuppliedCTokens";
 // import { pools } from "constants/pools";
 // import useCTokensWithRewardsPlugin from "./useMarketsWithPlugins";
 
@@ -230,9 +230,9 @@ const POOL_156_MARKETS_WITH_PLUGINS = [
 export const POOL_156_COMPTROLLER = "0x07cd53380fe9b2a5e64099591b498c73f0efaa66"
 
 export const useConvexMaxClaimable = () => {
-  const cTokens = useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER)
-  console.log({cTokens})
-  const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(POOL_156_MARKETS_WITH_PLUGINS)
+  const cTokens: string[] | undefined = useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER)
+  console.log({ cTokens })
+  const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(cTokens ?? [])
   return convexRewards
 }
 

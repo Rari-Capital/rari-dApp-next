@@ -451,7 +451,7 @@ const SupplyList = ({
               ).filter(({ supplySpeed }) => !!supplySpeed);
 
               const pluginIncentivesForAsset = pluginIncentives?.incentives?.[asset.cToken] ?? {}
-              if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
+              // if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
 
               // if (!!pluginIncentivesForAsset.length) console.log({pluginIncentivesForAsset})
 
@@ -483,7 +483,7 @@ const SupplyList = ({
               ).filter(({ supplySpeed }) => !!supplySpeed);
 
               const pluginIncentivesForAsset = pluginIncentives?.incentives?.[asset.cToken] ?? {}
-              if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
+              // if (!!Object.keys(pluginIncentivesForAsset).length) console.log({ pluginIncentivesForAsset })
 
               return (
                 <AssetSupplyRow
@@ -582,7 +582,7 @@ const PluginIncentivesRow: React.FC<{
         }}
       >
         <Text fontWeight="bold" mr={1}>
-          +
+          
         </Text>
         <SimpleTooltip label={"Click for more info"}>
           <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1} >
