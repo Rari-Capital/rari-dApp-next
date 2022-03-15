@@ -1,85 +1,48 @@
 // Chakra and UI
 import {
   Box,
-  Heading,
   Spinner,
-  Switch,
   Text,
-  useDisclosure,
-  useToast,
   HStack,
-  AvatarGroup,
 } from "@chakra-ui/react";
-import { Column, Center, Row, RowOrColumn, useIsMobile } from "lib/chakraUtils";
+import { Column, Center, RowOrColumn } from "lib/chakraUtils";
 import DashboardBox from "components/shared/DashboardBox";
-import { ModalDivider } from "components/shared/Modal";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import { SwitchCSS } from "components/shared/SwitchCSS";
 
 // React
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
 
 // Rari
 import { useRari } from "context/RariContext";
 
 // Hooks
-import { useTranslation } from "next-i18next";
-import { useQueryClient } from "react-query";
 import { useFusePoolData } from "hooks/useFusePoolData";
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
-import { TokenData, useTokenData, useTokensDataAsMap } from "hooks/useTokenData";
-import { useAuthedCallback } from "hooks/useAuthedCallback";
+import { useTokensDataAsMap } from "hooks/useTokenData";
 import {
   IncentivesData,
   usePoolIncentives,
 } from "hooks/rewards/usePoolIncentives";
 
-// Utils
-import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { useCreateComptroller } from "utils/createComptroller";
-import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
-
 // Components
 import FuseStatsBar from "../FuseStatsBar";
 import FuseTabBar from "../FuseTabBar";
-import PoolModal, { Mode } from "../Modals/PoolModal";
 
-// LogRocket
-import LogRocket from "logrocket";
-
-// Ethers
-import { toInt } from "utils/ethersUtils";
-import { BigNumber } from "@ethersproject/bignumber";
-import { constants } from "ethers";
 import { useIsComptrollerAdmin } from "hooks/fuse/useIsComptrollerAdmin";
-import { motion } from "framer-motion";
-import { GlowingBox } from "components/shared/GlowingButton";
-import {
-  CTokenAvatarGroup,
-  CTokenIcon,
-} from "components/shared/Icons/CTokenIcon";
-import { TokensDataMap } from "types/tokens";
+
 import { AdminAlert, PendingAdminAlert } from "components/shared/AdminAlert";
 import AppLink from "components/shared/AppLink";
 import { EditIcon } from "@chakra-ui/icons";
-import { getSymbol } from "utils/symbolUtils";
-import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
-import { formatUnits } from "ethers/lib/utils";
-import { testForComptrollerErrorAndSend } from "../FusePoolEditPage";
-import { FlywheelIncentivesData, FlywheelPluginRewardsMap, useConvexPoolIncentives } from "hooks/convex/useConvexRewards";
-import PluginModal from "../Modals/PluginModal";
 import { FuseUniV3Alert } from "./Banners/FuseUniV3Alert";
 import { FuseRewardsBanner } from "./Banners/FuseRewardsBanner";
 import { CollateralRatioBar } from "./Banners/CollateralRatioBar";
 import { SupplyList } from "./SupplyList";
 import { BorrowList } from "./BorrowList";
+import { useConvexPoolIncentives } from "hooks/convex/useConvexRewards";
 
 
 const FusePoolPage = memo(() => {
-  const { isAuthed, fuse } = useRari();
+  const { isAuthed } = useRari();
 
   const isMobile = useIsSemiSmallScreen();
   const router = useRouter();
@@ -91,7 +54,7 @@ const FusePoolPage = memo(() => {
   const { rewardTokens: rdRewardTokens } = incentivesData;
 
   const pluginIncentives = useConvexPoolIncentives(data?.comptroller);
-  const { rewardTokens: pluginRewardTokens = [] } = pluginIncentives ?? {}
+  const { rewardTokens: pluginRewardTokens = [], hasIncentives: hasPluginIncentives } = pluginIncentives ?? {}
 
   const rewardTokens = useMemo(() => [...rdRewardTokens, ...pluginRewardTokens], [pluginRewardTokens, rdRewardTokens])
   const rewardTokensData = useTokensDataAsMap(rewardTokens)
@@ -147,6 +110,7 @@ const FusePoolPage = memo(() => {
 
         <FuseRewardsBanner
           rewardTokensData={rewardTokensData}
+          hasPluginIncentives={hasPluginIncentives}
         />
 
         <FuseUniV3Alert assets={data?.assets ?? []} />
