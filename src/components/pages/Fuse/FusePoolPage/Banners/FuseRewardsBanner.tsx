@@ -13,7 +13,7 @@ export const FuseRewardsBanner = ({
   hasPluginIncentives = false
 }: {
   rewardTokensData: TokensDataMap;
-  hasPluginIncentives: boolean
+  hasPluginIncentives: boolean | undefined
 }) => {
 
   const [hovered, setHovered] = useState(false);
