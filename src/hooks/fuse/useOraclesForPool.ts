@@ -1,6 +1,5 @@
 import { useRari } from "context/RariContext";
-import { string } from "mathjs";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { createOracle } from "utils/createComptroller";
 

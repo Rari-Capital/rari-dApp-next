@@ -19,7 +19,6 @@ import { fetchTokenDataWithCache } from 'utils/services';
 import { MarketInfo } from "hooks/interestRates/types";
 import { MergedPool } from "hooks/fuse/useFusePools";
 import { useTranslation } from "react-i18next";
-import { chain } from "mathjs";
 
 export enum InterestRatesTableOptions {
   Lending = "lending",

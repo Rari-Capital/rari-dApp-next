@@ -61,7 +61,7 @@ export const PluginModal = ({
                                 <VStack align={"flex-start"} my={2}>
                                     <InfoIcon size="15px" />
                                     <HStack>
-                                        <Text>This market uses a <b>plugin</b> to stream </Text>
+                                        <Text>This market uses a <b>🔌 plugin</b> to stream </Text>
                                         <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} />
                                         <Text>rewards</Text>
                                     </HStack>
