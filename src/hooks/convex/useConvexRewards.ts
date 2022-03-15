@@ -10,7 +10,7 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 // import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 // import { FusePoolData } from "utils/fetchFusePoolData";
 // import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
-import { useConvexPoolSuppliedCTokens } from "hooks/fuse/useConvexPoolSuppliedCTokens";
+import { useConvexPoolSuppliedCTokens } from "hooks/convex/useConvexPoolSuppliedCTokens";
 // import { pools } from "constants/pools";
 // import useCTokensWithRewardsPlugin from "./useMarketsWithPlugins";
 
@@ -78,7 +78,6 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   const { provider } = fuse
 
   const lens = createFlywheelLens(provider)
-
   // TODO - remove hardcoded flywheel data
   const flywheelAddresses = Object.keys(flywheels);
   const accrueForAll = new Array(flywheelAddresses.length).fill(true);
@@ -123,8 +122,6 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
           accrueForAll,
           claimRewards
         );
-
-        // console.log({ obj, result, flywheelRewardsTotals });
 
         return { flywheelRewardsTotals, estimatedGas, hasClaimable };
       } catch (err) {
@@ -231,7 +228,6 @@ export const POOL_156_COMPTROLLER = "0x07cd53380fe9b2a5e64099591b498c73f0efaa66"
 
 export const useConvexMaxClaimable = () => {
   const cTokens: string[] | undefined = useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER)
-  console.log({ cTokens })
   const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(cTokens ?? [])
   return convexRewards
 }

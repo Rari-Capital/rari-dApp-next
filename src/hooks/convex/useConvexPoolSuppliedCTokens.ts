@@ -32,11 +32,16 @@ export const useConvexPoolSuppliedCTokens = (comptrollerAddress: string) => {
             }
         )
 
+        const stethIndex = suppliedMarkets.indexOf('0xe71b4Cb8A99839042C45CC4cAca31C85C994E79f')
+
+        if (stethIndex !== -1) {
+            suppliedMarkets.push(suppliedMarkets.splice(stethIndex, 1)[0]);
+        }
+
         // const result = await fuse.contracts.FusePoolLens.callStatic.getPoolUserSummary(comptroller, address)
         return suppliedMarkets
     })
 
-    console.log({ suppliedMarkets})
 
     return suppliedMarkets
 }

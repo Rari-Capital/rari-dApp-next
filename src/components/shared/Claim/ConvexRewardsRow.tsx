@@ -60,7 +60,7 @@ export const ConvexRewardsRow = () => {
                             const value = parseFloat(formatEther(flywheelTotal))
 
                             if (flywheelTotal.isZero()) return null
-                            return <Row mainAxisAlignment="flex-start" crossAxisAlignment="center" my={1}>
+                            return <Row mainAxisAlignment="flex-start" crossAxisAlignment="center" my={1} key={_f}>
                                 <Avatar src={tokensData?.[tokenAddress]?.logoURL ?? ''} boxSize="20px" mr={2}/>
                                 <SimpleTooltip
                                     label={value + ` ${tokenSymbol}`}
