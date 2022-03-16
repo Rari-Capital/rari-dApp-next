@@ -7,6 +7,10 @@ import { CONVEX_CTOKEN_INFO } from "constants/convex";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers";
 
+import { useTokenBalances } from "hooks/useTokenBalance";
+import { useMemo } from "react";
+import { erc20ABI } from "wagmi";
+
 export type StakedConvexBalancesMap = {
     [cToken: string]: {
         balance: BigNumber,
@@ -14,6 +18,8 @@ export type StakedConvexBalancesMap = {
     }
 }
 
+
+/* For Staked CVX positions - there's no ERC20 to query balance for */
 export const useStakedConvexBalances = (): StakedConvexBalancesMap => {
     const { fuse, address, isAuthed } = useRari();
     const multiCallProvider = new providers.MulticallProvider(fuse.provider)
@@ -41,7 +47,7 @@ export const useStakedConvexBalances = (): StakedConvexBalancesMap => {
                 }
                 ))
 
-                console.log({map})
+            console.log({ map })
 
             return map
         },
@@ -49,12 +55,61 @@ export const useStakedConvexBalances = (): StakedConvexBalancesMap => {
             enabled: !!address ? true : false,
             refetchOnMount: false,
             refetchOnWindowFocus: false,
-          }
+        }
     )
 
     // const hasBalances = 
 
     return stakedConvexBalances ?? {}
+
+}
+
+
+type BalancesMap = {
+    [token: string]: BigNumber
+}
+
+export const useCurveLPBalances = (): BalancesMap => {
+
+    const { fuse, address, isAuthed } = useRari();
+    const multiCallProvider = new providers.MulticallProvider(fuse.provider)
+
+    const { data: curveLPBalances } = useQuery<BalancesMap | undefined>(
+        ' curve convex balances for ' + address,
+        async () => {
+
+            if (!isAuthed) return undefined
+
+            let map: BalancesMap = {}
+
+            await Promise.all(
+                Object.values(CONVEX_CTOKEN_INFO)
+                    .map(c => ({ curveLPToken: c.lpToken }))
+                    .map(({ curveLPToken }) => {
+                        let contract = new Contract(curveLPToken, erc20ABI, multiCallProvider)
+                        return contract.balanceOf(address)
+                            .then((balance: BigNumber) => {
+                                if (!balance.isZero()) {
+                                    map[curveLPToken] = balance
+                                }
+                            })
+                            .catch((_err: any) => { })
+                    }
+                    ))
+            return map
+        },
+        {
+            enabled: !!address ? true : false,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+        }
+    )
+
+
+    console.log({curveLPBalances})
+    // const hasBalances = 
+
+    return curveLPBalances ?? {}
 
 }
 

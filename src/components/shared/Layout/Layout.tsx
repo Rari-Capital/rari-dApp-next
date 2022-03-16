@@ -13,6 +13,7 @@ import { Button, Image } from "@chakra-ui/react"
 import { useAccountBalances } from "context/BalancesContext"
 import { useDisclosure } from "@chakra-ui/react";
 import CVXMigrateModal from "components/pages/Fuse/Modals/CVXMigrateModal";
+import { useCurveLPBalances, useStakedConvexBalances } from "hooks/convex/useStakedConvexBalances";
 
 
 
@@ -45,14 +46,14 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const [_, __, cvxBalances] = useAccountBalances()
-  const hasCvxBalances = !!Object.keys(cvxBalances ?? {}).length
+  const cvxBalances = useStakedConvexBalances()
+  const curveLPBalances = useCurveLPBalances()
+  const hasCvxBalances = !!Object.keys(cvxBalances ?? {}).length || !!Object.keys(curveLPBalances ?? {}).length
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  console.log({cvxBalances})
+  console.log({ cvxBalances, curveLPBalances })
 
   useEffect(() => {
-    console.log({ hasCvxBalances })
     if (!!hasCvxBalances) onOpen()
   }, [hasCvxBalances])
 
@@ -88,11 +89,11 @@ const Layout = ({ children }) => {
 };
 
 
-const ConvexModalButton = ({onOpen}: {onOpen: any}) => {
+const ConvexModalButton = ({ onOpen }: { onOpen: any }) => {
   return (
-      <Button onClick={onOpen}  position="fixed" bottom={0} right={0} m={5}>
-        <Image src="/static/icons/convex.svg" h="100%" w="100%"/>
-      </Button>
+    <Button onClick={onOpen} position="fixed" bottom={0} right={0} m={5}>
+      <Image src="/static/icons/convex.svg" h="100%" w="100%" />
+    </Button>
   )
 }
 
