@@ -16,7 +16,7 @@ import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
 import { Fuse } from "../esm";
 
-import LogRocket, { init } from "logrocket";
+import LogRocket from "logrocket";
 import { useToast } from "@chakra-ui/react";
 
 import {
