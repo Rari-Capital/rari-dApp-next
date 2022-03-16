@@ -6,7 +6,6 @@ import {
   Input,
   Button,
   Box,
-  Text,
   Image,
   RadioGroup,
   Stack,
@@ -20,8 +19,9 @@ import { useTranslation } from "react-i18next";
 
 import DashboardBox, {
   DASHBOARD_BOX_PROPS,
-} from "../../../shared/DashboardBox";
-import { ModalDivider, MODAL_PROPS } from "../../../shared/Modal";
+} from "components/shared/DashboardBox";
+
+import { ModalDivider, MODAL_PROPS } from "components/shared/Modal";
 
 import { useTokenData } from "hooks/useTokenData";
 import SmallWhiteCircle from "static/small-white-circle.png";

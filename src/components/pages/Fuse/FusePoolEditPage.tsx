@@ -71,8 +71,8 @@ import {
   useRewardsDistributorsForPool,
 } from "hooks/rewards/useRewardsDistributorsForPool";
 import { useTokenBalance } from "hooks/useTokenBalance";
-import AddRewardsDistributorModal from "./Modals/AddRewardsDistributorModal";
-import EditRewardsDistributorModal from "./Modals/EditRewardsDistributorModal";
+import AddRewardsDistributorModal from "./Modals/RewardsDistributors/AddRewardsDistributorModal";
+import EditRewardsDistributorModal from "./Modals/RewardsDistributors/EditRewardsDistributorModal";
 import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";

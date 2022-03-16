@@ -20,7 +20,7 @@ import {
 import { CTokenRewardsDistributorIncentivesWithRates } from "hooks/rewards/useRewardAPY";
 
 import { FlywheelPluginRewardsMap } from "hooks/convex/useConvexRewards";
-import PluginModal from "../Modals/PluginModal";
+import PluginModal from "../Modals/PluginModal/PluginRewardsModal";
 
 
 export const RDIncentivesRow: React.FC<{

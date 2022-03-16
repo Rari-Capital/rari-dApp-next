@@ -188,7 +188,6 @@ export const fetchPools = async ({
         false
       )]
     ).then(([verifiedPools, unverifiedPools]) => {
-      //Join the two results
       return [
         [...verifiedPools[0], ...unverifiedPools[0]],
         [...verifiedPools[1], ...unverifiedPools[1]],

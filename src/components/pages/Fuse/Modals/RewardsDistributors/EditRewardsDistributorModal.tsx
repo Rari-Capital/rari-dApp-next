@@ -4,12 +4,10 @@ import {
   Modal,
   ModalContent,
   ModalOverlay,
-  Input,
   Button,
   Box,
   Text,
   Image,
-  Select,
   Spinner,
   useToast,
   NumberInput,
@@ -27,20 +25,19 @@ import { ModalDivider, MODAL_PROPS } from "components/shared/Modal";
 import { AdminAlert } from "components/shared/AdminAlert";
 
 import { useTokenData } from "hooks/useTokenData";
-import SmallWhiteCircle from "../../../../static/small-white-circle.png";
+import SmallWhiteCircle from "static/small-white-circle.png";
 import { useRari } from "context/RariContext";
 
 import {
   FusePoolData,
   USDPricedFuseAsset,
-} from "../../../../utils/fetchFusePoolData";
+} from "utils/fetchFusePoolData";
 import { useTokenBalance } from "hooks/useTokenBalance";
-import DashboardBox from "../../../shared/DashboardBox";
+import DashboardBox from "components/shared/DashboardBox";
 import { createERC20, createRewardsDistributor } from "utils/createComptroller";
 import { RewardsDistributor } from "hooks/rewards/useRewardsDistributorsForPool";
 import { shortAddress } from "utils/shortAddress";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
 import { handleGenericError } from "utils/errorHandling";
 
 // Styles
