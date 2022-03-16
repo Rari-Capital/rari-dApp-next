@@ -30,7 +30,6 @@ export const useIsComptrollerPendingAdmin = (
 
     const pendingAdmin = await comptroller.callStatic.pendingAdmin();
 
-
     return pendingAdmin;
   });
 

@@ -39,7 +39,7 @@ export const PluginInfoModal = ({
                         <Flex direction="column" height="100%">
                             {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                             <VStack align={"flex-start"} my={2}>
-                                <Text>This pool uses <AppLink href="https://github.com/Rari-Capital/compound-protocol/blob/fuse-plugin-4626/contracts/CErc20PluginRewardsDelegate.sol" isExternal={true}><b>ERC426 Plugins</b></AppLink>, a new feature in Fuse, that allows specific yield bearing assets to be utilized in a lending/borrowing pool without forfeiting staking rewards.</Text>
+                                <Text>This pool uses <AppLink href="https://github.com/Rari-Capital/compound-protocol/blob/fuse-plugin-4626/contracts/CErc20PluginRewardsDelegate.sol" isExternal={true}><b>ERC4626 Plugins</b></AppLink>, a new feature in Fuse, that allows specific yield bearing assets to be utilized in a lending/borrowing pool without forfeiting staking rewards.</Text>
                                 <Spacer />
                                 <Text>
                                     In this pool, you can supply and <b>borrow against Curve LPs</b> while <b>keeping all of your Convex rewards.</b>

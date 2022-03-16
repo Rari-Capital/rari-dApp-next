@@ -41,8 +41,6 @@ export const useRewardsDistributorsForPool = (
             fuse.provider.getSigner()
           );
 
-          // console.log({ addr, distributor });
-
           const ret = {
             address: addr,
             rewardToken: await distributor.callStatic.rewardToken(),
