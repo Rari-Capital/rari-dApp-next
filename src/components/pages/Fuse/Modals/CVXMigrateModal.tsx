@@ -18,16 +18,23 @@ import {
 } from "@chakra-ui/react"
 import { POOL_156_COMPTROLLER } from "constants/convex"
 import { useRari } from "context/RariContext"
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN"
 import { BigNumber, constants } from "ethers"
-import { commify } from "ethers/lib/utils"
+import { commify, parseEther } from "ethers/lib/utils"
 import { formatEther } from "ethers/lib/utils"
 import { useCurveLPBalances, useStakedConvexBalances } from "hooks/convex/useStakedConvexBalances"
+import { useBorrowLimit, useTotalSupply } from "hooks/useBorrowLimit"
 import { useFusePoolData } from "hooks/useFusePoolData"
 import useHasApproval from "hooks/useHasApproval"
 import { useTokensDataAsMap } from "hooks/useTokenData"
 import { useEffect, useMemo, useState } from "react"
+import { useQuery } from "react-query"
+import { smallStringUsdFormatter } from "utils/bigUtils"
 import { checkAllowanceAndApprove, collateralize, deposit, unstakeAndWithdrawCVXPool } from "utils/convex/migratePositions"
 import { handleGenericError } from "utils/errorHandling"
+import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
+
+
 
 export const CVXMigrateModal = ({
     isOpen,
@@ -41,8 +48,6 @@ export const CVXMigrateModal = ({
     const _cvxBalances = useStakedConvexBalances()
     const curveLPBalances = useCurveLPBalances()
 
-    console.log({ curveLPBalances })
-
     // Steppers
     const toast = useToast()
     const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
@@ -55,6 +60,7 @@ export const CVXMigrateModal = ({
 
     const assets = !fusePoolData ? [] : fusePoolData.assets.filter(a => Object.keys(cvxBalances).includes(a.cToken) || Object.keys(curveLPBalances).includes(a.underlyingToken))
     const curveAssets = !fusePoolData ? [] : fusePoolData.assets.filter(a => Object.keys(curveLPBalances).includes(a.underlyingToken))
+
 
     const marketsUnderlyingMap: { [underlying: string]: string } = assets.reduce((obj, asset) => ({
         ...obj,
@@ -83,13 +89,52 @@ export const CVXMigrateModal = ({
         }
     }, {})
 
+
+    // Simulates u depositing all your CVX positions into us >:)
+    const { data: updatedUserAssets } = useQuery('updated assets for convex user ' + address, async () => {
+
+        const ethPrice = await getEthUsdPriceBN()
+
+        const updatedUserAssets: USDPricedFuseAsset[] = fusePoolData?.assets.reduce((arr: USDPricedFuseAsset[], asset) => {
+            if (Object.keys(marketsBalancesMap).includes(asset.cToken)) {
+                const assetToBeUpdated = asset
+                const amount = (marketsBalancesMap[asset.cToken].total)
+
+                console.log({ assetToBeUpdated, amount })
+
+                const supplyBalance = assetToBeUpdated.supplyBalance.add(amount);
+                const totalSupply = assetToBeUpdated.totalSupply.add(amount);
+
+                // Todo - figure out where to better div by 1e18
+                const updatedAsset: USDPricedFuseAsset = {
+                    ...assetToBeUpdated,
+                    supplyBalance,
+                    supplyBalanceUSD: supplyBalance
+                        .mul(assetToBeUpdated.underlyingPrice)
+                        .mul(parseEther(ethPrice.toString()))
+                        .div(constants.WeiPerEther)
+                        .div(constants.WeiPerEther)
+                        .div(constants.WeiPerEther)
+                        .div(constants.WeiPerEther),
+                    totalSupply,
+                    membership: true
+                }
+                return [...arr, updatedAsset]
+            }
+            return [...arr, asset]
+        }, []) ?? []
+
+        return updatedUserAssets
+    })
+
+    const borrowLimit = useBorrowLimit(updatedUserAssets ?? [])
+    const newTotalSupply = useTotalSupply(updatedUserAssets ?? [])
+
     const tokenData = useTokensDataAsMap(assets.map(a => a.underlyingToken))
 
-    console.log({ tokenData, marketsBalancesMap, marketsUnderlyingMap })
+    console.log({ tokenData, marketsBalancesMap, marketsUnderlyingMap, updatedUserAssets, borrowLimit })
 
     const marketBalance = marketsBalancesMap[assets[assetIndex]?.cToken]
-
-
 
     /*  Unstakes and Claims all CVX Staked Positions supported by Fuse  */
     const handleUnstake = async () => {
@@ -153,7 +198,7 @@ export const CVXMigrateModal = ({
 
     const activeSymbol = tokenData[assets[assetIndex]?.underlyingToken]?.symbol
 
-    const hasApproval = useHasApproval(assets[assetIndex], marketBalance.total.toString())
+    const hasApproval = useHasApproval(assets[assetIndex], marketBalance?.total.toString() ?? "0")
 
     const showEnableAsCollateral = !assets[assetIndex]?.membership
 
@@ -186,10 +231,10 @@ export const CVXMigrateModal = ({
                         <Flex direction="column" height="100%">
                             {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                             <VStack align={"flex-start"} my={2}>
-                                <Text>We detected {Object.keys(cvxBalances).length} staked Convex positions {!!curveAssets.length && ` and ${curveAssets.length} Curve LP tokens`} </Text>
-                                <ul>
+                                <Text>We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length} staked Convex positions {!!curveAssets.length && ` and ${curveAssets.length} Curve LP tokens`}. You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text> 
+                                <HStack>
                                     {Object.keys(marketsBalancesMap).map((market, i) =>
-                                        <Box onClick={() => setAssetIndex(i)} bg={assetIndex === i ? "aqua" : "white"}>
+                                        <Box onClick={() => setAssetIndex(i)} bg={assetIndex === i ? "aqua" : "white"} border="1px solid red">
                                             <VStack>
                                                 <HStack key={market}>
                                                     <Avatar src={tokenData[marketsUnderlyingMap[market]]?.logoURL} />
@@ -206,10 +251,10 @@ export const CVXMigrateModal = ({
                                             </VStack>
                                         </Box>
                                     )}
-                                </ul>
+                                </HStack>
                                 <Spacer />
                                 <Text>
-                                    Migrate {activeSymbol} in four clicks
+                                    Migrate {activeSymbol} in 3 clicks
                                 </Text>
 
                                 {showUnstake && (
@@ -249,7 +294,7 @@ export const CVXMigrateModal = ({
                                     </Button>
                                 </HStack>
 
-                                {showEnableAsCollateral && <HStack>
+                                {showEnableAsCollateral && step === 4 && <HStack>
                                     <Text>
                                         4.)
                                     </Text>

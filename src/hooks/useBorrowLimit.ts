@@ -30,6 +30,26 @@ export const useBorrowLimit = (
   return maxBorrow;
 };
 
+export const useTotalSupply = (
+  assets: USDPricedFuseAsset[],
+): BigNumber => {
+  const totalSupply = useMemo(() => {
+    let _totalSupplyUSD = constants.Zero;
+
+    for (let i = 0; i < assets.length; i++) {
+      let asset = assets[i];
+      _totalSupplyUSD = _totalSupplyUSD.add(
+        asset.supplyBalanceUSD
+      )
+    }
+
+    // console.log({result, _maxBorrow, id})
+    return _totalSupplyUSD
+  }, [assets]);
+
+  return totalSupply;
+};
+
 export const useBorrowLimits = (
   assetsArray: USDPricedFuseAsset[][] | null,
   options?: { ignoreIsEnabledCheckFor?: string }

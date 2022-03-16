@@ -10,8 +10,8 @@ const useHasApproval = (market: USDPricedFuseAsset, amount: string) => {
     const { fuse, address } = useRari()
     const { provider } = fuse
 
-    const { data } = useQuery(`${address} has approval for ${market.underlyingSymbol}`, async () => {
-        if (!address) return false
+    const { data } = useQuery(`${address} has approval for ${market?.underlyingSymbol}`, async () => {
+        if (!address || !market) return false
         let _amount = parseUnits(amount, market.underlyingDecimals)
         return await checkAllowance(address, market.cToken, market.underlyingToken, _amount, provider)
     })
