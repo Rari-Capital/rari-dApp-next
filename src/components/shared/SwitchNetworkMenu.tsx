@@ -86,7 +86,6 @@ const SwitchNetworkMenu: React.FC = () => {
   // If user presses meta key or control key + slash they will toggle the private allocation claim mode.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      console.log(e.code)
       if (e.code === "Slash") {
         e.preventDefault();
         setDevMode(true);

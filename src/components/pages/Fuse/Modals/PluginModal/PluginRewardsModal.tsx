@@ -21,7 +21,7 @@ import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
 import { InfoIcon } from "@chakra-ui/icons"
 import AppLink from "components/shared/AppLink"
 import { CTokenAvatarGroup } from "components/shared/Icons/CTokenIcon"
-import { eligibleTokens, tokenInfo } from "constants/convex"
+import { eligibleTokens, CONVEX_CTOKEN_INFO } from "constants/convex"
 
 export const PluginRewardsModal = ({
     market,
@@ -61,10 +61,10 @@ export const PluginRewardsModal = ({
                                     <InfoIcon size="15px" />
                                     <Text>This market streams
                                         <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} /> rewards
-                                        from the <b>{tokenInfo[market.underlyingSymbol].convexPoolName}</b> Convex pool
-                                        to suppliers of <b>{tokenInfo[market.underlyingSymbol].curvePoolName}</b> Curve LPs. </Text>
-                                    {/* <Text fontSize="sm"> Deposit your {tokenInfo[market.underlyingSymbol].curvePoolName} Curve LP tokens into Fuse to borrow against it while earning all the same rewards from Convex.</Text> */}
-                                    {/* <Text py={1}>View reward rates for <b>{tokenInfo[market.underlyingSymbol].convexPoolName}</b> on Convex </Text> */}
+                                        from the <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</b> Convex pool
+                                        to suppliers of <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolName}</b> Curve LPs. </Text>
+                                    {/* <Text fontSize="sm"> Deposit your {CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolName} Curve LP tokens into Fuse to borrow against it while earning all the same rewards from Convex.</Text> */}
+                                    {/* <Text py={1}>View reward rates for <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</b> on Convex </Text> */}
                                 </VStack>
                                 {/* </AppLink> */}
 
@@ -73,9 +73,9 @@ export const PluginRewardsModal = ({
                                     Info
                                 </Heading>
 
-                                <InfoPairs title="Curve Pool" link={tokenInfo[market.underlyingSymbol].curvePoolLink} address={''} />
-                                <InfoPairs title="Curve LP Token" address={tokenInfo[market.underlyingSymbol].lpToken} />
-                                <InfoPairs title="ERC4626 Plugin" address={tokenInfo[market.underlyingSymbol].plugin} />
+                                <InfoPairs title="Curve Pool" link={CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolLink} address={''} />
+                                <InfoPairs title="Curve LP Token" address={CONVEX_CTOKEN_INFO[market.underlyingSymbol].lpToken} />
+                                <InfoPairs title="ERC4626 Plugin" address={CONVEX_CTOKEN_INFO[market.underlyingSymbol].plugin} />
 
                             </Flex>
                         }
@@ -83,7 +83,7 @@ export const PluginRewardsModal = ({
                     <ModalFooter mt={2}>
                         <AppLink isExternal={true} href="https://www.convexfinance.com/stake">
                             <Button colorScheme='white' minW="100%">
-                                View rates for {' '} <Text mx={1} fontWeight={"bold"}>{tokenInfo[market.underlyingSymbol].convexPoolName}</Text>  {' '} on Convex
+                                View rates for {' '} <Text mx={1} fontWeight={"bold"}>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</Text>  {' '} on Convex
                             </Button>
                         </AppLink>
                     </ModalFooter>

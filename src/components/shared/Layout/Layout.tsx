@@ -7,6 +7,14 @@ import { useMemo, useState, useEffect } from "react";
 import NewHeader from "../Header2/NewHeader";
 import Footer from "./Footer";
 
+import { Button, Image } from "@chakra-ui/react"
+
+//CVX
+import { useAccountBalances } from "context/BalancesContext"
+import { useDisclosure } from "@chakra-ui/react";
+import CVXMigrateModal from "components/pages/Fuse/Modals/CVXMigrateModal";
+
+
 
 const Layout = ({ children }) => {
   const { chainId } = useRari()
@@ -37,6 +45,16 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
+  const [_, __, cvxBalances] = useAccountBalances()
+  const hasCvxBalances = !!Object.keys(cvxBalances ?? {}).length
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  console.log({cvxBalances})
+
+  useEffect(() => {
+    console.log({ hasCvxBalances })
+    if (!!hasCvxBalances) onOpen()
+  }, [hasCvxBalances])
 
   return (
     <Column
@@ -62,11 +80,21 @@ const Layout = ({ children }) => {
 
       <NewHeader />
       {children}
+      {!!hasCvxBalances && <CVXMigrateModal isOpen={isOpen} onClose={onClose} />}
+      {!!hasCvxBalances && <ConvexModalButton onOpen={onOpen} />}
       <Footer />
     </Column>
   );
 };
 
+
+const ConvexModalButton = ({onOpen}: {onOpen: any}) => {
+  return (
+      <Button onClick={onOpen}  position="fixed" bottom={0} right={0} m={5}>
+        <Image src="/static/icons/convex.svg" h="100%" w="100%"/>
+      </Button>
+  )
+}
 
 
 export default Layout;
