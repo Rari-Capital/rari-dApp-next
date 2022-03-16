@@ -1,5 +1,4 @@
 
-import { StakedConvexBalancesMap, useStakedConvexBalances } from "hooks/convex/useStakedConvexBalances";
 import { useTokenBalances } from "hooks/useTokenBalance";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
 import { createContext, useContext, ReactNode, useMemo, useEffect } from "react";
@@ -36,7 +35,6 @@ export const BalancesContextProvider = ({
   );
 
   const tokenBalances = useTokenBalances(tokenAddresses);
-  const cvxBalances = useStakedConvexBalances()
 
   const balances: {
     [address: string]: number;
@@ -58,14 +56,14 @@ export const BalancesContextProvider = ({
 
 
   return (
-    <BalancesContext.Provider value={{ balances, cvxBalances }}>
+    <BalancesContext.Provider value={{ balances }}>
       {children}
     </BalancesContext.Provider>
   );
 };
 
-export const useAccountBalances = (): [any, string[], StakedConvexBalancesMap] => {
-  const { balances, cvxBalances } = useContext(BalancesContext);
+export const useAccountBalances = (): [any, string[]] => {
+  const { balances} = useContext(BalancesContext);
 
   const significantTokens: string[] = useMemo(
     () =>
@@ -83,5 +81,5 @@ export const useAccountBalances = (): [any, string[], StakedConvexBalancesMap] =
     );
   }
 
-  return [balances, significantTokens, cvxBalances];
+  return [balances, significantTokens];
 };
