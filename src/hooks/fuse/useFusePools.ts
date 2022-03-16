@@ -18,6 +18,8 @@ import { ChainID } from "esm/utils/networks";
 
 import { BigNumber } from "ethers";
 import { providers } from "@0xsequence/multicall";
+import { POOL_156_COMPTROLLER } from "constants/convex";
+import { flywheels } from "hooks/convex/useConvexRewards";
 
 // Ethers
 export interface FusePool {
@@ -121,7 +123,7 @@ export const fetchPoolsManual = async ({
 
   const multicallProvider = new providers.MulticallProvider(fuse.provider)
   const multicallFuse = new Fuse(multicallProvider, chainId)
-  const poolRewardTokens = await Promise.all(fusePools.map( (pool) => {
+  const poolRewardTokens = await Promise.all(fusePools.map((pool) => {
     return multicallFuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
       pool.comptroller
     ).then((rewards) => {
@@ -174,30 +176,30 @@ export const fetchPools = async ({
   const req = isMyPools
     ? fuse.contracts.FusePoolLens.callStatic.getPoolsBySupplierWithData(address)
     : isCreatedPools
-    ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
-    : isNonWhitelistedPools
-    ? fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-        false
-      )
-    : isRewardedPools
-    ? Promise.all([
-      fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-        true
-      ),
-      fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-        false
-      )]
-    ).then(([verifiedPools, unverifiedPools]) => {
-      return [
-        [...verifiedPools[0], ...unverifiedPools[0]],
-        [...verifiedPools[1], ...unverifiedPools[1]],
-        [...verifiedPools[2], ...unverifiedPools[2]],
-        [...verifiedPools[3], ...unverifiedPools[3]],
-      ]
-    })
-    : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
-        true
-      );
+      ? fuse.contracts.FusePoolLens.callStatic.getPoolsByAccountWithData(address)
+      : isNonWhitelistedPools
+        ? fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+          false
+        )
+        : isRewardedPools
+          ? Promise.all([
+            fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+              true
+            ),
+            fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+              false
+            )]
+          ).then(([verifiedPools, unverifiedPools]) => {
+            return [
+              [...verifiedPools[0], ...unverifiedPools[0]],
+              [...verifiedPools[1], ...unverifiedPools[1]],
+              [...verifiedPools[2], ...unverifiedPools[2]],
+              [...verifiedPools[3], ...unverifiedPools[3]],
+            ]
+          })
+          : fuse.contracts.FusePoolLens.callStatic.getPublicPoolsByVerificationWithData(
+            true
+          );
 
   const {
     0: ids,
@@ -206,8 +208,8 @@ export const fetchPools = async ({
     3: errors,
   }: LensPoolsWithData = await req;
 
-  
-  const poolRewardTokens = await Promise.all(fusePools.map( (pool, index) => {
+
+  const poolRewardTokens: string[][] = await Promise.all(fusePools.map((pool, index) => {
     return multicallFuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
       pool.comptroller
     ).then((rewards) => {
@@ -233,7 +235,7 @@ const createMergedPools = async (
     const id = parseFloat(ids[i]);
     const fusePool = fusePools[i];
     const fusePoolData = fusePoolsData[i];
-    const poolTokenRewards = rewardTokens[i];
+    const poolTokenRewards = id === 156 ? Object.values(flywheels).map(f => f.rewardToken) : rewardTokens[i];
 
     const mergedPool = {
       id,
@@ -272,7 +274,7 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
           chainId,
         });
       }
-      return await fetchPools({ fuse, address, filter, chainId});
+      return await fetchPools({ fuse, address, filter, chainId });
     }
   );
 
@@ -280,6 +282,8 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
     if (!pools) {
       return null;
     }
+
+    console.log({ pools })
 
     if (!pools.length) {
       return [];
@@ -293,9 +297,9 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
       return poolSort(pools);
     }
 
-    if(isRewardedPools){
+    if (isRewardedPools) {
       return poolSort(pools.filter((pool) => {
-        return pool.rewardTokens.length > 0
+        return (pool.rewardTokens.length > 0 || pool.comptroller == POOL_156_COMPTROLLER)
       }))
     }
 

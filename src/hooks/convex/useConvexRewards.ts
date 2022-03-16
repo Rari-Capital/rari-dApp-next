@@ -1,19 +1,13 @@
 import { useRari } from "context/RariContext";
-import { BigNumber, constants, Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 
 import FlywheelLensABI from "contracts/abi/FlywheelRouter.json";
 import { useQuery } from "react-query";
-// import { formatEther } from "ethers/lib/utils";
 import { useCallback } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
-// import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
-// import { FusePoolData } from "utils/fetchFusePoolData";
-// import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
 import { useConvexPoolSuppliedCTokens } from "hooks/convex/useConvexPoolSuppliedCTokens";
-// import { pools } from "constants/pools";
-// import useCTokensWithRewardsPlugin from "./useMarketsWithPlugins";
-
+import { POOL_156_COMPTROLLER } from "constants/convex";
 
 const FLYWHEEL_LENS_ROUTER = "0xe7813367804d5a8bc19c27a143c8b837d373e3b7";
 
@@ -214,17 +208,6 @@ export const useFlywheelsTotalUSD = (
  */
 
 
-const POOL_156_MARKETS_WITH_PLUGINS = [
-  "0xEee0de9187B8B1Ba554E406d0b36a807A00B0ea5",
-  "0x03C2d837e625E0f5CC8f50084b7986863c82102C",
-  "0x5E479875Ed69d4F09f7bCAaF71E9879b12d9e326",
-  "0x3c37CdA5C30952E48aFcc40443A9296e59DAAcA9",
-  "0x97b8c935e130cBa777579Ea2460c4C3e78a48a61",
-  "0x2ec70d3Ff3FD7ac5c2a72AAA64A398b6CA7428A5",
-  "0xe71b4Cb8A99839042C45CC4cAca31C85C994E79f"
-]
-
-export const POOL_156_COMPTROLLER = "0x07cd53380fe9b2a5e64099591b498c73f0efaa66"
 
 export const useConvexMaxClaimable = () => {
   const cTokens: string[] | undefined = useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER)

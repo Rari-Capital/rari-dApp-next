@@ -87,3 +87,5 @@ type PluginCTokenInfoType = {
         curvePoolLink: string,
     }
 }
+
+export const POOL_156_COMPTROLLER = "0x07cd53380FE9B2a5E64099591b498c73F0EfaA66"

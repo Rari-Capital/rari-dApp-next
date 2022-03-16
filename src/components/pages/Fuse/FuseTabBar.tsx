@@ -30,13 +30,6 @@ const FuseTabBar = () => {
   const [val, setVal] = useState("");
   const { isAuthed, chainId } = useRari();
 
-  useEffect(() => {
-    if (router.pathname === "/fuse") {
-      const route = val ? `/fuse?filter=${val}` : "/fuse";
-      router.push(route, undefined, { shallow: true });
-    }
-  }, [val]);
-
   return (
     <DashboardBox width="100%" mt={4} height={isMobile ? "auto" : "65px"}>
       <RowOrColumn

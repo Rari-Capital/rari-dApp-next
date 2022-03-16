@@ -1,2 +1,2 @@
-import PluginModal from './PluginModal'
+import PluginModal from './PluginRewardsModal'
 export default PluginModal
