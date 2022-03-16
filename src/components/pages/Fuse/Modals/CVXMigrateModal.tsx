@@ -36,8 +36,6 @@ import { checkAllowanceAndApprove, collateralize, deposit, unstakeAndWithdrawCVX
 import { handleGenericError } from "utils/errorHandling"
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
 
-
-
 export const CVXMigrateModal = ({
     isOpen,
     onClose,
@@ -135,6 +133,7 @@ export const CVXMigrateModal = ({
     const newTotalSupply = useTotalSupply(updatedUserAssets ?? [])
 
 
+
     /*  Unstakes and Claims all CVX Staked Positions supported by Fuse  */
     const handleUnstake = async () => {
         const { stakedBalance } = marketBalanceForAsset
@@ -148,6 +147,7 @@ export const CVXMigrateModal = ({
             }
         } catch (err) {
             setActiveStep(undefined)
+
             handleGenericError(err, toast)
         }
     }
@@ -163,6 +163,7 @@ export const CVXMigrateModal = ({
             setStep(3)
         } catch (err) {
             setActiveStep(undefined)
+
             handleGenericError(err, toast)
         }
     }
@@ -178,6 +179,7 @@ export const CVXMigrateModal = ({
             setStep(4)
         } catch (err) {
             setActiveStep(undefined)
+
             handleGenericError(err, toast)
         }
     }
@@ -192,6 +194,7 @@ export const CVXMigrateModal = ({
             setStep(5)
         } catch (err) {
             setActiveStep(undefined)
+
             handleGenericError(err, toast)
         }
     }
@@ -215,6 +218,7 @@ export const CVXMigrateModal = ({
     }, [assetIndex])
 
 
+
     return (
         <>
             <Modal isOpen={isOpen} onClose={onClose}>
@@ -227,6 +231,7 @@ export const CVXMigrateModal = ({
                                 Migrate Staked CVX Positions to Fuse
                             </Text>
                         </HStack>
+
                         <ModalCloseButton />
                     </ModalHeader>
                     <ModalBody>
@@ -284,6 +289,7 @@ export const CVXMigrateModal = ({
                                     </HStack>
                                 )}
 
+
                                 <HStack>
                                     <Text>
                                         3.)
@@ -307,6 +313,7 @@ export const CVXMigrateModal = ({
                                 </HStack>}
 
                                 {step === 5 && <Text>Done!</Text>}
+
 
                             </VStack>
                         </Flex>
@@ -362,6 +369,7 @@ const Market = ({
         </Box>
     )
 }
+
 
 
 
