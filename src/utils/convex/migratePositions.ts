@@ -21,10 +21,11 @@ export const unstakeAndWithdrawCVXPool = async (fuse: Fuse, baseRewardPool: stri
         let result = await BaseRewardPool.callStatic.withdrawAllAndUnwrap(true)
         console.log({ result })
 
-        result = await BaseRewardPool.withdrawAllAndUnwrap(true)
-        console.log({ result })
+        let tx = await BaseRewardPool.withdrawAllAndUnwrap(true)
+        console.log({ tx })
 
-        return result
+        const txConfirmed = await tx.wait(1)
+        return txConfirmed;
 
     } catch (err) {
         console.error("Could not unstake and claim CVX Rewards")
@@ -63,7 +64,9 @@ export async function checkAllowanceAndApprove(
 
     if (!hasApprovedEnough) {
         const max = BigNumber.from(2).pow(BigNumber.from(256)).sub(constants.One); //big fucking #
-        await erc20Contract.approve(marketAddress, max);
+        let tx = await erc20Contract.approve(marketAddress, max);
+        const txConfirmed = await tx.wait(1)
+        return txConfirmed;
     }
 }
 
@@ -85,7 +88,10 @@ export const deposit = async (fuse: Fuse, marketAddress: string, amount: BigNumb
         "Cannot deposit this amount right now!"
     );
 
-    return tx
+    const txConfirmed = await tx.wait(1)
+    console.log({txConfirmed})
+
+    return txConfirmed
 }
 
 export const collateralize = async (fuse: Fuse, comptrollerAddress: string, marketAddresses: string[]) => {
@@ -97,9 +103,9 @@ export const collateralize = async (fuse: Fuse, comptrollerAddress: string, mark
         fuse.provider.getSigner()
     );
 
-    await comptroller.enterMarkets(marketAddresses);
-
-    return comptroller;
+    let tx = await comptroller.enterMarkets(marketAddresses);
+    const txConfirmed = await tx.wait(1)
+    return txConfirmed;
 }
 
 /*

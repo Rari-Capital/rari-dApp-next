@@ -39,7 +39,9 @@ export const CVXMigrateModal = ({
     const [_, __, _cvxBalances] = useAccountBalances()
 
     const toast = useToast()
-    const [step, setStep] = useState<1 | 2 | 3 | 4 | 5|  undefined>()
+    const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
+    const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
+
     const [assetIndex, setAssetIndex] = useState(0)
 
     const cvxBalances = useMemo(() => _cvxBalances, [])
@@ -63,10 +65,12 @@ export const CVXMigrateModal = ({
     /*  Unstakes and Claims all CVX Staked Positions supported by Fuse  */
     const handleUnstake = async () => {
         try {
+            setActiveStep(1)
             const baseRewardPool = cvxBalances[assets[assetIndex].cToken].baseRewardsPool
             const res = await unstakeAndWithdrawCVXPool(fuse, baseRewardPool)
             setStep(2)
         } catch (err) {
+            setActiveStep(undefined)
             handleGenericError(err, toast)
         }
     }
@@ -74,11 +78,12 @@ export const CVXMigrateModal = ({
     const handleApproveMarket = async () => {
         const { cToken, underlyingToken } = assets[assetIndex]
         try {
-            setStep(2)
+            setActiveStep(2)
             const res = await checkAllowanceAndApprove(fuse, address, cToken, underlyingToken, cvxBalances[cToken].balance)
             console.log({ res })
             setStep(3)
         } catch (err) {
+            setActiveStep(undefined)
             handleGenericError(err, toast)
         }
     }
@@ -86,11 +91,12 @@ export const CVXMigrateModal = ({
     const handleDeposit = async () => {
         const { cToken } = assets[assetIndex]
         try {
-            setStep(3)
+            setActiveStep(3)
             const res = await deposit(fuse, cToken, cvxBalances[cToken].balance)
             console.log({ res })
             setStep(4)
         } catch (err) {
+            setActiveStep(undefined)
             handleGenericError(err, toast)
         }
     }
@@ -100,11 +106,12 @@ export const CVXMigrateModal = ({
         const markets = assets.map(({ cToken }) => cToken)
         if (!!membership) return
         try {
-            setStep(4)
+            setActiveStep(4)
             const res = await collateralize(fuse, POOL_156_COMPTROLLER, markets)
             console.log({ res })
             setStep(5)
         } catch (err) {
+            setActiveStep(undefined)
             handleGenericError(err, toast)
         }
     }
@@ -153,31 +160,47 @@ export const CVXMigrateModal = ({
                                     <Text>
                                         1.)
                                     </Text>
-                                    <Button disabled={!!step && step !== 1} onClick={handleUnstake}>Unstake {activeSymbol} and Claim Rewards</Button>
+                                    <Button colorScheme="blue" disabled={!!step && step !== 1} onClick={handleUnstake}>
+                                        {
+                                            activeStep === 1 ? "Unstaking and Claiming..." : `Unstake ${activeSymbol} and Claim Rewards`
+                                        }
+                                    </Button>
                                 </HStack>
 
                                 <HStack>
                                     <Text>
                                         2.)
                                     </Text>
-                                    <Button disabled={step !== 2} onClick={handleApproveMarket}>Approve {activeSymbol}</Button>
+                                    <Button colorScheme="blue" disabled={step !== 2} onClick={handleApproveMarket}>
+                                        {
+                                            activeStep === 2 ? `Approving ${activeSymbol}...` : ` Approve ${activeSymbol}`
+                                        }
+                                    </Button>
                                 </HStack>
 
                                 <HStack>
                                     <Text>
                                         3.)
                                     </Text>
-                                    <Button disabled={step !== 3} onClick={handleDeposit}>Deposit {activeSymbol}</Button>
+                                    <Button colorScheme="blue" disabled={step !== 3} onClick={handleDeposit}>
+                                        {
+                                            activeStep === 3 ? `Depositing ${activeSymbol}...` : ` Deposit ${activeSymbol}`
+                                        }
+                                    </Button>
                                 </HStack>
 
                                 {showEnableAsCollateral && <HStack>
                                     <Text>
                                         4.)
                                     </Text>
-                                    <Button disabled={step !== 4} onClick={handleCollateralize}>Enable Collateral</Button>
+                                    <Button colorScheme="blue" disabled={step !== 4} onClick={handleCollateralize}>
+                                        {
+                                            activeStep === 4 ? `Collateralizing...` : `Collateralize`
+                                        }
+                                    </Button>
                                 </HStack>}
 
-                                {step === 5 && <Text>Done!</Text>} 
+                                {step === 5 && <Text>Done!</Text>}
 
                             </VStack>
                         </Flex>
