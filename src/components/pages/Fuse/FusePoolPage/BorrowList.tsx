@@ -30,7 +30,7 @@ import {
   } from "hooks/rewards/usePoolIncentives";
   
   // Utils
-  import { convertMantissaToAPY } from "utils/apyUtils";
+  import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
   import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
   import { useCreateComptroller } from "utils/createComptroller";
   import { USDPricedFuseAsset } from "utils/fetchFusePoolData";
@@ -253,7 +253,7 @@ export const BorrowList = ({
   
     const tokenData = useTokenData(asset.underlyingToken);
   
-    const borrowAPY = convertMantissaToAPY(asset.borrowRatePerBlock, 365);
+    const borrowAPR = convertMantissaToAPR(asset.borrowRatePerBlock);
   
     const { t } = useTranslation();
   
@@ -335,7 +335,7 @@ export const BorrowList = ({
                 fontWeight="bold"
                 fontSize="17px"
               >
-                {borrowAPY.toFixed(2)}%
+                {borrowAPR.toFixed(2)}%
               </Text>
   
               {/* Demo Borrow Incentives */}
