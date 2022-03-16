@@ -6,10 +6,7 @@ import BaseRewardPoolABI from "contracts/abi/ConvexBaseRewardPool.json"
 import { CONVEX_CTOKEN_INFO } from "constants/convex";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers";
-
-import { useTokenBalances } from "hooks/useTokenBalance";
-import { useMemo } from "react";
-import { erc20ABI } from "wagmi";
+import { Interface } from "ethers/lib/utils";
 
 export type StakedConvexBalancesMap = {
     [cToken: string]: {
@@ -69,7 +66,15 @@ type BalancesMap = {
     [token: string]: BigNumber
 }
 
+const IERC20 =  new Interface([
+    'function name() public view returns (string)',
+    'function symbol() public view returns (string)',
+    'function decimals() public view returns (uint8)',
+    'function balanceOf(address _owner) public view returns (uint256 balance)',
+]) 
+
 export const useCurveLPBalances = (): BalancesMap => {
+    
 
     const { fuse, address, isAuthed } = useRari();
     const multiCallProvider = new providers.MulticallProvider(fuse.provider)
@@ -86,7 +91,7 @@ export const useCurveLPBalances = (): BalancesMap => {
                 Object.values(CONVEX_CTOKEN_INFO)
                     .map(c => ({ curveLPToken: c.lpToken }))
                     .map(({ curveLPToken }) => {
-                        let contract = new Contract(curveLPToken, erc20ABI, multiCallProvider)
+                        let contract = new Contract(curveLPToken, IERC20, multiCallProvider)
                         return contract.balanceOf(address)
                             .then((balance: BigNumber) => {
                                 if (!balance.isZero()) {
