@@ -28,10 +28,10 @@ import { useFusePoolData } from "hooks/useFusePoolData"
 import useHasApproval from "hooks/useHasApproval"
 import { useTokensDataAsMap } from "hooks/useTokenData"
 import { Button, ExpandableCard, Heading } from "rari-components";
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useQuery } from "react-query"
 import { TokensDataMap } from "types/tokens"
-import { smallStringUsdFormatter } from "utils/bigUtils"
+import { shortUsdFormatter, smallStringUsdFormatter } from "utils/bigUtils"
 import { checkAllowanceAndApprove, collateralize, deposit, unstakeAndWithdrawCVXPool } from "utils/convex/migratePositions"
 import { handleGenericError } from "utils/errorHandling"
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
@@ -89,6 +89,8 @@ export const CVXMigrateModal = ({
             }
         }
     }, {})
+
+    console.log({ marketsBalancesMap })
 
     const market = assets[assetIndex]
     const marketBalanceForAsset = marketsBalancesMap[market?.cToken]
@@ -225,33 +227,34 @@ export const CVXMigrateModal = ({
                                     {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
                                     You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
                                 {/* Select from available markets */}
-                                <Accordion  allowToggle index={assetIndex} onChange={(i: number) => setAssetIndex(i)}>
-                                <VStack align="stretch" py={4}>
-                                    {Object.keys(marketsBalancesMap).map((market, i) =>
-                                        <Market
-                                            assetIndex={assetIndex}
-                                            asset={assets[i]}
-                                            setAssetIndex={setAssetIndex}
-                                            i={i}
-                                            tokensData={tokenData}
-                                            marketsUnderlyingMap={marketsUnderlyingMap}
-                                            marketBalanceForAsset={marketsBalancesMap[market]}
-                                            step={step}
-                                            activeStep={activeStep}
-                                            setStep={setStep}
-                                            handleUnstake={handleUnstake}
-                                            handleApproveMarket={handleApproveMarket}
-                                            handleDeposit={handleDeposit}
-                                            handleCollateralize={handleCollateralize}
-                                        />
-                                    )}
-                                </VStack>
+                                <Accordion allowToggle index={assetIndex} onChange={(i: number) => setAssetIndex(i)}>
+                                    <VStack align="stretch" py={4}>
+                                        {Object.keys(marketsBalancesMap).map((market, i) =>
+                                            <Market
+                                                assetIndex={assetIndex}
+                                                asset={assets[i]}
+                                                setAssetIndex={setAssetIndex}
+                                                i={i}
+                                                tokensData={tokenData}
+                                                marketsUnderlyingMap={marketsUnderlyingMap}
+                                                marketBalanceForAsset={marketsBalancesMap[market]}
+                                                step={step}
+                                                activeStep={activeStep}
+                                                setStep={setStep}
+                                                handleUnstake={handleUnstake}
+                                                handleApproveMarket={handleApproveMarket}
+                                                handleDeposit={handleDeposit}
+                                                handleCollateralize={handleCollateralize}
+                                                updatedAssets={updatedUserAssets}
+                                            />
+                                        )}
+                                    </VStack>
                                 </Accordion>
                             </VStack>
                         </Flex>
                     </ModalBody>
                     <ModalFooter mt={2}>
-
+                        <Button onClick={onClose}>Close</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
@@ -272,7 +275,8 @@ const Market = ({
     handleUnstake,
     handleApproveMarket,
     handleDeposit,
-    handleCollateralize
+    handleCollateralize,
+    updatedAssets
 }: {
     assetIndex: number,
     setAssetIndex: (step: number) => void,
@@ -292,6 +296,7 @@ const Market = ({
     handleApproveMarket: any,
     handleDeposit: any,
     handleCollateralize: any,
+    updatedAssets: USDPricedFuseAsset[] | undefined
 }) => {
 
 
@@ -304,11 +309,27 @@ const Market = ({
 
     const activeSymbol = tokensData[asset?.underlyingToken]?.symbol
 
+    const [numClicks, setNumClicks] = useState(3)
+
+    const updatedAsset = useMemo(() => {
+        if (!!updatedAssets && !!asset) {
+            return updatedAssets.find(a => a.cToken === asset.cToken)
+        }
+    }, [updatedAssets, asset])
+
     // Skip to step conditionally
     useEffect(() => {
-        if (!showUnstake) setStep(2)
-        else if (hasApproval) setStep(3)
+        let clicks = 3
+        if (!showUnstake) {
+            setStep(2)
+            clicks -= 1
+        }
+        if (hasApproval) {
+            setStep(3)
+            clicks -= 1
+        }
         else setStep(undefined)
+        setNumClicks(clicks)
     }, [assetIndex])
 
 
@@ -317,11 +338,11 @@ const Market = ({
             variant="light"
             p={3}
             inAccordion={true}
-            
+
             expandableChildren={
                 <Box textAlign="center">
                     <Text pb={4}>
-                        Migrate <b>{activeSymbol}</b> in 3 clicks
+                        Migrate <b>{activeSymbol}</b> in {numClicks} click{numClicks !== 1 && 's'}
                     </Text>
 
                     <VStack py={2} align="stretch">
@@ -375,9 +396,15 @@ const Market = ({
                         &middot;
                     </Text>
                     <Text>
-                        {commify(parseFloat(formatEther(marketBalanceForAsset.curveBalance)).toFixed(2))} in Curve
+                        {commify(parseFloat(formatEther(marketBalanceForAsset.curveBalance)).toFixed(2))} unstaked
                     </Text>
-                </HStack>
+                    {/* <Text>
+                        &middot;
+                    </Text>
+                    <Text>
+                        {shortUsdFormatter(updatedAsset?.supplyBalanceUSD.toString() ?? '0')}
+                    </Text>               */}
+                      </HStack>
             </VStack>
         </ExpandableCard>
     )
