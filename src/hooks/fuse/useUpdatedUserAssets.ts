@@ -53,7 +53,6 @@ const useUpdatedUserAssets = ({
               .mul(assetToBeUpdated.underlyingPrice)
               .mul(parseEther(ethPrice.toString()))
               .div(constants.WeiPerEther),
-
             totalSupply,
             supplyRatePerBlock: interestRateModel.getSupplyRate(
               totalSupply.gt(0)

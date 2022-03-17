@@ -14,6 +14,7 @@ import { ETH_TOKEN_DATA } from "./useTokenData";
 import { Contract, BigNumber as EthersBigNumber, constants } from "ethers";
 
 import { providers } from "@0xsequence/multicall"
+import { BigNumber } from "ethers";
 
 export const fetchTokenBalance = async (
   tokenAddress: string | undefined,
@@ -76,7 +77,7 @@ export const useTokenBalances = (tokenAddresses: string[]): number[] => {
           
           let contract = new Contract(tokenAddress, ERC20ABI as any, multiCallProvider)
           return contract.balanceOf(address)
-            .then((balance: number) => parseFloat(balance.toString()))
+            .then((balance: BigNumber) => parseFloat(balance.toString()))
             .catch((_err: any) => { })
         })
       )

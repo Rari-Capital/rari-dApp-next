@@ -704,6 +704,9 @@ const StatsColumn = ({
     ignoreIsEnabledCheckFor: enableAsCollateral ? asset.cToken : undefined,
   }, `new limit`);
 
+
+  console.log({})
+
   // console.log({ assets, updatedAssets })
 
   const isSupplyingOrWithdrawing =
