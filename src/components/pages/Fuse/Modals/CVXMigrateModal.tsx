@@ -9,12 +9,11 @@ import {
     Text,
     Flex,
     VStack,
-    Spacer,
     HStack,
     useToast,
     Avatar,
     Image,
-    Center,
+    Box,
 } from "@chakra-ui/react"
 import { POOL_156_COMPTROLLER } from "constants/convex"
 import { useRari } from "context/RariContext"
@@ -27,8 +26,8 @@ import { useBorrowLimit, useTotalSupply } from "hooks/useBorrowLimit"
 import { useFusePoolData } from "hooks/useFusePoolData"
 import useHasApproval from "hooks/useHasApproval"
 import { useTokensDataAsMap } from "hooks/useTokenData"
-import { Button, Card, Heading, StepBubbles } from "rari-components";
-import { useEffect, useMemo, useState } from "react"
+import { Button, ExpandableCard, Heading } from "rari-components";
+import { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 import { TokensDataMap } from "types/tokens"
 import { smallStringUsdFormatter } from "utils/bigUtils"
@@ -44,14 +43,9 @@ export const CVXMigrateModal = ({
     onClose: () => void,
 }) => {
 
-    const { fuse, address } = useRari()
+    const { address } = useRari()
     const cvxBalances = useStakedConvexBalances()
     const curveLPBalances = useCurveLPBalances()
-
-    // Steppers
-    const toast = useToast()
-    const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
-    const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
 
     // Fuse pool Data
     const fusePoolData = useFusePoolData("156")
@@ -88,8 +82,6 @@ export const CVXMigrateModal = ({
             }
         }
     }, {})
-
-    const marketBalanceForAsset = marketsBalancesMap[assets[assetIndex]?.cToken]
 
     // Simulates you depositing all your CVX positions into us - to get projected totalSupply & projected borrowLimit
     const { data: updatedUserAssets } = useQuery('updated assets for convex user ' + address, async () => {
@@ -132,8 +124,105 @@ export const CVXMigrateModal = ({
     const borrowLimit = useBorrowLimit(updatedUserAssets ?? [])
     const newTotalSupply = useTotalSupply(updatedUserAssets ?? [])
 
+    return (
+        <>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader display="flex" width="100%" alignSelf="center">
+                        <HStack>
+                            <Image src="/static/icons/convex.svg" boxSize="40px" />
+                            <Text fontSize="lg" mr={4} alignSelf="center">
+                                Migrate Staked CVX Positions to Fuse
+                            </Text>
+                        </HStack>
 
+                        <ModalCloseButton />
+                    </ModalHeader>
+                    <ModalBody>
 
+                        <Flex direction="column" height="100%">
+                            {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
+                            <VStack align="stretch" my={2}>
+                                <Text>
+                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
+                                    staked Convex positions
+                                    {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
+                                    You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
+                                {/* Select from available markets */}
+                                <VStack align="stretch" py={4}>
+                                    {Object.keys(marketsBalancesMap).map((market, i) =>
+                                        <Market
+                                            assetIndex={assetIndex}
+                                            setAssetIndex={setAssetIndex}
+                                            market={market}
+                                            i={i}
+                                            tokensData={tokenData}
+                                            marketsUnderlyingMap={marketsUnderlyingMap}
+                                            marketsBalancesMap={marketsBalancesMap}
+                                        />
+                                    )}
+                                </VStack>
+                            </VStack>
+                        </Flex>
+                    </ModalBody>
+                    <ModalFooter mt={2}>
+
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </>
+    )
+}
+
+const Market = ({
+    setAssetIndex,
+    assetIndex,
+    market,
+    i,
+    tokensData,
+    marketsUnderlyingMap,
+    marketsBalancesMap
+}: {
+    setAssetIndex: any,
+    assetIndex: number,
+    market: string,
+    i: number;
+    tokensData: TokensDataMap,
+    marketsUnderlyingMap: { [underlying: string]: string },
+    marketsBalancesMap: {
+        [cToken: string]: {
+            stakedBalance: BigNumber,
+            curveBalance: BigNumber,
+            total: BigNumber
+        }
+    }
+}) => {
+    const { address, fuse } = useRari();
+    const fusePoolData = useFusePoolData("156")
+    const cvxBalances = useStakedConvexBalances();
+    const curveLPBalances = useCurveLPBalances()
+    const assets = !fusePoolData
+        ? []
+        : fusePoolData.assets.filter(a =>
+            Object.keys(cvxBalances).includes(a.cToken) ||
+            Object.keys(curveLPBalances).includes(a.underlyingToken)
+        )
+
+    // Skip to step conditionally
+    useEffect(() => {
+        if (!showUnstake) setStep(2)
+        else if (hasApproval) setStep(3)
+        else setStep(undefined)
+    }, [assetIndex])
+
+    const marketBalanceForAsset = marketsBalancesMap[assets[assetIndex]?.cToken]
+
+    // Steppers
+    const toast = useToast()
+    const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
+    const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
+        
     /*  Unstakes and Claims all CVX Staked Positions supported by Fuse  */
     const handleUnstake = async () => {
         const { stakedBalance } = marketBalanceForAsset
@@ -198,9 +287,7 @@ export const CVXMigrateModal = ({
             handleGenericError(err, toast)
         }
     }
-
-
-    // If you've already approved this market, skip
+    
     const hasApproval = useHasApproval(assets[assetIndex], marketBalanceForAsset?.total.toString() ?? "0")
     const showApproval = !hasApproval
     // We show enable as Collateral only if this asset has not yet been anabled
@@ -208,138 +295,53 @@ export const CVXMigrateModal = ({
     // If you dont have any staked, you dont need to unstake to enter this market
     const showUnstake = !marketBalanceForAsset?.stakedBalance?.isZero() ?? true
 
-    const activeSymbol = tokenData[assets[assetIndex]?.underlyingToken]?.symbol
-
-    // Skip to step conditionally
-    useEffect(() => {
-        if (!showUnstake) setStep(2)
-        else if (hasApproval) setStep(3)
-        else setStep(undefined)
-    }, [assetIndex])
-
-
+    const activeSymbol = tokensData[assets[assetIndex]?.underlyingToken]?.symbol
 
     return (
-        <>
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader display="flex" width="100%" alignSelf="center">
-                        <HStack>
-                            <Image src="/static/icons/convex.svg" boxSize="40px" />
-                            <Text fontSize="lg" mr={4} alignSelf="center">
-                                Migrate Staked CVX Positions to Fuse
-                            </Text>
-                        </HStack>
-
-                        <ModalCloseButton />
-                    </ModalHeader>
-                    <ModalBody>
-
-                        <Flex direction="column" height="100%">
-                            {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
-                            <VStack align="stretch" my={2}>
-                                <Text>
-                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
-                                    staked Convex positions
-                                    {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
-                                    You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
-                                {/* Select from available markets */}
-                                <VStack align="stretch" py={4}>
-                                    {Object.keys(marketsBalancesMap).map((market, i) =>
-                                        <Market
-                                            assetIndex={assetIndex}
-                                            setAssetIndex={setAssetIndex}
-                                            market={market}
-                                            i={i}
-                                            tokensData={tokenData}
-                                            marketsUnderlyingMap={marketsUnderlyingMap}
-                                            marketsBalancesMap={marketsBalancesMap}
-                                        />
-                                    )}
-                                </VStack>
-                                <Spacer />
-                                <Text>
-                                    Migrate <b>{activeSymbol}</b> in 3 clicks
-                                </Text>
-
-                                <VStack py={2} align="stretch">
-                                    {showUnstake && (
-                                        <Button disabled={!!step && step !== 1} onClick={handleUnstake}>
-                                            {
-                                                activeStep === 1 ? "Unstaking and Claiming..." : `Unstake ${activeSymbol} and Claim Rewards`
-                                            }
-                                        </Button>
-                                    )}
-
-                                    {showApproval && (
-                                        <Button disabled={step !== 2} onClick={handleApproveMarket}>
-                                            {
-                                                activeStep === 2 ? `Approving ${activeSymbol}...` : ` Approve ${activeSymbol}`
-                                            }
-                                        </Button>
-                                    )}
-
-                                    <Button disabled={step !== 3} onClick={handleDeposit}>
-                                        {
-                                            activeStep === 3 ? `Depositing ${activeSymbol}...` : ` Deposit ${activeSymbol}`
-                                        }
-                                    </Button>
-
-                                    {showEnableAsCollateral && step === 4 && <HStack>
-                                        <Button disabled={step !== 4} onClick={handleCollateralize}>
-                                            {
-                                                activeStep === 4 ? `Collateralizing...` : `Collateralize`
-                                            }
-                                        </Button>
-                                    </HStack>}
-
-                                    {step === 5 && <Text>Done!</Text>}
-                                </VStack>
-                                    
-                                <Center pt={4}>
-                                    <StepBubbles activeIndex={(activeStep ?? 1) - 1}  steps={4} />
-                                </Center>
-                            </VStack>
-                        </Flex>
-                    </ModalBody>
-                    <ModalFooter mt={2}>
-
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </>
-    )
-}
-
-const Market = ({
-    setAssetIndex,
-    assetIndex,
-    market,
-    i,
-    tokensData,
-    marketsUnderlyingMap,
-    marketsBalancesMap
-}: {
-    setAssetIndex: any,
-    assetIndex: number,
-    market: string,
-    i: number;
-    tokensData: TokensDataMap,
-    marketsUnderlyingMap: { [underlying: string]: string },
-    marketsBalancesMap: {
-        [cToken: string]: {
-            stakedBalance: BigNumber,
-            curveBalance: BigNumber,
-            total: BigNumber
-        }
-    }
-}) => {
-    return (
-        <Card
-            onClick={() => setAssetIndex(i)}
-            variant={assetIndex === i ? "active" : "light"}
+        <ExpandableCard
+            variant="light"
             p={3}
+            expandableChildren={
+                <Box textAlign="center">
+                    <Text pb={4}>
+                        Migrate <b>{activeSymbol}</b> in 3 clicks
+                    </Text>
+
+                    <VStack py={2} align="stretch">
+                        {showUnstake && (
+                            <Button disabled={!!step && step !== 1} onClick={handleUnstake}>
+                                {
+                                    activeStep === 1 ? "Unstaking and Claiming..." : `Unstake ${activeSymbol} and Claim Rewards`
+                                }
+                            </Button>
+                        )}
+
+                        {showApproval && (
+                            <Button disabled={step !== 2} onClick={handleApproveMarket}>
+                                {
+                                    activeStep === 2 ? `Approving ${activeSymbol}...` : ` Approve ${activeSymbol}`
+                                }
+                            </Button>
+                        )}
+
+                        <Button disabled={step !== 3} onClick={handleDeposit}>
+                            {
+                                activeStep === 3 ? `Depositing ${activeSymbol}...` : ` Deposit ${activeSymbol}`
+                            }
+                        </Button>
+
+                        {showEnableAsCollateral && step === 4 && <HStack>
+                            <Button disabled={step !== 4} onClick={handleCollateralize}>
+                                {
+                                    activeStep === 4 ? `Collateralizing...` : `Collateralize`
+                                }
+                            </Button>
+                        </HStack>}
+
+                        {step === 5 && <Text>Done!</Text>}
+                    </VStack>
+                </Box>
+            }
         >
             <VStack>
                 <HStack key={market}>
@@ -360,7 +362,7 @@ const Market = ({
                     </Text>
                 </HStack>
             </VStack>
-        </Card>
+        </ExpandableCard>
     )
 }
 
