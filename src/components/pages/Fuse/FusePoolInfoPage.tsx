@@ -62,6 +62,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { useIdentifyOracle } from "hooks/fuse/useOracleData";
 import { truncate } from "utils/stringUtils";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { TokensDataMap } from "types/tokens";
 
 const FusePoolInfoPage = memo(() => {
 
@@ -109,6 +110,7 @@ const FusePoolInfoPage = memo(() => {
                 totalBorrowedUSD={data.totalBorrowedUSD}
                 totalLiquidityUSD={data.totalLiquidityUSD}
                 comptrollerAddress={data.comptroller}
+                tokensData={tokensData}
               />
             ) : (
               <Center expand>
@@ -125,7 +127,7 @@ const FusePoolInfoPage = memo(() => {
           >
             {data ? (
               data.assets.length > 0 ? (
-                <AssetAndOtherInfo assets={data.assets} poolOracle={data.oracle} />
+                <AssetAndOtherInfo assets={data.assets} poolOracle={data.oracle} tokensData={tokensData} />
               ) : (
                 <Center expand>{t("There are no assets in this pool.")}</Center>
               )
@@ -150,6 +152,7 @@ const OracleAndInterestRates = ({
   totalBorrowedUSD,
   totalLiquidityUSD,
   comptrollerAddress,
+  tokensData
 }: {
   assets: USDPricedFuseAsset[];
   name: string;
@@ -157,6 +160,7 @@ const OracleAndInterestRates = ({
   totalBorrowedUSD: BigNumber;
   totalLiquidityUSD: BigNumber;
   comptrollerAddress: string;
+  tokensData: TokensDataMap
 }) => {
   const router = useRouter();
   const poolId = router.query.poolId as string;
@@ -165,6 +169,10 @@ const OracleAndInterestRates = ({
 
   const data = useExtraPoolInfo(comptrollerAddress);
   const { hasCopied, onCopy } = useClipboard(data?.admin ?? "");
+
+  console.log({ tokensData })
+
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -237,9 +245,9 @@ const OracleAndInterestRates = ({
 
             <Text mt={3} lineHeight={1} textAlign="center">
               {name} (
-              {assets.map(({ underlyingSymbol }, index, array) => {
+              {assets.map(({ underlyingSymbol, underlyingToken }, index, array) => {
                 return (
-                  underlyingSymbol + (index !== array.length - 1 ? " / " : "")
+                  (tokensData[underlyingToken]?.symbol ?? underlyingSymbol) + (index !== array.length - 1 ? " / " : "")
                 );
               })}
               )
@@ -352,7 +360,7 @@ const StatRow = ({
   );
 };
 
-const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[], poolOracle: string }) => {
+const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPricedFuseAsset[], poolOracle: string, tokensData: TokensDataMap }) => {
   const router = useRouter();
   const poolId = router.query.poolId as string;
 
@@ -363,9 +371,6 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
   const [selectedAsset, setSelectedAsset] = useState(
     assets.length > 3 ? assets[2] : assets[0]
   );
-  const selectedTokenData = useTokenData(selectedAsset.underlyingToken);
-  console.log({ selectedAsset })
-
   const selectedAssetUtilization =
     // @ts-ignore
     selectedAsset.totalSupply.isZero()
@@ -420,7 +425,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
           <Heading size="sm" >
             {t("Pool {{num}}'s {{token}} Stats", {
               num: poolId,
-              token: selectedAsset.underlyingSymbol,
+              token: tokensData[selectedAsset.underlyingToken]?.symbol
             })}
           </Heading>
           <AppLink isExternal href={`https://etherscan.io/address/${selectedAsset.cToken}`}>
@@ -437,7 +442,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
           fontWeight="bold"
           width="130px"
           _focus={{ outline: "none" }}
-          color={selectedTokenData?.color ?? "#FFF"}
+          color={tokensData[selectedAsset.underlyingToken]?.color ?? "#FFF"}
           onChange={(event) =>
             setSelectedAsset(
               assets.find((asset) => asset.cToken === event.target.value)!
@@ -451,7 +456,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
               value={asset.cToken}
               key={asset.cToken}
             >
-              {asset.underlyingSymbol}
+              {tokensData[asset.underlyingToken]?.symbol ?? asset.underlyingSymbol}
             </option>
           ))}
         </Select>
@@ -478,7 +483,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
           ) : (
             <AssetChart
               selectedAssetUtilization={selectedAssetUtilization.toNumber()}
-              selectedTokenData={selectedTokenData}
+              selectedTokenData={tokensData[selectedAsset.underlyingToken]}
               data={data}
             />
           )
@@ -589,7 +594,9 @@ const AssetAndOtherInfo = ({ assets, poolOracle }: { assets: USDPricedFuseAsset[
         )}
 
         <CaptionedStat
-          stat={selectedAsset.totalBorrowUSD.toString()}
+             stat={smallStringUsdFormatter(
+              parseFloat(selectedAsset.totalBorrowUSD.toString())
+            )}
           statSize="lg"
           captionSize="xs"
           caption={t("Total Borrowed")}
