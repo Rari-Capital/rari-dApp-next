@@ -10,12 +10,11 @@ import {
     Flex,
     VStack,
     Spacer,
-    Button,
     HStack,
     useToast,
     Avatar,
-    Box,
     Image,
+    Center,
 } from "@chakra-ui/react"
 import { POOL_156_COMPTROLLER } from "constants/convex"
 import { useRari } from "context/RariContext"
@@ -28,6 +27,7 @@ import { useBorrowLimit, useTotalSupply } from "hooks/useBorrowLimit"
 import { useFusePoolData } from "hooks/useFusePoolData"
 import useHasApproval from "hooks/useHasApproval"
 import { useTokensDataAsMap } from "hooks/useTokenData"
+import { Button, Card, Heading, StepBubbles } from "rari-components";
 import { useEffect, useMemo, useState } from "react"
 import { useQuery } from "react-query"
 import { TokensDataMap } from "types/tokens"
@@ -238,14 +238,14 @@ export const CVXMigrateModal = ({
 
                         <Flex direction="column" height="100%">
                             {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
-                            <VStack align={"flex-start"} my={2}>
+                            <VStack align="stretch" my={2}>
                                 <Text>
-                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}
+                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
                                     staked Convex positions
                                     {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
                                     You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
                                 {/* Select from available markets */}
-                                <HStack>
+                                <VStack align="stretch" py={4}>
                                     {Object.keys(marketsBalancesMap).map((market, i) =>
                                         <Market
                                             assetIndex={assetIndex}
@@ -257,64 +257,49 @@ export const CVXMigrateModal = ({
                                             marketsBalancesMap={marketsBalancesMap}
                                         />
                                     )}
-                                </HStack>
+                                </VStack>
                                 <Spacer />
                                 <Text>
-                                    Migrate {activeSymbol} in 3 clicks
+                                    Migrate <b>{activeSymbol}</b> in 3 clicks
                                 </Text>
 
-                                {showUnstake && (
-                                    <HStack>
-                                        <Text>
-                                            1.)
-                                        </Text>
-                                        <Button colorScheme="blue" disabled={!!step && step !== 1} onClick={handleUnstake}>
+                                <VStack py={2} align="stretch">
+                                    {showUnstake && (
+                                        <Button disabled={!!step && step !== 1} onClick={handleUnstake}>
                                             {
                                                 activeStep === 1 ? "Unstaking and Claiming..." : `Unstake ${activeSymbol} and Claim Rewards`
                                             }
                                         </Button>
-                                    </HStack>
-                                )}
+                                    )}
 
-                                {showApproval && (
-                                    <HStack>
-                                        <Text>
-                                            2.)
-                                        </Text>
-                                        <Button colorScheme="blue" disabled={step !== 2} onClick={handleApproveMarket}>
+                                    {showApproval && (
+                                        <Button disabled={step !== 2} onClick={handleApproveMarket}>
                                             {
                                                 activeStep === 2 ? `Approving ${activeSymbol}...` : ` Approve ${activeSymbol}`
                                             }
                                         </Button>
-                                    </HStack>
-                                )}
+                                    )}
 
-
-                                <HStack>
-                                    <Text>
-                                        3.)
-                                    </Text>
-                                    <Button colorScheme="blue" disabled={step !== 3} onClick={handleDeposit}>
+                                    <Button disabled={step !== 3} onClick={handleDeposit}>
                                         {
                                             activeStep === 3 ? `Depositing ${activeSymbol}...` : ` Deposit ${activeSymbol}`
                                         }
                                     </Button>
-                                </HStack>
 
-                                {showEnableAsCollateral && step === 4 && <HStack>
-                                    <Text>
-                                        4.)
-                                    </Text>
-                                    <Button colorScheme="blue" disabled={step !== 4} onClick={handleCollateralize}>
-                                        {
-                                            activeStep === 4 ? `Collateralizing...` : `Collateralize`
-                                        }
-                                    </Button>
-                                </HStack>}
+                                    {showEnableAsCollateral && step === 4 && <HStack>
+                                        <Button disabled={step !== 4} onClick={handleCollateralize}>
+                                            {
+                                                activeStep === 4 ? `Collateralizing...` : `Collateralize`
+                                            }
+                                        </Button>
+                                    </HStack>}
 
-                                {step === 5 && <Text>Done!</Text>}
-
-
+                                    {step === 5 && <Text>Done!</Text>}
+                                </VStack>
+                                    
+                                <Center pt={4}>
+                                    <StepBubbles activeIndex={(activeStep ?? 1) - 1}  steps={4} />
+                                </Center>
                             </VStack>
                         </Flex>
                     </ModalBody>
@@ -351,22 +336,31 @@ const Market = ({
     }
 }) => {
     return (
-        <Box onClick={() => setAssetIndex(i)} bg={assetIndex === i ? "aqua" : "white"} border="1px solid red">
+        <Card
+            onClick={() => setAssetIndex(i)}
+            variant={assetIndex === i ? "active" : "light"}
+            p={3}
+        >
             <VStack>
                 <HStack key={market}>
                     <Avatar src={tokensData[marketsUnderlyingMap[market]]?.logoURL} />
-                    <Text>
+                    <Heading>
                         {tokensData[marketsUnderlyingMap[market]]?.symbol}
+                    </Heading>
+                </HStack>
+                <HStack>
+                    <Text>
+                        {commify(parseFloat(formatEther(marketsBalancesMap[market].stakedBalance)).toFixed(2))} staked
+                    </Text>
+                    <Text>
+                        &middot;
+                    </Text>
+                    <Text>
+                        {commify(parseFloat(formatEther(marketsBalancesMap[market].curveBalance)).toFixed(2))} in Curve
                     </Text>
                 </HStack>
-                <Text>
-                    {commify(parseFloat(formatEther(marketsBalancesMap[market].stakedBalance)).toFixed(2))} staked
-                </Text>
-                <Text>
-                    {commify(parseFloat(formatEther(marketsBalancesMap[market].curveBalance)).toFixed(2))} in Curve
-                </Text>
             </VStack>
-        </Box>
+        </Card>
     )
 }
 
