@@ -23,7 +23,6 @@ export const useBorrowLimit = (
     }
 
     const result = _maxBorrow.div(constants.WeiPerEther);
-    // console.log({result, _maxBorrow, id})
     return result
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 

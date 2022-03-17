@@ -14,6 +14,7 @@ import {
     Avatar,
     Image,
     Box,
+    Accordion,
 } from "@chakra-ui/react"
 import { POOL_156_COMPTROLLER } from "constants/convex"
 import { useRari } from "context/RariContext"
@@ -43,7 +44,7 @@ export const CVXMigrateModal = ({
     onClose: () => void,
 }) => {
 
-    const { address } = useRari()
+    const { address, fuse } = useRari()
     const cvxBalances = useStakedConvexBalances()
     const curveLPBalances = useCurveLPBalances()
 
@@ -52,6 +53,12 @@ export const CVXMigrateModal = ({
     const assets = !fusePoolData ? [] : fusePoolData.assets.filter(a => Object.keys(cvxBalances).includes(a.cToken) || Object.keys(curveLPBalances).includes(a.underlyingToken))
     const [assetIndex, setAssetIndex] = useState(0)
     const tokenData = useTokensDataAsMap(assets.map(a => a.underlyingToken))
+
+
+    // Steppers
+    const toast = useToast()
+    const [step, setStep] = useState<number | undefined>()
+    const [activeStep, setActiveStep] = useState<number | undefined>()
 
     // marketAddr -> underlying
     const marketsUnderlyingMap: { [underlying: string]: string } = assets.reduce((obj, asset) => ({
@@ -82,6 +89,9 @@ export const CVXMigrateModal = ({
             }
         }
     }, {})
+
+    const market = assets[assetIndex]
+    const marketBalanceForAsset = marketsBalancesMap[market?.cToken]
 
     // Simulates you depositing all your CVX positions into us - to get projected totalSupply & projected borrowLimit
     const { data: updatedUserAssets } = useQuery('updated assets for convex user ' + address, async () => {
@@ -124,105 +134,6 @@ export const CVXMigrateModal = ({
     const borrowLimit = useBorrowLimit(updatedUserAssets ?? [])
     const newTotalSupply = useTotalSupply(updatedUserAssets ?? [])
 
-    return (
-        <>
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader display="flex" width="100%" alignSelf="center">
-                        <HStack>
-                            <Image src="/static/icons/convex.svg" boxSize="40px" />
-                            <Text fontSize="lg" mr={4} alignSelf="center">
-                                Migrate Staked CVX Positions to Fuse
-                            </Text>
-                        </HStack>
-
-                        <ModalCloseButton />
-                    </ModalHeader>
-                    <ModalBody>
-
-                        <Flex direction="column" height="100%">
-                            {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
-                            <VStack align="stretch" my={2}>
-                                <Text>
-                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
-                                    staked Convex positions
-                                    {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
-                                    You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
-                                {/* Select from available markets */}
-                                <VStack align="stretch" py={4}>
-                                    {Object.keys(marketsBalancesMap).map((market, i) =>
-                                        <Market
-                                            assetIndex={assetIndex}
-                                            setAssetIndex={setAssetIndex}
-                                            market={market}
-                                            i={i}
-                                            tokensData={tokenData}
-                                            marketsUnderlyingMap={marketsUnderlyingMap}
-                                            marketsBalancesMap={marketsBalancesMap}
-                                        />
-                                    )}
-                                </VStack>
-                            </VStack>
-                        </Flex>
-                    </ModalBody>
-                    <ModalFooter mt={2}>
-
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </>
-    )
-}
-
-const Market = ({
-    setAssetIndex,
-    assetIndex,
-    market,
-    i,
-    tokensData,
-    marketsUnderlyingMap,
-    marketsBalancesMap
-}: {
-    setAssetIndex: any,
-    assetIndex: number,
-    market: string,
-    i: number;
-    tokensData: TokensDataMap,
-    marketsUnderlyingMap: { [underlying: string]: string },
-    marketsBalancesMap: {
-        [cToken: string]: {
-            stakedBalance: BigNumber,
-            curveBalance: BigNumber,
-            total: BigNumber
-        }
-    }
-}) => {
-    const { address, fuse } = useRari();
-    const fusePoolData = useFusePoolData("156")
-    const cvxBalances = useStakedConvexBalances();
-    const curveLPBalances = useCurveLPBalances()
-    const assets = !fusePoolData
-        ? []
-        : fusePoolData.assets.filter(a =>
-            Object.keys(cvxBalances).includes(a.cToken) ||
-            Object.keys(curveLPBalances).includes(a.underlyingToken)
-        )
-
-    // Skip to step conditionally
-    useEffect(() => {
-        if (!showUnstake) setStep(2)
-        else if (hasApproval) setStep(3)
-        else setStep(undefined)
-    }, [assetIndex])
-
-    const marketBalanceForAsset = marketsBalancesMap[assets[assetIndex]?.cToken]
-
-    // Steppers
-    const toast = useToast()
-    const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
-    const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4 | 5 | undefined>()
-        
     /*  Unstakes and Claims all CVX Staked Positions supported by Fuse  */
     const handleUnstake = async () => {
         const { stakedBalance } = marketBalanceForAsset
@@ -287,20 +198,126 @@ const Market = ({
             handleGenericError(err, toast)
         }
     }
-    
-    const hasApproval = useHasApproval(assets[assetIndex], marketBalanceForAsset?.total.toString() ?? "0")
+
+    return (
+        <>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader display="flex" width="100%" alignSelf="center">
+                        <HStack>
+                            <Image src="/static/icons/convex.svg" boxSize="40px" />
+                            <Text fontSize="lg" mr={4} alignSelf="center">
+                                Migrate Staked CVX Positions to Fuse
+                            </Text>
+                        </HStack>
+
+                        <ModalCloseButton />
+                    </ModalHeader>
+                    <ModalBody>
+
+                        <Flex direction="column" height="100%">
+                            {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
+                            <VStack align="stretch" my={2}>
+                                <Text>
+                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
+                                    staked Convex positions
+                                    {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
+                                    You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
+                                {/* Select from available markets */}
+                                <Accordion  allowToggle index={assetIndex} onChange={(i: number) => setAssetIndex(i)}>
+                                <VStack align="stretch" py={4}>
+                                    {Object.keys(marketsBalancesMap).map((market, i) =>
+                                        <Market
+                                            assetIndex={assetIndex}
+                                            asset={assets[i]}
+                                            setAssetIndex={setAssetIndex}
+                                            i={i}
+                                            tokensData={tokenData}
+                                            marketsUnderlyingMap={marketsUnderlyingMap}
+                                            marketBalanceForAsset={marketsBalancesMap[market]}
+                                            step={step}
+                                            activeStep={activeStep}
+                                            setStep={setStep}
+                                            handleUnstake={handleUnstake}
+                                            handleApproveMarket={handleApproveMarket}
+                                            handleDeposit={handleDeposit}
+                                            handleCollateralize={handleCollateralize}
+                                        />
+                                    )}
+                                </VStack>
+                                </Accordion>
+                            </VStack>
+                        </Flex>
+                    </ModalBody>
+                    <ModalFooter mt={2}>
+
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </>
+    )
+}
+
+const Market = ({
+    assetIndex,
+    asset,
+    i,
+    tokensData,
+    marketsUnderlyingMap,
+    marketBalanceForAsset,
+    step,
+    activeStep,
+    setStep,
+    handleUnstake,
+    handleApproveMarket,
+    handleDeposit,
+    handleCollateralize
+}: {
+    assetIndex: number,
+    setAssetIndex: (step: number) => void,
+    asset: USDPricedFuseAsset,
+    i: number;
+    tokensData: TokensDataMap,
+    marketsUnderlyingMap: { [underlying: string]: string },
+    marketBalanceForAsset: {
+        stakedBalance: BigNumber,
+        curveBalance: BigNumber,
+        total: BigNumber
+    },
+    step: number | undefined,
+    activeStep: number | undefined,
+    setStep: (step: number | undefined) => void,
+    handleUnstake: any,
+    handleApproveMarket: any,
+    handleDeposit: any,
+    handleCollateralize: any,
+}) => {
+
+
+    const hasApproval = useHasApproval(asset, marketBalanceForAsset?.total.toString() ?? "0")
     const showApproval = !hasApproval
     // We show enable as Collateral only if this asset has not yet been anabled
-    const showEnableAsCollateral = !assets[assetIndex]?.membership
+    const showEnableAsCollateral = !asset?.membership
     // If you dont have any staked, you dont need to unstake to enter this market
     const showUnstake = !marketBalanceForAsset?.stakedBalance?.isZero() ?? true
 
-    const activeSymbol = tokensData[assets[assetIndex]?.underlyingToken]?.symbol
+    const activeSymbol = tokensData[asset?.underlyingToken]?.symbol
+
+    // Skip to step conditionally
+    useEffect(() => {
+        if (!showUnstake) setStep(2)
+        else if (hasApproval) setStep(3)
+        else setStep(undefined)
+    }, [assetIndex])
+
 
     return (
         <ExpandableCard
             variant="light"
             p={3}
+            inAccordion={true}
+            
             expandableChildren={
                 <Box textAlign="center">
                     <Text pb={4}>
@@ -344,21 +361,21 @@ const Market = ({
             }
         >
             <VStack>
-                <HStack key={market}>
-                    <Avatar src={tokensData[marketsUnderlyingMap[market]]?.logoURL} />
+                <HStack key={asset.cToken}>
+                    <Avatar src={tokensData[marketsUnderlyingMap[asset.cToken]]?.logoURL} />
                     <Heading>
-                        {tokensData[marketsUnderlyingMap[market]]?.symbol}
+                        {tokensData[marketsUnderlyingMap[asset.cToken]]?.symbol}
                     </Heading>
                 </HStack>
                 <HStack>
                     <Text>
-                        {commify(parseFloat(formatEther(marketsBalancesMap[market].stakedBalance)).toFixed(2))} staked
+                        {commify(parseFloat(formatEther(marketBalanceForAsset.stakedBalance)).toFixed(2))} staked
                     </Text>
                     <Text>
                         &middot;
                     </Text>
                     <Text>
-                        {commify(parseFloat(formatEther(marketsBalancesMap[market].curveBalance)).toFixed(2))} in Curve
+                        {commify(parseFloat(formatEther(marketBalanceForAsset.curveBalance)).toFixed(2))} in Curve
                     </Text>
                 </HStack>
             </VStack>
