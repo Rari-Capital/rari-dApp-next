@@ -51,7 +51,7 @@ const Layout = ({ children }) => {
   console.log({ cvxBalances, curveLPBalances })
 
   useEffect(() => {
-    if (!!hasCvxBalances) onOpen()
+    if (!!hasCvxBalances && (!localStorage.RARI_HIDE_MIGRATOR_POPUP)) onOpen()
   }, [hasCvxBalances])
 
   return (

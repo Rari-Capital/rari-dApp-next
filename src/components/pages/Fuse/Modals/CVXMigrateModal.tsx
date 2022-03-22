@@ -15,13 +15,16 @@ import {
     Image,
     Box,
     Accordion,
+    AvatarGroup,
 } from "@chakra-ui/react"
+import { CTokenAvatarGroup, CTokenIcon } from "components/shared/Icons/CTokenIcon"
 import { POOL_156_COMPTROLLER } from "constants/convex"
 import { useRari } from "context/RariContext"
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN"
 import { BigNumber, constants } from "ethers"
 import { commify, parseEther } from "ethers/lib/utils"
 import { formatEther } from "ethers/lib/utils"
+import { FlywheelPluginRewardsMap, useConvexPoolIncentives } from "hooks/convex/useConvexRewards"
 import { useCurveLPBalances, useStakedConvexBalances } from "hooks/convex/useStakedConvexBalances"
 import { useBorrowLimit, useTotalSupply } from "hooks/useBorrowLimit"
 import { useFusePoolData } from "hooks/useFusePoolData"
@@ -50,22 +53,23 @@ export const CVXMigrateModal = ({
 
     // Fuse pool Data
     const fusePoolData = useFusePoolData("156")
+    const { incentives } = useConvexPoolIncentives(fusePoolData?.comptroller) ?? { incentives: {} };
+
     const assets = !fusePoolData ? [] : fusePoolData.assets.filter(a => Object.keys(cvxBalances).includes(a.cToken) || Object.keys(curveLPBalances).includes(a.underlyingToken))
     const [assetIndex, setAssetIndex] = useState(0)
     const tokenData = useTokensDataAsMap(assets.map(a => a.underlyingToken))
-
 
     // Steppers
     const toast = useToast()
     const [step, setStep] = useState<number | undefined>()
     const [activeStep, setActiveStep] = useState<number | undefined>()
 
+
     // marketAddr -> underlying
     const marketsUnderlyingMap: { [underlying: string]: string } = assets.reduce((obj, asset) => ({
         ...obj,
         [asset.cToken]: asset.underlyingToken
     }), {})
-
 
     // marketAddr -> migratable balances data
     const marketsBalancesMap: {
@@ -90,10 +94,9 @@ export const CVXMigrateModal = ({
         }
     }, {})
 
-    console.log({ marketsBalancesMap })
-
     const market = assets[assetIndex]
     const marketBalanceForAsset = marketsBalancesMap[market?.cToken]
+    const pluginIncentivesForAsset = incentives[market?.cToken]
 
     // Simulates you depositing all your CVX positions into us - to get projected totalSupply & projected borrowLimit
     const { data: updatedUserAssets } = useQuery('updated assets for convex user ' + address, async () => {
@@ -104,8 +107,6 @@ export const CVXMigrateModal = ({
             if (Object.keys(marketsBalancesMap).includes(asset.cToken)) {
                 const assetToBeUpdated = asset
                 const amount = (marketsBalancesMap[asset.cToken].total)
-
-                console.log({ assetToBeUpdated, amount })
 
                 const supplyBalance = assetToBeUpdated.supplyBalance.add(amount);
                 const totalSupply = assetToBeUpdated.totalSupply.add(amount);
@@ -222,10 +223,10 @@ export const CVXMigrateModal = ({
                             {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                             <VStack align="stretch" my={2}>
                                 <Text>
-                                    We detected <b>{smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
+                                    We detected <b>{newTotalSupply.isZero() ? '?' : smallStringUsdFormatter(newTotalSupply.toString())}</b> from {Object.keys(cvxBalances).length}{' '}
                                     staked Convex positions
                                     {!!(Object.keys(curveLPBalances)).length && ` and ${Object.keys(curveLPBalances).length} Curve LP tokens`}.
-                                    You can borrow up to <b>{smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
+                                    You can keep earning CVX + CRV rewards and borrow up to <b>{borrowLimit.isZero() ? '?' : smallStringUsdFormatter(borrowLimit.toString())}</b> by migrating them to Fuse.</Text>
                                 {/* Select from available markets */}
                                 <Accordion allowToggle index={assetIndex} onChange={(i: number) => setAssetIndex(i)}>
                                     <VStack align="stretch" py={4}>
@@ -246,6 +247,7 @@ export const CVXMigrateModal = ({
                                                 handleDeposit={handleDeposit}
                                                 handleCollateralize={handleCollateralize}
                                                 updatedAssets={updatedUserAssets}
+                                                pluginIncentivesForAsset={pluginIncentivesForAsset}
                                             />
                                         )}
                                     </VStack>
@@ -254,7 +256,19 @@ export const CVXMigrateModal = ({
                         </Flex>
                     </ModalBody>
                     <ModalFooter mt={2}>
-                        <Button onClick={onClose}>Close</Button>
+                        {!localStorage.RARI_HIDE_MIGRATOR_POPUP && (
+                            <Button bg="grey"
+                                onClick={() => {
+                                    localStorage.setItem("RARI_HIDE_MIGRATOR_POPUP", "true")
+                                    onClose()
+                                }}
+                            >
+                                <Text>Close and Don't Show Again</Text>
+                            </Button>
+                        )}
+                        <Button colorScheme="blue" onClick={onClose} ml={2}>
+                            <Text>Close</Text>
+                        </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
@@ -276,7 +290,8 @@ const Market = ({
     handleApproveMarket,
     handleDeposit,
     handleCollateralize,
-    updatedAssets
+    updatedAssets,
+    pluginIncentivesForAsset
 }: {
     assetIndex: number,
     setAssetIndex: (step: number) => void,
@@ -296,9 +311,9 @@ const Market = ({
     handleApproveMarket: any,
     handleDeposit: any,
     handleCollateralize: any,
-    updatedAssets: USDPricedFuseAsset[] | undefined
+    updatedAssets: USDPricedFuseAsset[] | undefined,
+    pluginIncentivesForAsset: FlywheelPluginRewardsMap | undefined,
 }) => {
-
 
     const hasApproval = useHasApproval(asset, marketBalanceForAsset?.total.toString() ?? "0")
     const showApproval = !hasApproval
@@ -307,7 +322,8 @@ const Market = ({
     // If you dont have any staked, you dont need to unstake to enter this market
     const showUnstake = !marketBalanceForAsset?.stakedBalance?.isZero() ?? true
 
-    const activeSymbol = tokensData[asset?.underlyingToken]?.symbol
+    const tokenData = tokensData[asset?.underlyingToken]
+    const activeSymbol = tokenData?.symbol ?? asset?.underlyingSymbol
 
     const [numClicks, setNumClicks] = useState(3)
 
@@ -316,6 +332,9 @@ const Market = ({
             return updatedAssets.find(a => a.cToken === asset.cToken)
         }
     }, [updatedAssets, asset])
+
+    const rewardTokens = Object.keys(pluginIncentivesForAsset ?? {})?.map((flywheel, i) => pluginIncentivesForAsset[flywheel].rewardToken) ?? []
+    const apr = Object.values(pluginIncentivesForAsset ?? {})?.reduce((number, value) => value.formattedAPR + number, 0) ?? 0
 
     // Skip to step conditionally
     useEffect(() => {
@@ -338,12 +357,20 @@ const Market = ({
             variant="light"
             p={3}
             inAccordion={true}
-
             expandableChildren={
                 <Box textAlign="center">
-                    <Text pb={4}>
-                        Migrate <b>{activeSymbol}</b> in {numClicks} click{numClicks !== 1 && 's'}
-                    </Text>
+                    <VStack align="center" pb={3}>
+                        <Text>
+                            Migrate <b>{activeSymbol}</b> in {numClicks} click{numClicks !== 1 && 's'} and earn
+                        </Text>
+                        <HStack>
+                            <CTokenAvatarGroup tokenAddresses={rewardTokens} size="xs" max={30} ml={1} mr={1} />
+                            <Text color={tokenData?.color} pl={1} fontSize="sm" fontWeight={"bold"}>
+                                {apr.toFixed(2)}% APR
+                            </Text>
+                        </HStack>
+                    </VStack>
+
 
                     <VStack py={2} align="stretch">
                         {showUnstake && (
@@ -385,7 +412,7 @@ const Market = ({
                 <HStack key={asset.cToken}>
                     <Avatar src={tokensData[marketsUnderlyingMap[asset.cToken]]?.logoURL} />
                     <Heading>
-                        {tokensData[marketsUnderlyingMap[asset.cToken]]?.symbol}
+                        {activeSymbol}
                     </Heading>
                 </HStack>
                 <HStack>
@@ -398,13 +425,7 @@ const Market = ({
                     <Text>
                         {commify(parseFloat(formatEther(marketBalanceForAsset.curveBalance)).toFixed(2))} unstaked
                     </Text>
-                    {/* <Text>
-                        &middot;
-                    </Text>
-                    <Text>
-                        {shortUsdFormatter(updatedAsset?.supplyBalanceUSD.toString() ?? '0')}
-                    </Text>               */}
-                      </HStack>
+                </HStack>
             </VStack>
         </ExpandableCard>
     )
