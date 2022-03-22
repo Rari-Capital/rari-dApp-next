@@ -13,7 +13,7 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import Marquee from "react-fast-marquee";
 import HomeFuseCard from "./HomeFuseCard";
 
-import { Card } from "rari-components"
+import { Card } from "rari-components/standalone"
 
 import { motion } from "framer-motion";
 

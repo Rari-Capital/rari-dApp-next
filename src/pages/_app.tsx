@@ -4,10 +4,9 @@ import dynamic from "next/dynamic";
 import { appWithTranslation } from "next-i18next";
 
 // Providers
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, theme } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import theme from "rari-components/theme";
 
 // Providers
 import { RariProvider } from "context/RariContext";
@@ -42,20 +41,10 @@ const AuthMiddleware = dynamic(() => import("components/Auth"), {
 
 const customTheme = {
   ...theme,
-  colors: {
-    ...theme.colors,
-    nav: {
-      50: "#F0FFF4",
-      100: "#41C143",
-      200: "#9AE6B4",
-      300: "#68D391",
-      400: "#48BB78",
-      500: "#38A169",
-      600: "#2F855A",
-      700: "#276749",
-      800: "#22543D",
-      900: "#1C4532",
-    },
+  fonts: {
+    ...theme.fonts,
+    body: `'Avenir Next', ${theme.fonts.body}`,
+    heading: `'Avenir Next', ${theme.fonts.heading}`,
   },
 };
 
