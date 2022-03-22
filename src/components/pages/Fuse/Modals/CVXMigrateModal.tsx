@@ -333,7 +333,7 @@ const Market = ({
         }
     }, [updatedAssets, asset])
 
-    const rewardTokens = Object.keys(pluginIncentivesForAsset ?? {})?.map((flywheel, i) => pluginIncentivesForAsset[flywheel].rewardToken) ?? []
+    const rewardTokens = Object.keys(pluginIncentivesForAsset ?? {})?.map((flywheel, i) => pluginIncentivesForAsset?.[flywheel].rewardToken) ?? []
     const apr = Object.values(pluginIncentivesForAsset ?? {})?.reduce((number, value) => value.formattedAPR + number, 0) ?? 0
 
     // Skip to step conditionally
