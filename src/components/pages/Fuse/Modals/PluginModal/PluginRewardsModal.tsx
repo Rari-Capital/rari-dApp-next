@@ -13,7 +13,8 @@ import {
     Link,
     Button,
     Heading,
-VStack,
+    VStack,
+    HStack,
 } from "@chakra-ui/react"
 import { TokenData } from "hooks/useTokenData"
 import { USDPricedFuseAsset } from "utils/fetchFusePoolData"
@@ -59,10 +60,11 @@ export const PluginRewardsModal = ({
                                 {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                                 <VStack align={"flex-start"} my={2}>
                                     <InfoIcon size="15px" />
-                                    <Text>This market streams
-                                        <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} /> rewards
-                                        from the <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</b> Convex pool
-                                        to suppliers of <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolName}</b> Curve LPs. </Text>
+                                    <HStack>
+                                        <Text>This market streams </Text> <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} /> <Text>rewards</Text>
+                                    </HStack>
+                                    <Text> from the <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</b> Convex pool </Text>
+                                    <Text> to suppliers of <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolName}</b> Curve LPs. </Text>
                                     {/* <Text fontSize="sm"> Deposit your {CONVEX_CTOKEN_INFO[market.underlyingSymbol].curvePoolName} Curve LP tokens into Fuse to borrow against it while earning all the same rewards from Convex.</Text> */}
                                     {/* <Text py={1}>View reward rates for <b>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</b> on Convex </Text> */}
                                 </VStack>
@@ -82,7 +84,7 @@ export const PluginRewardsModal = ({
                     </ModalBody>
                     <ModalFooter mt={2}>
                         <AppLink isExternal={true} href="https://www.convexfinance.com/stake">
-                            <Button colorScheme='white' minW="100%">
+                            <Button colorScheme='blue' minW="100%">
                                 View rates for {' '} <Text mx={1} fontWeight={"bold"}>{CONVEX_CTOKEN_INFO[market.underlyingSymbol].convexPoolName}</Text>  {' '} on Convex
                             </Button>
                         </AppLink>
