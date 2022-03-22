@@ -30,7 +30,7 @@ import { useBorrowLimit, useTotalSupply } from "hooks/useBorrowLimit"
 import { useFusePoolData } from "hooks/useFusePoolData"
 import useHasApproval from "hooks/useHasApproval"
 import { useTokensDataAsMap } from "hooks/useTokenData"
-import { Button, ExpandableCard, Heading } from "rari-components";
+import { Button, ExpandableCard, Heading } from "rari-components/standalone";
 import { useEffect, useMemo, useState } from "react"
 import { useQuery } from "react-query"
 import { TokensDataMap } from "types/tokens"
