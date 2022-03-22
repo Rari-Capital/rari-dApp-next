@@ -2,9 +2,11 @@
 
 Rari Capital's Web3 Portal.
 
-## Getting Started
+## Scripts
 
-Run `npm run dev` to start the development server.
+- Run `npm run dev` to start the development server.
+- Run `npm run build` to build a production bundle
+- Run `npm run bump-rari-components` to automatically install the latest version (i.e. most recent commit hash) of rari-components and update `package.json`.
 
 ## Requirements
 
