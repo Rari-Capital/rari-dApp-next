@@ -1,6 +1,6 @@
 export const eligibleTokens = ["FRAX3CRV-f", "steCRV", "UST_whv23CRV-f", "crv3crypto", "D3-f", "FEI3CRV3CRV-f", "alUSD3CRV-f"]
 
-export const tokenInfo: PluginCTokenInfoType = {
+export const CONVEX_CTOKEN_INFO: PluginCTokenInfoType = {
     "FRAX3CRV-f": {
         "cToken": "0x2ec70d3Ff3FD7ac5c2a72AAA64A398b6CA7428A5",
         "plugin": "0xd88e89ac6a0859e9b91078cb2a183a36ba6c8933",
@@ -89,3 +89,7 @@ type PluginCTokenInfoType = {
 }
 
 export const POOL_156_COMPTROLLER = "0x07cd53380FE9B2a5E64099591b498c73F0EfaA66"
+
+export const SUPPORTED_CONVEX_LPS = [
+
+]
