@@ -58,6 +58,7 @@ import { BigNumber, utils, constants } from "ethers";
 import { toInt } from "utils/ethersUtils";
 import { formatUnits } from "ethers/lib/utils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
+import { ChainID } from "esm/utils/networks";
 
 enum UserAction {
   NO_ACTION,
@@ -106,7 +107,7 @@ const AmountSelect = ({
 }: Props) => {
   const asset = assets[index];
 
-  const { address, fuse, isAuthed } = useRari();
+  const { address, fuse, isAuthed, chainId } = useRari();
 
   const toast = useToast();
 
@@ -383,7 +384,8 @@ const AmountSelect = ({
           cToken.callStatic.borrow,
           amount,
           cToken.borrow,
-          "Cannot borrow this amount right now!"
+          "Cannot borrow this amount right now!",
+          chainId
         );
         LogRocket.track("Fuse-Borrow");
       } else if (mode === Mode.WITHDRAW) {
@@ -1035,7 +1037,8 @@ export async function testForCTokenErrorAndSend(
   txObjectStaticCall: any, // for static calls
   txArgs: any,
   txObject: any, // actual method
-  failMessage: string
+  failMessage: string,
+  chainId: number = 1
 ) {
   let response = await txObjectStaticCall(txArgs);
   // For some reason `response` will be `["0"]` if no error but otherwise it will return a string of a number.
@@ -1053,7 +1056,7 @@ export async function testForCTokenErrorAndSend(
 
       if (msg === "BORROW_BELOW_MIN") {
         msg =
-          "As part of our guarded launch, you cannot borrow less than 1 ETH worth of tokens at the moment.";
+          `As part of our guarded launch, you cannot borrow less than ${chainId === ChainID.ARBITRUM ? '.01' : '1'} ETH worth of tokens at the moment.`;
       }
 
       // This is a comptroller error:
