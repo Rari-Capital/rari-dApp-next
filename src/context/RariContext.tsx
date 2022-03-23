@@ -25,7 +25,7 @@ import {
   initFuseWithProviders,
 } from "../utils/web3Providers";
 
-import { Web3Provider } from "@ethersproject/providers";
+import { Web3Provider, JsonRpcProvider } from "@ethersproject/providers";
 import {
   ChainID,
   isSupportedChainId,
@@ -96,6 +96,7 @@ export interface RariContextData {
   login: (cacheProvider?: boolean) => Promise<any>;
   logout: () => any;
   address: string;
+  provider: JsonRpcProvider | Web3Provider
   isAttemptingLogin: boolean;
   chainId: number | undefined;
   switchNetwork: (newChainId: number, router: any) => void;
@@ -352,6 +353,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       isAuthed: address !== EmptyAddress,
       login,
       logout,
+      provider,
       address,
       isAttemptingLogin,
       chainId,

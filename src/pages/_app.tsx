@@ -56,12 +56,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <RariProvider>
-          <BalancesContextProvider>
             <Layout>
               <AuthMiddleware />
               <Component {...pageProps} />
             </Layout>
-          </BalancesContextProvider>
         </RariProvider>
       </QueryClientProvider>
     </ChakraProvider>
