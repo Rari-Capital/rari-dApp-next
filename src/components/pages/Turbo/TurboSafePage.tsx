@@ -1,14 +1,13 @@
-import { Box, HStack, Image, Stack, useDisclosure } from "@chakra-ui/react";
+import { Box, HStack, Image, Stack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { Button, Divider, Heading, Text } from "rari-components/standalone";
-import CreateSafeModal from './modals/CreateSafeModal'
 
-const TurboIndexPage: React.FC = () => {
-  
-  const { isOpen, onOpen, onClose } = useDisclosure()
+const TurboSafePage: React.FC = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const safeId = id as string
 
   return (
-    <>
-    <CreateSafeModal isOpen={isOpen} onClose={onClose} />
     <Box color="white" width="100%" p={12}>
       <Box maxWidth={["100%", "1000px"]} marginX="auto">
         <Stack
@@ -23,7 +22,7 @@ const TurboIndexPage: React.FC = () => {
               yield generated from a costless FEI line of credit.
             </Text>
             <HStack pt={8} spacing={4}>
-              <Button variant="success" onClick={onOpen}>Create a safe</Button>
+              <Button variant="success">Create a safe</Button>
               <Button variant="cardmatte">Learn more</Button>
             </HStack>
           </Box>
@@ -58,8 +57,7 @@ const TurboIndexPage: React.FC = () => {
         </Stack>
       </Box>
     </Box>
-    </>
   );
 };
 
-export default TurboIndexPage;
+export default TurboSafePage;
