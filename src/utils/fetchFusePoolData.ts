@@ -1,12 +1,10 @@
 // @ts-ignore
 import Filter from "bad-words";
 import { TokenData } from "hooks/useTokenData";
-import { Vaults, Fuse } from "../esm/index";
+import { Fuse } from "../esm/index";
 import { BigNumber } from "@ethersproject/bignumber";
 import { constants } from "ethers";
-import { useCreateComptroller } from "./createComptroller";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
-import { utils } from "ethers";
 import { EmptyAddress } from "context/RariContext";
 import { callInterfaceWithMulticall, sendWithMultiCall } from "./multicall";
 import { Interface } from "ethers/lib/utils";
@@ -67,8 +65,8 @@ export interface USDPricedFuseAsset extends FuseAsset {
   supplyBalanceUSD: BigNumber;
   borrowBalanceUSD: BigNumber;
 
-  supplyCap: BigNumber;
-  borrowCap: BigNumber;
+  // supplyCap: BigNumber;
+  // borrowCap: BigNumber;
 
   totalSupplyUSD: BigNumber;
   totalBorrowUSD: BigNumber;
@@ -192,15 +190,15 @@ export const fetchFusePoolData = async (
 
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
-    asset.supplyCap = constants.Zero
-    asset.borrowCap = constants.Zero
-    try {
-      let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
-      asset.supplyCap = supplyCap
-      asset.borrowCap = borrowCap
-    } catch (err) {
-      console.error(`${asset.cToken} error with supply/borrow caps`)
-    }
+    // asset.supplyCap = constants.Zero
+    // asset.borrowCap = constants.Zero
+    // try {
+    //   let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
+    //   asset.supplyCap = supplyCap
+    //   asset.borrowCap = borrowCap
+    // } catch (err) {
+    //   console.error(`${asset.cToken} error with supply/borrow caps`)
+    // }
     asset.supplyBalanceUSD = asset.supplyBalance
       .mul(asset.underlyingPrice)
       .mul(ethPrice)

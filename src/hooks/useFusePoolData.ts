@@ -8,6 +8,7 @@ import {
   USDPricedFuseAsset,
   USDPricedFuseAssetWithTokenData,
 } from "../utils/fetchFusePoolData";
+import useAssetCaps from "./fuse/useAssetCapsForPool";
 import { useAssetsArrayWithTokenData } from "./useAssetsMap";
 
 export const useFusePoolData = (
@@ -17,8 +18,11 @@ export const useFusePoolData = (
   const { fuse, address, isAuthed } = useRari();
 
   const { data } = useQuery(poolId + " poolData " + address, () => {
-    return fetchFusePoolData(poolId, address, fuse, undefined , isAuthed, dev);
+    return fetchFusePoolData(poolId, address, fuse, undefined, isAuthed, dev);
   });
+
+  const assetCaps = useAssetCaps(data?.assets?.map(a => a.cToken) ?? [])
+  console.log({assetCaps})
 
   return data;
 };
