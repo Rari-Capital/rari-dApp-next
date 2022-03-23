@@ -10,6 +10,13 @@ export async function getStaticProps({ locale }: { locale: string }) {
   };
 }
 
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+
 const Page: NextPage = () => {
   return <TurboSafePage />;
 };
