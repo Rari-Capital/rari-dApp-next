@@ -1,22 +1,20 @@
 import { useQuery } from "react-query"
-import { useAccount, useNetwork, useProvider } from "wagmi"
 import { isUserAuthorizedToCreateSafes } from 'lib/turbo/fetchers/getIsUserAuthorizedToCreateSafes';
 import { TurboAddresses } from "lib/turbo/utils/constants";
+import { useRari } from "context/RariContext";
 
 export const useIsUserAuthorizedToCreateSafes = () => {
-    const provider = useProvider()
-    const [{data: userData}] = useAccount()
-    const [{ data: network }] = useNetwork()
+    const { address, provider, chainId } = useRari()
 
-    const {data: isAuthorized} = useQuery(`Is ${userData?.address} authorized to create safes`, 
+    const {data: isAuthorized} = useQuery(`Is ${address} authorized to create safes`, 
         async () => {
-            if(!userData?.address || !network.chain || !provider) return
+            if(!address || !chainId || !provider) return
 
             const isAuthorized = await isUserAuthorizedToCreateSafes(
                 provider, 
-                TurboAddresses[network.chain.id].TURBO_AUTHORITY, 
-                userData.address, 
-                TurboAddresses[network.chain.id].MASTER    
+                TurboAddresses[chainId].TURBO_AUTHORITY, 
+                address, 
+                TurboAddresses[chainId].MASTER    
             )
 
             return isAuthorized

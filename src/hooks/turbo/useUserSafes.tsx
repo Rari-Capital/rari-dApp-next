@@ -1,20 +1,19 @@
 import { useMemo } from "react";
 
 import { useQuery } from "react-query";
-import { SafeInfo } from "turbo/fetchers/getSafeInfo";
-import { getAllUserSafes } from "turbo/fetchers/getAllUserSafes";
-import { useAccount, useNetwork, useProvider, useSigner } from "wagmi";
+
+import { useRari } from "context/RariContext";
+import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { getAllUserSafes } from "lib/turbo/fetchers/getAllUserSafes";
 
 export const useGetAllUserSafes = (): SafeInfo[] | undefined => {
-  const [{ data: userData }] = useAccount()
-  const [{ data: network }] = useNetwork()
-  const provider = useProvider()
+  const { address, provider, chainId } = useRari()
 
   const { data: safes } = useQuery(
-    `User: ${userData?.address} safes`,
+    `User: ${address} safes`,
     async () => {
-        if(!userData?.address || !network.chain?.id) return
-        return await getAllUserSafes(provider, userData?.address, network.chain?.id)
+        if(!address || !chainId) return
+        return await getAllUserSafes(provider, address, chainId)
     }
   );
   return safes;
