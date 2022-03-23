@@ -8,7 +8,7 @@ import CERC20 from "lib/turbo/abi/CERC20.json"
 import TurboComptroller from "lib/turbo/abi/comptroller.json";
 import TurboLens from "lib/turbo/abi/TurboLens.json";
 import TurboBooster from "lib/turbo/abi/TurboBooster.json";
-import TurboSafe from "lib/Turbo/abi/TurboSafe.json";
+import TurboSafe from "lib/turbo/abi/TurboSafe.json";
 import TurboAuthority from "lib/turbo/abi/Authority.json";
 
 // Utils
