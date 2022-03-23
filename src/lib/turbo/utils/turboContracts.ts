@@ -6,7 +6,7 @@ import TurboMaster from  "lib/turbo/abi/TurboMaster.json";
 import ERC20 from "lib/turbo/abi/ERC20.json"
 import CERC20 from "lib/turbo/abi/CERC20.json"
 import TurboComptroller from "lib/turbo/abi/comptroller.json";
-import TurboLens from "lib/Turbo/abi/TurboLens.json";
+import TurboLens from "lib/turbo/abi/TurboLens.json";
 import TurboBooster from "lib/Turbo/abi/TurboBooster.json";
 import TurboSafe from "lib/Turbo/abi/TurboSafe.json";
 import TurboAuthority from "lib/Turbo/abi/Authority.json";
