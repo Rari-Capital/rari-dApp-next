@@ -89,9 +89,9 @@ export const NewHeader = () => {
             /> */}
           </Row>
         )}
-        <Box alignSelf="flex-start" mr={5}>
+        {/* <Box alignSelf="flex-start" mr={5}>
           {!isMobile && <HeaderSearchbar />}
-        </Box>
+        </Box> */}
         {!!isMobile && <Spacer />}
         <Flex>
           <AccountButton />
