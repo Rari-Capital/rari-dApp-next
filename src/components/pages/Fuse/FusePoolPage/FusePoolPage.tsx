@@ -59,8 +59,7 @@ const FusePoolPage = memo(() => {
   const rewardTokens = useMemo(() => [...rdRewardTokens, ...pluginRewardTokens], [pluginRewardTokens, rdRewardTokens])
   const rewardTokensData = useTokensDataAsMap(rewardTokens)
 
-  const isAdmin = useIsComptrollerAdmin(data?.comptroller);
-
+  const isAdmin = useIsComptrollerAdmin(data?.comptroller);  
 
   return (
     <>
