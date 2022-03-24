@@ -21,9 +21,6 @@ export const useFusePoolData = (
     return fetchFusePoolData(poolId, address, fuse, undefined, isAuthed, dev);
   });
 
-  const assetCaps = useAssetCaps(data?.assets?.map(a => a.cToken) ?? [])
-  console.log({assetCaps})
-
   return data;
 };
 

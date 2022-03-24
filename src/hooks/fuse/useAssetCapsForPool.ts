@@ -1,37 +1,67 @@
-import { useRari } from "context/RariContext"
+import { useRari } from "context/RariContext";
+import { BigNumber } from "ethers";
+import { constants } from "ethers";
 import { Interface } from "ethers/lib/utils";
-import { useQuery } from "react-query"
+import { useQuery } from "react-query";
+import { callInterfaceWithMulticall } from "utils/multicall";
 
-const useAssetCaps = (marketAddresses: string[]) => {
-    const { fuse } = useRari();
+export type AssetCapsMap = {
+  [market: string]: {
+    supplyCap: BigNumber;
+    borrowCap: BigNumber;
+  };
+};
 
-    const IComptroller = new Interface(JSON.parse(
-        fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
-    ))
+const useAssetCaps = (
+  comptroller: string | undefined,
+  marketAddresses: string[]
+) => {
+  const { fuse } = useRari();
 
-    const params = marketAddresses.map(address => {
-        const x = [[address], [address]]
-        console.log({ x })
-        return x
-    })
+  const IComptroller = new Interface(
+    JSON.parse(
+      fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
+    )
+  );
 
-    console.log({ params })
+  const { data } = useQuery(
+    `asset caps for ${marketAddresses.join(", ")}`,
+    async () => {
+      let map: AssetCapsMap = {};
 
+      if (!comptroller) return map;
 
-    const { data } = useQuery(`asset caps for ${marketAddresses.join(', ')}`, async () => {
+      await Promise.all(
+        marketAddresses.map(async (market) => {
+          let supplyCap = constants.Zero;
+          let borrowCap = constants.Zero;
+          try {
+            let [[_supplyCap], [_borrowCap]] = await callInterfaceWithMulticall(
+              fuse.provider,
+              IComptroller,
+              comptroller,
+              ["supplyCaps", "borrowCaps"],
+              [[market], [market]]
+            );
+            supplyCap = _supplyCap;
+            borrowCap = _borrowCap;
 
-        // asset.supplyCap = constants.Zero
-        // asset.borrowCap = constants.Zero
-        // try {
-        //   let [[supplyCap], [borrowCap]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["supplyCaps", "borrowCaps"], [[asset.cToken], [asset.cToken]])
-        //   asset.supplyCap = supplyCap
-        //   asset.borrowCap = borrowCap
-        // } catch (err) {
-        //   console.error(`${asset.cToken} error with supply/borrow caps`)
-        // }
+            map[market] = {
+              supplyCap,
+              borrowCap,
+            };
 
-    })
+            return;
+          } catch (err) {
+            console.error(`${market} error with supply/borrow caps`);
+          }
+        })
+      );
 
-}
+      return map;
+    }
+  );
+  return data ?? {};
+};
 
-export default useAssetCaps
+export default useAssetCaps;

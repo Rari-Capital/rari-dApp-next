@@ -55,10 +55,10 @@ import {
 
 import { Contract } from "ethers";
 import { BigNumber, utils, constants } from "ethers";
-import { toInt } from "utils/ethersUtils";
 import { formatUnits } from "ethers/lib/utils";
 import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import { ChainID } from "esm/utils/networks";
+import useAssetCaps, { AssetCapsMap } from "hooks/fuse/useAssetCapsForPool";
 
 enum UserAction {
   NO_ACTION,
@@ -126,6 +126,8 @@ const AmountSelect = ({
     showEnableAsCollateral
   );
 
+  const assetCaps = useAssetCaps(comptrollerAddress, assets?.map(a => a.cToken) ?? [])
+
   const { t } = useTranslation();
 
   const updateAmount = (newAmount: string) => {
@@ -157,7 +159,8 @@ const AmountSelect = ({
           fuse,
           address,
           asset,
-          comptrollerAddress
+          comptrollerAddress,
+          assetCaps,
         );
 
         return amount.div(constants.WeiPerEther).lte(max);
@@ -500,6 +503,7 @@ const AmountSelect = ({
                     tokenData={tokenData}
                     asset={asset}
                     updateAmount={updateAmount}
+                    assetCaps={assetCaps}
                   />
                 </Row>
               </DashboardBox>
@@ -512,6 +516,7 @@ const AmountSelect = ({
               index={index}
               mode={mode}
               enableAsCollateral={enableAsCollateral}
+              assetCaps={assetCaps}
             />
 
             {showEnableAsCollateral ? (
@@ -675,13 +680,15 @@ const StatsColumn = ({
   amount,
   enableAsCollateral,
   tokenData,
+  assetCaps,
 }: {
   mode: Mode;
   assets: USDPricedFuseAsset[];
   index: number;
   amount: BigNumber;
   enableAsCollateral: boolean;
-  tokenData: TokenData | undefined
+  tokenData: TokenData | undefined,
+  assetCaps: AssetCapsMap
 }) => {
   const { t } = useTranslation();
 
@@ -741,6 +748,14 @@ const StatsColumn = ({
       updatedAsset.borrowBalanceUSD.div(constants.WeiPerEther).div(constants.WeiPerEther)
     )
     : "0.00";
+
+
+
+  const { supplyCap, borrowCap } = assetCaps[asset.cToken] ?? {
+    supplyCap: constants.Zero,
+    borrowCap: constants.Zero
+  }
+
 
   return (
     <DashboardBox width="100%" height="190px" mt={4}>
@@ -871,7 +886,7 @@ const StatsColumn = ({
               ) : null}
             </Text>
           </Row>
-          {isSupplyingOrWithdrawing && asset.supplyCap.gt(0) || !isSupplyingOrWithdrawing && asset.borrowCap.gt(0) ?
+          {isSupplyingOrWithdrawing && supplyCap.gt(0) || !isSupplyingOrWithdrawing && borrowCap.gt(0) ?
             <Row
               mainAxisAlignment="space-between"
               crossAxisAlignment="center"
@@ -888,13 +903,13 @@ const StatsColumn = ({
                   ?
                   utils.commify(
                     parseFloat(
-                      utils.formatUnits(asset.supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
+                      utils.formatUnits(supplyCap.sub(asset.totalSupply), asset.underlyingDecimals)
                     ).toFixed(2)
                   )
                   :
                   utils.commify(
                     parseFloat(
-                      utils.formatUnits(asset.borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
+                      utils.formatUnits(borrowCap.sub(asset.totalBorrow), asset.underlyingDecimals)
                     ).toFixed(2)
                   )}
               </Text>
@@ -919,12 +934,14 @@ const TokenNameAndMaxButton = ({
   asset,
   mode,
   comptrollerAddress,
+  assetCaps,
 }: {
   tokenData: TokenData | undefined,
   asset: USDPricedFuseAsset;
   mode: Mode;
   comptrollerAddress: string;
   updateAmount: (newAmount: string) => any;
+  assetCaps: AssetCapsMap
 }) => {
   const { fuse, address } = useRari();
 
@@ -941,7 +958,8 @@ const TokenNameAndMaxButton = ({
         fuse,
         address,
         asset,
-        comptrollerAddress
+        comptrollerAddress,
+        assetCaps
       );
 
       if (maxBN!.lt(constants.Zero) || maxBN!.isZero()) {
@@ -1112,8 +1130,14 @@ async function fetchMaxAmount(
   fuse: Fuse,
   address: string,
   asset: USDPricedFuseAsset,
-  comptrollerAddress: string
+  comptrollerAddress: string,
+  assetCaps: AssetCapsMap,
 ) {
+
+  const { supplyCap, borrowCap } = assetCaps[asset.cToken] ?? {
+    supplyCap: constants.Zero,
+    borrowCap: constants.Zero
+  }
 
   if (mode === Mode.SUPPLY) {
     const balance = await fetchTokenBalance(
@@ -1123,7 +1147,7 @@ async function fetchMaxAmount(
     );
 
     // 
-    const supplyRemaining = asset.supplyCap.sub(asset.totalSupply)
+    const supplyRemaining = supplyCap.sub(asset.totalSupply)
     const value = supplyRemaining.gt(0) ? (balance.lt(supplyRemaining) ? balance : supplyRemaining) : balance;
     return value
   }
@@ -1153,7 +1177,7 @@ async function fetchMaxAmount(
 
       const amount = maxBorrow.mul(3).div(4);
 
-      const borrowRemaining = asset.borrowCap.sub(asset.totalBorrow)
+      const borrowRemaining = borrowCap.sub(asset.totalBorrow)
       return borrowRemaining.gt(0) ? (amount.gt(borrowRemaining) ? borrowRemaining : amount.div(1)) : amount.div(1);
       //const amount = BigNumber.from(formatEther(maxBorrow.mul(utils.parseEther("0.75"))));
       //console.log("fetchMaxAmount", { amount, maxBorrow, utils })
