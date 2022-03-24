@@ -1,17 +1,9 @@
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    Text,
+    Box,
     Flex,
-    VStack,
-    Spacer,
-    Input,
+    Image,
     useToast,
+    Stack,
 } from "@chakra-ui/react"
 import { useRari } from "context/RariContext";
 import { parseEther } from "ethers/lib/utils";
@@ -19,18 +11,77 @@ import { useTokenData } from "hooks/useTokenData";
 import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposit";
 import { createSafe } from "lib/turbo/transactions/safe";
 import { TRIBE } from "lib/turbo/utils/constants";
-import { Button } from "rari-components";
+import { Heading, Modal, Text, TokenIcon } from "rari-components/standalone";
 import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
 
-export const CreateSafeModal = ({
+const MODAL_STEPS: Pick<
+  React.ComponentProps<typeof Modal>,
+  "title" | "subtitle" | "buttons" | "children"
+>[] = [
+  {
+    title: "Creating a safe",
+    subtitle:
+      "The first step towards using Turbo is creating a safe, which allows you to boost pools by depositing collateral.",
+    children: (
+      <Stack spacing={4}>
+        <Flex align="center">
+          <Image
+            src="/static/turbo/one-collateral-type.png"
+            height={16}
+            mr={4}
+          />
+          <Box>
+            <Heading size="md">One collateral type</Heading>
+            <Text>Each safe has a single collateral type of choice.</Text>
+          </Box>
+        </Flex>
+        <Flex align="center">
+          <Image
+            src="/static/turbo/isolated-actions.png"
+            height={16}
+            mr={4}
+          />
+          <Box>
+            <Heading size="md">Isolated actions</Heading>
+            <Text>Boosting, depositing, etc. are isolated per safe.</Text>
+          </Box>
+        </Flex>
+      </Stack>
+    ),
+  },
+  {
+    title: "Select collateral type",
+    subtitle: "Pick a collateral type supported by top lending markets.",
+    children: (
+      <Stack>
+        <Flex>
+          <TokenIcon tokenAddress="0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B" mr={4} />
+          <Heading>TRIBE</Heading>
+        </Flex>
+      </Stack>
+    )
+  }
+];
+
+type CreateSafeModalProps = Pick<
+  React.ComponentProps<typeof Modal>,
+  "isOpen" | "onClose"
+>;
+
+export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     isOpen,
     onClose,
-}: {
-    isOpen: boolean,
-    onClose: () => void,
 }) => {
+  
     const {address, provider, chainId } = useRari()
+
+    const [stepIndex, setStepIndex] = useState(0);
+    function incrementStepIndex() {
+      if (stepIndex + 1 !== MODAL_STEPS.length) {
+        setStepIndex(stepIndex + 1);
+      }
+    }
 
     const [amount, setAmount] = useState<string>("0");
     const [underlyingToken, setUnderlyingToken] = useState(TRIBE)
@@ -83,45 +134,25 @@ export const CreateSafeModal = ({
     };
 
     return (
-        <>
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader display="flex" width="100%" alignSelf="center">
-                        <Text fontSize="lg" mr={4} alignSelf="center">
-                           🏦 Create Safe for {tokenData?.symbol}
-                        </Text>
-                        <ModalCloseButton />
-                    </ModalHeader>
-                    <ModalBody>
-                        <Flex direction="column" height="100%">
-                            <VStack align={"flex-start"} my={2}>
-                                <Spacer />
-                                <Text>
-                                    The first step towards using Turbo is creating a safe, which allows you to boost pools by depositing a collateral type that has been approved by the Tribe DAO governance.
-                                </Text>
-
-                                <Text>
-                                    Do you want to deposit TRIBE
-                                </Text>
-                                <Input
-                                    type="number"
-                                    onChange={e => setAmount(e.target.value)}
-                                />
-
-                                <Button onClick={handleCreateSafe} disabled={creating}>
-                                    {creating ? "Creating..." : amount !== "0" ? "Create Safe and Deposit" : "Create Safe"}
-                                </Button>
-                            </VStack>
-                        </Flex>
-                    </ModalBody>
-                    <ModalFooter mt={2}>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </>
-    )
-}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={MODAL_STEPS[stepIndex].title}
+        subtitle={MODAL_STEPS[stepIndex].subtitle}
+        buttons={[
+          ...(MODAL_STEPS[stepIndex].buttons ?? []),
+          {
+            children: "Next",
+            variant: "neutral",
+            onClick: incrementStepIndex,
+          },
+        ]}
+        progressValue={(stepIndex + 1) / MODAL_STEPS.length * 100}
+      >
+        {MODAL_STEPS[stepIndex].children}
+      </Modal>
+    );
+};
 
 
 
