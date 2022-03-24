@@ -28,7 +28,7 @@ const TurboIndexPage: React.FC = () => {
             </HStack>
           </Box>
           <Box flex={1}>
-            <Image src="/static/turbo.png" />
+            <Image src="/static/turbo/turbo.png" />
           </Box>
         </Stack>
         <Divider mt={20} mb={16} />
