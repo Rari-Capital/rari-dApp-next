@@ -1,4 +1,6 @@
-import { Box, HStack, Image, Stack } from "@chakra-ui/react";
+import { Box, Stack, Image, Spacer, HStack } from "@chakra-ui/react";
+import { useSafeInfo } from "hooks/turbo/useSafeInfo";
+import { useTokenData } from "hooks/useTokenData";
 import { useRouter } from "next/router";
 import { Button, Divider, Heading, Text } from "rari-components/standalone";
 
@@ -7,28 +9,28 @@ const TurboSafePage: React.FC = () => {
   const { id } = router.query;
   const safeId = id as string
 
+  const safe = useSafeInfo(safeId)
+  const tokenData = useTokenData(safe?.collateralAsset)
+
   return (
     <Box color="white" width="100%" p={12}>
       <Box maxWidth={["100%", "1000px"]} marginX="auto">
         <Stack
-          direction={["column", "column", "row"]}
+          direction={"row"}
+          justify="space-between"
           alignItems="center"
-          spacing={12}
+          spacing={3}
         >
-          <Box flex={1}>
-            <Heading size="xl">Introducing Turbo</Heading>
-            <Text variant="secondary" pt={4} fontSize="xl">
-              Turbo allows any DeFi token to become productive by sharing in the
-              yield generated from a costless FEI line of credit.
-            </Text>
-            <HStack pt={8} spacing={4}>
-              <Button variant="success">Create a safe</Button>
-              <Button variant="cardmatte">Learn more</Button>
-            </HStack>
-          </Box>
-          <Box flex={1}>
-            <Image src="/static/turbo/turbo.png" />
-          </Box>
+          <HStack>
+            <Image src={tokenData?.logoURL} boxSize="40px" />
+            <Heading>{tokenData?.symbol}</Heading>
+          </HStack>
+          <Spacer />
+          <HStack>
+            <Button>
+              Deposit Collateral
+            </Button>
+          </HStack>
         </Stack>
         <Divider mt={20} mb={16} />
         <Stack spacing={12}>

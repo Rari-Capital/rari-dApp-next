@@ -118,8 +118,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
         }
     };
 
-    console.log({ stepIndex })
-
     return (
         <Modal
             isOpen={isOpen}
