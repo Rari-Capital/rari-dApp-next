@@ -1,6 +1,7 @@
 import { Box, HStack, Image, Stack, useDisclosure } from "@chakra-ui/react";
 import { Button, Divider, Heading, Text } from "rari-components/standalone";
-import CreateSafeModal from './modals/CreateSafeModal'
+import CreateSafeModal from "./modals/CreateSafeModal";
+// import CreateSafeModal from './modals/CreateSafeModal'
 
 const TurboIndexPage: React.FC = () => {
   
@@ -8,7 +9,7 @@ const TurboIndexPage: React.FC = () => {
 
   return (
     <>
-    <CreateSafeModal isOpen={isOpen} onClose={onClose} />
+    <CreateSafeModal onClose={onClose} isOpen={isOpen} />
     <Box color="white" width="100%" p={12}>
       <Box maxWidth={["100%", "1000px"]} marginX="auto">
         <Stack
