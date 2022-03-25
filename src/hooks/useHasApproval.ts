@@ -17,10 +17,10 @@ const useHasApproval = (
 
     //   const spender = TurboAddresses[network.chain?.id].ROUTER;
       return await checkAllowance(
+        provider,
         addressToUse,
         spender,
         underlyingToken,
-        provider
       );
     }
   );

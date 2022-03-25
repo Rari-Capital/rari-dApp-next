@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Stack, useDisclosure, VStack } from "@chakra-ui/react";
+import { Box, HStack, Image, SimpleGrid, Stack, useDisclosure, VStack } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
 import { formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
@@ -43,7 +43,7 @@ const TurboIndexPage: React.FC = () => {
           </Stack>
           <Divider mt={20} mb={16} />
           {hasSafes
-            ? <SafeAggregates safes={safes} />
+            ? <SafeGrid safes={safes} />
             : <TurboFAQ />
           }
         </Box>
@@ -52,17 +52,19 @@ const TurboIndexPage: React.FC = () => {
   );
 };
 
-const SafeAggregates: React.FC<{
+const SafeGrid: React.FC<{
   safes: SafeInfo[],
 }> = ({ safes }) => {
   const underlyings = safes.map(safe => safe.collateralAsset)
   const tokensData = useTokensDataAsMap(underlyings)
   return (
     <VStack minW="100%">
-      {
-        safes.map((safe, i) =>
-          <SafeCard key={safe.safeAddress} safe={safe} i={i} tokenData={tokensData[safe.collateralAsset]} />)
-      }
+      <SimpleGrid columns={3} spacingX='40px' spacingY='20px'>
+        {
+          safes.map((safe, i) =>
+            <SafeCard key={safe.safeAddress} safe={safe} i={i} tokenData={tokensData[safe.collateralAsset]} />)
+        }
+      </SimpleGrid>
     </VStack>
   )
 }

@@ -41,10 +41,12 @@ export async function checkAllowance(
 }
 
 export async function balanceOf(
-  userAddress: string,
-  underlyingAddress: string,
+  userAddress: string | undefined,
+  underlyingAddress: string | undefined,
   signer: any
 ): Promise<BigNumber> {
+  if (!userAddress || !underlyingAddress) return constants.Zero;
+
   if (isAssetETH(underlyingAddress)) return parseEther("0");
   const erc20Interface = new Interface([
     "function balanceOf(address _owner) public view returns (uint256 balance)",

@@ -1,8 +1,12 @@
-import { Box, Stack, Image, Spacer, HStack } from "@chakra-ui/react";
+import { ChevronLeftIcon } from "@chakra-ui/icons";
+import { Box, Stack, Image, Spacer, HStack, useDisclosure } from "@chakra-ui/react";
+import AppLink from "components/shared/AppLink";
+import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import { useTokenData } from "hooks/useTokenData";
 import { useRouter } from "next/router";
 import { Button, Divider, Heading, Text } from "rari-components/standalone";
+import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal";
 
 const TurboSafePage: React.FC = () => {
   const router = useRouter();
@@ -12,53 +16,47 @@ const TurboSafePage: React.FC = () => {
   const safe = useSafeInfo(safeId)
   const tokenData = useTokenData(safe?.collateralAsset)
 
+  const safeHealth = useSafeHealth(safe)
+
+  const { isOpen: isDepositModalOpen, onOpen: openDepositModal, onClose: closeDepositModal } = useDisclosure()
+
   return (
-    <Box color="white" width="100%" p={12}>
-      <Box maxWidth={["100%", "1000px"]} marginX="auto">
-        <Stack
-          direction={"row"}
-          justify="space-between"
-          alignItems="center"
-          spacing={3}
-        >
-          <HStack>
-            <Image src={tokenData?.logoURL} boxSize="40px" />
-            <Heading>{tokenData?.symbol}</Heading>
-          </HStack>
-          <Spacer />
-          <HStack>
-            <Button>
-              Deposit Collateral
-            </Button>
-          </HStack>
-        </Stack>
-        <Divider mt={20} mb={16} />
-        <Stack spacing={12}>
-          <Box>
-            <Heading size="md">How does it work?</Heading>
-            <Text variant="secondary" mt={4}>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into
-              electronic typesetting, remaining essentially unchanged.
-            </Text>
-          </Box>
-          <Box>
-            <Heading size="md">Should I use Turbo?</Heading>
-            <Text variant="secondary" mt={4}>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into
-              electronic typesetting, remaining essentially unchanged.
-            </Text>
-          </Box>
-        </Stack>
+    <>
+      <DepositSafeCollateralModal
+        isOpen={isDepositModalOpen}
+        onClose={closeDepositModal}
+        safe={safe}
+        tokenData={tokenData}
+      />
+      <Box color="white" width="100%" p={12}>
+        <AppLink href="/turbo">
+          <ChevronLeftIcon boxSize={"30px"} mb={5} />
+        </AppLink>
+        <Box maxWidth={["100%", "1000px"]} marginX="auto">
+          <Stack
+            direction={"row"}
+            justify="space-between"
+            alignItems="center"
+            spacing={3}
+          >
+            <HStack>
+              <Image src={tokenData?.logoURL} boxSize="40px" />
+              <Heading>{tokenData?.symbol}</Heading>
+            </HStack>
+            <Spacer />
+            <HStack>
+              <Button onClick={openDepositModal}>
+                Deposit Collateral
+              </Button>
+            </HStack>
+          </Stack>
+          <Divider mt={20} mb={16} />
+          <Stack spacing={12}>
+          
+          </Stack>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
