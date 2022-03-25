@@ -17,6 +17,7 @@ import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { formatEther } from "ethers/lib/utils";
 import { commify } from "ethers/lib/utils";
 import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
+import useSafeHealth from "hooks/turbo/useSafeHealth";
 
 export const SafeStats: React.FC<{ safe: SafeInfo, tokenData: TokenData | undefined }> = ({ safe, tokenData }) => {
     const { address } = useRari();
@@ -27,6 +28,7 @@ export const SafeStats: React.FC<{ safe: SafeInfo, tokenData: TokenData | undefi
     const userFeiOwed = useMemo(() => getUserFeiOwed(safe), [safe])
 
     const collateralUSD = useCollateralValueUSD(safe)
+    const health = useSafeHealth(safe)
 
     return (
         <SimpleGrid columns={3} spacingX='40px' spacingY='20px'>
@@ -53,6 +55,10 @@ export const SafeStats: React.FC<{ safe: SafeInfo, tokenData: TokenData | undefi
             <Statistic
                 title={"User Balance FEI"}
                 value={formatEther(userBalanceOfFei) + " FEI"}
+            />
+            <Statistic
+                title={"Utilization"}
+                value={health?.toString() + "%" ?? ""}
             />
         </SimpleGrid>
     )

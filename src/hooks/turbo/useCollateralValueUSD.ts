@@ -3,16 +3,13 @@ import { constants } from "ethers";
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { useQuery } from "react-query";
 
-const useCollateralValueUSD = (safe: SafeInfo | undefined) => {
+export const useCollateralValueUSD = (safe: SafeInfo | undefined) => {
   const { data } = useQuery(
     `Collateral USD Value for ${safe?.safeAddress}`,
     async () => {
       if (!safe) return;
       const ethUSD = await getEthUsdPriceBN();
-      //   const collateralPriceETH = safe.collateralAmount.mul(
-      //     safe.collateralPrice
-      //   );
-
+ 
       const collateralTokenPriceETH = safe.collateralPrice;
       const collateralTokenPriceUSD = collateralTokenPriceETH
         .mul(ethUSD)
