@@ -86,7 +86,6 @@ export const createTurboSafe = async (
   turboSafe: string
 ) => {
   const turboSafeContract = new Contract(turboSafe, TurboSafe.abi, provider);
-
   return turboSafeContract;
 };
 
