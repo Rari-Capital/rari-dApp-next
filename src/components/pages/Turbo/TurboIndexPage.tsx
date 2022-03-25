@@ -1,11 +1,11 @@
 import { Box, HStack, Image, SimpleGrid, Stack, useDisclosure, VStack } from "@chakra-ui/react";
 import AppLink from "components/shared/AppLink";
 import { formatEther } from "ethers/lib/utils";
+import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { Button, Card, Divider, Heading, Text } from "rari-components/standalone";
-import { useQuery } from "react-query";
 import { smallUsdFormatter } from "utils/bigUtils";
 import CreateSafeModal from "./modals/CreateSafeModal";
 // import CreateSafeModal from './modals/CreateSafeModal'
@@ -76,11 +76,7 @@ const SafeCard: React.FC<{
   tokenData: TokenData | undefined
 }> = ({ safe, i, tokenData }) => {
 
-  // const utilization = useQuery('safe utilization for ' + safe.safeAddress, () => {
-  //   const safe.feiPrice
-
-  // })
-
+  const safeHealth = useSafeHealth(safe)
 
   return (
     <AppLink href={`/turbo/safe/${safe.safeAddress}`}>
@@ -92,7 +88,7 @@ const SafeCard: React.FC<{
           </HStack>
           <Text>Boosted: {smallUsdFormatter(formatEther(safe.boostedAmount))}</Text>
           <Text>Collateral Balance: {formatEther(safe.collateralAmount)} {tokenData?.symbol}</Text>
-          {/* <Text>Utilization: {smallUsdFormatter(formatEther(safe.boostedAmount))}</Text> */}
+          <Text>Utilization: {safeHealth?.toString()}%</Text>
         </VStack>
       </Card>
     </AppLink>
