@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import { createTurboLens } from "../utils/turboContracts";
 
 export type SafeInfo = {
-  safeAddress: string,
+  safeAddress: string;
   collateralAsset: string;
   collateralAmount: BigNumber;
   collateralValue: BigNumber;
@@ -14,7 +14,7 @@ export type SafeInfo = {
   feiPrice: BigNumber;
   feiAmount: BigNumber;
   tribeDAOFee: BigNumber;
-  strategies: StrategyInfo[]; 
+  strategies: StrategyInfo[];
 };
 
 export type StrategyInfo = {
@@ -25,54 +25,63 @@ export type StrategyInfo = {
   feiAmount: BigNumber;
 };
 
-export type LensStrategyInfo = [string, BigNumber, BigNumber]
+export type LensStrategyInfo = [string, BigNumber, BigNumber];
 
 export type LensSafeInfo = [
-  string,
-  string,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  LensStrategyInfo[]
-]
+  safeAddress: string,
+  collateral: string,
+  collateralAmount: BigNumber,
+  collateralValue: BigNumber,
+  collateralPrice: BigNumber,
+  debtAmount: BigNumber,
+  debtValue: BigNumber,
+  boostedAmount: BigNumber,
+  feiPrice: BigNumber,
+  feiAmount: BigNumber,
+  tribeDAOFee: BigNumber,
+  strategyInfo: LensStrategyInfo[]
+];
 
 export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
-    safeAddress: safe[0],
-    collateralAsset: safe[1],
-    collateralAmount: safe[2],
-    collateralValue: safe[3],
-    collateralPrice: safe[4],
-    debtAmount: safe[5],
-    debtValue: safe[6],
-    boostedAmount: safe[7],
-    feiPrice: safe[8],
-    feiAmount: safe[9],
-    tribeDAOFee: safe[10],
-    strategies: formatStrategiesInfo(safe[11]),
+  safeAddress: safe[0],
+  collateralAsset: safe[1],
+  collateralAmount: safe[2],
+  collateralValue: safe[3],
+  collateralPrice: safe[4],
+  debtAmount: safe[5],
+  debtValue: safe[6],
+  boostedAmount: safe[7],
+  feiPrice: safe[8],
+  feiAmount: safe[9],
+  tribeDAOFee: safe[10],
+  strategies: formatStrategiesInfo(safe[11]),
 });
 
-export const formatStrategiesInfo = (strategy: LensStrategyInfo[]): StrategyInfo[] | [] => {
-  const formattedInfo = strategy.map(strategy => { return  {
-  strategy: strategy[0],
-  boostedAmount: strategy[1],
-  feiAmount: strategy[2],
-  }}
-  )
+export const formatStrategiesInfo = (
+  strategies: LensStrategyInfo[]
+): StrategyInfo[] | [] => {
+  const formattedStrategies = strategies.map((strategy) => {
+    return {
+      strategy: strategy[0],
+      boostedAmount: strategy[1],
+      feiAmount: strategy[2],
+    };
+  });
 
-  const filteredFormattedInfo = filterUsedStrategies(formattedInfo)
+  // Filter out unused strategies
+  const filteredFormattedStrats = filterUsedStrategies(formattedStrategies);
 
-  return filteredFormattedInfo
+  return filteredFormattedStrats;
 };
 
-export const filterUsedStrategies = (strats: StrategyInfo[]) => strats?.filter(s => s.strategy !== EMPTY_ADDRESS)
+export const filterUsedStrategies = (strats: StrategyInfo[]) =>
+  strats?.filter((s) => s.strategy !== EMPTY_ADDRESS);
 
-export const getSafeInfo = async (provider: any, safe: string, chainID: number) => {
+export const getSafeInfo = async (
+  provider: any,
+  safe: string,
+  chainID: number
+) => {
   let lens = createTurboLens(provider, chainID);
 
   try {

@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import TurboSafePage from "components/pages/Turbo/TurboSafePage";
+import TurboSafePage from "components/pages/Turbo/TurboSafePage/TurboSafePage";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export async function getStaticProps({ locale }: { locale: string }) {

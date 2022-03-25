@@ -14,3 +14,4 @@ export const useSafeInfo = (safe: string): SafeInfo | undefined => {
   );
   return safeInfo;
 };
+
