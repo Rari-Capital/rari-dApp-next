@@ -35,7 +35,7 @@
     "node-fetch": "^2.6.1",
     "node-vibrant": "^3.1.6",
     "polished": "^4.1.3",
-    "rari-components": "github:Rari-Capital/rari-components#a41c934c0ed1a5b264a3fd7417176444e7d2d0c1",
+    "rari-components": "github:Rari-Capital/rari-components#74945ff2df92c2588e3c10245049fcf64f740914",
     "rari-tokens-generator": "^2.0.0",
     "react": "^17.0.2",
     "react-apexcharts": "1.3.7",
