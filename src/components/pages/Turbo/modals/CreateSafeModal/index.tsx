@@ -77,9 +77,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     const handleCreateSafe = async () => {
         if (!address || !provider || !chainId || !underlyingToken) return;
 
-
-        console.log({amount})
-
         const amountBN = parseEther(!!amount ? amount : "0");
 
         if (!amountBN.isZero()) {
@@ -112,7 +109,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
                 console.log({ err })
             } finally {
                 setCreating(false)
-                setStepIndex(0)
                 onClose()
             }
         }
@@ -131,11 +127,10 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
             {stepIndex === 1 && <CreateSafeStepTwo incrementStepIndex={incrementStepIndex} setUnderlyingToken={setUnderlyingToken} />}
             {stepIndex === 2 && <CreateSafeStepThree
                 incrementStepIndex={incrementStepIndex}
-                setUnderlyingToken={setUnderlyingToken}
-                underlyingToken={underlyingToken}
                 amount={amount}
                 setAmount={setAmount}
                 handleCreateSafe={handleCreateSafe}
+                tokenData={tokenData}
             />}
         </Modal>
     );

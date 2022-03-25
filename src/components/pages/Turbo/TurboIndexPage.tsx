@@ -61,7 +61,7 @@ const SafeAggregates: React.FC<{
     <VStack minW="100%">
       {
         safes.map((safe, i) =>
-          <SafeCard safe={safe} i={i} tokenData={tokensData[safe.collateralAsset]} />)
+          <SafeCard key={safe.safeAddress} safe={safe} i={i} tokenData={tokensData[safe.collateralAsset]} />)
       }
     </VStack>
   )
@@ -89,6 +89,7 @@ const SafeCard: React.FC<{
             <Heading>{tokenData?.symbol}</Heading>
           </HStack>
           <Text>Boosted: {smallUsdFormatter(formatEther(safe.boostedAmount))}</Text>
+          <Text>Collateral Balance: {formatEther(safe.collateralAmount)} {tokenData?.symbol}</Text>
           {/* <Text>Utilization: {smallUsdFormatter(formatEther(safe.boostedAmount))}</Text> */}
         </VStack>
       </Card>
