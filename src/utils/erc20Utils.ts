@@ -3,6 +3,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Contract } from "@ethersproject/contracts";
 import { parseEther } from "ethers/lib/utils";
 import { constants, providers } from "ethers";
+import { MAX_APPROVAL_AMOUNT } from "./tokenUtils";
 
 export async function checkAllowance(
   signer: any,
@@ -22,9 +23,7 @@ export async function checkAllowance(
     spender
   );
 
-  const _amount = amount ?? MAX_AMOUNT;
-
-  const hasApproval = allowance.gte(_amount);
+  const hasApproval = allowance.gte(amount);
 
   console.log({
     hasApproval,
@@ -65,7 +64,7 @@ export async function approve(
   signer: providers.JsonRpcSigner | providers.Web3Provider | any,
   spender: string,
   underlyingAddress: string,
-  amount?: BigNumber
+  amount: BigNumber
 ) {
   if (isAssetETH(underlyingAddress)) return;
 
@@ -76,9 +75,7 @@ export async function approve(
 
   const erc20Contract = new Contract(underlyingAddress, erc20Interface, signer);
 
-  const _amount = amount ?? MAX_AMOUNT;
-
-  return await erc20Contract.approve(spender, _amount);
+  return await erc20Contract.approve(spender, amount);
 }
 
 const isAssetETH = (address: string) =>
@@ -98,16 +95,19 @@ export async function checkAllowanceAndApprove(
   underlyingAddress: string,
   amount?: BigNumber
 ) {
+
+  const _amount = amount ?? MAX_APPROVAL_AMOUNT
+
   const hasApprovedEnough = await checkAllowance(
     signer,
     userAddress,
     spender,
     underlyingAddress,
-    amount
+    _amount
   );
 
   if (!hasApprovedEnough) {
-    const tx = await approve(signer, spender, underlyingAddress, amount);
+    const tx = await approve(signer, spender, underlyingAddress, _amount);
     return tx;
   }
 }

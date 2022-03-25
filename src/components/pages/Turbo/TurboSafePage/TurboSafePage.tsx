@@ -1,12 +1,19 @@
-import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { Box, Stack, Image, Spacer, HStack, useDisclosure } from "@chakra-ui/react";
+import { Button, Divider, Heading, Statistic, Text } from "rari-components/standalone";
+import { ChevronLeftIcon } from "@chakra-ui/icons";
+
+// Components
 import AppLink from "components/shared/AppLink";
+import DepositSafeCollateralModal from "../modals/DepositSafeCollateralModal";
+
+
+// Hooks
+import { useRouter } from "next/router";
 import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import { useTokenData } from "hooks/useTokenData";
-import { useRouter } from "next/router";
-import { Button, Divider, Heading, Text } from "rari-components/standalone";
-import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal";
+import { SafeStats } from "./SafeStats";
+import { SafeStrategies } from "./Strategies";
 
 const TurboSafePage: React.FC = () => {
   const router = useRouter();
@@ -27,10 +34,10 @@ const TurboSafePage: React.FC = () => {
         onClose={closeDepositModal}
         safe={safe}
         tokenData={tokenData}
-      />
+      />I
       <Box color="white" width="100%" p={12}>
         <AppLink href="/turbo">
-          <ChevronLeftIcon boxSize={"30px"} mb={5} />
+          <ChevronLeftIcon boxSize={"30px"} mb={3} />
         </AppLink>
         <Box maxWidth={["100%", "1000px"]} marginX="auto">
           <Stack
@@ -50,14 +57,20 @@ const TurboSafePage: React.FC = () => {
               </Button>
             </HStack>
           </Stack>
-          <Divider mt={20} mb={16} />
+          <Divider mt={10} mb={8} />
           <Stack spacing={12}>
-          
+            {!!safe && <SafeStats safe={safe} tokenData={tokenData} />}
+          </Stack>
+          <Divider mt={10} mb={8} />
+          <Stack spacing={12}>
+            {!!safe && <SafeStrategies safe={safe} />}
           </Stack>
         </Box>
       </Box>
     </>
   );
 };
+
+
 
 export default TurboSafePage;

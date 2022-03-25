@@ -11,15 +11,15 @@ export const getUserFeiOwed = (safe: SafeInfo | undefined) => {
   const userShare = 1 - parseFloat(safe.tribeDAOFee.toString()) / 1e18;
   const revShareUser = BigNumber.from(userShare * 100)
 
-  console.log({
-    boostedAmountAfterDebtRepaid,
-    yieldAccruedBySafe,
-    revShareUser,
-  });
+  // console.log({
+  //   boostedAmountAfterDebtRepaid,
+  //   yieldAccruedBySafe,
+  //   revShareUser,
+  // });
   const feiOwedForUser = boostedAmountAfterDebtRepaid.add(
     yieldAccruedBySafe.mul(revShareUser)
   ).div(100);
 
-  console.log({feiOwedForUser})
+  // console.log({feiOwedForUser})
   return feiOwedForUser;
 };

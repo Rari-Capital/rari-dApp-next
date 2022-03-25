@@ -7,19 +7,17 @@ import { Modal, Text } from "rari-components/standalone";
 
 // Hooks
 import { useRari } from "context/RariContext";
-import { TokenData} from "hooks/useTokenData";
+import { TokenData } from "hooks/useTokenData";
 import { useState } from "react";
 
 // Turbo
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { safeDeposit } from "lib/turbo/transactions/safe";
-import { TRIBE } from "lib/turbo/utils/constants";
 
 // Utils
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { handleGenericError } from "utils/errorHandling";
 import { useBalanceOf } from "hooks/useBalanceOf";
-import { approve, checkAllowance } from "utils/erc20Utils";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -54,16 +52,13 @@ export const DepositSafeCollateralModal: React.FC<DepositSafeCollateralModalProp
         try {
             setDepositing(true)
 
-            const hasApproved = await checkAllowance(
-                provider,
-                address,
-                safeAddress,
-                TRIBE,
-            );
-
-            if (!hasApproved) {
-                await approve(await provider.getSigner(), safeAddress, collateralAsset);
-            }
+            // TODO - This keeps asking u to approve some reason even if you have
+            // await checkAllowanceAndApprove(
+            //     await provider.getSigner(),
+            //     address,
+            //     safeAddress,
+            //     TRIBE
+            // );
 
             const tx = await safeDeposit(safe.safeAddress, address, amountBN, provider.getSigner())
             console.log({ tx })
