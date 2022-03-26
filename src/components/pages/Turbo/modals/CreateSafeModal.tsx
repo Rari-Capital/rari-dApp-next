@@ -1,8 +1,7 @@
 import { useRari } from "context/RariContext";
 import { parseEther } from "ethers/lib/utils";
-import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposit";
-import { createSafe } from "lib/turbo/transactions/safe";
-import { TRIBE } from "lib/turbo/utils/constants";
+import useHasApproval from "hooks/useHasApproval";
+import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
 import { Modal } from "rari-components/standalone";
 import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
@@ -32,10 +31,24 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     }
   }
 
+  // TODO(sharad-s): Don't hardcode this
+  const underlyingTokenAddresses = [
+    // TRIBE
+    "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+    // DAI
+    "0x6b175474e89094c44da98b954eedeac495271d0f",
+  ];
+
   const [underlyingTokenAddress, setUnderlyingTokenAddress] = useState(TRIBE);
   const [depositAmount, setDepositAmount] = useState<string>();
-
-  const [creating, setCreating] = useState(false);
+  // const hasApproval = useHasApproval(
+  //   underlyingTokenAddress,
+  //   TurboAddresses[chainId ?? 31337].ROUTER
+  // );
+  // TODO(nathanhleung): replace with real implementation later
+  const [hasApproval, setHasApproval] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [creatingSafe, setCreatingSafe] = useState(false);
 
   // Utils
   const toast = useToast();
@@ -43,39 +56,43 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const onClickCreateSafe = async () => {
     if (!address || !provider || !chainId) return;
 
+
+    setCreatingSafe(true);
+
     const amountBN = parseEther(depositAmount ?? "0");
 
+    let receipt;
     if (!amountBN.isZero()) {
       try {
-        setCreating(true);
-        const receipt = await createSafeAndDeposit(
-          provider.getSigner(),
-          amountBN,
-          chainId
-        );
+        // TODO(nathanhleung): Actually create a safe
+        // receipt = await createSafeAndDeposit(
+        //   provider.getSigner(),
+        //   amountBN,
+        //   chainId
+        // );
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
       } finally {
-        setCreating(false);
+        setCreatingSafe(false);
       }
     } else {
       try {
-        setCreating(true);
-        const receipt = await createSafe(
-          underlyingTokenAddress,
-          provider,
-          chainId
-        );
+        // receipt = await createSafe(underlyingTokenAddress, provider, chainId);
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
       } finally {
-        setCreating(false);
+        setCreatingSafe(false);
       }
     }
+
+    // Pause for 3 seconds to simulate creation
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    return receipt;
   };
 
   const createSafeCtx: CreateSafeCtx = {
@@ -83,18 +100,21 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     chainId: chainId ?? 1,
     incrementStepIndex,
     decrementStepIndex,
-    // TODO(sharad-s): Don't hardcode this
-    underlyingTokenAddresses: [
-      // TRIBE
-      "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
-      // DAI
-      "0x6b175474e89094c44da98b954eedeac495271d0f",
-    ],
+    underlyingTokenAddresses,
     underlyingTokenAddress,
     setUnderlyingTokenAddress,
     depositAmount,
     setDepositAmount,
-    createSafe,
+    hasApproval,
+    approving,
+    approve: async () => {
+      setApproving(true);
+      setHasApproval(true);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      setApproving(false);
+    },
+    createSafe: onClickCreateSafe,
+    creatingSafe,
     onClose: () => {
       setStepIndex(0);
       onClose();
