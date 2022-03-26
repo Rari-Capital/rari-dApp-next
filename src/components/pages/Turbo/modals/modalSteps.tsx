@@ -10,19 +10,15 @@ import {
   TokenSymbol,
 } from "rari-components/standalone";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Center, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
+import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
 type ModalProps = React.ComponentProps<typeof Modal>;
 
 type CreateSafeCtx = {
-  /**
-   * A provider to connect to the blockchain with.
-   */
+  /** A provider to connect to the blockchain with. */
   provider: JsonRpcProvider;
-  /**
-   * The current chain ID.
-   */
+  /** The current chain ID. */
   chainId: number;
   /**
    * Function to increment the current step by 1 (i.e. go to the next step in
@@ -34,34 +30,34 @@ type CreateSafeCtx = {
    * in the safe creation process).
    */
   decrementStepIndex(): void;
-  /**
-   * List of addresses of possible underlying tokens.
-   */
+  /** List of addresses of possible underlying tokens. */
   underlyingTokenAddresses: string[];
-  /**
-   * The address of the currently selected underlying token for the safe.
-   */
+  /** The address of the currently selected underlying token for the safe. */
   underlyingTokenAddress: string;
-  /**
-   * Function to set the address of the underlying token of the safe.
-   */
+  /** Function to set the address of the underlying token of the safe. */
   setUnderlyingTokenAddress(underlyingTokenAddress: string): void;
   /**
    * Amount to deposit into the safe. Stored as a string that we'll convert to
    * a `BigNumber` later.
    */
   depositAmount?: string;
-  /**
-   * Set a new amount to deposit into the safe.
-   */
+  /** Set a new amount to deposit into the safe. */
   setDepositAmount(newDepositAmount: string): void;
   /**
-   * Function which creates a safe.
+   * Whether the currently selected `underlyingTokenAddress` has approved
+   * the router.
    */
+  hasApproval: boolean;
+  /** Function to approve the underlying token of the safe. */
+  approve: () => Promise<void>;
+  /** Whether the approval is currently pending. */
+  approving: boolean;
+  /** Function which creates a safe. */
   createSafe: typeof createSafe;
   /**
-   * Function which closes the modal.
-   */
+   * Whether the safe is currently being created. */
+  creatingSafe: boolean;
+  /** Function which closes the modal. */
   onClose(): void;
 };
 
@@ -141,7 +137,10 @@ const MODAL_STEP_2: ModalStep = {
             <Flex alignItems="center">
               <TokenIcon tokenAddress={tokenAddress} mr={4} />
               <Heading>
-                <TokenSymbol tokenAddress={tokenAddress} />
+                <TokenSymbol
+                  tokenAddress={tokenAddress}
+                  fallback="Loading..."
+                />
               </Heading>
               <Spacer />
               <ChevronRightIcon
@@ -232,19 +231,30 @@ const MODAL_STEP_4: ModalStep = {
       />
     </Box>
   ),
-  buttons: () => [
+  buttons: ({ hasApproval, approving, depositAmount, creatingSafe }) => [
     {
       children: "Back",
       variant: "cardmatte",
     },
     {
-      children: "Create Safe",
+      children: approving
+        ? "Approving..."
+        : creatingSafe
+        ? "Creating Safe..."
+        : !hasApproval
+        ? "Approve Router"
+        : (depositAmount ?? 0) > 0
+        ? "Create Safe & Deposit"
+        : "Create Safe",
       variant: "neutral",
+      loading: creatingSafe,
     },
   ],
   async onClickButton(
     i,
     {
+      hasApproval,
+      approve,
       underlyingTokenAddress,
       decrementStepIndex,
       incrementStepIndex,
@@ -256,9 +266,12 @@ const MODAL_STEP_4: ModalStep = {
     if (i === 0) {
       decrementStepIndex();
     } else {
-      // TODO(nathanhleung): Actually create a safe
-      // await createSafe(underlyingTokenAddress, provider, chainId);
-      incrementStepIndex();
+      if (!hasApproval) {
+        await approve();
+      } else {
+        await createSafe(underlyingTokenAddress, provider, chainId);
+        incrementStepIndex();
+      }
     }
   },
 };
