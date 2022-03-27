@@ -1,6 +1,7 @@
 import { useRari } from "context/RariContext";
 import { parseEther } from "ethers/lib/utils";
 import useHasApproval from "hooks/useHasApproval";
+import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposit";
 import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
 import { Modal } from "rari-components/standalone";
 import { useState } from "react";
@@ -56,43 +57,46 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const onClickCreateSafe = async () => {
     if (!address || !provider || !chainId) return;
 
-
     setCreatingSafe(true);
-
-    const amountBN = parseEther(depositAmount ?? "0");
-
-    let receipt;
-    if (!amountBN.isZero()) {
-      try {
-        // TODO(nathanhleung): Actually create a safe
-        // receipt = await createSafeAndDeposit(
-        //   provider.getSigner(),
-        //   amountBN,
-        //   chainId
-        // );
-        console.log({ receipt });
-      } catch (err) {
-        handleGenericError(err, toast);
-        console.log({ err });
-      } finally {
-        setCreatingSafe(false);
-      }
-    } else {
-      try {
-        // receipt = await createSafe(underlyingTokenAddress, provider, chainId);
-        console.log({ receipt });
-      } catch (err) {
-        handleGenericError(err, toast);
-        console.log({ err });
-      } finally {
-        setCreatingSafe(false);
-      }
-    }
 
     // Pause for 3 seconds to simulate creation
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    return receipt;
+    setCreatingSafe(false);
+
+    return null;
+
+    // TODO(nathanhleung): enable actual safe creation
+    // const amountBN = parseEther(depositAmount ?? "0");
+
+    // let receipt;
+    // if (!amountBN.isZero()) {
+    //   try {
+    //     receipt = await createSafeAndDeposit(
+    //       provider.getSigner(),
+    //       amountBN,
+    //       chainId
+    //     );
+    //     console.log({ receipt });
+    //   } catch (err) {
+    //     handleGenericError(err, toast);
+    //     console.log({ err });
+    //   } finally {
+    //     // setCreatingSafe(false);
+    //   }
+    // } else {
+    //   try {
+    //     receipt = await createSafe(underlyingTokenAddress, provider, chainId);
+    //     console.log({ receipt });
+    //   } catch (err) {
+    //     handleGenericError(err, toast);
+    //     console.log({ err });
+    //   } finally {
+    //     setCreatingSafe(false);
+    //   }
+    // }
+
+    // return receipt;
   };
 
   const createSafeCtx: CreateSafeCtx = {
@@ -109,37 +113,43 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     approving,
     approve: async () => {
       setApproving(true);
-      setHasApproval(true);
       await new Promise((resolve) => setTimeout(resolve, 3000));
+      setHasApproval(true);
       setApproving(false);
     },
     createSafe: onClickCreateSafe,
     creatingSafe,
     onClose: () => {
-      setStepIndex(0);
-      onClose();
+      // Only allow close if a transaction isn't in progress.
+      if (!approving && !creatingSafe) {
+        setStepIndex(0);
+        onClose();
+      }
     },
   };
 
-  const { title, subtitle, buttons, onClickButton, children } =
+  const { title, subtitle, buttons, onClickButton, stepBubbles, children } =
     MODAL_STEPS[stepIndex];
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={() => {
-        setStepIndex(0);
-        onClose();
+        if (!approving && !creatingSafe) {
+          setStepIndex(0);
+          onClose();
+        }
       }}
       title={title}
       subtitle={subtitle}
       buttons={buttons(createSafeCtx)}
       onClickButton={(buttonIndex) => {
-        if (onClickButton) {
+        if (!!onClickButton) {
           onClickButton(buttonIndex, createSafeCtx);
         }
       }}
       progressValue={((stepIndex + 1) / MODAL_STEPS.length) * 100}
+      stepBubbles={!!stepBubbles ? stepBubbles(createSafeCtx) : undefined}
     >
       {children(createSafeCtx)}
     </Modal>
