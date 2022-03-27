@@ -80,6 +80,8 @@ type ModalStep = Pick<ModalProps, "title" | "subtitle"> & {
    * dynamically change in response to updates in `ctx`.
    */
   buttons(ctx: CreateSafeCtx): ModalProps["buttons"];
+  /** Extension of `stepBubbles` props which allows `ctx`-dependent updates. */
+  stepBubbles?(ctx: CreateSafeCtx): ModalProps["stepBubbles"];
 };
 
 const MODAL_STEP_1: ModalStep = {
@@ -132,6 +134,7 @@ const MODAL_STEP_2: ModalStep = {
             setUnderlyingTokenAddress(tokenAddress);
             incrementStepIndex();
           }}
+          key={tokenAddress}
         >
           {(hovered) => (
             <Flex alignItems="center">
@@ -231,6 +234,12 @@ const MODAL_STEP_4: ModalStep = {
       />
     </Box>
   ),
+  stepBubbles: ({ hasApproval, approving, creatingSafe }) => ({
+    steps: 2,
+    loading: approving || creatingSafe,
+    activeIndex: !hasApproval ? 0 : 1,
+    background: "neutral",
+  }),
   buttons: ({ hasApproval, approving, depositAmount, creatingSafe }) => [
     {
       children: "Back",
@@ -247,7 +256,7 @@ const MODAL_STEP_4: ModalStep = {
         ? "Create Safe & Deposit"
         : "Create Safe",
       variant: "neutral",
-      loading: creatingSafe,
+      loading: approving || creatingSafe,
     },
   ],
   async onClickButton(
