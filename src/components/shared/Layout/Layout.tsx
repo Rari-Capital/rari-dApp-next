@@ -3,23 +3,34 @@
 import { useRari } from "context/RariContext";
 import { ChainID } from "esm/utils/networks";
 import { Column } from "lib/chakraUtils";
+import { useRouter } from "next/router";
+import theme from "rari-components/theme";
 import { useMemo, useState, useEffect } from "react";
 import NewHeader from "../Header2/NewHeader";
 import Footer from "./Footer";
 
+const { darkmatte } = theme.colors;
 
 const Layout = ({ children }) => {
   const { chainId } = useRari()
+  const { pathname } = useRouter();
 
   const bg = useMemo(() => {
+    // Use the rari-components theme background color on `/turbo` pages to match
+    // with the other rari-components colors (Turbo is the first project to use
+    // rari-components from the start — elsewhere on the app, we are replacing
+    // components incrementally and the original `black` background is more
+    // appropriate).
+    const baseBg = pathname.startsWith("/turbo") ? darkmatte : "black";
+
     switch (chainId) {
       case ChainID.ARBITRUM:
-        return "linear-gradient(45deg, hsla(0, 0%, 0%, 1) 76%, hsla(220, 47%, 36%, 0.9) 100%);"
+        return `linear-gradient(45deg, ${baseBg} 76%, hsla(220, 47%, 36%, 0.9) 100%)`;
       default:
-        return 'black'
+        return baseBg
     }
 
-  }, [chainId])
+  }, [chainId, pathname])
 
   const [showShader, setShowShader] = useState<boolean>(false);
 

@@ -3,7 +3,8 @@ import { parseEther } from "ethers/lib/utils";
 import useHasApproval from "hooks/useHasApproval";
 import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposit";
 import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
-import { Modal } from "rari-components/standalone";
+import { useRouter } from "next/router";
+import { Modal } from "rari-components";
 import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
@@ -18,6 +19,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
   const { address, provider, chainId } = useRari();
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -119,12 +121,15 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     },
     createSafe: onClickCreateSafe,
     creatingSafe,
-    onClose: () => {
+    onClose() {
       // Only allow close if a transaction isn't in progress.
       if (!approving && !creatingSafe) {
         setStepIndex(0);
         onClose();
       }
+    },
+    navigateToCreatedSafe() {
+      router.push("/turbo/safe/0");
     },
   };
 
