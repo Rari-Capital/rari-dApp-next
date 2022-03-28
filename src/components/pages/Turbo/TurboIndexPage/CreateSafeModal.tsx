@@ -101,6 +101,13 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     // return receipt;
   };
 
+  async function onClickApprove() {
+    setApproving(true);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    setHasApproval(true);
+    setApproving(false);
+  }
+
   const createSafeCtx: CreateSafeCtx = {
     provider,
     chainId: chainId ?? 1,
@@ -113,12 +120,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     setDepositAmount,
     hasApproval,
     approving,
-    approve: async () => {
-      setApproving(true);
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      setHasApproval(true);
-      setApproving(false);
-    },
+    approve: onClickApprove,
     createSafe: onClickCreateSafe,
     creatingSafe,
     onClose() {
