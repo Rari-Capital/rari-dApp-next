@@ -1,11 +1,10 @@
 import { SimpleGrid } from "@chakra-ui/react";
-import { Statistic } from "rari-components/standalone";
+import { Statistic } from "rari-components";
 
 // Hooks
 import { useMemo } from "react";
 import { useRari } from "context/RariContext";
 import { useBalanceOf } from "hooks/useBalanceOf";
-import { TokenData } from "hooks/useTokenData";
 
 // Turbo
 import { getUserFeiOwed } from "lib/turbo/utils/getUserFeiOwed";
@@ -18,9 +17,15 @@ import { formatEther } from "ethers/lib/utils";
 import { commify } from "ethers/lib/utils";
 import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
 import useSafeHealth from "hooks/turbo/useSafeHealth";
+import { useRariTokenData } from "rari-components/hooks";
 
-export const SafeStats: React.FC<{ safe: SafeInfo, tokenData: TokenData | undefined }> = ({ safe, tokenData }) => {
+type SafeStatsProps = {
+    safe: SafeInfo;
+}
+
+export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
     const { address } = useRari();
+    const { data: tokenData } = useRariTokenData(safe.collateralAsset);
 
     const safeBalanceOfFei = useBalanceOf(safe.safeAddress, FEI)
     const userBalanceOfFei = useBalanceOf(address, FEI)
@@ -40,10 +45,10 @@ export const SafeStats: React.FC<{ safe: SafeInfo, tokenData: TokenData | undefi
                 title={"Safe boosted Amount"}
                 value={`${formatEther(safe.boostedAmount)} ${tokenData?.symbol}`}
             />
-            {/* <Statistic
-          title={"Net APY"}
-          value={`0%`}
-        /> */}
+            <Statistic
+                title={"Net APY"}
+                value={`0%`}
+            />
             <Statistic
                 title={"Claimable FEI"}
                 value={smallUsdFormatter(formatEther(userFeiOwed))}

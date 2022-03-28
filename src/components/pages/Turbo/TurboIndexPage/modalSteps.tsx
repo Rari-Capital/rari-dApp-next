@@ -8,7 +8,7 @@ import {
   TokenAmountInput,
   TokenIcon,
   TokenSymbol,
-} from "rari-components/standalone";
+} from "rari-components";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -54,11 +54,14 @@ type CreateSafeCtx = {
   approving: boolean;
   /** Function which creates a safe. */
   createSafe: typeof createSafe;
-  /**
-   * Whether the safe is currently being created. */
+  /** Whether the safe is currently being created. */
   creatingSafe: boolean;
   /** Function which closes the modal. */
   onClose(): void;
+  /**
+   * Function which navigates to the safe that was just created in this modal.
+   */
+  navigateToCreatedSafe(): void;
 };
 
 type ModalStep = Pick<ModalProps, "title" | "subtitle"> & {
@@ -306,8 +309,9 @@ const MODAL_STEP_5: ModalStep = {
       variant: "neutral",
     },
   ],
-  async onClickButton(_, { onClose }) {
+  async onClickButton(_, { onClose, navigateToCreatedSafe }) {
     onClose();
+    navigateToCreatedSafe();
   },
 };
 

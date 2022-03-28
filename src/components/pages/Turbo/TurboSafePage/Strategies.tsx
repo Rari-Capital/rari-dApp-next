@@ -1,5 +1,5 @@
 import { Heading, HStack, SimpleGrid, Spinner, useToast, VStack } from "@chakra-ui/react";
-import {  Card, Text, Button } from "rari-components/standalone";
+import {  Card, Text, Button } from "rari-components";
 
 // Hooks
 import { useState } from "react";

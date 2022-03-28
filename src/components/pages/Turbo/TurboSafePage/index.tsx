@@ -1,2 +1,1 @@
-import TurboSafePage from "./TurboSafePage"
-export default TurboSafePage
+export { default } from "./TurboSafePage";
