@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
@@ -253,9 +254,9 @@ const MODAL_STEP_4: ModalStep = {
         ? "Approving..."
         : creatingSafe
         ? "Creating Safe..."
-        : !hasApproval
+        : !hasApproval && BigNumber.from(depositAmount).gt(0)
         ? "Approve Router"
-        : (depositAmount ?? 0) > 0
+        : BigNumber.from(depositAmount).gt(0)
         ? "Create Safe & Deposit"
         : "Create Safe",
       variant: "neutral",
