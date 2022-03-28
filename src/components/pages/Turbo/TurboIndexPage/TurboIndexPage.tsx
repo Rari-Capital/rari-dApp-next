@@ -4,13 +4,7 @@ import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
-import {
-  Button,
-  Card,
-  Divider,
-  Heading,
-  Text,
-} from "rari-components";
+import { Button, Card, Divider, Heading, Text } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
 import {
   Box,
