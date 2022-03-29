@@ -189,9 +189,7 @@ const MarketCapConfigurator = ({
               <SaveButton
                 mt="2"
                 ml="auto"
-                onClick={() =>
-                  handleSubmit(cTokenAddress, parseInt(newSupplyCap))
-                }
+                onClick={handleSubmit}
                 fontSize="xs"
                 altText={"Submit"}
               />
