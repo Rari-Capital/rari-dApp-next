@@ -135,11 +135,9 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     },
   };
 
-  const { title, subtitle, buttons, onClickButton, stepBubbles, children } =
-    MODAL_STEPS[stepIndex];
-
   return (
     <Modal
+      ctx={createSafeCtx}
       isOpen={isOpen}
       onClose={() => {
         if (!approving && !creatingSafe) {
@@ -147,19 +145,9 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           onClose();
         }
       }}
-      title={title}
-      subtitle={subtitle}
-      buttons={buttons(createSafeCtx)}
-      onClickButton={(buttonIndex) => {
-        if (!!onClickButton) {
-          onClickButton(buttonIndex, createSafeCtx);
-        }
-      }}
       progressValue={((stepIndex + 1) / MODAL_STEPS.length) * 100}
-      stepBubbles={!!stepBubbles ? stepBubbles(createSafeCtx) : undefined}
-    >
-      {children(createSafeCtx)}
-    </Modal>
+      {...MODAL_STEPS[stepIndex]}
+    />
   );
 };
 

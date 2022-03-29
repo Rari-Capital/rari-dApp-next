@@ -3,7 +3,7 @@ import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
   HoverableCard,
-  Modal,
+  ModalProps,
   StatisticTable,
   Text,
   TokenAmountInput,
@@ -14,7 +14,7 @@ import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
-type ModalProps = React.ComponentProps<typeof Modal>;
+type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
 
 type CreateSafeCtx = {
   /** A provider to connect to the blockchain with. */
@@ -65,35 +65,12 @@ type CreateSafeCtx = {
   navigateToCreatedSafe(): void;
 };
 
-type ModalStep = Pick<ModalProps, "title" | "subtitle"> & {
-  /**
-   * Extension of the base `Modal` `children` prop which receives a parameter
-   * `ctx` containing functions and variables specific to the safe creation flow
-   * (essentially, making `children` a render prop) before returning `ReactNode`
-   * children.
-   */
-  children(ctx: CreateSafeCtx): ModalProps["children"];
-  /**
-   * Extension of the `Modal` `onClickButton` prop which also receives
-   * a parameter `ctx` containing functions and variables specific to the
-   * safe creation flow.
-   */
-  onClickButton?(buttonIndex: number, ctx: CreateSafeCtx): void;
-  /**
-   * Extension of the `Modal` `buttons` prop which allows modal buttons to
-   * dynamically change in response to updates in `ctx`.
-   */
-  buttons(ctx: CreateSafeCtx): ModalProps["buttons"];
-  /** Extension of `stepBubbles` props which allows `ctx`-dependent updates. */
-  stepBubbles?(ctx: CreateSafeCtx): ModalProps["stepBubbles"];
-};
-
 const MODAL_STEP_1: ModalStep = {
   title: "Creating a safe",
   subtitle:
     "The first step towards using Turbo is creating a safe, which allows you " +
     "to boost pools by depositing collateral.",
-  children: () => (
+  children: (
     <Stack spacing={4}>
       <Flex align="center">
         <Image src="/static/turbo/one-collateral-type.png" height={16} mr={4} />
@@ -111,15 +88,15 @@ const MODAL_STEP_1: ModalStep = {
       </Flex>
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ incrementStepIndex }) => [
     {
       children: "I understand",
       variant: "neutral",
+      onClick() {
+        incrementStepIndex();
+      },
     },
   ],
-  onClickButton(_, { incrementStepIndex }) {
-    incrementStepIndex();
-  },
 };
 
 const MODAL_STEP_2: ModalStep = {
@@ -162,15 +139,15 @@ const MODAL_STEP_2: ModalStep = {
       ))}
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ decrementStepIndex }) => [
     {
       children: "Back",
       variant: "cardmatte",
+      onClick() {
+        decrementStepIndex();
+      },
     },
   ],
-  onClickButton(_, { decrementStepIndex }) {
-    decrementStepIndex();
-  },
 };
 
 const MODAL_STEP_3: ModalStep = {
@@ -194,27 +171,29 @@ const MODAL_STEP_3: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ decrementStepIndex, incrementStepIndex }) => [
     {
       children: "Back",
       variant: "cardmatte",
+      onClick() {
+        decrementStepIndex();
+      },
     },
     {
       children: "Skip",
       variant: "cardmatte",
+      onClick() {
+        incrementStepIndex();
+      },
     },
     {
       children: "Review",
       variant: "neutral",
+      onClick() {
+        incrementStepIndex();
+      },
     },
   ],
-  onClickButton(i, { decrementStepIndex, incrementStepIndex }) {
-    if (i === 0) {
-      decrementStepIndex();
-    } else {
-      incrementStepIndex();
-    }
-  },
 };
 
 const MODAL_STEP_4: ModalStep = {
@@ -244,10 +223,24 @@ const MODAL_STEP_4: ModalStep = {
     activeIndex: !hasApproval ? 0 : 1,
     background: "neutral",
   }),
-  buttons: ({ hasApproval, approving, depositAmount, creatingSafe }) => [
+  buttons: ({
+    hasApproval,
+    approving,
+    depositAmount,
+    creatingSafe,
+    decrementStepIndex,
+    incrementStepIndex,
+    underlyingTokenAddress,
+    approve,
+    provider,
+    chainId,
+  }) => [
     {
       children: "Back",
       variant: "cardmatte",
+      onClick() {
+        decrementStepIndex();
+      },
     },
     {
       children: approving
@@ -261,32 +254,16 @@ const MODAL_STEP_4: ModalStep = {
         : "Create Safe",
       variant: "neutral",
       loading: approving || creatingSafe,
+      async onClick() {
+        if (!hasApproval) {
+          await approve();
+        } else {
+          await createSafe(underlyingTokenAddress, provider, chainId);
+          incrementStepIndex();
+        }
+      },
     },
   ],
-  async onClickButton(
-    i,
-    {
-      hasApproval,
-      approve,
-      underlyingTokenAddress,
-      decrementStepIndex,
-      incrementStepIndex,
-      createSafe,
-      provider,
-      chainId,
-    }
-  ) {
-    if (i === 0) {
-      decrementStepIndex();
-    } else {
-      if (!hasApproval) {
-        await approve();
-      } else {
-        await createSafe(underlyingTokenAddress, provider, chainId);
-        incrementStepIndex();
-      }
-    }
-  },
 };
 
 const MODAL_STEP_5: ModalStep = {
@@ -304,16 +281,16 @@ const MODAL_STEP_5: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ onClose, navigateToCreatedSafe }) => [
     {
       children: "View Safe",
       variant: "neutral",
+      onClick() {
+        onClose();
+        navigateToCreatedSafe();
+      },
     },
   ],
-  async onClickButton(_, { onClose, navigateToCreatedSafe }) {
-    onClose();
-    navigateToCreatedSafe();
-  },
 };
 
 const MODAL_STEPS: ModalStep[] = [
