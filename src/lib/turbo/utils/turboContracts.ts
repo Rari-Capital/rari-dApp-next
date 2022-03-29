@@ -45,7 +45,7 @@ export const createTurboMaster = async (provider: providers.JsonRpcProvider, id:
   return turboMasterContract;
 };
 
-export const createTurboComptroller = async (
+export const createTurboComptroller = (
   provider: providers.JsonRpcProvider,
   id: number
 ) => {

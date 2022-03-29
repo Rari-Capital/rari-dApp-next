@@ -1,5 +1,5 @@
-import { SimpleGrid } from "@chakra-ui/react";
-import { Statistic } from "rari-components";
+import { HStack, Spacer, VStack } from "@chakra-ui/react";
+import { Statistic, Text } from "rari-components";
 
 // Hooks
 import { useMemo } from "react";
@@ -14,9 +14,7 @@ import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { FEI } from "lib/turbo/utils/constants";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { formatEther } from "ethers/lib/utils";
-import { commify } from "ethers/lib/utils";
 import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
-import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useRariTokenData } from "rari-components/hooks";
 
 type SafeStatsProps = {
@@ -33,34 +31,51 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
   const userFeiOwed = useMemo(() => getUserFeiOwed(safe), [safe]);
 
   const collateralUSD = useCollateralValueUSD(safe);
-  const health = useSafeHealth(safe);
 
   return (
-    <SimpleGrid columns={3} spacingX="40px" spacingY="20px">
+    <HStack justify="start" align="flex-start" w="100%">
       <Statistic
-        title={"Total Collateralized"}
-        value={`${commify(formatEther(safe.collateralAmount))} ${
-          tokenData?.symbol
-        } (${smallStringUsdFormatter(collateralUSD ?? 0)})`}
+        title={"Total Collateralized <i>"}
+        subtitle="hi"
+        value={
+          <VStack align={"start"}>
+            <Text fontSize={"2xl"}>{smallStringUsdFormatter(collateralUSD ?? 0)}</Text>
+            <Text fontSize={"md"} color="grey" fontWeight="medium">{parseFloat(formatEther(safe.collateralAmount)).toFixed(2)} {tokenData?.symbol}</Text>
+          </VStack>}
+        tooltip="Hi"
+        mr={10}
       />
+      <Spacer />
       <Statistic
-        title={"Safe boosted Amount"}
-        value={`${formatEther(safe.boostedAmount)} ${tokenData?.symbol}`}
+        title={"Claimable FEI <i> "}
+        subtitle="hi"
+        value={
+          <VStack align={"start"}>
+            <Text fontSize={"2xl"}>{smallUsdFormatter(formatEther(userFeiOwed))}</Text>
+            <Text fontSize={"md"}  color="grey" fontWeight="medium">{parseFloat(formatEther(userFeiOwed)).toFixed(2)} FEI</Text>
+          </VStack>}
+        tooltip="Hi"
+        mx={20}
       />
-      <Statistic title={"Net APY"} value={`0%`} />
+      <Spacer />
       <Statistic
-        title={"Claimable FEI"}
-        value={smallUsdFormatter(formatEther(userFeiOwed))}
+        title={"Net APY <i>"}
+        subtitle="hi"
+        value={
+          <VStack align={"start"}>
+            <Text fontSize={"2xl"}>0%</Text>
+          </VStack>}
+        tooltip="Hi"
+        mx={20}
       />
-      <Statistic
+      {/* <Statistic
         title={"Safe Balance FEI"}
         value={formatEther(safeBalanceOfFei) + " FEI"}
       />
       <Statistic
         title={"User Balance FEI"}
         value={formatEther(userBalanceOfFei) + " FEI"}
-      />
-      <Statistic title={"Utilization"} value={health?.toString() + "%" ?? ""} />
-    </SimpleGrid>
+      /> */}
+    </HStack>
   );
 };
