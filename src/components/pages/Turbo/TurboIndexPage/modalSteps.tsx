@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
@@ -13,6 +13,7 @@ import {
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { parseEther } from "ethers/lib/utils";
 
 type ModalProps = React.ComponentProps<typeof Modal>;
 
@@ -62,7 +63,7 @@ type CreateSafeCtx = {
   /**
    * Function which navigates to the safe that was just created in this modal.
    */
-  navigateToCreatedSafe(): void;
+  navigateToCreatedSafe(safeId: string): void;
 };
 
 type ModalStep = Pick<ModalProps, "title" | "subtitle"> & {
@@ -186,8 +187,8 @@ const MODAL_STEP_3: ModalStep = {
         />
         <StatisticTable
           statistics={[
-            ["Collateral deposited", `${depositAmount ?? 0}`],
-            ["Boost balance", `${depositAmount ?? 0}`],
+            ["Collateral deposited",  `${utils.commify(depositAmount ?? '0')}`],
+            ["Boost balance",  `${utils.commify(depositAmount ?? '0')}`],
           ]}
           mt={4}
         />
@@ -230,18 +231,18 @@ const MODAL_STEP_4: ModalStep = {
       <StatisticTable
         mt={8}
         statistics={[
-          ["Collateral deposited", `${depositAmount ?? 0}`],
-          ["Boost balance", `${depositAmount ?? 0}`],
+          ["Collateral deposited", `${utils.commify(depositAmount ?? '0')}`],
+          ["Boost balance", `${utils.commify(depositAmount ?? '0')}`],
           ["Estimated gas cost", ""],
           ["# of transactions", "3"],
         ]}
       />
     </Box>
   ),
-  stepBubbles: ({ hasApproval, approving, creatingSafe }) => ({
+  stepBubbles: ({ hasApproval, approving, creatingSafe, depositAmount }) => ({
     steps: 2,
     loading: approving || creatingSafe,
-    activeIndex: !hasApproval ? 0 : 1,
+    activeIndex: !hasApproval && parseEther(depositAmount ?? "0") ? 0 : 1,
     background: "neutral",
   }),
   buttons: ({ hasApproval, approving, depositAmount, creatingSafe }) => [
@@ -253,12 +254,12 @@ const MODAL_STEP_4: ModalStep = {
       children: approving
         ? "Approving..."
         : creatingSafe
-        ? "Creating Safe..."
-        : !hasApproval && BigNumber.from(depositAmount).gt(0)
-        ? "Approve Router"
-        : BigNumber.from(depositAmount).gt(0)
-        ? "Create Safe & Deposit"
-        : "Create Safe",
+          ? "Creating Safe..."
+          : !hasApproval && BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+            ? "Approve Router"
+            : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+              ? "Create Safe & Deposit"
+              : "Create Safe",
       variant: "neutral",
       loading: approving || creatingSafe,
     },
@@ -274,6 +275,7 @@ const MODAL_STEP_4: ModalStep = {
       createSafe,
       provider,
       chainId,
+      depositAmount
     }
   ) {
     if (i === 0) {
@@ -283,7 +285,6 @@ const MODAL_STEP_4: ModalStep = {
         await approve();
       } else {
         await createSafe(underlyingTokenAddress, provider, chainId);
-        incrementStepIndex();
       }
     }
   },
