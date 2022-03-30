@@ -1,3 +1,6 @@
+
+import Statistic from "lib/components/Statistic"
+
 import { useRari } from "context/RariContext";
 import { formatEther } from "ethers/lib/utils";
 import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
@@ -7,7 +10,6 @@ import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { FEI } from "lib/turbo/utils/constants";
 // Turbo
 import { getUserFeiOwed } from "lib/turbo/utils/getUserFeiOwed";
-import { Statistic, Text } from "rari-components";
 import { useRariTokenData } from "rari-components/hooks";
 // Hooks
 import { useMemo } from "react";
@@ -30,28 +32,34 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
   const collateralUSD = useCollateralValueUSD(safe);
 
   return (
-    <HStack justify="start" align="flex-start" w="100%">
+    <HStack>
       <Statistic
-        title={"Total Collateralized <i>"}
+        title={"Total Collateralized"}
         secondaryValue={`${parseFloat(
           formatEther(safe.collateralAmount)
         ).toFixed(2)} ${tokenData?.symbol}`}
         value={smallStringUsdFormatter(collateralUSD ?? 0)}
         tooltip="Hi"
-        mr={10}
+        mr={1}
+
       />
       <Spacer />
       <Statistic
-        title={"Claimable FEI <i> "}
+        title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
         secondaryValue={`${parseFloat(formatEther(userFeiOwed)).toFixed(
           2
         )} FEI`}
         tooltip="Hi"
-        mx={20}
+        mr={1}
       />
       <Spacer />
-      <Statistic title={"Net APY <i>"} value="0%" tooltip="Hi" mx={20} />
+      <Statistic
+        title={"Net APY"}
+        value="0%"
+        tooltip="Hi"
+        mr={1}
+      />
       {/* <Statistic
         title={"Safe Balance FEI"}
         value={formatEther(safeBalanceOfFei) + " FEI"}
