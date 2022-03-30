@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
-import CreateSafeModal from "./CreateSafeModal";
+import CreateSafeModal from "./CreateSafeModal/";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
