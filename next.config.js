@@ -24,8 +24,8 @@ module.exports = withBundleAnalyzer({
 
     config.module.rules.push({
       test: /\.tsx?/,
-      // Transpile rari-components, even though it is in node_modules
-      include: [/node_modules\/rari-components/],
+      // Transpile rari-components
+      include: [/rari-components/],
       use: "next-swc-loader",
     });
 

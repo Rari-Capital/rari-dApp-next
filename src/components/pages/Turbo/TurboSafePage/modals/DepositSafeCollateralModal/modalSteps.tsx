@@ -3,6 +3,7 @@ import { formatEther } from "ethers/lib/utils";
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import {
   ModalProps,
+  StatisticTable,
   Text,
   TokenAmountInput,
   TokenSymbol,
@@ -42,6 +43,11 @@ const MODAL_STEP_1: ModalStep = {
           You have {formatEther(collateralBalance)}{" "}
           <TokenSymbol tokenAddress={safe.collateralAsset} />
         </Text>
+        <StatisticTable statistics={[
+          ["Collateral deposited", "$0"],
+          ["Boost Balance", "$0"],
+          ["Safe Utilization", safe.safeUtilization.toString() + "%" ?? "?"]
+        ]} />
       </>
     ),
   buttons: ({
@@ -53,26 +59,26 @@ const MODAL_STEP_1: ModalStep = {
     incrementStepIndex,
     onClose,
   }) => [
-    {
-      children: approving
-        ? "Approving..."
-        : depositing
-        ? "Depositing..."
-        : !hasApproval
-        ? "Approve Router"
-        : "Deposit",
-      variant: "neutral",
-      loading: approving || depositing,
-      async onClick() {
-        if (!hasApproval) {
-          await onClickApprove();
-        } else {
-          await onClickDeposit();
-          onClose();
-        }
+      {
+        children: approving
+          ? "Approving..."
+          : depositing
+            ? "Depositing..."
+            : !hasApproval
+              ? "Approve Router"
+              : "Deposit",
+        variant: "neutral",
+        loading: approving || depositing,
+        async onClick() {
+          if (!hasApproval) {
+            await onClickApprove();
+          } else {
+            await onClickDeposit();
+            onClose();
+          }
+        },
       },
-    },
-  ],
+    ],
 };
 
 const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1];

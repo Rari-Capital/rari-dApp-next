@@ -50,7 +50,7 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
         secondaryValue={`${parseFloat(formatEther(userFeiOwed)).toFixed(
           2
         )} FEI`}
-        tooltip="Hi"
+        tooltip="Sum of all earned FEI across all boosted strategies after Revenue Split"
         mr={1}
       />
       <Spacer />

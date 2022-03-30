@@ -3,19 +3,19 @@ import { checkAllowance } from "utils/erc20Utils";
 import { useRari } from "context/RariContext";
 
 const useHasApproval = (
-  underlyingToken: string,
-  spender: string,
+  underlyingToken: string | undefined,
+  spender: string | undefined,
   userAddress?: string
 ) => {
   const { address, chainId, provider } = useRari();
   const addressToUse = userAddress ?? address;
 
   const { data } = useQuery(
-    `${addressToUse} has approval for TurboRouter`,
+    ` ${spender} has approval to spend ${underlyingToken} on behalf of ${addressToUse}`,
     async () => {
-      if (!addressToUse || !chainId) return false;
+      if (!addressToUse || !chainId || !spender || !underlyingToken) return false;
 
-    //   const spender = TurboAddresses[network.chain?.id].ROUTER;
+      //   const spender = TurboAddresses[network.chain?.id].ROUTER;
       return await checkAllowance(
         provider,
         addressToUse,
