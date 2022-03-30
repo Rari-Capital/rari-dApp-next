@@ -1,6 +1,5 @@
 import AppLink from "components/shared/AppLink";
 import { formatEther } from "ethers/lib/utils";
-import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
@@ -81,7 +80,6 @@ const SafeCard: React.FC<{
   i: number;
   tokenData: TokenData | undefined;
 }> = ({ safe, i, tokenData }) => {
-  const safeHealth = useSafeHealth(safe);
 
   return (
     <AppLink href={`/turbo/safe/${safe.safeAddress}`}>
@@ -98,7 +96,7 @@ const SafeCard: React.FC<{
             Collateral Balance: {formatEther(safe.collateralAmount)}{" "}
             {tokenData?.symbol}
           </Text>
-          <Text>Utilization: {safeHealth?.toString()}%</Text>
+          <Text>Utilization: {safe.safeUtilization?.toString()}%</Text>
         </VStack>
       </Card>
     </AppLink>

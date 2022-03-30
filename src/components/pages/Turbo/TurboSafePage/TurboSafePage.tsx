@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import useBoostedValueUSD from "hooks/turbo/useBoostedValueUSD";
 import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
 // Components
-import useSafeHealth from "hooks/turbo/useSafeHealth";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import { useBalanceOf } from "hooks/useBalanceOf";
 import { TokenData, useTokenData } from "hooks/useTokenData";
@@ -43,15 +42,16 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
-import ClaimInterestModal from "./ClaimInterestModal";
-import DepositSafeCollateralModal from "./DepositSafeCollateralModal/DepositSafeCollateralModal";
+import ClaimInterestModal from "./modals/ClaimInterestModal";
+import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import { SafeStats } from "./SafeStats";
 import { SafeStrategies } from "./Strategies";
-import SafeInfoModal from "./TurboInfoModal";
-import WithdrawSafeCollateralModal from "./WithdrawSafeCollateralModal";
+import SafeInfoModal from "./modals/TurboInfoModal";
+import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
 import AppLink from "components/shared/AppLink";
+import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 
-const MOCK_SAFE = {
+const MOCK_SAFE: SafeInfo = {
   safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
   collateralAsset: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
   collateralAmount: BigNumber.from("5000001000000000000000000"),
@@ -70,6 +70,7 @@ const MOCK_SAFE = {
       feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
     },
   ],
+  safeUtilization: BigNumber.from("50")
 };
 
 const TurboSafePage: React.FC = () => {
@@ -79,8 +80,6 @@ const TurboSafePage: React.FC = () => {
   const safeId = id as string;
 
   const safe = useSafeInfo(safeId) ?? MOCK_SAFE;
-  const safeHealth = useSafeHealth(safe);
-
   const tokenData = useTokenData(safe?.collateralAsset);
 
   const loading = !tokenData || !safe
@@ -114,6 +113,8 @@ const TurboSafePage: React.FC = () => {
 
   const safeBalanceOfFei = useBalanceOf(safe?.safeAddress, FEI);
   const userBalanceOfFei = useBalanceOf(address, FEI);
+
+  const safeHealth = safe?.safeUtilization
 
   // const { data: liquidationPrice } = useQuery('liq price for safe ' + safe?.safeAddress, async () => {
   //   if (!safe) return

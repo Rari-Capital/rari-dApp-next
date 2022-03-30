@@ -10,6 +10,9 @@ import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
+import { safeDeposit } from "lib/turbo/transactions/safe";
+import { checkAllowanceAndApprove } from "utils/erc20Utils";
+import useHasApproval from "hooks/useHasApproval";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -24,10 +27,6 @@ export const DepositSafeCollateralModal: React.FC<
   const { address, provider, chainId } = useRari();
   const toast = useToast();
 
-  const [depositAmount, setDepositAmount] = useState<string>("10");
-  const [depositing, setDepositing] = useState(false);
-  const collateralBalance = useBalanceOf(address, safe?.collateralAsset);
-
   const [stepIndex, setStepIndex] = useState(0);
   function incrementStepIndex() {
     if (stepIndex + 1 !== MODAL_STEPS.length) {
@@ -35,14 +34,34 @@ export const DepositSafeCollateralModal: React.FC<
     }
   }
 
-  // TODO(sharad-s): Use real approval function
+  const [depositAmount, setDepositAmount] = useState<string>("10");
+  const [depositing, setDepositing] = useState(false);
+
+  const collateralBalance = useBalanceOf(address, safe?.collateralAsset);
   const [approving, setApproving] = useState(false);
-  const [hasApproval, setHasApproval] = useState(false);
+
+  // TODO(sharad-s): Use real approval function
+  const hasApproval = useHasApproval(safe?.collateralAsset, safe?.safeAddress)
+  // const [hasApproval, setHasApproval] = useState(false);
+
   async function approve() {
     setApproving(true);
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    setHasApproval(true);
-    setApproving(false);
+    const safeAddress = safe?.safeAddress
+    if (!safeAddress) return
+    try {
+      setApproving(true)
+      await checkAllowanceAndApprove(
+        await provider.getSigner(),
+        address,
+        safeAddress,
+        safe.collateralAsset
+      );
+      incrementStepIndex()
+    } catch (err) {
+      handleGenericError(err, toast)
+    } finally {
+      setApproving(false)
+    }
   }
 
   // TODO(sharad-s) - move Approval step outside (check approval/permit and show as a step on UI if not)
@@ -53,31 +72,22 @@ export const DepositSafeCollateralModal: React.FC<
 
     try {
       setDepositing(true);
-
-      // TODO - This keeps asking u to approve some reason even if you have
-      // await checkAllowanceAndApprove(
-      //     await provider.getSigner(),
-      //     address,
-      //     safeAddress,
-      //     TRIBE
-      // );
-
       // TODO(sharad-s): Use real implementation
-      // const tx = await safeDeposit(
-      //   safe.safeAddress,
-      //   address,
-      //   depositAmountBN,
-      //   provider.getSigner()
-      // );
-      // console.log({ tx });
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const tx = await safeDeposit(
+        safeAddress,
+        address,
+        depositAmountBN,
+        provider.getSigner()
+      );
+      console.log({ tx });
     } catch (err) {
       handleGenericError(err, toast);
     } finally {
       setDepositing(false);
     }
   };
+
+
 
   return (
     <Modal

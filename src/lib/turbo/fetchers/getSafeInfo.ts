@@ -15,6 +15,7 @@ export type SafeInfo = {
   feiAmount: BigNumber;
   tribeDAOFee: BigNumber;
   strategies: StrategyInfo[];
+  safeUtilization: BigNumber
 };
 
 export type StrategyInfo = {
@@ -39,7 +40,7 @@ export type LensSafeInfo = [
   feiPrice: BigNumber,
   feiAmount: BigNumber,
   tribeDAOFee: BigNumber,
-  strategyInfo: LensStrategyInfo[]
+  strategyInfo: LensStrategyInfo[],
 ];
 
 export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
@@ -55,6 +56,7 @@ export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   feiAmount: safe[9],
   tribeDAOFee: safe[10],
   strategies: formatStrategiesInfo(safe[11]),
+  safeUtilization: safe[6].mul(100).div(safe[3]) // debtValue / collateralValue
 });
 
 export const formatStrategiesInfo = (

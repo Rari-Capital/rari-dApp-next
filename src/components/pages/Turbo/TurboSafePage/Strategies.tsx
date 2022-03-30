@@ -53,13 +53,13 @@ export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
           "Active Boost",
         ]}
         rows={
-          safeStrategies.map(strat => {
+          safeStrategies.map((strat, i) => {
             const strategyData = strategiesData[strat.strategy]
             const earnedFeiUSD = parseFloat(formatEther(strat.feiAmount.sub(strat.boostedAmount))) * (feiPriceUSD ?? 1)
             const boostedFeiUSD = parseFloat(formatEther(strat.boostedAmount)) * (feiPriceUSD ?? 1)
             const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
             return ({
-              key: strat.strategy,
+              key: i,
               data: [
                 (
                   <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
