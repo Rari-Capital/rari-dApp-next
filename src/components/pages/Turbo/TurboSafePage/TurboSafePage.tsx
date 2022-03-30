@@ -223,7 +223,7 @@ const TurboSafePage: React.FC = () => {
         safeHealth={safeHealth}
         colorScheme={colorScheme}
       />
-      <Stack spacing={12} mt={12}>
+      <Stack spacing={12} my={12}>
         {!!safe && <SafeStats safe={safe} />}
       </Stack>
       {!!safe && <SafeStrategies safe={safe} />}
