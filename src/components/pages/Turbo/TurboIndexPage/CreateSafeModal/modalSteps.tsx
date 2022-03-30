@@ -1,9 +1,10 @@
 import { BigNumber, utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
   HoverableCard,
-  Modal,
+  ModalProps,
   StatisticTable,
   Text,
   TokenAmountInput,
@@ -13,9 +14,6 @@ import {
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { parseEther } from "ethers/lib/utils";
-
-type ModalProps = React.ComponentProps<typeof Modal>;
 
 type CreateSafeCtx = {
   /** A provider to connect to the blockchain with. */
@@ -27,11 +25,6 @@ type CreateSafeCtx = {
    * the safe creation process).
    */
   incrementStepIndex(): void;
-  /**
-   * Function to decrement the current step by 1 (i.e. go to the previous step
-   * in the safe creation process).
-   */
-  decrementStepIndex(): void;
   /** List of addresses of possible underlying tokens. */
   underlyingTokenAddresses: string[];
   /** The address of the currently selected underlying token for the safe. */
@@ -66,35 +59,14 @@ type CreateSafeCtx = {
   navigateToCreatedSafe(safeId: string): void;
 };
 
-type ModalStep = Pick<ModalProps, "title" | "subtitle"> & {
-  /**
-   * Extension of the base `Modal` `children` prop which receives a parameter
-   * `ctx` containing functions and variables specific to the safe creation flow
-   * (essentially, making `children` a render prop) before returning `ReactNode`
-   * children.
-   */
-  children(ctx: CreateSafeCtx): ModalProps["children"];
-  /**
-   * Extension of the `Modal` `onClickButton` prop which also receives
-   * a parameter `ctx` containing functions and variables specific to the
-   * safe creation flow.
-   */
-  onClickButton?(buttonIndex: number, ctx: CreateSafeCtx): void;
-  /**
-   * Extension of the `Modal` `buttons` prop which allows modal buttons to
-   * dynamically change in response to updates in `ctx`.
-   */
-  buttons(ctx: CreateSafeCtx): ModalProps["buttons"];
-  /** Extension of `stepBubbles` props which allows `ctx`-dependent updates. */
-  stepBubbles?(ctx: CreateSafeCtx): ModalProps["stepBubbles"];
-};
+type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
 
 const MODAL_STEP_1: ModalStep = {
   title: "Creating a safe",
   subtitle:
     "The first step towards using Turbo is creating a safe, which allows you " +
     "to boost pools by depositing collateral.",
-  children: () => (
+  children: (
     <Stack spacing={4}>
       <Flex align="center">
         <Image src="/static/turbo/one-collateral-type.png" height={16} mr={4} />
@@ -112,15 +84,15 @@ const MODAL_STEP_1: ModalStep = {
       </Flex>
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ incrementStepIndex }) => [
     {
       children: "I understand",
       variant: "neutral",
+      onClick() {
+        incrementStepIndex();
+      },
     },
   ],
-  onClickButton(_, { incrementStepIndex }) {
-    incrementStepIndex();
-  },
 };
 
 const MODAL_STEP_2: ModalStep = {
@@ -163,15 +135,6 @@ const MODAL_STEP_2: ModalStep = {
       ))}
     </Stack>
   ),
-  buttons: () => [
-    {
-      children: "Back",
-      variant: "cardmatte",
-    },
-  ],
-  onClickButton(_, { decrementStepIndex }) {
-    decrementStepIndex();
-  },
 };
 
 const MODAL_STEP_3: ModalStep = {
@@ -187,35 +150,30 @@ const MODAL_STEP_3: ModalStep = {
         />
         <StatisticTable
           statistics={[
-            ["Collateral deposited",  `${utils.commify(depositAmount ?? '0')}`],
-            ["Boost balance",  `${utils.commify(depositAmount ?? '0')}`],
+            ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
+            ["Boost balance", `${utils.commify(depositAmount ?? "0")}`],
           ]}
           mt={4}
         />
       </Box>
     </Stack>
   ),
-  buttons: () => [
-    {
-      children: "Back",
-      variant: "cardmatte",
-    },
+  buttons: ({ incrementStepIndex }) => [
     {
       children: "Skip",
       variant: "cardmatte",
+      onClick() {
+        incrementStepIndex();
+      },
     },
     {
       children: "Review",
       variant: "neutral",
+      onClick() {
+        incrementStepIndex();
+      },
     },
   ],
-  onClickButton(i, { decrementStepIndex, incrementStepIndex }) {
-    if (i === 0) {
-      decrementStepIndex();
-    } else {
-      incrementStepIndex();
-    }
-  },
 };
 
 const MODAL_STEP_4: ModalStep = {
@@ -231,8 +189,8 @@ const MODAL_STEP_4: ModalStep = {
       <StatisticTable
         mt={8}
         statistics={[
-          ["Collateral deposited", `${utils.commify(depositAmount ?? '0')}`],
-          ["Boost balance", `${utils.commify(depositAmount ?? '0')}`],
+          ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
+          ["Boost balance", `${utils.commify(depositAmount ?? "0")}`],
           ["Estimated gas cost", ""],
           ["# of transactions", "3"],
         ]}
@@ -245,49 +203,41 @@ const MODAL_STEP_4: ModalStep = {
     activeIndex: !hasApproval && parseEther(depositAmount ?? "0") ? 0 : 1,
     background: "neutral",
   }),
-  buttons: ({ hasApproval, approving, depositAmount, creatingSafe }) => [
-    {
-      children: "Back",
-      variant: "cardmatte",
-    },
+  buttons: ({
+    hasApproval,
+    approving,
+    depositAmount,
+    creatingSafe,
+    incrementStepIndex,
+    createSafe,
+    provider,
+    chainId,
+    underlyingTokenAddress,
+    approve,
+  }) => [
     {
       children: approving
         ? "Approving..."
         : creatingSafe
-          ? "Creating Safe..."
-          : !hasApproval && BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-            ? "Approve Router"
-            : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-              ? "Create Safe & Deposit"
-              : "Create Safe",
+        ? "Creating Safe..."
+        : !hasApproval &&
+          BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+        ? "Approve Router"
+        : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+        ? "Create Safe & Deposit"
+        : "Create Safe",
       variant: "neutral",
       loading: approving || creatingSafe,
+      async onClick() {
+        if (!hasApproval) {
+          await approve();
+        } else {
+          await createSafe(underlyingTokenAddress, provider, chainId);
+          incrementStepIndex();
+        }
+      },
     },
   ],
-  async onClickButton(
-    i,
-    {
-      hasApproval,
-      approve,
-      underlyingTokenAddress,
-      decrementStepIndex,
-      incrementStepIndex,
-      createSafe,
-      provider,
-      chainId,
-      depositAmount
-    }
-  ) {
-    if (i === 0) {
-      decrementStepIndex();
-    } else {
-      if (!hasApproval) {
-        await approve();
-      } else {
-        await createSafe(underlyingTokenAddress, provider, chainId);
-      }
-    }
-  },
 };
 
 const MODAL_STEP_5: ModalStep = {
@@ -305,16 +255,17 @@ const MODAL_STEP_5: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: () => [
+  buttons: ({ onClose, navigateToCreatedSafe }) => [
     {
       children: "View Safe",
       variant: "neutral",
+      onClick() {
+        onClose();
+        // TODO(nathanhleung): replace hardcoded value
+        navigateToCreatedSafe("0");
+      },
     },
   ],
-  async onClickButton(_, { onClose, navigateToCreatedSafe }) {
-    onClose();
-    navigateToCreatedSafe();
-  },
 };
 
 const MODAL_STEPS: ModalStep[] = [

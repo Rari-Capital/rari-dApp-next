@@ -17,6 +17,7 @@ export const SafeInfoModal: React.FC<{ isOpen: any, onClose: any, safe: SafeInfo
 
     return (
         <Modal
+            ctx={{}}
             isOpen={isOpen}
             onClose={onClose}
             title={"Safe Info"}
