@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { useRari } from "context/RariContext";
 import { parseEther } from "ethers/lib/utils";
 import useHasApproval from "hooks/useHasApproval";
@@ -26,11 +27,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   function incrementStepIndex() {
     if (stepIndex + 1 !== MODAL_STEPS.length) {
       setStepIndex(stepIndex + 1);
-    }
-  }
-  function decrementStepIndex() {
-    if (stepIndex !== 0) {
-      setStepIndex(stepIndex - 1);
     }
   }
 
@@ -112,7 +108,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     provider,
     chainId: chainId ?? 1,
     incrementStepIndex,
-    decrementStepIndex,
     underlyingTokenAddresses,
     underlyingTokenAddress,
     setUnderlyingTokenAddress,
@@ -135,11 +130,9 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     },
   };
 
-  const { title, subtitle, buttons, onClickButton, stepBubbles, children } =
-    MODAL_STEPS[stepIndex];
-
   return (
     <Modal
+      ctx={createSafeCtx}
       isOpen={isOpen}
       onClose={() => {
         if (!approving && !creatingSafe) {
@@ -147,19 +140,9 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           onClose();
         }
       }}
-      title={title}
-      subtitle={subtitle}
-      buttons={buttons(createSafeCtx)}
-      onClickButton={(buttonIndex) => {
-        if (!!onClickButton) {
-          onClickButton(buttonIndex, createSafeCtx);
-        }
-      }}
       progressValue={((stepIndex + 1) / MODAL_STEPS.length) * 100}
-      stepBubbles={!!stepBubbles ? stepBubbles(createSafeCtx) : undefined}
-    >
-      {children(createSafeCtx)}
-    </Modal>
+      {...MODAL_STEPS[stepIndex]}
+    />
   );
 };
 
