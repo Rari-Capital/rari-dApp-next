@@ -2,9 +2,11 @@ import { Contract } from "ethers";
 
 // ABIS
 import TurboRouter from "lib/turbo/abi/TurboRouter.json";
-import TurboMaster from  "lib/turbo/abi/TurboMaster.json";
+import TurboMaster from "lib/turbo/abi/TurboMaster.json";
 import ERC20 from "lib/turbo/abi/ERC20.json"
 import CERC20 from "lib/turbo/abi/CERC20.json"
+import CERC20Delegate from "lib/turbo/abi/CERC20Delegate.json"
+import FuseERC4626 from "lib/turbo/abi/FuseERC4626.json"
 import TurboComptroller from "lib/turbo/abi/comptroller.json";
 import TurboLens from "lib/turbo/abi/TurboLens.json";
 import TurboBooster from "lib/turbo/abi/TurboBooster.json";
@@ -14,7 +16,6 @@ import TurboAuthority from "lib/turbo/abi/Authority.json";
 // Utils
 import { Interface } from "ethers/lib/utils";
 import { TurboAddresses } from "../utils/constants";
-
 import { providers } from "ethers";
 
 
@@ -25,7 +26,6 @@ export const createTurboRouter = async (provider: providers.JsonRpcProvider, id:
     TurboRouter.abi,
     provider
   );
-
   return turboRouterContract;
 };
 
@@ -71,7 +71,7 @@ export const createTurboLens = (provider: providers.Provider, chainID: number) =
 export const createTurboBooster = async (
   provider: providers.Provider,
   chainID: number
-  ) => {
+) => {
   const turboBoosterContract = new Contract(
     TurboAddresses[chainID].BOOSTER,
     TurboBooster.abi,
@@ -106,12 +106,22 @@ export const createTurboAuthority = async (
 
 export const createCERC20 = async (provider: providers.JsonRpcProvider, tokenAddress: string) => {
   const CERC20Contract = new Contract(
-      tokenAddress,
-      CERC20.abi,
-      provider
+    tokenAddress,
+    CERC20.abi,
+    provider
   )
 
   return CERC20Contract
+}
+
+export const createFuseERC4626 = (provider: providers.JsonRpcProvider, strategyAddress: string) => {
+  const FuseERC4626Contract = new Contract(
+    strategyAddress,
+    FuseERC4626,
+    provider
+  )
+
+  return FuseERC4626Contract
 }
 
 
@@ -129,3 +139,5 @@ export const ITurboAuthority = new Interface(TurboAuthority.abi);
 // Etc Ifaces
 export const IERC20 = new Interface(ERC20.abi);
 export const ICERC20 = new Interface(CERC20.abi);
+export const ICERC20Delegate = new Interface(CERC20Delegate);
+export const IFuseERC4626 = new Interface(FuseERC4626);
