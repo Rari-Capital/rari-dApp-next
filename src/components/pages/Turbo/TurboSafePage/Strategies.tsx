@@ -5,9 +5,11 @@ import {
   Spinner,
   useToast,
   VStack,
-  Image
+  Image,
+  Box,
+  IconButton
 } from "@chakra-ui/react";
-import { Card, Text, Button, Table, TokenIcon } from "rari-components";
+import { Card, Text, Button, TokenIcon } from "rari-components";
 
 // Hooks
 import { useState } from "react";
@@ -29,6 +31,8 @@ import { convertMantissaToAPY } from "utils/apyUtils";
 import { usePriceUSD } from "hooks/usePriceUSD";
 import AppLink from "components/shared/AppLink";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import Table from "lib/components/Table";
+import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
 
 export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
   // const trustedStrats: string[] = useTrustedStrategies();
@@ -67,11 +71,13 @@ export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
                     </HStack>
                   </AppLink>),
                 (
-                  <SimpleTooltip label={`${formatEther(strat.feiAmount.sub(strat.boostedAmount))} FEI`}>
-                    <Text>
-                      {smallUsdFormatter(earnedFeiUSD)}
-                    </Text>
-                  </SimpleTooltip>
+                  <Box>
+                    <SimpleTooltip label={`${formatEther(strat.feiAmount.sub(strat.boostedAmount))} FEI`}>
+                      <Text>
+                        {smallUsdFormatter(earnedFeiUSD)}
+                      </Text>
+                    </SimpleTooltip>
+                  </Box>
                 ),
                 convertMantissaToAPY(strategyData?.supplyRatePerBlock).toFixed(2) + "%",
                 (
@@ -89,6 +95,18 @@ export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
                     </SimpleTooltip>
                   </HStack>
                 ),
+                <HStack>
+                  <SimpleTooltip label="Boost">
+                    <IconButton bg="green" aria-label="boost">
+                      <PlusSquareIcon />
+                    </IconButton>
+                  </SimpleTooltip>
+                  <SimpleTooltip label="Less">
+                    <IconButton bg="red" aria-label="less">
+                      <MinusIcon />
+                    </IconButton>
+                  </SimpleTooltip>
+                </HStack>
 
               ]
             })

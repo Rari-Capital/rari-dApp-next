@@ -28,7 +28,7 @@ import { useEffect, useMemo } from "react";
 import { useQuery } from "react-query";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
-import { InfoIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -49,6 +49,7 @@ import { SafeStats } from "./SafeStats";
 import { SafeStrategies } from "./Strategies";
 import SafeInfoModal from "./TurboInfoModal";
 import WithdrawSafeCollateralModal from "./WithdrawSafeCollateralModal";
+import AppLink from "components/shared/AppLink";
 
 const MOCK_SAFE = {
   safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
@@ -131,10 +132,10 @@ const TurboSafePage: React.FC = () => {
     return safeHealth?.lte(40)
       ? "success"
       : safeHealth?.lte(60)
-      ? "whatsapp"
-      : safeHealth?.lte(80)
-      ? "orange"
-      : "red";
+        ? "whatsapp"
+        : safeHealth?.lte(80)
+          ? "orange"
+          : "red";
   }, [safeHealth]);
 
   return (
@@ -164,6 +165,12 @@ const TurboSafePage: React.FC = () => {
       />
 
       {isAtLiquidationRisk && <LiquidationAlert safeHealth={safeHealth} />}
+
+      <HStack>
+        <AppLink href='/turbo'>
+          <ChevronLeftIcon />
+        </AppLink>
+      </HStack>
 
       <Stack
         direction={"row"}
