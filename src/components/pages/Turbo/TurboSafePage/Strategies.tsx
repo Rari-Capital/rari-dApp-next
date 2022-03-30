@@ -5,8 +5,9 @@ import {
   Spinner,
   useToast,
   VStack,
+  Image
 } from "@chakra-ui/react";
-import { Card, Text, Button } from "rari-components";
+import { Card, Text, Button, Table, TokenIcon } from "rari-components";
 
 // Hooks
 import { useState } from "react";
@@ -18,21 +19,84 @@ import { SafeInfo, StrategyInfo } from "lib/turbo/fetchers/getSafeInfo";
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
 import { formatEther } from "ethers/lib/utils";
-import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { utils } from "ethers";
 import { constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { safeBoost, safeLess } from "lib/turbo/transactions/safe";
 import { handleGenericError } from "utils/errorHandling";
+import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
+import { convertMantissaToAPY } from "utils/apyUtils";
+import { usePriceUSD } from "hooks/usePriceUSD";
+import AppLink from "components/shared/AppLink";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
 
 export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
-  const trustedStrats = useTrustedStrategies();
-  const activeStrategies: StrategyInfo[] = safe.strategies;
+  // const trustedStrats: string[] = useTrustedStrategies();
+  const safeStrategies: StrategyInfo[] = safe.strategies;
+  const strategiesData = useStrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
+  const feiPriceUSD = usePriceUSD(safe.feiPrice)
 
+  // Todo: Tooltips appear on top left for some reason
+  // Todo: Table not full width
   return (
-    <>
-      <VStack>
-        <Heading>Active Strategies</Heading>
+    <VStack w="100%">
+      <Table
+        width="100%"
+        headings={[
+          "Strategy",
+          "Earned FEI",
+          "APY",
+          "Active Boost",
+        ]}
+        rows={
+          safeStrategies.map(strat => {
+            const strategyData = strategiesData[strat.strategy]
+            const earnedFeiUSD = parseFloat(formatEther(strat.feiAmount.sub(strat.boostedAmount))) * (feiPriceUSD ?? 1)
+            const boostedFeiUSD = parseFloat(formatEther(strat.boostedAmount)) * (feiPriceUSD ?? 1)
+            const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
+            return ({
+              key: strat.strategy,
+              data: [
+                (
+                  <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
+                    <HStack>
+                      <TokenIcon tokenAddress={strategyData?.underlying ?? ""} size="sm" />
+                      <Text>
+                        {strategyData?.symbol}
+                      </Text>
+                    </HStack>
+                  </AppLink>),
+                (
+                  <SimpleTooltip label={`${formatEther(strat.feiAmount.sub(strat.boostedAmount))} FEI`}>
+                    <Text>
+                      {smallUsdFormatter(earnedFeiUSD)}
+                    </Text>
+                  </SimpleTooltip>
+                ),
+                convertMantissaToAPY(strategyData?.supplyRatePerBlock).toFixed(2) + "%",
+                (
+                  <HStack>
+                    {strat.boostedAmount.gt(0) && <Image
+                      boxSize={"20px"}
+                      src="/static/turbo/turbo-engine-green.svg"
+                      align={"center"}
+                      mr={2}
+                    />}
+                    <SimpleTooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
+                      <Text>
+                        {smallUsdFormatter(boostedFeiUSD)}
+                      </Text>
+                    </SimpleTooltip>
+                  </HStack>
+                ),
+
+              ]
+            })
+          })
+        }
+
+      />
+      {/* <Heading>Active Strategies</Heading>
         {activeStrategies?.map((strategy, index) => (
           <ActiveStrategyItem key={index} strategy={strategy} safe={safe} />
         ))}
@@ -43,9 +107,8 @@ export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
             strategy={strategyAddress}
             safe={safe}
           />
-        ))}
-      </VStack>
-    </>
+        ))} */}
+    </VStack>
   );
 };
 

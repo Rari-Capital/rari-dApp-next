@@ -80,6 +80,8 @@ const TurboSafePage: React.FC = () => {
 
   const tokenData = useTokenData(safe?.collateralAsset);
 
+  const loading = !tokenData || !safe
+
   const {
     isOpen: isDepositModalOpen,
     onOpen: openDepositModal,
@@ -191,14 +193,13 @@ const TurboSafePage: React.FC = () => {
       </Stack>
       <Divider my={12} />
 
-      {!boostedUSD && <OnboardingCard />}
+      {!boostedUSD && !loading && <OnboardingCard />}
 
       <BoostBar boostedUSD={boostedUSD} collateralUSD={collateralUSD} tokenData={tokenData} safeHealth={safeHealth} colorScheme={colorScheme} />
-      <Stack spacing={12} mt={12}>
+      <Stack spacing={12} my={12}>
         {!!safe && <SafeStats safe={safe} />}
       </Stack>
-      <Divider mt={10} mb={8} />
-      <Stack spacing={12}>{!!safe && <SafeStrategies safe={safe} />}</Stack>
+      {!!safe && <SafeStrategies safe={safe} />}
     </TurboLayout>
   );
 };

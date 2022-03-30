@@ -69,7 +69,8 @@ export const formatStrategiesInfo = (
   });
 
   // Filter out unused strategies
-  const filteredFormattedStrats = filterUsedStrategies(formattedStrategies);
+  // const filteredFormattedStrats = filterUsedStrategies(formattedStrategies);
+  const filteredFormattedStrats = formattedStrategies
 
   return filteredFormattedStrats;
 };
