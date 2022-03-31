@@ -18,16 +18,16 @@ export const createMultiCall = (provider: JsonRpcProvider | Web3Provider,) => {
 export const sendWithMultiCall = async (
   fuse: Fuse,
   encodedCalls: any,
-  address: string
+  address?: string
 ) => {
   // @ts-ignore
   const multicall = createMultiCall(fuse.provider);
 
-  console.log("sendWithMultiCall", { encodedCalls, multicall });
+  console.log("sendWithMultiCall", { encodedCalls, multicall });  
+  let options: any = {}
+  if (!!address) options.address = address
 
-  const returnDatas = await multicall.aggregate(encodedCalls, {
-    from: address,
-  });
+  const returnDatas = await multicall.aggregate(encodedCalls, options);
 
   return returnDatas;
 };
@@ -45,6 +45,21 @@ export const callStaticWithMultiCall = async (
   const returnDatas = await multicall.callStatic.aggregate(encodedCalls, options)
 
   return returnDatas;
+};
+
+
+export const estimateGasWithMultiCall = async (
+  provider: JsonRpcProvider | Web3Provider,
+  encodedCalls: EncodedCall[],
+  address?: string
+) => {
+  const multicall = createMultiCall(provider);
+  let options: any = {}
+  if (!!address) options.address = address
+
+  const estimatedGas = await multicall.estimateGas.aggregate(encodedCalls, options)
+
+  return estimatedGas;
 };
 
 
@@ -87,9 +102,6 @@ export const decodeCall = (
   iface.decodeFunctionResult(functionName, txResult);
 
 
-
-
-  
 const MULTICALL_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 const MultiCallAbi = [

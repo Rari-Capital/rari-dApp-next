@@ -70,7 +70,7 @@ export const fetchTokenData = async (
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,
       // just fetch this data from the live site in development:
-      let url = `https://v2.rari.capital/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
+      let url =  _chainId === 1 ? `https://v2.rari.capital/api/tokenData?address=${address.toLowerCase()}` :  `https://v2.rari.capital/api/tokenData?address=${address.toLowerCase()}&chainId=${_chainId}`;
 
       data = {
         ...(await fetch(url).then((res) => res.json())),

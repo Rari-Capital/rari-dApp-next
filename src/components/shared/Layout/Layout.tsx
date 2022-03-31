@@ -7,6 +7,12 @@ import { useMemo, useState, useEffect } from "react";
 import NewHeader from "../Header2/NewHeader";
 import Footer from "./Footer";
 
+//CVX
+import { useDisclosure } from "@chakra-ui/react";
+import CVXMigrateModal from "components/pages/Fuse/Modals/CVXMigrateModal";
+import { useCurveLPBalances, useStakedConvexBalances } from "hooks/convex/useStakedConvexBalances";
+import PluginMigratorButton from "./PluginMigratorButton";
+
 
 const Layout = ({ children }) => {
   const { chainId } = useRari()
@@ -37,6 +43,16 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
+  const cvxBalances = useStakedConvexBalances()
+  const curveLPBalances = useCurveLPBalances()
+  const hasCvxBalances = !!Object.keys(cvxBalances ?? {}).length || !!Object.keys(curveLPBalances ?? {}).length
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  console.log({ cvxBalances, curveLPBalances })
+
+  useEffect(() => {
+    if (!!hasCvxBalances && (!localStorage.RARI_HIDE_MIGRATOR_POPUP)) onOpen()
+  }, [hasCvxBalances])
 
   return (
     <Column
@@ -62,10 +78,13 @@ const Layout = ({ children }) => {
 
       <NewHeader />
       {children}
+      {!!hasCvxBalances && <CVXMigrateModal isOpen={isOpen} onClose={onClose} />}
+      {!!hasCvxBalances && <PluginMigratorButton onOpen={onOpen} />}
       <Footer />
     </Column>
   );
 };
+
 
 
 

@@ -1,9 +1,9 @@
+
 import { useTokenBalances } from "hooks/useTokenBalance";
 import { SubgraphUnderlyingAsset } from "pages/api/explore";
-import { createContext, useContext, ReactNode, useMemo } from "react";
+import { createContext, useContext, ReactNode, useMemo, useEffect } from "react";
 import { queryAllUnderlyingAssets } from "services/gql";
 import useSWR from "swr";
-import { UnderlyingAsset } from "types/tokens";
 import { useRari } from "./RariContext";
 
 export const BalancesContext = createContext<any | undefined>(undefined);
@@ -54,15 +54,16 @@ export const BalancesContextProvider = ({
     return ret;
   }, [tokenBalances, isAuthed]);
 
+
   return (
-    <BalancesContext.Provider value={balances}>
+    <BalancesContext.Provider value={{ balances }}>
       {children}
     </BalancesContext.Provider>
   );
 };
 
 export const useAccountBalances = (): [any, string[]] => {
-  const balances = useContext(BalancesContext);
+  const { balances} = useContext(BalancesContext);
 
   const significantTokens: string[] = useMemo(
     () =>

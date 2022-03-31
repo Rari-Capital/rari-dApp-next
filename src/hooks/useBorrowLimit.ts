@@ -23,11 +23,30 @@ export const useBorrowLimit = (
     }
 
     const result = _maxBorrow.div(constants.WeiPerEther);
-    // console.log({result, _maxBorrow, id})
     return result
   }, [assets, options?.ignoreIsEnabledCheckFor]);
 
   return maxBorrow;
+};
+
+export const useTotalSupply = (
+  assets: USDPricedFuseAsset[],
+): BigNumber => {
+  const totalSupply = useMemo(() => {
+    let _totalSupplyUSD = constants.Zero;
+
+    for (let i = 0; i < assets.length; i++) {
+      let asset = assets[i];
+      _totalSupplyUSD = _totalSupplyUSD.add(
+        asset.supplyBalanceUSD
+      )
+    }
+
+    // console.log({result, _maxBorrow, id})
+    return _totalSupplyUSD
+  }, [assets]);
+
+  return totalSupply;
 };
 
 export const useBorrowLimits = (

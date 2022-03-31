@@ -16,7 +16,7 @@ import { DASHBOARD_BOX_PROPS } from "../components/shared/DashboardBox";
 
 import { Fuse } from "../esm";
 
-import LogRocket, { init } from "logrocket";
+import LogRocket from "logrocket";
 import { useToast } from "@chakra-ui/react";
 
 import {
@@ -130,6 +130,10 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    // if (!!requestedAddress) setAddress(requestedAddress as string)
+  }, [requestedAddress])
 
   useEffect(() => {
     //toast on brave users
