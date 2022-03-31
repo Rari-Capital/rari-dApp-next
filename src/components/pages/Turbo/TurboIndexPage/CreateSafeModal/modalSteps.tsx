@@ -64,22 +64,24 @@ type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
 const MODAL_STEP_1: ModalStep = {
   title: "Creating a safe",
   subtitle:
-    "The first step towards using Turbo is creating a safe, which allows you " +
-    "to boost pools by depositing collateral.",
+    "The first step towards using Turbo is creating a safe, which allows you to boost pools by depositing a collateral type that has been approved by the Tribe DAO governance.",
   children: (
     <Stack spacing={4}>
       <Flex align="center">
         <Image src="/static/turbo/one-collateral-type.png" height={16} mr={4} />
         <Box>
           <Heading size="md">One collateral type</Heading>
-          <Text>Each safe has a single collateral type of choice.</Text>
+          <Text>Each Turbo safe uses one singular collateral type.</Text>
         </Box>
       </Flex>
       <Flex align="center">
         <Image src="/static/turbo/isolated-actions.png" height={16} mr={4} />
         <Box>
           <Heading size="md">Isolated actions</Heading>
-          <Text>Boosting, depositing, etc. are isolated per safe.</Text>
+          <Text>
+            Collateralizing, boosting, depositing, withdrawing, slurping, and
+            sweeping are all isolated features per safe.
+          </Text>
         </Box>
       </Flex>
     </Stack>
@@ -103,7 +105,7 @@ const MODAL_STEP_2: ModalStep = {
     setUnderlyingTokenAddress,
     incrementStepIndex,
   }) => (
-    <Stack>
+    <Stack spacing={4}>
       {underlyingTokenAddresses.map((tokenAddress) => (
         <HoverableCard
           variant="ghost"
@@ -112,11 +114,12 @@ const MODAL_STEP_2: ModalStep = {
             incrementStepIndex();
           }}
           key={tokenAddress}
+          p={4}
         >
           {(hovered) => (
             <Flex alignItems="center">
               <TokenIcon tokenAddress={tokenAddress} mr={4} />
-              <Heading>
+              <Heading size="lg">
                 <TokenSymbol
                   tokenAddress={tokenAddress}
                   fallback="Loading..."
@@ -125,7 +128,7 @@ const MODAL_STEP_2: ModalStep = {
               <Spacer />
               <ChevronRightIcon
                 ml={"auto"}
-                boxSize={8}
+                boxSize={4}
                 transition="transform 0.2s ease 0s"
                 transform={hovered ? "translateX(5px) scale(1.00)" : ""}
               />
