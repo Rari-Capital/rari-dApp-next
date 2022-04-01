@@ -1,13 +1,8 @@
-import AppLink from "components/shared/AppLink";
 import { BigNumber } from "ethers";
 import { motion } from "framer-motion";
 // Components
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
-import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { TokenData, useTokenData } from "hooks/useTokenData";
-import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
-import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import { StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import Head from "next/head";
 // Hooks
 import { useRouter } from "next/router";
@@ -70,7 +65,7 @@ const MOCK_SAFE: USDPricedTurboSafe = {
       feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
     },
   ],
-  safeUtilization: BigNumber.from("50"),
+  safeUtilization: 50,
   collateralUSD: 100,
   debtUSD: 50,
   boostedUSD: 50,
@@ -94,7 +89,8 @@ const TurboSafePage: React.FC = () => {
   const { id } = router.query;
   const safeId = id as string;
 
-  const safe = useSafeInfo(safeId) ?? MOCK_SAFE;
+  // const safe = useSafeInfo(safeId) ?? MOCK_SAFE;
+  const safe = useSafeInfo(safeId)
   const tokenData = useTokenData(safe?.collateralAsset);
 
   const loading = !tokenData || !safe;
@@ -146,10 +142,10 @@ const TurboSafePage: React.FC = () => {
     return safeHealth?.lte(40)
       ? "success"
       : safeHealth?.lte(60)
-      ? "whatsapp"
-      : safeHealth?.lte(80)
-      ? "orange"
-      : "red";
+        ? "whatsapp"
+        : safeHealth?.lte(80)
+          ? "orange"
+          : "red";
   }, [safeHealth]);
 
   return (
@@ -239,7 +235,7 @@ const TurboSafePage: React.FC = () => {
 
       <BoostBar safe={safe} tokenData={tokenData} colorScheme={colorScheme} />
       <Stack spacing={12} my={12}>
-        {!!safe && <SafeStats safe={safe} netAPY={netAPY} />}
+        {!!safe && <SafeStats safe={safe} netAPY={netAPY} tokenData={tokenData} />}
       </Stack>
       {!!safe && <SafeStrategies safe={safe} />}
     </TurboLayout>

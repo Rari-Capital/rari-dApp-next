@@ -5,7 +5,8 @@ import {
   VStack,
   Image,
   Box,
-  IconButton
+  IconButton,
+  useDisclosure
 } from "@chakra-ui/react";
 import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
 import { Card, Text, Button, TokenIcon } from "rari-components";
@@ -30,6 +31,7 @@ import { constants } from "ethers";
 import { handleGenericError } from "utils/errorHandling";
 import { convertMantissaToAPY } from "utils/apyUtils";
 import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
+import BoostModal from "./modals/BoostModal";
 
 
 export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
@@ -39,79 +41,106 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
   // Fetches FuseERC4626 Data about each strategy
   const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
 
+  const { isOpen: isBoostModalOpen, onOpen: onBoostModalOpen, onClose: onBoostModalClose } = useDisclosure();
+
+  const [activeStrategyIndex, setActiveStrategyIndex] = useState<number | undefined>()
+
+  const handleBoostClick = (strategyIndex: number) => {
+    setActiveStrategyIndex(strategyIndex);
+    onBoostModalOpen();
+  }
+
+  const handleLessClick = (strategyIndex: number) => {
+    setActiveStrategyIndex(strategyIndex);
+    onBoostModalOpen();
+  }
+
+
+  const activeStrategy = activeStrategyIndex !== undefined ? safeStrategies[activeStrategyIndex] : undefined
+
   // TODO (@nathanhleung) Tooltips appear on top left for some reason
   // TODO (@nathanhleung) Table key rendering issues  
   return (
-    <VStack w="100%">
-      <Table
-        width="100%"
-        headings={[
-          "Strategy",
-          "Earned FEI",
-          "APY",
-          "Active Boost",
-        ]}
-        rows={
-          safeStrategies.map((strat: USDPricedStrategy, i) => {
-            const strategyData = strategiesData[strat.strategy]
-            const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
-            return ({
-              key: strat.strategy,
-              data: [
-                (
-                  <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
+    <>
+      <BoostModal
+        isOpen={isBoostModalOpen}
+        onClose={onBoostModalClose}
+        safe={safe}
+        strategy={activeStrategy}
+        strategyIndex={activeStrategyIndex ?? 0}
+        erc4626Strategy={activeStrategy ? strategiesData[activeStrategy.strategy] : undefined}
+      />
+      <VStack w="100%">
+        <Table
+          width="100%"
+          headings={[
+            "Strategy",
+            "Earned FEI",
+            "APY",
+            "Active Boost",
+          ]}
+          rows={
+            safeStrategies.map((strat: USDPricedStrategy, i) => {
+              const strategyData = strategiesData[strat.strategy]
+              const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
+              return ({
+                key: strat.strategy,
+                data: [
+                  (
+                    <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
+                      <HStack>
+                        <TokenIcon tokenAddress={strategyData?.underlying ?? ""} size="sm" />
+                        <Text>
+                          {strategyData?.symbol}
+                        </Text>
+                      </HStack>
+                    </AppLink>),
+                  (
+                    <Box>
+                      <SimpleTooltip label={`${formatEther(strat.feiEarned)} FEI`}>
+                        <Text>
+                          {smallUsdFormatter(strat.feiEarnedUSD)}
+                        </Text>
+                      </SimpleTooltip>
+                    </Box>
+                  ),
+                  convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2) + "%",
+                  (
                     <HStack>
-                      <TokenIcon tokenAddress={strategyData?.underlying ?? ""} size="sm" />
-                      <Text>
-                        {strategyData?.symbol}
-                      </Text>
+                      {strat.boostedAmount.gt(0) && <Image
+                        boxSize={"20px"}
+                        src="/static/turbo/turbo-engine-green.svg"
+                        align={"center"}
+                        mr={2}
+                      />}
+                      <SimpleTooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
+                        <Text>
+                          {smallUsdFormatter(strat.boostAmountUSD)}
+                        </Text>
+                      </SimpleTooltip>
                     </HStack>
-                  </AppLink>),
-                (
-                  <Box>
-                    <SimpleTooltip label={`${formatEther(strat.feiEarned)} FEI`}>
-                      <Text>
-                        {smallUsdFormatter(strat.feiEarnedUSD)}
-                      </Text>
-                    </SimpleTooltip>
-                  </Box>
-                ),
-                convertMantissaToAPY(strategyData?.supplyRatePerBlock).toFixed(2) + "%",
-                (
+                  ),
                   <HStack>
-                    {strat.boostedAmount.gt(0) && <Image
-                      boxSize={"20px"}
-                      src="/static/turbo/turbo-engine-green.svg"
-                      align={"center"}
-                      mr={2}
-                    />}
-                    <SimpleTooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
-                      <Text>
-                        {smallUsdFormatter(strat.boostAmountUSD)}
-                      </Text>
+                    <SimpleTooltip label="Boost">
+                      <IconButton bg="green" aria-label="boost" onClick={() => handleBoostClick(i)}>
+                        <PlusSquareIcon />
+                      </IconButton>
+                    </SimpleTooltip>
+                    <SimpleTooltip label="Less">
+                      <IconButton bg="red" aria-label="less" onClick={() => handleLessClick(i)}>
+                        <MinusIcon />
+                      </IconButton>
                     </SimpleTooltip>
                   </HStack>
-                ),
-                <HStack>
-                  <SimpleTooltip label="Boost">
-                    <IconButton bg="green" aria-label="boost">
-                      <PlusSquareIcon />
-                    </IconButton>
-                  </SimpleTooltip>
-                  <SimpleTooltip label="Less">
-                    <IconButton bg="red" aria-label="less">
-                      <MinusIcon />
-                    </IconButton>
-                  </SimpleTooltip>
-                </HStack>
 
-              ]
+                ]
+              })
             })
-          })
-        }
+          }
 
-      />
-    </VStack>
+        />
+      </VStack>
+    </>
   );
 };
 

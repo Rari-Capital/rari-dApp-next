@@ -83,6 +83,7 @@ const MODAL_STEP_1: ModalStep = {
     onClickApprove,
     onClickDeposit,
     incrementStepIndex,
+    depositAmount,
     onClose,
   }) => [
       {
@@ -95,6 +96,7 @@ const MODAL_STEP_1: ModalStep = {
               : "Deposit",
         variant: "neutral",
         loading: approving || depositing,
+        disabled: !depositAmount || depositAmount === "0",
         async onClick() {
           if (!hasApproval) {
             await onClickApprove();

@@ -11,7 +11,7 @@ import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
 import { safeDeposit } from "lib/turbo/transactions/safe";
 import { checkAllowanceAndApprove } from "utils/erc20Utils";
-import useHasApproval from "hooks/useHasApproval";
+// import useHasApproval from "hooks/useHasApproval";
 import { SafeInteractionMode, useUpdatedSafeInfo } from "hooks/turbo/useUpdatedSafeInfo";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
@@ -89,6 +89,7 @@ export const DepositSafeCollateralModal: React.FC<
         provider.getSigner()
       );
       console.log({ tx });
+      await tx.wait(1)
     } catch (err) {
       handleGenericError(err, toast);
     } finally {

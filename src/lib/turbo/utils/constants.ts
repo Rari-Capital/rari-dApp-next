@@ -24,7 +24,7 @@ export const TurboAddresses: TurboAddresses = {
 }
 
 type TurboAddresses = {
-    [key: number]: {
+    [chainId: number]: {
         MASTER: string,
         ADMIN: string,
         ROUTER: string,
