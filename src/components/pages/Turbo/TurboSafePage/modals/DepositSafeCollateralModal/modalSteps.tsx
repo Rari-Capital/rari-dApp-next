@@ -50,15 +50,15 @@ const MODAL_STEP_1: ModalStep = {
           statistics={[
             {
               title: "Collateral deposited",
-              primaryValue: shortUsdFormatter(safe?.collateralUSD),
-              secondaryValue: shortUsdFormatter(updatedSafe?.collateralUSD),
+              primaryValue: smallUsdFormatter(safe?.collateralUSD),
+              secondaryValue: smallUsdFormatter(updatedSafe?.collateralUSD),
               titleTooltip: "How much collateral you have deposited.",
               primaryTooltip: ""
             },
             {
               title: "Boost Balance",
-              primaryValue: shortUsdFormatter(safe?.boostedUSD),
-              secondaryValue: shortUsdFormatter(updatedSafe?.boostedUSD),
+              primaryValue: smallUsdFormatter(safe?.boostedUSD),
+              secondaryValue: smallUsdFormatter(updatedSafe?.boostedUSD),
               titleTooltip: "The maximum amount you can boost.",
               primaryTooltip: ""
             },
