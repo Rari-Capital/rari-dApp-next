@@ -44,6 +44,11 @@ import ClaimInterestModal from "./modals/ClaimInterestModal";
 import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import SafeInfoModal from "./modals/TurboInfoModal";
 import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
+import AppLink from "components/shared/AppLink";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
+import { filterUsedStrategies, StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { convertMantissaToAPY } from "utils/apyUtils";
 
 const MOCK_SAFE: USDPricedTurboSafe = {
   safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
@@ -121,9 +126,19 @@ const TurboSafePage: React.FC = () => {
   const safeHealth = safe?.safeUtilization;
 
   const safeStrategies: StrategyInfo[] = safe?.strategies ?? [];
-  const strategiesData = useStrategiesDataAsMap(
-    safeStrategies.map((strat) => strat.strategy)
-  );
+  const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies)
+  const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
+
+  const netAPY = Object.keys(strategiesData)
+    .reduce((num, strategyAddress) => {
+      const erc4626Strategy = strategiesData[strategyAddress]
+      if (erc4626Strategy && erc4626Strategy) {
+        num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365)
+      }
+      return num / activeStrategies.length
+    }, 0)
+
+  console.log({ netAPY, strategiesData })
 
   const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
 
@@ -224,7 +239,7 @@ const TurboSafePage: React.FC = () => {
 
       <BoostBar safe={safe} tokenData={tokenData} colorScheme={colorScheme} />
       <Stack spacing={12} my={12}>
-        {!!safe && <SafeStats safe={safe} />}
+        {!!safe && <SafeStats safe={safe} netAPY={netAPY} />}
       </Stack>
       {!!safe && <SafeStrategies safe={safe} />}
     </TurboLayout>

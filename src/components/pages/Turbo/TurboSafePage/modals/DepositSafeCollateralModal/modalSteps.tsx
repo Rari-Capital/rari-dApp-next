@@ -1,4 +1,3 @@
-import { Spinner } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
@@ -8,7 +7,7 @@ import {
   TokenAmountInput,
   TokenSymbol,
 } from "rari-components";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { abbreviateAmount } from "utils/bigUtils";
 import StatisticTable from "lib/components/StatisticsTable";
 
 type DepositSafeCollateralCtx = {
@@ -50,18 +49,20 @@ const MODAL_STEP_1: ModalStep = {
           statistics={[
             {
               title: "Collateral deposited",
-              primaryValue: smallUsdFormatter(safe?.collateralUSD),
-              secondaryValue: smallUsdFormatter(updatedSafe?.collateralUSD),
+              primaryValue: abbreviateAmount(safe?.collateralUSD),
+              secondaryValue: abbreviateAmount(updatedSafe?.collateralUSD),
               titleTooltip: "How much collateral you have deposited.",
-              primaryTooltip: ""
+              primaryTooltip: `$ ${safe.collateralUSD}`,
+              secondaryTooltip: `$ ${updatedSafe?.collateralUSD}`
             },
             {
-              title: "Boost Balance",
-              primaryValue: smallUsdFormatter(safe?.boostedUSD),
-              secondaryValue: smallUsdFormatter(updatedSafe?.boostedUSD),
+              title: "Max Boost",
+              primaryValue: abbreviateAmount(safe?.boostedUSD),
+              secondaryValue: abbreviateAmount(updatedSafe?.boostedUSD),
               titleTooltip: "The maximum amount you can boost.",
-              primaryTooltip: ""
-            },
+              primaryTooltip: `$ ${safe.collateralUSD}`,
+              secondaryTooltip: `$ ${updatedSafe?.collateralUSD}`
+            },  
             {
               title: "Safe Utilization",
               primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
