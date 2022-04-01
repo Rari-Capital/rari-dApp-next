@@ -3,7 +3,7 @@ import { useRari } from "context/RariContext";
 import { ICERC20Delegate, IFuseERC4626 } from "lib/turbo/utils/turboContracts";
 import { callInterfaceWithMulticall } from "utils/multicall";
 
-type FuseERC4626Strategy = {
+export interface FuseERC4626Strategy {
     underlying: string;
     name: string;
     symbol: string;

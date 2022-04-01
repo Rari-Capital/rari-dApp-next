@@ -1,8 +1,8 @@
 import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 import { BigNumber, constants } from "ethers";
-import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import { calculateETHValueUSD } from "lib/turbo/utils/usdUtils";
+import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { calculateETHValueUSD, calculateFEIValueUSD } from "lib/turbo/utils/usdUtils";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { calculateSafeUtilization } from "lib/turbo/fetchers/safes/getSafeInfo";
 
@@ -13,31 +13,31 @@ export enum SafeInteractionMode {
     LESS = "Less",
 }
 
-
 // Preivews a safe position based on action taken and amount
+// TODO(@nathanhleung): Possibly find ways to optimize this query
 export const useUpdatedSafeInfo = ({
     mode,
     safe,
-    amount
+    amount,
+    strategyIndex
 }: {
     mode: SafeInteractionMode,
     safe: USDPricedTurboSafe | undefined,
-    amount: BigNumber
+    amount: BigNumber,
+    strategyIndex?: number
 }): USDPricedTurboSafe | undefined => {
     const { provider, chainId } = useRari();
 
-    // TODO(@nathanhleung): Possibly find ways to optimize this query
     const { data: updatedSafeInfo } = useQuery(
         `Updated safe info for ${safe?.safeAddress} for mode ${mode} and amount ${amount.toString()}`,
         async () => {
-
-            console.log(`Updated safe info for ${safe?.safeAddress} for mode ${mode} and amount ${amount.toString()}`)
-
             if (!provider || !chainId || !safe) return;
-
             const ethUSDBN = await getEthUsdPriceBN()
 
             let updatedSafe: USDPricedTurboSafe;
+
+
+            /** DEPOSIT **/
             if (mode === SafeInteractionMode.DEPOSIT) {
 
                 const collateralAmount = safe.collateralAmount.add(amount)
@@ -55,7 +55,53 @@ export const useUpdatedSafeInfo = ({
                     safeUtilization
                 }
 
-                console.log({ collateralAmount, safe, updatedSafe, ethUSDBN, amount })
+                return updatedSafe
+            }
+
+
+            /** BOOST **/
+            if (mode === SafeInteractionMode.BOOST) {
+                console.log({ strategyIndex })
+
+                if (strategyIndex === undefined) return undefined
+
+                const boostedAmount = safe.boostedAmount.add(amount) // boosted FEI 
+                const boostedUSD = calculateFEIValueUSD(boostedAmount, safe.feiPrice, ethUSDBN)
+                const debtAmount = safe.debtAmount.add(amount)
+                const debtValue = debtAmount
+                    .mul(safe.feiPrice)
+                    .div(constants.WeiPerEther)
+
+                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue)
+
+                const strategyToUpdate = safe.usdPricedStrategies[strategyIndex]
+
+
+                const stratBoostedAmount = strategyToUpdate.boostedAmount.add(amount)
+                const stratBoostedUSD = calculateFEIValueUSD(stratBoostedAmount, safe.feiPrice, ethUSDBN)
+                const stratFeiAmount = strategyToUpdate.feiAmount.add(amount)
+                const stratFeiUSD = calculateFEIValueUSD(stratFeiAmount, safe.feiPrice, ethUSDBN)
+
+                const updatedStrategy: USDPricedStrategy = {
+                    ...strategyToUpdate,
+                    boostedAmount: stratBoostedAmount,
+                    boostAmountUSD: stratBoostedUSD,
+                    feiAmount: stratFeiAmount,
+                    feiAmountUSD: stratFeiUSD,
+                }
+
+                const strategies = safe.usdPricedStrategies
+                strategies[strategyIndex] = updatedStrategy
+
+                updatedSafe = {
+                    ...safe,
+                    boostedAmount,
+                    boostedUSD,
+                    debtAmount,
+                    debtValue,
+                    safeUtilization,
+                    strategies
+                }
 
                 return updatedSafe
             }

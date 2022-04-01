@@ -1,5 +1,5 @@
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 import { calculateETHValueUSD, calculateFEIValueUSD } from "lib/turbo/utils/usdUtils";
 import { StrategyInfo } from "../strategies/formatStrategyInfo";
@@ -11,6 +11,7 @@ export interface USDPricedTurboSafe extends SafeInfo {
     boostedUSD: number,
     feiAmountUSD: number,
     feiPriceUSD: number,
+    safeUtilization: BigNumber;
     usdPricedStrategies: USDPricedStrategy[]
 }
 
@@ -44,6 +45,9 @@ export const getUSDPricedSafeInfo = async (
         const feiAmountUSD = calculateFEIValueUSD(safeInfo.feiAmount, safeInfo.feiPrice, ethUSDBN)
         const feiPriceUSD = calculateETHValueUSD(safeInfo.feiPrice, ethUSDBN)
 
+        // TODO(@sharad-s) safe utilization needs to account for Safe CF (which should come from the lens)
+        const safeUtilization = calculateSafeUtilization(safeInfo.debtValue, safeInfo.collateralValue)
+
         // Add USD values to each strategyInfo
         const usdPricedStrategies = getUSDPricedStrategies(ethUSDBN, safeInfo.feiPrice, safeInfo.strategies)
 
@@ -54,6 +58,7 @@ export const getUSDPricedSafeInfo = async (
             feiAmountUSD,
             boostedUSD,
             feiPriceUSD,
+            safeUtilization,
             usdPricedStrategies
         }
 
@@ -116,4 +121,14 @@ export const getUSDPricedStrategies = (
             return [...arr, usdStrat]
         }, [])
         */
+}
+
+
+// debtValue * 100 / collateralValue * cf
+export const calculateSafeUtilization = (
+    debtValue: BigNumber,
+    collateralValue: BigNumber,
+    cf: BigNumber = BigNumber.from(60)
+) => {
+    return collateralValue.isZero() ? constants.Zero : debtValue.mul(100).div(collateralValue)
 }

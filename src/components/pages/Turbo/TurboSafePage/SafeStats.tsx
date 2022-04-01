@@ -12,15 +12,16 @@ import { useRariTokenData } from "rari-components/hooks";
 import { useMemo } from "react";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { HStack } from "@chakra-ui/react";
+import { TokenData } from "hooks/useTokenData";
 
 type SafeStatsProps = {
   safe: USDPricedTurboSafe;
   netAPY: number;
+  tokenData?: TokenData;
 };
 
-export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY }) => {
+export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY, tokenData }) => {
   const { address } = useRari();
-  const { data: tokenData } = useRariTokenData(safe.collateralAsset);
 
   console.log({ netAPY })
 
@@ -37,23 +38,23 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY }) => {
         secondaryValue={`${commify(
           parseFloat(formatEther(safe.collateralAmount)).toFixed(2)
         )} ${tokenData?.symbol}`}
-        tooltip="Hi"
+        tooltip={`Total Collateralized ${tokenData?.symbol}`}
       />
-      
+
       <Statistic
         title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
         secondaryValue={`${commify(
           parseFloat(formatEther(userFeiOwed)).toFixed(2)
         )} FEI`}
-        tooltip="Sum of all earned FEI across all boosted strategies after Revenue Split"
+        tooltip="Sum of all claimable FEI across all boosted strategies after TribeDAO Revenue Split."
         mr={20}
       />
 
       <Statistic
         title={"Avg. APY"}
         value={netAPY.toFixed(2) + "%"}
-        tooltip="Hi"
+        tooltip="Average APY earned across all active strategies."
         mr={10}
         h="100%"
       />

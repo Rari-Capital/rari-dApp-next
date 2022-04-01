@@ -61,7 +61,7 @@
   },
   "scripts": {
     "bump-rari-components": "npm i \"git+https://github.com/Rari-Capital/rari-components#$(git ls-remote https://github.com/Rari-Capital/rari-components.git HEAD | awk '{ print $1}')\"",
-    "typecheck": "tsc --skipLibCheck -p ./tsconfig.json",
+    "typecheck": "tsc --noEmit",
     "postinstall": "rari-tokens-generator ./src/static/compiled/tokens.json",
     "start": "next start",
     "build": "next build",
@@ -71,8 +71,7 @@
     "check-translations": "npm run translate && if grep -q \"__NOT_TRANSLATED__\" src/locales/*.json; then echo \"Translations missing!\"; exit 1; else echo \"All translations present!\"; fi",
     "analyze": "ANALYZE=true npm run build",
     "compile-contract-types": "typechain --target ethers-v5 --out-dir './src/lib/contracts/types' './src/lib/contracts/{abi,oracles}/*.json'",
-    "format": "prettier --write src/",
-    "typecheck": "tsc --noEmit"
+    "format": "prettier --write src/"
   },
   "eslintConfig": {
     "extends": "react-app"
