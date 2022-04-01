@@ -65,7 +65,7 @@ const MOCK_SAFE: USDPricedTurboSafe = {
       feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
     },
   ],
-  safeUtilization: 50,
+  safeUtilization: BigNumber.from(50),
   collateralUSD: 100,
   debtUSD: 50,
   boostedUSD: 50,
@@ -125,10 +125,11 @@ const TurboSafePage: React.FC = () => {
   const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies)
   const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
 
+  // Average APY across all strategies you have supplied to 
   const netAPY = Object.keys(strategiesData)
     .reduce((num, strategyAddress) => {
       const erc4626Strategy = strategiesData[strategyAddress]
-      if (erc4626Strategy && erc4626Strategy) {
+      if (erc4626Strategy && erc4626Strategy.supplyRatePerBlock) {
         num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365)
       }
       return num / activeStrategies.length
