@@ -2,7 +2,7 @@ import { useRari } from "context/RariContext";
 import { constants } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 import { useBalanceOf } from "hooks/useBalanceOf";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { FEI } from "lib/turbo/utils/constants";
 import { Modal, Statistic } from "rari-components";
 

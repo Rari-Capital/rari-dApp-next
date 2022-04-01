@@ -28,7 +28,7 @@ export const useStrategyData = (strategy: string) => {
 };
 
 // Data Required to render FuseERC4626 strategies
-type StrategyInfosMap = {
+export type StrategyInfosMap = {
     [strategyAddress: string]: FuseERC4626Strategy | undefined
 }
 
@@ -53,7 +53,7 @@ export const useStrategiesDataAsMap = (strategies: string[]) => {
             return { ...obj }
         }, {})
 
-    return result
+    return result ?? {}
 };
 
 

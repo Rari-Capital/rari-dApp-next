@@ -1,8 +1,8 @@
 import { useQuery } from "react-query";
 
 import { useRari } from "context/RariContext";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
-import { getAllUserSafes } from "lib/turbo/fetchers/getAllUserSafes";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { getAllUserSafes } from "lib/turbo/fetchers/safes/getAllUserSafes";
 
 export const useAllUserSafes = (): SafeInfo[] | undefined => {
   const { address, provider, chainId } = useRari()

@@ -2,7 +2,7 @@ import AppLink from "components/shared/AppLink";
 import { formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { Button, Card, Divider, Heading, Text } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
 import {

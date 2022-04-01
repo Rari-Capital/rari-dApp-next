@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { ModalProps, Text } from "rari-components";
 
 type ClaimInterestCtx = {

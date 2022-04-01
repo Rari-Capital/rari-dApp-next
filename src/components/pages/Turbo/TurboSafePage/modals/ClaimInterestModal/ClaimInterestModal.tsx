@@ -1,7 +1,7 @@
 // Hooks
 import { useRari } from "context/RariContext";
 // Turbo
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { Modal } from "rari-components";
 import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";

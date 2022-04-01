@@ -1,130 +1,116 @@
 import {
-  Heading,
   HStack,
-  SimpleGrid,
   Spinner,
   useToast,
   VStack,
   Image,
   Box,
-  IconButton,
+  IconButton
 } from "@chakra-ui/react";
+import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
 import { Card, Text, Button, TokenIcon } from "rari-components";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import AppLink from "components/shared/AppLink";
+import Table from "lib/components/Table";
 
 // Hooks
 import { useState } from "react";
 import { useRari } from "context/RariContext";
+import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 // Turbo
-import { SafeInfo, StrategyInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { safeBoost, safeLess } from "lib/turbo/transactions/safe";
+import { StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
-import { formatEther } from "ethers/lib/utils";
-import { utils } from "ethers";
+import { formatEther, commify, parseEther } from "ethers/lib/utils";
 import { constants } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import { safeBoost, safeLess } from "lib/turbo/transactions/safe";
 import { handleGenericError } from "utils/errorHandling";
-import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { convertMantissaToAPY } from "utils/apyUtils";
-import { usePriceUSD } from "hooks/usePriceUSD";
-import AppLink from "components/shared/AppLink";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import Table from "lib/components/Table";
-import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
 
-export const SafeStrategies: React.FC<{ safe: SafeInfo }> = ({ safe }) => {
+
+export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
   // const trustedStrats: string[] = useTrustedStrategies();
-  const safeStrategies: StrategyInfo[] = safe.strategies;
-  const strategiesData = useStrategiesDataAsMap(
-    safeStrategies.map((strat) => strat.strategy)
-  );
-  const feiPriceUSD = usePriceUSD(safe.feiPrice);
+  const safeStrategies: USDPricedStrategy[] = safe.usdPricedStrategies;
 
-  // Todo: Tooltips appear on top left for some reason
-  // Todo: Table not full width
+  // Fetches FuseERC4626 Data about each strategy
+  const strategiesData = useStrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
+
+  // TODO (@nathanhleung) Tooltips appear on top left for some reason
+  // TODO (@nathanhleung) Table key rendering issues  
   return (
     <VStack w="100%">
       <Table
         width="100%"
-        headings={["Strategy", "Earned FEI", "APY", "Active Boost"]}
-        rows={safeStrategies.map((strat, i) => {
-          const strategyData = strategiesData[strat.strategy];
-          const earnedFeiUSD =
-            parseFloat(formatEther(strat.feiAmount.sub(strat.boostedAmount))) *
-            (feiPriceUSD ?? 1);
-          const boostedFeiUSD =
-            parseFloat(formatEther(strat.boostedAmount)) * (feiPriceUSD ?? 1);
-          const poolId: string | undefined =
-            strategyData?.symbol?.split("-")[1];
-          return {
-            key: poolId ?? i.toString(),
-            data: [
-              <AppLink href={poolId ? `/fuse/pool/${poolId}` : "#"}>
+        headings={[
+          "Strategy",
+          "Earned FEI",
+          "APY",
+          "Active Boost",
+        ]}
+        rows={
+          safeStrategies.map((strat: USDPricedStrategy, i) => {
+            const strategyData = strategiesData[strat.strategy]
+            const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
+            return ({
+              key: strat.strategy,
+              data: [
+                (
+                  <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
+                    <HStack>
+                      <TokenIcon tokenAddress={strategyData?.underlying ?? ""} size="sm" />
+                      <Text>
+                        {strategyData?.symbol}
+                      </Text>
+                    </HStack>
+                  </AppLink>),
+                (
+                  <Box>
+                    <SimpleTooltip label={`${formatEther(strat.feiEarned)} FEI`}>
+                      <Text>
+                        {smallUsdFormatter(strat.feiEarnedUSD)}
+                      </Text>
+                    </SimpleTooltip>
+                  </Box>
+                ),
+                convertMantissaToAPY(strategyData?.supplyRatePerBlock).toFixed(2) + "%",
+                (
+                  <HStack>
+                    {strat.boostedAmount.gt(0) && <Image
+                      boxSize={"20px"}
+                      src="/static/turbo/turbo-engine-green.svg"
+                      align={"center"}
+                      mr={2}
+                    />}
+                    <SimpleTooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
+                      <Text>
+                        {smallUsdFormatter(strat.boostAmountUSD)}
+                      </Text>
+                    </SimpleTooltip>
+                  </HStack>
+                ),
                 <HStack>
-                  <TokenIcon
-                    tokenAddress={strategyData?.underlying ?? ""}
-                    size="sm"
-                  />
-                  <Text>{strategyData?.symbol}</Text>
+                  <SimpleTooltip label="Boost">
+                    <IconButton bg="green" aria-label="boost">
+                      <PlusSquareIcon />
+                    </IconButton>
+                  </SimpleTooltip>
+                  <SimpleTooltip label="Less">
+                    <IconButton bg="red" aria-label="less">
+                      <MinusIcon />
+                    </IconButton>
+                  </SimpleTooltip>
                 </HStack>
-              </AppLink>,
-              <Box>
-                <SimpleTooltip
-                  label={`${formatEther(
-                    strat.feiAmount.sub(strat.boostedAmount)
-                  )} FEI`}
-                >
-                  <Text>{smallUsdFormatter(earnedFeiUSD)}</Text>
-                </SimpleTooltip>
-              </Box>,
-              convertMantissaToAPY(strategyData?.supplyRatePerBlock).toFixed(
-                2
-              ) + "%",
-              <HStack>
-                {strat.boostedAmount.gt(0) && (
-                  <Image
-                    boxSize={"20px"}
-                    src="/static/turbo/turbo-engine-green.svg"
-                    align={"center"}
-                    mr={2}
-                  />
-                )}
-                <SimpleTooltip
-                  label={`${formatEther(strat.boostedAmount)} FEI`}
-                >
-                  <Text>{smallUsdFormatter(boostedFeiUSD)}</Text>
-                </SimpleTooltip>
-              </HStack>,
-              <HStack>
-                <SimpleTooltip label="Boost">
-                  <IconButton bg="green" aria-label="boost">
-                    <PlusSquareIcon />
-                  </IconButton>
-                </SimpleTooltip>
-                <SimpleTooltip label="Less">
-                  <IconButton bg="red" aria-label="less">
-                    <MinusIcon />
-                  </IconButton>
-                </SimpleTooltip>
-              </HStack>,
-            ],
-          };
-        })}
+
+              ]
+            })
+          })
+        }
+
       />
-      {/* <Heading>Active Strategies</Heading>
-        {activeStrategies?.map((strategy, index) => (
-          <ActiveStrategyItem key={index} strategy={strategy} safe={safe} />
-        ))}
-        <Heading>Strategies</Heading>
-        {trustedStrats?.map((strategyAddress, index) => (
-          <InactiveStrategyItem
-            key={index}
-            strategy={strategyAddress}
-            safe={safe}
-          />
-        ))} */}
     </VStack>
   );
 };
@@ -223,7 +209,7 @@ const ActiveStrategyItem: React.FC<{
             {boosting ? (
               <Spinner />
             ) : (
-              <>{`Boost ${utils.commify(amount)} FEI`}</>
+              <>{`Boost ${commify(amount)} FEI`}</>
             )}
           </Button>
           {boostedAmount.gt(0) ? (
@@ -231,7 +217,7 @@ const ActiveStrategyItem: React.FC<{
               {lessing ? (
                 <Spinner />
               ) : (
-                <>{` Less Vault ${utils.commify(amount)}`}</>
+                <>{` Less Vault ${commify(amount)}`}</>
               )}
             </Button>
           ) : null}
@@ -297,7 +283,7 @@ const InactiveStrategyItem: React.FC<{
         </VStack>
         <VStack align="start">
           <Button onClick={() => handleBoostClick(strategy, amount)}>
-            Boost {utils.commify(amount)} FEI
+            Boost {commify(amount)} FEI
           </Button>
         </VStack>
       </HStack>
@@ -345,7 +331,7 @@ const InactiveStrategyItem: React.FC<{
 //                     <Text>{strategy?.strategy}</Text>
 
 //                     {/* <Button onClick={() => handleBoostClick(strategy)}>
-//                 Boost {utils.commify(amount)} FEI
+//                 Boost {commify(amount)} FEI
 //             </Button> */}
 
 //                     <Text>Boosted Amount: {smallUsdFormatter(formatEther(boostedAmount))} ({formatEther(boostedAmount)})</Text>
@@ -356,7 +342,7 @@ const InactiveStrategyItem: React.FC<{
 //                 </VStack>
 //                 <VStack align="start">
 //                     <Button onClick={() => handleBoostClick(strategy?.strategy ?? '', amount)}>
-//                         Boost {utils.commify(amount)} FEI
+//                         Boost {commify(amount)} FEI
 //                     </Button>
 //                 </VStack>
 //             </HStack>
