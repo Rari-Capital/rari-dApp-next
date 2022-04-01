@@ -12,6 +12,7 @@ import { useMemo } from "react";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { HStack } from "@chakra-ui/react";
 import { TokenData } from "hooks/useTokenData";
+import { useUserFeiOwed } from "hooks/turbo/useUserFeiOwed";
 
 type SafeStatsProps = {
   safe: USDPricedTurboSafe;
@@ -26,8 +27,7 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY, tokenData })
 
   const safeBalanceOfFei = useBalanceOf(safe.safeAddress, FEI);
   const userBalanceOfFei = useBalanceOf(address, FEI);
-
-  const userFeiOwed = useMemo(() => getUserFeiOwed(safe), [safe]);
+  const userFeiOwed = useUserFeiOwed(safe)
 
   return (
     <HStack h="100%" w="100%" spacing={12} align="flex-start">

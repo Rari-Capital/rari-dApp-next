@@ -36,7 +36,6 @@ export const safeDeposit = async (
   signer: providers.JsonRpcSigner | any
 ) => {
   const turboSafeContract = await createTurboSafe(signer, safe);
-  console.log({ safe, recipient, amount, signer });
   const tx = await turboSafeContract.deposit(amount, recipient);
   return tx;
 };
@@ -60,7 +59,8 @@ export const safeLess = async (
   encodedCalls.push(encodedLess);
 
   try {
-    const result = await sendRouterWithMultiCall(signer, encodedCalls, chainID);
+    const tx = await sendRouterWithMultiCall(signer, encodedCalls, chainID);
+    return tx
   } catch (err) {
     console.error(err);
   }

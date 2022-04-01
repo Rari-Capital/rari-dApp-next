@@ -66,11 +66,13 @@ export const createSafeAndDeposit = async (
 
     const preBalanceUser = await balanceOf(userAddress, TRIBE, signer);
 
-    const receipt = await sendRouterWithMultiCall(
+    const tx = await sendRouterWithMultiCall(
       signer,
       encodedCalls,
       chainID
     );
+
+    const receipt = await tx.wait(1)
 
     const postBalanceRouter = await balanceOf(
       TurboAddresses[chainID].ROUTER,
