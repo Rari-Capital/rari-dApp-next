@@ -57,12 +57,12 @@ const MODAL_STEP_1: ModalStep = {
             },
             {
               title: "Max Boost",
-              primaryValue: abbreviateAmount(safe?.boostedUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.boostedUSD),
-              titleTooltip: "The maximum amount you can boost.",
+              primaryValue: abbreviateAmount(safe?.collateralUSD),
+              secondaryValue: abbreviateAmount(updatedSafe?.collateralUSD),
+              titleTooltip: "The maximum amount you can boost. This is collateralUSD * collateralFactor ",
               primaryTooltip: `$ ${safe.collateralUSD}`,
               secondaryTooltip: `$ ${updatedSafe?.collateralUSD}`
-            },  
+            },
             {
               title: "Safe Utilization",
               primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
