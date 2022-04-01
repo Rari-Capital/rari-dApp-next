@@ -49,8 +49,13 @@ export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   feiAmount: safe[9],
   tribeDAOFee: safe[10],
   strategies: formatStrategiesInfo(safe[11]),
-  safeUtilization: safe[3].isZero() ? constants.Zero : safe[6].mul(100).div(safe[3]) // debtValue / collateralValue
+  safeUtilization: calculateSafeUtilization(safe[6], safe[3])
 })
+
+// debtValue * 100 / collateralValue
+export const calculateSafeUtilization = (debtValue: BigNumber, collateralValue: BigNumber) => {
+  return collateralValue.isZero() ? constants.Zero : debtValue.mul(100).div(collateralValue)
+}
 
 export const getSafeInfo = async (
   provider: any,

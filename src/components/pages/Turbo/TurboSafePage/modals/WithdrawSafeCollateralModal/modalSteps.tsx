@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { ModalProps, TokenAmountInput } from "rari-components";
 

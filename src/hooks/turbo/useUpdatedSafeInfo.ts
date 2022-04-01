@@ -4,6 +4,7 @@ import { BigNumber, constants } from "ethers";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { calculateETHValueUSD } from "lib/turbo/utils/usdUtils";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { calculateSafeUtilization } from "lib/turbo/fetchers/safes/getSafeInfo";
 
 export enum SafeInteractionMode {
     DEPOSIT = "Deposit",
@@ -44,7 +45,7 @@ export const useUpdatedSafeInfo = ({
                     .mul(safe.collateralPrice)
                     .div(constants.WeiPerEther)
                 const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
-                const safeUtilization = safe.debtAmount.mul(100).div(collateralAmount)
+                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue)
 
                 updatedSafe = {
                     ...safe,
