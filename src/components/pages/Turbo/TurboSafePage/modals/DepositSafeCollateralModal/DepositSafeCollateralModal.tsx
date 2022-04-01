@@ -1,10 +1,9 @@
 // Hooks
 import { useRari } from "context/RariContext";
 // Utils
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { useBalanceOf } from "hooks/useBalanceOf";
 // Turbo
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
 import { Modal } from "rari-components";
 import { useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
@@ -13,12 +12,14 @@ import { MODAL_STEPS } from "./modalSteps";
 import { safeDeposit } from "lib/turbo/transactions/safe";
 import { checkAllowanceAndApprove } from "utils/erc20Utils";
 import useHasApproval from "hooks/useHasApproval";
+import { SafeInteractionMode, useUpdatedSafeInfo } from "hooks/turbo/useUpdatedSafeInfo";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  safe: SafeInfo | undefined;
+  safe: USDPricedTurboSafe | undefined;
 };
 
 export const DepositSafeCollateralModal: React.FC<
@@ -34,15 +35,23 @@ export const DepositSafeCollateralModal: React.FC<
     }
   }
 
-  const [depositAmount, setDepositAmount] = useState<string>("10");
+  const [depositAmount, setDepositAmount] = useState<string>("0");
   const [depositing, setDepositing] = useState(false);
 
   const collateralBalance = useBalanceOf(address, safe?.collateralAsset);
   const [approving, setApproving] = useState(false);
 
-  // TODO(sharad-s): Use real approval function
-  const hasApproval = useHasApproval(safe?.collateralAsset, safe?.safeAddress)
-  // const [hasApproval, setHasApproval] = useState(false);
+  // TODO(sharad-s): Debug approval function
+  // const hasApproval = useHasApproval(safe?.collateralAsset, safe?.safeAddress)
+  const [hasApproval, setHasApproval] = useState(true);
+
+  const updatedSafe = useUpdatedSafeInfo(
+    {
+      mode: SafeInteractionMode.DEPOSIT,
+      safe,
+      amount: parseUnits(!!depositAmount ? depositAmount : "0", 18)
+    }
+  )
 
   async function approve() {
     setApproving(true);
@@ -94,6 +103,7 @@ export const DepositSafeCollateralModal: React.FC<
       ctx={{
         incrementStepIndex,
         safe,
+        updatedSafe,
         depositAmount,
         setDepositAmount,
         onClickDeposit,

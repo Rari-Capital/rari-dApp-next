@@ -1,16 +1,8 @@
-import MotionBox from "components/shared/MotionBox";
-import { useRari } from "context/RariContext";
 import { BigNumber } from "ethers";
-import { formatEther } from "ethers/lib/utils";
 import { motion } from "framer-motion";
-import useBoostedValueUSD from "hooks/turbo/useBoostedValueUSD";
-import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
 // Components
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
-import { useBalanceOf } from "hooks/useBalanceOf";
 import { TokenData, useTokenData } from "hooks/useTokenData";
-import { FEI } from "lib/turbo/utils/constants";
-import { createTurboComptroller } from "lib/turbo/utils/turboContracts";
 import Head from "next/head";
 // Hooks
 import { useRouter } from "next/router";
@@ -23,9 +15,8 @@ import {
   Progress,
   Text,
 } from "rari-components";
-import { useEffect, useMemo } from "react";
-import { useQuery } from "react-query";
-import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import { useMemo } from "react";
+import { shortUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
 import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
 import {
@@ -45,41 +36,43 @@ import TurboLayout from "../TurboLayout";
 import ClaimInterestModal from "./modals/ClaimInterestModal";
 import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import { SafeStats } from "./SafeStats";
-import { SafeStrategies } from "./Strategies";
+import { SafeStrategies } from "./SafeStrategies";
 import SafeInfoModal from "./modals/TurboInfoModal";
 import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
 import AppLink from "components/shared/AppLink";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
+import { StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
-const MOCK_SAFE: SafeInfo = {
-  safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
-  collateralAsset: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
-  collateralAmount: BigNumber.from("5000001000000000000000000"),
-  collateralValue: BigNumber.from("1158926336594045961765"),
-  collateralPrice: BigNumber.from("231785220961765"),
-  debtAmount: BigNumber.from("2000000000000000000000000"),
-  debtValue: BigNumber.from("651700000000000000000"),
-  boostedAmount: BigNumber.from("2000000000000000000000000"),
-  feiPrice: BigNumber.from("325850000000000"),
-  feiAmount: BigNumber.from("2000000046982030418498691"),
-  tribeDAOFee: BigNumber.from("750000000000000000"),
-  strategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-    },
-  ],
-  safeUtilization: BigNumber.from("50")
-};
+// const MOCK_SAFE: SafeInfo = {
+//   safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
+//   collateralAsset: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+//   collateralAmount: BigNumber.from("5000001000000000000000000"),
+//   collateralValue: BigNumber.from("1158926336594045961765"),
+//   collateralPrice: BigNumber.from("231785220961765"),
+//   debtAmount: BigNumber.from("2000000000000000000000000"),
+//   debtValue: BigNumber.from("651700000000000000000"),
+//   boostedAmount: BigNumber.from("2000000000000000000000000"),
+//   feiPrice: BigNumber.from("325850000000000"),
+//   feiAmount: BigNumber.from("2000000046982030418498691"),
+//   tribeDAOFee: BigNumber.from("750000000000000000"),
+//   strategies: [
+//     {
+//       strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
+//       boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
+//       feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
+//     },
+//   ],
+//   safeUtilization: BigNumber.from("50")
+// };
 
 const TurboSafePage: React.FC = () => {
-  const { address, provider, chainId } = useRari();
   const router = useRouter();
   const { id } = router.query;
   const safeId = id as string;
 
-  const safe = useSafeInfo(safeId) ?? MOCK_SAFE;
+  const safe = useSafeInfo(safeId);
   const tokenData = useTokenData(safe?.collateralAsset);
 
   const loading = !tokenData || !safe
@@ -108,24 +101,10 @@ const TurboSafePage: React.FC = () => {
     onClose: closeClaimInterestModal,
   } = useDisclosure();
 
-  const boostedUSD = useBoostedValueUSD(safe);
-  const collateralUSD = useCollateralValueUSD(safe);
-
-  const safeBalanceOfFei = useBalanceOf(safe?.safeAddress, FEI);
-  const userBalanceOfFei = useBalanceOf(address, FEI);
-
   const safeHealth = safe?.safeUtilization
 
-  // const { data: liquidationPrice } = useQuery('liq price for safe ' + safe?.safeAddress, async () => {
-  //   if (!safe) return
-  //   const turboComptroller = createTurboComptroller(provider, chainId ?? 31337)
-  //   const tribe = await turboComptroller.callStatic.markets("0x67E6C5c58eDE477bC790e8c050c2eb10fE3a835f")
-  //   const cf = parseFloat(formatEther(tribe.collateralFactorMantissa.mul(100)))
-  //   console.log({ cf, safe })
-  //   const price = safe.debtValue.div(safe.collateralValue.mul(cf))
-  //   console.log({ price })
-  //   return price
-  // })
+  const safeStrategies: StrategyInfo[] = safe?.strategies ?? [];
+  const strategiesData = useStrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
 
   const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
 
@@ -222,13 +201,11 @@ const TurboSafePage: React.FC = () => {
       </Stack>
       <Divider my={12} />
 
-      {!boostedUSD && !loading && <OnboardingCard />}
+      {!safe?.boostedAmount && !loading && <OnboardingCard />}
 
       <BoostBar
-        boostedUSD={boostedUSD}
-        collateralUSD={collateralUSD}
+        safe={safe}
         tokenData={tokenData}
-        safeHealth={safeHealth}
         colorScheme={colorScheme}
       />
       <Stack spacing={12} my={12}>
@@ -242,12 +219,12 @@ const TurboSafePage: React.FC = () => {
 export default TurboSafePage;
 
 export const BoostBar: React.FC<{
-  boostedUSD: number | undefined;
-  collateralUSD: number | undefined;
+  safe: USDPricedTurboSafe | undefined;
   tokenData: TokenData | undefined;
-  safeHealth: BigNumber | undefined;
   colorScheme: string;
-}> = ({ boostedUSD, collateralUSD, tokenData, safeHealth, colorScheme }) => {
+}> = ({ safe, tokenData, colorScheme }) => {
+  const { boostedUSD, collateralUSD, safeUtilization } = safe ?? {}
+
   return (
     <Box mt={12}>
       <Flex justifyContent="space-between" alignItems="baseline">
@@ -262,7 +239,7 @@ export const BoostBar: React.FC<{
             {shortUsdFormatter(boostedUSD ?? 0)} boosted
           </Heading>
           <Text variant="neutral">
-            / {shortUsdFormatter(collateralUSD ?? 0)} ({safeHealth?.toNumber()}
+            / {shortUsdFormatter(collateralUSD ?? 0)} ({toInt(safeUtilization)}
             %)
           </Text>
         </Flex>
@@ -278,7 +255,7 @@ export const BoostBar: React.FC<{
         mt={4}
         hideLabel
         barVariant={colorScheme}
-        value={toInt(safeHealth)}
+        value={toInt(safeUtilization)}
       />
     </Box>
   );

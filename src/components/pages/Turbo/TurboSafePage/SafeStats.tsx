@@ -1,23 +1,22 @@
 
 import Statistic from "lib/components/Statistic"
-
 import { useRari } from "context/RariContext";
-import { formatEther } from "ethers/lib/utils";
-import useCollateralValueUSD from "hooks/turbo/useCollateralValueUSD";
-import { useBalanceOf } from "hooks/useBalanceOf";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { commify, formatEther } from "ethers/lib/utils";
+import { HStack, Spacer, VStack } from "@chakra-ui/react";
+
 // Utils
 import { FEI } from "lib/turbo/utils/constants";
 // Turbo
 import { getUserFeiOwed } from "lib/turbo/utils/getUserFeiOwed";
 import { useRariTokenData } from "rari-components/hooks";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 // Hooks
 import { useMemo } from "react";
+import { useBalanceOf } from "hooks/useBalanceOf";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { HStack, Spacer, VStack } from "@chakra-ui/react";
 
 type SafeStatsProps = {
-  safe: SafeInfo;
+  safe: USDPricedTurboSafe;
 };
 
 export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
@@ -29,36 +28,35 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
 
   const userFeiOwed = useMemo(() => getUserFeiOwed(safe), [safe]);
 
-  const collateralUSD = useCollateralValueUSD(safe);
-
   return (
-    <HStack>
+    <HStack h="100%" w="100%" py={4}>
       <Statistic
         title={"Total Collateralized"}
-        secondaryValue={`${parseFloat(
-          formatEther(safe.collateralAmount)
-        ).toFixed(2)} ${tokenData?.symbol}`}
-        value={smallStringUsdFormatter(collateralUSD ?? 0)}
+        value={smallStringUsdFormatter(safe.collateralUSD)}
+        secondaryValue={`${commify(
+          parseFloat(
+            formatEther(safe.collateralAmount)
+          ).toFixed(2)
+        )
+          } ${tokenData?.symbol}`}
         tooltip="Hi"
-        mr={1}
-
+        mr={10}
       />
-      <Spacer />
       <Statistic
         title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
-        secondaryValue={`${parseFloat(formatEther(userFeiOwed)).toFixed(
+        secondaryValue={`${commify(parseFloat(formatEther(userFeiOwed)).toFixed(
           2
-        )} FEI`}
+        ))} FEI`}
         tooltip="Sum of all earned FEI across all boosted strategies after Revenue Split"
-        mr={1}
+        mr={20}
       />
-      <Spacer />
       <Statistic
         title={"Net APY"}
         value="0%"
         tooltip="Hi"
-        mr={1}
+        mr={10}
+        h="100%"
       />
       {/* <Statistic
         title={"Safe Balance FEI"}

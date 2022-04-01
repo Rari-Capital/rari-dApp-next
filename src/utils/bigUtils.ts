@@ -27,7 +27,8 @@ export function stringUsdFormatter(num: string) {
   return formatter.format(parseFloat(num));
 }
 
-export function smallUsdFormatter(num: number | string) {
+export function smallUsdFormatter(_num: number | string | undefined) {
+  let num = _num ?? 0
   if (typeof num === typeof "") {
     return smallFormatter.format(parseFloat(num as string));
   }
@@ -38,7 +39,8 @@ export function usdFormatter(num: number) {
   return formatter.format(num);
 }
 
-export function shortUsdFormatter(num: number | string) {
+export function shortUsdFormatter(_num: number | string | undefined) {
+  let num = _num ?? 0
   if (typeof num === typeof "") {
     return "$" + shortFormatter.format(parseFloat(num as string));
   }

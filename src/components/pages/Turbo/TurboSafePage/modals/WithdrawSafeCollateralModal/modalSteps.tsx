@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { ModalProps, TokenAmountInput } from "rari-components";
 
 type WithdrawSafeCollateralCtx = {

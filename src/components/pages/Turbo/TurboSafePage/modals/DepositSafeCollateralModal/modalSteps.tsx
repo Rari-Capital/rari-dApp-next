@@ -1,17 +1,20 @@
+import { Spinner } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
-import { SafeInfo } from "lib/turbo/fetchers/getSafeInfo";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import {
   ModalProps,
-  StatisticTable,
   Text,
   TokenAmountInput,
   TokenSymbol,
 } from "rari-components";
+import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
+import StatisticTable from "lib/components/StatisticsTable";
 
 type DepositSafeCollateralCtx = {
   incrementStepIndex(): void;
-  safe?: SafeInfo;
+  safe?: USDPricedTurboSafe;
+  updatedSafe?: USDPricedTurboSafe;
   hasApproval: boolean;
   approving: boolean;
   onClickApprove(): void;
@@ -31,23 +34,45 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: "Deposit Collateral",
   subtitle: "Lorem Ipsum is simply dummy text",
-  children: ({ setDepositAmount, safe, collateralBalance, depositAmount }) =>
+  children: ({ setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) =>
     !!safe && (
       <>
         <TokenAmountInput
           value={depositAmount}
-          onChange={setDepositAmount}
+          onChange={(amount: string) => setDepositAmount(amount ?? '0')}
           tokenAddress={safe.collateralAsset}
         />
         <Text variant="secondary" mt="4">
           You have {formatEther(collateralBalance)}{" "}
           <TokenSymbol tokenAddress={safe.collateralAsset} />
         </Text>
-        <StatisticTable statistics={[
-          ["Collateral deposited", "$0"],
-          ["Boost Balance", "$0"],
-          ["Safe Utilization", safe.safeUtilization.toString() + "%" ?? "?"]
-        ]} />
+        <StatisticTable
+          statistics={[
+            {
+              title: "Collateral deposited",
+              primaryValue: shortUsdFormatter(safe?.collateralUSD),
+              secondaryValue: shortUsdFormatter(updatedSafe?.collateralUSD),
+              titleTooltip: "How much collateral you have deposited.",
+              primaryTooltip: ""
+            },
+            {
+              title: "Boost Balance",
+              primaryValue: shortUsdFormatter(safe?.boostedUSD),
+              secondaryValue: shortUsdFormatter(updatedSafe?.boostedUSD),
+              titleTooltip: "The maximum amount you can boost.",
+              primaryTooltip: ""
+            },
+            {
+              title: "Safe Utilization",
+              primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
+              secondaryValue: parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
+              titleTooltip: "The health of your safe. ",
+              primaryTooltip: ""
+
+            },
+          ]}
+          isLoading={!updatedSafe}
+        />
       </>
     ),
   buttons: ({
