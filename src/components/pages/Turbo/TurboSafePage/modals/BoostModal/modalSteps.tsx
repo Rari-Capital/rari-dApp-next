@@ -7,16 +7,19 @@ import { abbreviateAmount } from "utils/bigUtils";
 import StatisticTable from "lib/components/StatisticsTable";
 import { FEI } from "lib/turbo/utils/constants";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
+import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
   safe?: USDPricedTurboSafe;
   updatedSafe?: USDPricedTurboSafe;
-  boostAmount: string;
-  setBoostAmount(newBoostAmount: string): void;
-  boosting: boolean;
+  amount: string;
+  setAmount(newAmount: string): void;
+  transacting: boolean;
   onClickBoost(): void;
+  onClickLess(): void;
   onClose(): void;
+  mode: SafeInteractionMode.BOOST | SafeInteractionMode.LESS;
   strategy: USDPricedStrategy | undefined,
   erc4626Strategy: FuseERC4626Strategy | undefined
 };
@@ -27,14 +30,14 @@ type ModalStep = Omit<
 >;
 
 const MODAL_STEP_1: ModalStep = {
-  title: "Boost Strategy",
+  title: ({ mode }) => `${mode} strategy`,
   subtitle: ({ strategy }) => `${strategy?.strategy}`,
-  children: ({ setBoostAmount, safe, updatedSafe, boostAmount }) =>
+  children: ({ amount, setAmount, safe, updatedSafe }) =>
     !!safe && (
       <>
         <TokenAmountInput
-          value={boostAmount}
-          onChange={(amount: string) => setBoostAmount(amount ?? '0')}
+          value={amount}
+          onChange={(amount: string) => setAmount(amount ?? '0')}
           tokenAddress={FEI}
         />
         {/* <Text variant="secondary" mt="4">
@@ -65,12 +68,14 @@ const MODAL_STEP_1: ModalStep = {
     ),
   buttons: ({
     onClickBoost,
-    boosting,
+    onClickLess,
+    transacting,
     incrementStepIndex,
     onClose,
+    mode
   }) => [
       {
-        children: "Boost",
+        children: mode,
         // children: approving
         //   ? "Approving..."
         //   : depositing
@@ -79,8 +84,8 @@ const MODAL_STEP_1: ModalStep = {
         //       ? "Approve Router"
         //       : "Deposit",
         variant: "neutral",
-        loading: boosting,
-        async onClick() { onClickBoost() }
+        loading: transacting,
+        async onClick() { mode === "Boost" ? onClickBoost() : onClickLess() }
       },
     ],
 };

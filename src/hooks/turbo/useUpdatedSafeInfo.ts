@@ -106,6 +106,52 @@ export const useUpdatedSafeInfo = ({
                 return updatedSafe
             }
 
+            /** LESS **/
+            if (mode === SafeInteractionMode.LESS) {
+                console.log({ strategyIndex })
+
+                if (strategyIndex === undefined) return undefined
+
+                const boostedAmount = safe.boostedAmount.sub(amount) // boosted FEI 
+                const boostedUSD = calculateFEIValueUSD(boostedAmount, safe.feiPrice, ethUSDBN)
+                const debtAmount = safe.debtAmount.sub(amount)
+                const debtValue = debtAmount
+                    .mul(safe.feiPrice)
+                    .div(constants.WeiPerEther)
+
+                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue)
+
+                const strategyToUpdate = safe.usdPricedStrategies[strategyIndex]
+
+                const stratBoostedAmount = strategyToUpdate.boostedAmount.sub(amount)
+                const stratBoostedUSD = calculateFEIValueUSD(stratBoostedAmount, safe.feiPrice, ethUSDBN)
+                const stratFeiAmount = strategyToUpdate.feiAmount.sub(amount)
+                const stratFeiUSD = calculateFEIValueUSD(stratFeiAmount, safe.feiPrice, ethUSDBN)
+
+                const updatedStrategy: USDPricedStrategy = {
+                    ...strategyToUpdate,
+                    boostedAmount: stratBoostedAmount,
+                    boostAmountUSD: stratBoostedUSD,
+                    feiAmount: stratFeiAmount,
+                    feiAmountUSD: stratFeiUSD,
+                }
+
+                const strategies = safe.usdPricedStrategies
+                strategies[strategyIndex] = updatedStrategy
+
+                updatedSafe = {
+                    ...safe,
+                    boostedAmount,
+                    boostedUSD,
+                    debtAmount,
+                    debtValue,
+                    safeUtilization,
+                    strategies
+                }
+
+                return updatedSafe
+            }
+
         }
     );
 

@@ -7,7 +7,6 @@ import { FEI } from "lib/turbo/utils/constants";
 // Turbo
 import { getUserFeiOwed } from "lib/turbo/utils/getUserFeiOwed";
 import { Statistic } from "rari-components";
-import { useRariTokenData } from "rari-components/hooks";
 // Hooks
 import { useMemo } from "react";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
