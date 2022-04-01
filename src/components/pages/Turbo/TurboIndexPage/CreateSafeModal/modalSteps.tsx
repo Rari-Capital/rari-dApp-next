@@ -117,7 +117,11 @@ const MODAL_STEP_2: ModalStep = {
           p={4}
         >
           {(hovered) => (
-            <Flex alignItems="center">
+            <Flex
+              alignItems="center"
+              opacity={hovered ? 0.5 : 1}
+              transition="0.2s opacity"
+            >
               <TokenIcon tokenAddress={tokenAddress} mr={4} />
               <Heading size="lg">
                 <TokenSymbol

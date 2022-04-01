@@ -42,7 +42,16 @@ const TurboIndexPage: React.FC = () => {
             <Button variant="success" onClick={onOpen}>
               Create a safe
             </Button>
-            <Button variant="cardmatte">Learn more</Button>
+            <Button
+              variant="cardmatte"
+              as="a"
+              // @ts-ignore
+              // TypeScript doesn't ignore that `as="a"` means that this can
+              // have an `href` prop.
+              href="https://medium.com/fei-protocol/the-tribe-dao-strongly-believes-that-a-healthy-and-thriving-defi-ecosystem-needs-a-robust-platform-b1faea700dfa"
+            >
+              Learn more
+            </Button>
           </HStack>
         </Box>
         <Box flex={1}>
