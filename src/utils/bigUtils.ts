@@ -47,7 +47,8 @@ export function shortUsdFormatter(_num: number | string | undefined) {
   return "$" + shortFormatter.format(num as number);
 }
 
-export const abbreviateAmount = (amount: number) => {
+export const abbreviateAmount = (_amount: number | string | undefined) => {
+  const amount = _amount ? Number(_amount) : 0
   return Math.abs(amount) > 100000
     ? shortUsdFormatter(amount)
     : smallUsdFormatter(amount);

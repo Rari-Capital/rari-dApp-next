@@ -11,15 +11,18 @@ import { useRariTokenData } from "rari-components/hooks";
 // Hooks
 import { useMemo } from "react";
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { HStack, Spacer, VStack } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 
 type SafeStatsProps = {
   safe: USDPricedTurboSafe;
+  netAPY: number;
 };
 
-export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
+export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY }) => {
   const { address } = useRari();
   const { data: tokenData } = useRariTokenData(safe.collateralAsset);
+
+  console.log({ netAPY })
 
   const safeBalanceOfFei = useBalanceOf(safe.safeAddress, FEI);
   const userBalanceOfFei = useBalanceOf(address, FEI);
@@ -36,6 +39,7 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
         )} ${tokenData?.symbol}`}
         tooltip="Hi"
       />
+      
       <Statistic
         title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
@@ -43,8 +47,16 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe }) => {
           parseFloat(formatEther(userFeiOwed)).toFixed(2)
         )} FEI`}
         tooltip="Sum of all earned FEI across all boosted strategies after Revenue Split"
+        mr={20}
       />
-      <Statistic title={"Net APY"} value="0%" tooltip="Hi" mr={10} h="100%" />
+
+      <Statistic
+        title={"Avg. APY"}
+        value={netAPY.toFixed(2) + "%"}
+        tooltip="Hi"
+        mr={10}
+        h="100%"
+      />
       {/* <Statistic
         title={"Safe Balance FEI"}
         value={formatEther(safeBalanceOfFei) + " FEI"}

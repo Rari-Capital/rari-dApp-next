@@ -12,9 +12,13 @@ type FuseERC4626Strategy = {
     supplyRatePerBlock: number;
 }
 
+// Data Required to render FuseERC4626 strategies
+export type StrategyInfosMap = {
+    [strategyAddress: string]: FuseERC4626Strategy | undefined
+}
 
 // Gets ERC4626 strategy data
-export const useStrategyData = (strategy: string) => {
+export const useERC4626StrategyData = (strategy: string) => {
     const { provider } = useRari()
 
     const { data: strategyInfo } = useQuery(
@@ -27,13 +31,9 @@ export const useStrategyData = (strategy: string) => {
     return strategyInfo;
 };
 
-// Data Required to render FuseERC4626 strategies
-export type StrategyInfosMap = {
-    [strategyAddress: string]: FuseERC4626Strategy | undefined
-}
 
-// Gets ERC4626 strategy info for multiple strategies and 
-export const useStrategiesDataAsMap = (strategies: string[]) => {
+// Gets ERC4626 strategy info for multiple strategies
+export const useERC4626StrategiesDataAsMap = (strategies: string[]) => {
     const { provider } = useRari()
 
     const strategiesQueryResult = useQueries(

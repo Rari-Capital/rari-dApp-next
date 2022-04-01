@@ -16,7 +16,6 @@ import Table from "lib/components/Table";
 // Hooks
 import { useState } from "react";
 import { useRari } from "context/RariContext";
-import { useStrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 // Turbo
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
@@ -30,6 +29,7 @@ import { formatEther, commify, parseEther } from "ethers/lib/utils";
 import { constants } from "ethers";
 import { handleGenericError } from "utils/errorHandling";
 import { convertMantissaToAPY } from "utils/apyUtils";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 
 export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
@@ -37,7 +37,7 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
   const safeStrategies: USDPricedStrategy[] = safe.usdPricedStrategies;
 
   // Fetches FuseERC4626 Data about each strategy
-  const strategiesData = useStrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
+  const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
 
   // TODO (@nathanhleung) Tooltips appear on top left for some reason
   // TODO (@nathanhleung) Table key rendering issues  
