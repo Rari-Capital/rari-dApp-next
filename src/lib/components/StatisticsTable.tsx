@@ -51,14 +51,18 @@ const StatisticTable: React.FC<StatisticTableProps> = ({
                                 textAlign="left"
                                 alignItems={"baseline"}
                             >
-                                {
-                                    !!statistic.titleTooltip && (
-                                        <SimpleTooltip label={statistic.titleTooltip}>
-                                            <InfoIcon />
-                                        </SimpleTooltip>
-                                    )
-                                }
-                                {statistic.title}
+                                <HStack>
+                                    {
+                                        !!statistic.titleTooltip && (
+                                            <SimpleTooltip label={statistic.titleTooltip}>
+                                                <InfoIcon mr={1} />
+                                            </SimpleTooltip>
+                                        )
+                                    }
+                                    <Text>
+                                        {statistic.title}
+                                    </Text>
+                                </HStack>
                             </Td>
                             <Td
                                 paddingX={0}
@@ -81,7 +85,6 @@ const StatisticTable: React.FC<StatisticTableProps> = ({
 };
 
 
-// TODO (@nathanhleung) - stack horizontally
 const StatisticValue: React.FC<{
     isLoading: boolean,
     statistic: Statistic,
@@ -99,8 +102,7 @@ const StatisticValue: React.FC<{
 
         if (isLoading) return <Spinner boxSize={"15px"} />
         return (
-            <>
-
+            <HStack justify={"flex-end"}>
                 <TextWithToolTip text={primaryValue} tooltip={primaryTooltip} />
                 {!!secondaryValue && (
                     <>
@@ -111,7 +113,7 @@ const StatisticValue: React.FC<{
                     </>
                 )}
 
-            </>
+            </HStack>
         )
     }
 
