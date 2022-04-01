@@ -1,6 +1,8 @@
 import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import {
+  Heading,
   ModalProps,
+  Text,
   TokenAmountInput,
 } from "rari-components";
 import { abbreviateAmount } from "utils/bigUtils";
@@ -8,9 +10,12 @@ import StatisticTable from "lib/components/StatisticsTable";
 import { FEI } from "lib/turbo/utils/constants";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
+import { VStack } from "@chakra-ui/react";
+import { commify } from "ethers/lib/utils";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
+  resetStepIndex(): void;
   safe?: USDPricedTurboSafe;
   updatedSafe?: USDPricedTurboSafe;
   amount: string;
@@ -85,12 +90,46 @@ const MODAL_STEP_1: ModalStep = {
         //       : "Deposit",
         variant: "neutral",
         loading: transacting,
-        async onClick() { mode === "Boost" ? onClickBoost() : onClickLess() }
+        async onClick() {
+          mode === "Boost"
+            ? await onClickBoost()
+            : await onClickLess()
+          incrementStepIndex()
+        }
       },
     ],
 };
 
-const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1];
+
+const MODAL_STEP_2: ModalStep = {
+  children: ({ amount, mode }) =>
+  (
+    <>
+      <VStack>
+        <Heading>
+          {commify(amount)} FEI
+        </Heading>
+        <Text>Succesfully {mode}ed</Text>
+      </VStack>
+    </>
+  ),
+  buttons: ({
+    onClose,
+    resetStepIndex
+  }) => [
+      {
+        children: "Back to Safe",
+        variant: "neutral",
+        async onClick() {
+          resetStepIndex()
+          onClose()
+        },
+      },
+    ],
+};
+
+
+const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1, MODAL_STEP_2];
 
 export { MODAL_STEPS };
 export type { BoostModalCtx };

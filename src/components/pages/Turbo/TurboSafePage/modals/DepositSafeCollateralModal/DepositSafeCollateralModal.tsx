@@ -34,6 +34,10 @@ export const DepositSafeCollateralModal: React.FC<
       setStepIndex(stepIndex + 1);
     }
   }
+  function resetStepIndex() {
+    setStepIndex(0)
+  }
+
 
   const [depositAmount, setDepositAmount] = useState<string>("0");
   const [depositing, setDepositing] = useState(false);
@@ -103,6 +107,7 @@ export const DepositSafeCollateralModal: React.FC<
     <Modal
       ctx={{
         incrementStepIndex,
+        resetStepIndex,
         safe,
         updatedSafe,
         depositAmount,

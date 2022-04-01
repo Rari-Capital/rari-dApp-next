@@ -44,6 +44,9 @@ export const BoostStrategyModal: React.FC<
         setStepIndex(stepIndex + 1);
       }
     }
+    function resetStepIndex() {
+      setStepIndex(0)
+    }
 
     const [amount, setAmount] = useState<string>("0");
     const [transacting, setTransacting] = useState(false);
@@ -73,7 +76,6 @@ export const BoostStrategyModal: React.FC<
           await provider.getSigner()
         );
         await tx.wait(1)
-        onClose()
       } catch (err) {
         handleGenericError(err, toast);
       } finally {
@@ -105,9 +107,7 @@ export const BoostStrategyModal: React.FC<
           await provider.getSigner(),
           chainId ?? 1
         );
-
-        
-        onClose()
+        await tx.wait(1)
       } catch (err) {
         handleGenericError(err, toast);
       } finally {
@@ -121,6 +121,7 @@ export const BoostStrategyModal: React.FC<
       <Modal
         ctx={{
           incrementStepIndex,
+          resetStepIndex,
           safe,
           updatedSafe,
           amount,
