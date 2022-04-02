@@ -70,7 +70,7 @@ export const safeSlurp = async (
   safe: string,
   strategies: string[],
   signer: any,
-  chainID: number
+  chainID: number,
 ) => {
   const encodedSlurps = strategies.map((vault) =>
     encodeCall.slurp(safe, vault)
@@ -98,11 +98,12 @@ export const safeSweep = async (
   const encodedSweep = encodeCall.sweep(safe, recepient, tokenAddress, amount);
 
   try {
-    const result = await sendRouterWithMultiCall(
+    const tx = await sendRouterWithMultiCall(
       signer,
       [encodedSweep],
       chainID
     );
+    return tx
   } catch (err) {
     console.error(err);
   }
