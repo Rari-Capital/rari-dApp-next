@@ -115,8 +115,6 @@ export const BoostStrategyModal: React.FC<
       }
     };
 
-
-
     return (
       <Modal
         ctx={{

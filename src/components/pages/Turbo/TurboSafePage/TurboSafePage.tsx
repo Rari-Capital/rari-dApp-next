@@ -120,12 +120,12 @@ const TurboSafePage: React.FC = () => {
   } = useDisclosure();
 
   const safeHealth = safe?.safeUtilization;
-
   const safeStrategies: StrategyInfo[] = safe?.strategies ?? [];
   const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies)
   const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
 
-  // Average APY across all strategies you have supplied to 
+  // Average APY across all strategies you have supplied to
+  // TODO(@sharad-s) - refactor into a hook
   const netAPY = Object.keys(strategiesData)
     .reduce((num, strategyAddress) => {
       const erc4626Strategy = strategiesData[strategyAddress]
@@ -135,7 +135,6 @@ const TurboSafePage: React.FC = () => {
       return num / activeStrategies.length
     }, 0)
 
-  console.log({ netAPY, strategiesData })
 
   const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
 
@@ -204,7 +203,11 @@ const TurboSafePage: React.FC = () => {
         <Spacer />
 
         <HStack>
-          <Button variant="cardmatte" onClick={openDepositModal}>
+          <Button
+            variant="cardmatte"
+            onClick={openDepositModal}
+            disabled={!tokenData}
+          >
             <Image
               src="/static/turbo/action-icons/deposit-collateral.png"
               height={4}
@@ -212,7 +215,11 @@ const TurboSafePage: React.FC = () => {
             />
             Deposit Collateral
           </Button>
-          <Button variant="cardmatte" onClick={openWithdrawModal}>
+          <Button
+            variant="cardmatte"
+            onClick={openWithdrawModal}
+            disabled={!tokenData}
+          >
             <Image
               src="/static/turbo/action-icons/withdraw-collateral.png"
               height={4}
@@ -220,7 +227,11 @@ const TurboSafePage: React.FC = () => {
             />
             Withdraw Collateral
           </Button>
-          <Button variant="cardmatte" onClick={openClaimInterestModal}>
+          <Button
+            variant="cardmatte"
+            onClick={openClaimInterestModal}
+            disabled={!tokenData}
+          >
             <Image
               src="/static/turbo/action-icons/claim-interest.png"
               height={4}

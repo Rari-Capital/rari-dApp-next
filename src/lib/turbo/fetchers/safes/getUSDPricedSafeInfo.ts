@@ -39,6 +39,8 @@ export const getUSDPricedSafeInfo = async (
             ]
         )
 
+        
+
         const collateralUSD = calculateETHValueUSD(safeInfo.collateralValue, ethUSDBN)
         const debtUSD = calculateETHValueUSD(safeInfo.debtValue, ethUSDBN)
         const boostedUSD = calculateFEIValueUSD(safeInfo.boostedAmount, safeInfo.feiPrice, ethUSDBN)

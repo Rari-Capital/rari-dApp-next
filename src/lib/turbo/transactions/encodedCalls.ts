@@ -1,12 +1,11 @@
 import { BigNumber } from "ethers";
 import { ITurboRouter } from "lib/turbo/utils/turboContracts";
 import { encodeRouterCall } from "lib/turbo/utils/turboMulticall";
-
 // TODO: natspec on funcs
 
 /** Periphery Payments  **/
 type PullTokenArgs = [token: string, amount: BigNumber, recipient: string];
- const pullTokens = (
+const pullTokens = (
   token: string,
   amount: BigNumber,
   recipient: string
@@ -88,12 +87,17 @@ const slurp = (safe: string, strategy: string) => {
   return encodeRouterCall(ITurboRouter, "slurp", slurpArgs);
 };
 
-
 type SweepArgs = [safe: string, recepient: string, tokenAddress: string, amount: BigNumber];
 const sweep = (safe: string, recepient: string, tokenAddress: string, amount: BigNumber) => {
-  const slurpArgs: SweepArgs = [safe, recepient, tokenAddress, amount];
-  return encodeRouterCall(ITurboRouter, "sweep", slurpArgs);
+  const sweepArgs: SweepArgs = [safe, recepient, tokenAddress, amount];
+  return encodeRouterCall(ITurboRouter, "sweep", sweepArgs);
 };
+
+type SweepAllArgs = [safe: string, recepient: string, tokenAddress: string];
+const sweepAll = (safe: string, recepient: string, tokenAddress: string) => {
+  const sweepAllArgs: SweepAllArgs = [safe, recepient, tokenAddress];
+  return encodeRouterCall(ITurboRouter, "sweepAll", sweepAllArgs);
+}
 
 const encodeCall = {
   pullTokens,
@@ -104,7 +108,8 @@ const encodeCall = {
   deposit,
   withdraw,
   slurp,
-  sweep
+  sweep,
+  sweepAll
 }
 
 export default encodeCall

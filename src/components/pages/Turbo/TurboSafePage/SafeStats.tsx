@@ -23,11 +23,7 @@ type SafeStatsProps = {
 export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY, tokenData }) => {
   const { address } = useRari();
 
-  console.log({ netAPY })
-
-  const safeBalanceOfFei = useBalanceOf(safe.safeAddress, FEI);
-  const userBalanceOfFei = useBalanceOf(address, FEI);
-  const userFeiOwed = useUserFeiOwed(safe)
+  const [userFeiOwed] = useUserFeiOwed(safe)
 
   return (
     <HStack h="100%" w="100%" spacing={12} align="flex-start">
@@ -44,7 +40,7 @@ export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY, tokenData })
         title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
         secondaryValue={`${commify(
-          parseFloat(formatEther(userFeiOwed)).toFixed(2)
+          parseFloat(formatEther(userFeiOwed)).toFixed(3)
         )} FEI`}
         tooltip="Sum of all claimable FEI across all boosted strategies after TribeDAO Revenue Split."
         mr={20}
