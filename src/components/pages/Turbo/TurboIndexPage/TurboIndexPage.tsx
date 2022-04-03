@@ -1,9 +1,8 @@
-import AppLink from "components/shared/AppLink";
 import { formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
-import { Button, Card, Divider, Heading, Text } from "rari-components";
+import { Button, Card, Divider, Heading, HoverableCard, Link, Statistic, Text } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
 import {
   Box,
@@ -16,12 +15,14 @@ import {
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
+import { constants } from "ethers";
+import { PlusSquareIcon } from "@chakra-ui/icons";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const safes = useAllUserSafes();
-  const hasSafes = !!safes?.length;
+  const safes = useAllUserSafes() ?? [];
+  const hasSafes = safes.length > 0;
 
   return (
     <TurboLayout>
@@ -39,9 +40,11 @@ const TurboIndexPage: React.FC = () => {
             FEI line of credit.
           </Text>
           <HStack pt={8} spacing={4}>
-            <Button variant="success" onClick={onOpen}>
-              Create a safe
-            </Button>
+            {!hasSafes && (
+              <Button variant="success" onClick={onOpen}>
+                Create a safe
+              </Button>
+            )}
             <Button
               variant="cardmatte"
               as="a"
@@ -59,19 +62,61 @@ const TurboIndexPage: React.FC = () => {
         </Box>
       </Stack>
       <Divider mt={20} mb={16} />
-      {hasSafes ? <SafeGrid safes={safes} /> : <TurboFAQ />}
+      {hasSafes ? <SafeGrid safes={safes} onClickCreateSafe={onOpen} /> : <TurboFAQ />}
     </TurboLayout>
   );
 };
 
-const SafeGrid: React.FC<{
+type SafeGridProps = {
   safes: SafeInfo[];
-}> = ({ safes }) => {
+  onClickCreateSafe(): void;
+}
+
+const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   const underlyings = safes.map((safe) => safe.collateralAsset);
+  // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
+  // be a USD value
+  const totalBoosted = safes.reduce((acc, safe) => {
+    return acc.add(safe.boostedAmount);
+  }, constants.Zero);
+  const totalClaimableInterest = safes.reduce((acc, safe) => {
+    // TODO(sharad-s) Calculate interest from safes here
+    return constants.Zero;
+  }, constants.Zero)
+  const netApy = 10;
   const tokensData = useTokensDataAsMap(underlyings);
+
   return (
-    <VStack minW="100%">
-      <SimpleGrid columns={3} spacingX="40px" spacingY="20px">
+    <Box>
+      <HStack spacing={8}>
+        <Statistic
+          title="Total boosted"
+          // TODO(sharad-s) What should these tooltips say?
+          tooltip="Tooltip"
+          value={smallUsdFormatter(totalBoosted.toString())}
+        />
+        <Statistic
+          title="Total claimable interest"
+          tooltip="Tooltip"
+          value={smallUsdFormatter(totalClaimableInterest.toString())}
+        />
+        <Statistic
+          title="Net APY"
+          tooltip="Tooltip"
+          value={`${netApy}%`}
+        />
+      </HStack>
+      <SimpleGrid columns={3} spacingX={8} spacingY={4} mt={12}>
+        <HoverableCard variant="ghost" cursor="pointer" onClick={onClickCreateSafe}>
+          {(hovered) => (
+            <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
+              <Heading size="md">Add safe <PlusSquareIcon /></Heading>
+              <Text variant="secondary" mt={4}>
+                You may create one safe per approved collateral type.
+              </Text>
+            </Box>
+          )}
+        </HoverableCard>
         {safes.map((safe, i) => (
           <SafeCard
             key={safe.safeAddress}
@@ -81,7 +126,7 @@ const SafeGrid: React.FC<{
           />
         ))}
       </SimpleGrid>
-    </VStack>
+    </Box>
   );
 };
 
@@ -91,8 +136,8 @@ const SafeCard: React.FC<{
   tokenData: TokenData | undefined;
 }> = ({ safe, i, tokenData }) => {
   return (
-    <AppLink href={`/turbo/safe/${safe.safeAddress}`}>
-      <Card w="100%">
+    <Link href={`/turbo/safe/${safe.safeAddress}`}>
+      <Card w="100%" variant="ghost">
         <VStack alignItems="start">
           <HStack justify={"start"}>
             <Image src={tokenData?.logoURL} boxSize="40px" />
@@ -108,7 +153,7 @@ const SafeCard: React.FC<{
           <Text>Utilization: {safe.safeUtilization?.toString()}%</Text>
         </VStack>
       </Card>
-    </AppLink>
+    </Link>
   );
 };
 
