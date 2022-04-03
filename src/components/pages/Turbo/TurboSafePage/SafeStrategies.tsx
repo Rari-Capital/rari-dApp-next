@@ -7,9 +7,8 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
-import { Text, TokenIcon } from "rari-components";
+import { Link, Text, TokenIcon } from "rari-components";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import AppLink from "components/shared/AppLink";
 import Table from "lib/components/Table";
 
 // Hooks
@@ -27,7 +26,6 @@ import BoostModal from "./modals/BoostModal";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { FEI } from "lib/turbo/utils/constants";
-
 
 export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
   const trustedStrats: string[] = useTrustedStrategies();
@@ -90,14 +88,14 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
                 key: strat.strategy,
                 data: [
                   (
-                    <AppLink href={poolId ? `/fuse/pool/${poolId}` : '#'}>
+                    <Link href={poolId ? `/fuse/pool/${poolId}` : '#'}>
                       <HStack>
                         <TokenIcon tokenAddress={strategyData?.underlying ?? FEI} size="sm" />
                         <Text>
                           {strategyData?.symbol}
                         </Text>
                       </HStack>
-                    </AppLink>),
+                    </Link>),
                   (
                     <Box>
                       <SimpleTooltip label={`${formatEther(strat.feiEarned)} FEI`}>
