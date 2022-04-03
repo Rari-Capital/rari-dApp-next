@@ -1,6 +1,7 @@
 // Hooks
 import { useRari } from "context/RariContext";
 // Utils
+import { constants } from 'ethers';
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 
 // Turbo
@@ -74,7 +75,7 @@ export const BoostStrategyModal: React.FC<
           }
           break;
         case SafeInteractionMode.LESS:
-          if (parseEther(_amount).gt(strategy.boostedAmount)) {
+          if (parseEther(_amount).gt(strategy?.boostedAmount ?? constants.Zero)) {
             return "You can't less this much!"
           }
           break;
