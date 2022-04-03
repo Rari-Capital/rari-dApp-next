@@ -2,16 +2,17 @@ import { formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
-import { Button, Card, Divider, Heading, HoverableCard, Link, Statistic, Text } from "rari-components";
+import { Button, Divider, Heading, HoverableCard, Link, Progress, Statistic, Text } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
 import {
   Box,
+  Flex,
   HStack,
   Image,
   SimpleGrid,
   Stack,
-  VStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
@@ -106,12 +107,14 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           value={`${netApy}%`}
         />
       </HStack>
-      <SimpleGrid columns={3} spacingX={8} spacingY={4} mt={12}>
-        <HoverableCard variant="ghost" cursor="pointer" onClick={onClickCreateSafe}>
+      <SimpleGrid columns={2} spacing={8} mt={12}>
+        <HoverableCard variant="ghost" onClick={onClickCreateSafe}>
           {(hovered) => (
             <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
-              <Heading size="md">Add safe <PlusSquareIcon /></Heading>
-              <Text variant="secondary" mt={4}>
+              <Heading display="flex" alignItems="center">
+                Add safe <PlusSquareIcon ml={4} />
+              </Heading>
+              <Text variant="secondary" mt={4} fontSize="xl">
                 You may create one safe per approved collateral type.
               </Text>
             </Box>
@@ -121,7 +124,6 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           <SafeCard
             key={safe.safeAddress}
             safe={safe}
-            i={i}
             tokenData={tokensData[safe.collateralAsset]}
           />
         ))}
@@ -130,29 +132,47 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   );
 };
 
-const SafeCard: React.FC<{
+type SafeCardProps = {
   safe: SafeInfo;
-  i: number;
-  tokenData: TokenData | undefined;
-}> = ({ safe, i, tokenData }) => {
+  tokenData?: TokenData;
+}
+
+const SafeCard: React.FC<SafeCardProps> = ({ safe, tokenData }) => {
   return (
     <Link href={`/turbo/safe/${safe.safeAddress}`}>
-      <Card w="100%" variant="ghost">
-        <VStack alignItems="start">
-          <HStack justify={"start"}>
-            <Image src={tokenData?.logoURL} boxSize="40px" />
-            <Heading>{tokenData?.symbol}</Heading>
-          </HStack>
-          <Text>
-            Boosted: {smallUsdFormatter(formatEther(safe.boostedAmount))}
-          </Text>
-          <Text>
-            Collateral Balance: {formatEther(safe.collateralAmount)}{" "}
-            {tokenData?.symbol}
-          </Text>
-          <Text>Utilization: {safe.safeUtilization?.toString()}%</Text>
-        </VStack>
-      </Card>
+      <HoverableCard w="100%" variant="ghost" cursor="pointer">
+        {(hovered) => (
+          <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
+            <HStack justify={"start"}>
+              <Image src={tokenData?.logoURL} boxSize="40px" />
+              <Heading>{tokenData?.symbol}</Heading>
+            </HStack>
+            <VStack spacing={2} mt={8} alignItems="flex-start">
+              <Flex alignItems="baseline">
+                <Heading size="md">
+                  {smallUsdFormatter(formatEther(safe.boostedAmount))}
+                </Heading>
+                <Text variant="secondary" ml={2}>boosted</Text>
+              </Flex>
+              <Flex alignItems="baseline">
+                <Heading size="md">
+                  {formatEther(safe.collateralAmount)}{" "}
+                  {tokenData?.symbol}
+                </Heading>
+                <Text variant="secondary" ml={2}>collateral balance</Text>
+              </Flex>
+              <Flex alignItems="baseline">
+                <Heading size="md">{safe.safeUtilization?.toString()}%</Heading>
+                <Text variant="secondary" ml={2}>utilization</Text>
+              </Flex>
+            </VStack>
+            <Box mt={8}>
+              <Text variant="secondary" mb={2}>Active boost</Text>
+              <Progress height={4} hideLabel value={safe.safeUtilization.toNumber()} />
+            </Box>
+          </Box>
+        )}
+      </HoverableCard>
     </Link>
   );
 };
