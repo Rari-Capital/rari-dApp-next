@@ -1,9 +1,11 @@
-import { formatEther } from "ethers/lib/utils";
+import { commify, formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+
 import { Button, Divider, Heading, HoverableCard, Link, Progress, Statistic, Text } from "rari-components";
-import { smallUsdFormatter } from "utils/bigUtils";
+import Tooltip from "rari-components/components/Tooltip";
+import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
 import {
   Box,
   Flex,
@@ -18,6 +20,7 @@ import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import { constants } from "ethers";
 import { PlusSquareIcon } from "@chakra-ui/icons";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -80,6 +83,8 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   const totalBoosted = safes.reduce((acc, safe) => {
     return acc.add(safe.boostedAmount);
   }, constants.Zero);
+
+  console.log({ totalBoosted })
   const totalClaimableInterest = safes.reduce((acc, safe) => {
     // TODO(sharad-s) Calculate interest from safes here
     return constants.Zero;
@@ -94,7 +99,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           title="Total boosted"
           // TODO(sharad-s) What should these tooltips say?
           tooltip="Tooltip"
-          value={smallUsdFormatter(totalBoosted.toString())}
+          value={(formatEther(totalBoosted) + " FEI")}
         />
         <Statistic
           title="Total claimable interest"
@@ -149,21 +154,14 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, tokenData }) => {
             </HStack>
             <VStack spacing={2} mt={8} alignItems="flex-start">
               <Flex alignItems="baseline">
-                <Heading size="md">
-                  {smallUsdFormatter(formatEther(safe.boostedAmount))}
-                </Heading>
-                <Text variant="secondary" ml={2}>boosted</Text>
-              </Flex>
-              <Flex alignItems="baseline">
-                <Heading size="md">
-                  {formatEther(safe.collateralAmount)}{" "}
-                  {tokenData?.symbol}
-                </Heading>
-                <Text variant="secondary" ml={2}>collateral balance</Text>
-              </Flex>
-              <Flex alignItems="baseline">
-                <Heading size="md">{safe.safeUtilization?.toString()}%</Heading>
-                <Text variant="secondary" ml={2}>utilization</Text>
+                <Tooltip label={`${commify(formatEther(safe.boostedAmount))} FEI`}>
+                  <>
+                    <Heading size="md">
+                      {abbreviateAmount(formatEther(safe.boostedAmount))}
+                    </Heading>
+                    <Text variant="secondary" ml={2}>boosted</Text>
+                  </>
+                </Tooltip>
               </Flex>
             </VStack>
             <Box mt={8}>
@@ -173,7 +171,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, tokenData }) => {
           </Box>
         )}
       </HoverableCard>
-    </Link>
+    </Link >
   );
 };
 
