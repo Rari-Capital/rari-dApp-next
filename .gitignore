@@ -39,6 +39,7 @@ cypress.env.json
 .now
 .vercel
 .env
+.env.local
 
 .eslintcache
 

@@ -9,6 +9,11 @@ Rari Capital's Web3 Portal.
 - Run `npm run bump-rari-components` to automatically install the latest version (i.e. most recent commit hash) of [rari-components](https://github.com/Rari-Capital/rari-components) and update `package.json`.
 - Run `npm run typecheck` to typecheck
 
+## Environment
+
+- Set `NEXT_PUBLIC_USE_MOCKS` to `true` to test the dapp with mock objects (e.g. `NEXT_PUBLIC_USE_MOCKS=true npm run dev`).
+  - Currently, this env var is only used in the Turbo code — <kbd>Ctrl+F</kbd> for `process.env.NEXT_PUBLIC_USE_MOCKS` to see the specific use sites.
+
 ## Requirements
 
 - node: `v14.17.0`
