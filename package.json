@@ -60,8 +60,8 @@
     "window-table": "^1.0.0-alpha.11"
   },
   "scripts": {
-    "bump-rari-components": "npm i \"git+https://github.com/Rari-Capital/rari-components#$(git ls-remote https://github.com/Rari-Capital/rari-components.git HEAD | awk '{ print $1}')\"",
-    "typecheck": "tsc --noEmit",
+    "bump-rari-components": "rm -rf .next && npm i \"git+https://github.com/Rari-Capital/rari-components#$(git ls-remote https://github.com/Rari-Capital/rari-components.git HEAD | awk '{ print $1}')\"",
+    "typecheck": "tsc --skipLibCheck -p ./tsconfig.json",
     "postinstall": "rari-tokens-generator ./src/static/compiled/tokens.json",
     "start": "next start",
     "build": "next build",

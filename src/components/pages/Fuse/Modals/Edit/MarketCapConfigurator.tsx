@@ -35,6 +35,9 @@ const MarketCapConfigurator = ({
 
   const tokenSymbol = tokenData.symbol;
 
+  console.log({ tokenData })
+  console.log({ newSupplyCap })
+
   const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
   const { data: supplyCap } = useQuery(
@@ -55,12 +58,9 @@ const MarketCapConfigurator = ({
     }
   );
 
-  const handleSubmit = async (
-    cTokenAddress: string | undefined,
-    newSupplyCap: number
-  ) => {
+  const handleSubmit = async () => {
     const tokenDecimals = tokenData.decimals ?? 18;
-    const newSupplyCapInWei = newSupplyCap * 10 ** tokenDecimals;
+    const newSupplyCapBN = parseUnits(newSupplyCap, tokenDecimals)
 
     if (!cTokenAddress) return;
 
@@ -68,7 +68,7 @@ const MarketCapConfigurator = ({
       if (mode === "Supply")
         await comptroller._setMarketSupplyCaps(
           [cTokenAddress],
-          [newSupplyCapInWei],
+          [newSupplyCapBN],
           {
             from: address,
           }
@@ -77,7 +77,7 @@ const MarketCapConfigurator = ({
       if (mode === "Borrow")
         await comptroller._setMarketBorrowCaps(
           [cTokenAddress],
-          [newSupplyCapInWei],
+          [newSupplyCapBN],
           {
             from: address,
           }
@@ -156,15 +156,12 @@ const MarketCapConfigurator = ({
                 alignContent="center"
               >
                 <Text fontSize="sm" opacity="0.7">
-                  New supply cap:
+                  New {mode} cap:
                 </Text>
                 <Box height="100%" width="40%">
                   <Text opacity="0.5" textAlign="end">
-                    {tokenSymbol}{" "}
-                    {formatUnits(
-                      supplyCap ?? constants.Zero,
-                      tokenData.decimals
-                    )}
+                    {newSupplyCap}{" "}
+                    {tokenSymbol}
                   </Text>
                 </Box>
               </Box>
@@ -192,9 +189,7 @@ const MarketCapConfigurator = ({
               <SaveButton
                 mt="2"
                 ml="auto"
-                onClick={() =>
-                  handleSubmit(cTokenAddress, parseInt(newSupplyCap))
-                }
+                onClick={handleSubmit}
                 fontSize="xs"
                 altText={"Submit"}
               />
