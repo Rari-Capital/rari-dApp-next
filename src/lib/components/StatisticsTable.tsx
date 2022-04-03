@@ -1,4 +1,4 @@
-import { InfoIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, InfoIcon } from "@chakra-ui/icons";
 import { Spinner, Table, Tbody, Td, Tr, Text, HStack } from "@chakra-ui/react";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import { Card } from "rari-components";
@@ -106,9 +106,7 @@ const StatisticValue: React.FC<{
                 <TextWithToolTip text={primaryValue} tooltip={primaryTooltip} />
                 {!!secondaryValue && (
                     <>
-                        <Text>
-                            {"->"}
-                        </Text>
+                        <ArrowForwardIcon boxSize="15px"/>
                         <TextWithToolTip text={secondaryValue} tooltip={secondaryTooltip} />
                     </>
                 )}

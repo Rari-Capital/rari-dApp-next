@@ -25,6 +25,7 @@ type DepositSafeCollateralCtx = {
   depositing: boolean;
   collateralBalance: BigNumber;
   onClickDeposit(): void;
+  onClickMax(): void;
   onClose(): void;
 };
 
@@ -36,18 +37,21 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: "Deposit Collateral",
   subtitle: "Lorem Ipsum is simply dummy text",
-  children: ({ setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) =>
+  children: ({ onClickMax, setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) =>
     !!safe && (
       <>
-        <TokenAmountInput
-          value={depositAmount}
-          onChange={(amount: string) => setDepositAmount(amount ?? '0')}
-          tokenAddress={safe.collateralAsset}
-        />
-        <Text variant="secondary" mt="4">
-          You have {formatEther(collateralBalance)}{" "}
-          <TokenSymbol tokenAddress={safe.collateralAsset} />
-        </Text>
+        <VStack w="100%" mb={3} align="flex-end">
+          <TokenAmountInput
+            value={depositAmount}
+            onChange={(amount: string) => setDepositAmount(amount ?? '0')}
+            tokenAddress={safe.collateralAsset}
+            onClickMax={onClickMax}
+          />
+          <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
+            Balance: {formatEther(collateralBalance)}{" "}
+            <TokenSymbol tokenAddress={safe.collateralAsset} />
+          </Text>
+        </VStack>
         <StatisticTable
           statistics={[
             {

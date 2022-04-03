@@ -1,7 +1,7 @@
 // Hooks
 import { useRari } from "context/RariContext";
 // Utils
-import { parseEther, parseUnits } from "ethers/lib/utils";
+import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 import { useBalanceOf } from "hooks/useBalanceOf";
 // Turbo
 import { Modal } from "rari-components";
@@ -11,9 +11,11 @@ import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
 import { safeDeposit } from "lib/turbo/transactions/safe";
 import { checkAllowanceAndApprove } from "utils/erc20Utils";
+
 // import useHasApproval from "hooks/useHasApproval";
 import { SafeInteractionMode, useUpdatedSafeInfo } from "hooks/turbo/useUpdatedSafeInfo";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -77,7 +79,6 @@ export const DepositSafeCollateralModal: React.FC<
     }
   }
 
-  // TODO(sharad-s) - move Approval step outside (check approval/permit and show as a step on UI if not)
   const onClickDeposit = async () => {
     if (!depositAmount || !safe) return;
     const depositAmountBN = parseEther(depositAmount);
@@ -85,7 +86,6 @@ export const DepositSafeCollateralModal: React.FC<
 
     try {
       setDepositing(true);
-      // TODO(sharad-s): Use real implementation
       const tx = await safeDeposit(
         safeAddress,
         address,
@@ -101,7 +101,19 @@ export const DepositSafeCollateralModal: React.FC<
     }
   };
 
-
+  const onClickMax = async () => {
+    try {
+      const maxAmount = await fetchMaxSafeAmount(
+        provider,
+        SafeInteractionMode.DEPOSIT,
+        address,
+        safe
+      )
+      setDepositAmount(formatEther(maxAmount))
+    } catch (err) {
+      handleGenericError(err, toast)
+    }
+  }
 
   return (
     <Modal
@@ -118,6 +130,7 @@ export const DepositSafeCollateralModal: React.FC<
         hasApproval,
         approving,
         onClickApprove: approve,
+        onClickMax,
         onClose,
       }}
       isOpen={isOpen}

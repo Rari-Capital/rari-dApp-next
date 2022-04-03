@@ -10,8 +10,11 @@ import StatisticTable from "lib/components/StatisticsTable";
 import { FEI } from "lib/turbo/utils/constants";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
-import { VStack } from "@chakra-ui/react";
-import { commify } from "ethers/lib/utils";
+import { HStack, Image, VStack } from "@chakra-ui/react";
+import { commify, formatEther, parseEther } from "ethers/lib/utils";
+import { mode } from "mathjs";
+import { AmountSelectMode } from "components/shared/AmountSelectNew/AmountSelectNew";
+import { InfoIcon } from "@chakra-ui/icons";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -24,9 +27,12 @@ type BoostModalCtx = {
   onClickBoost(): void;
   onClickLess(): void;
   onClose(): void;
+  onClickMax(): void;
+  maxBoostAmount: string;
   mode: SafeInteractionMode.BOOST | SafeInteractionMode.LESS;
   strategy: USDPricedStrategy | undefined,
-  erc4626Strategy: FuseERC4626Strategy | undefined
+  erc4626Strategy: FuseERC4626Strategy | undefined,
+  inputError: string | undefined,
 };
 
 type ModalStep = Omit<
@@ -36,23 +42,29 @@ type ModalStep = Omit<
 
 const MODAL_STEP_1: ModalStep = {
   title: ({ mode }) => `${mode} strategy`,
-  subtitle: ({ strategy }) => `${strategy?.strategy}`,
-  children: ({ amount, setAmount, safe, updatedSafe }) =>
+  subtitle: ({ strategy, erc4626Strategy }) => `Strategy ${erc4626Strategy?.symbol}`,
+  children: ({ onClickMax, setAmount, amount, safe, updatedSafe, mode, maxBoostAmount, strategy }) =>
     !!safe && (
       <>
-        <TokenAmountInput
-          value={amount}
-          onChange={(amount: string) => setAmount(amount ?? '0')}
-          tokenAddress={FEI}
-        />
-        {/* <Text variant="secondary" mt="4">
-          You have {formatEther(collateralBalance)}{" "}
-          <TokenSymbol tokenAddress={safe.collateralAsset} />
-        </Text> */}
+        <VStack w="100%" mb={3} align="flex-end">
+          <TokenAmountInput
+            value={amount}
+            onChange={(amount: string) => setAmount(amount ?? '0')}
+            tokenAddress={FEI}
+            onClickMax={onClickMax}
+          />
+          <Text variant="secondary" mt="4">
+            {mode === SafeInteractionMode.BOOST
+              ? `You can boost ${maxBoostAmount} FEI`
+              : `You can less ${formatEther(strategy!.boostedAmount)} FEI`
+            }
+          </Text>
+        </VStack>
         <StatisticTable
+          mb={3}
           statistics={[
             {
-              title: "Boost Balance",
+              title: "Total Boost Balance",
               primaryValue: abbreviateAmount(safe?.boostedUSD),
               secondaryValue: abbreviateAmount(updatedSafe?.boostedUSD),
               titleTooltip: "The maximum amount you can boost.",
@@ -69,32 +81,54 @@ const MODAL_STEP_1: ModalStep = {
           ]}
           isLoading={!updatedSafe}
         />
+        {
+          strategy?.boostedAmount?.eq(parseEther(amount ? amount : '0')) && (
+            <HStack px={3}>
+              <Image
+                src="/static/turbo/action-icons/claim-interest.png"
+                height={4}
+                mr={4}
+              />
+              <Text>Lessing the entire strategy will also accrue earned Fei to the Safe.</Text>
+            </HStack>
+          )
+        }
+
       </>
     ),
   buttons: ({
+    mode,
+    amount,
+    strategy,
+    transacting,
     onClickBoost,
     onClickLess,
-    transacting,
     incrementStepIndex,
-    onClose,
-    mode
+    inputError
   }) => [
       {
-        children: mode,
-        // children: approving
-        //   ? "Approving..."
-        //   : depositing
-        //     ? "Boosting..."
-        //     : !hasApproval
-        //       ? "Approve Router"
-        //       : "Deposit",
+        children:
+          !!inputError
+            ? inputError
+            : mode === SafeInteractionMode.LESS
+              // TODO(@nathanleung) - how can we avoid this ternary syntax and coerce empty string to '0'
+              ? strategy?.boostedAmount?.eq(parseEther(amount ? amount : '0'))
+                ? "Less and Accrue Rewards"
+                : "Less"
+              : mode,
         variant: "neutral",
         loading: transacting,
+        disabled: !amount || !!inputError,
         async onClick() {
-          mode === "Boost"
-            ? await onClickBoost()
-            : await onClickLess()
-          incrementStepIndex()
+          try {
+            mode === "Boost"
+              ? await onClickBoost()
+              : await onClickLess()
+            incrementStepIndex()
+          }
+          catch (err) {
+            throw err
+          }
         }
       },
     ],

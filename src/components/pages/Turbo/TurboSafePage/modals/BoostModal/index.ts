@@ -1,1 +1,1 @@
-export { default } from "./BoostModal"; // Shoutout @BoostMobile
+export { default } from "./BoostModal";
