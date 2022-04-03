@@ -1,5 +1,7 @@
+import { VStack } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
+import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
 import { USDPricedStrategy } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { ModalProps, Text } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
@@ -13,6 +15,7 @@ type ClaimInterestCtx = {
   claimableFromStrategies: BigNumber;
   safeFeiBalance: BigNumber;
   activeStrategies: USDPricedStrategy[];
+  strategyData: StrategyInfosMap
 };
 
 type ModalStep = Omit<
@@ -22,7 +25,7 @@ type ModalStep = Omit<
 
 const MODAL_STEP_1: ModalStep = {
   title: "Claim Interest",
-  children: ({ totalClaimable, claimableFromStrategies, safeFeiBalance, activeStrategies }) => (
+  children: ({ totalClaimable, claimableFromStrategies, safeFeiBalance, activeStrategies, strategyData }) => (
     <>
       <Text>You can claim {smallUsdFormatter(formatEther(totalClaimable))} in interest.</Text>
       {/* <Text> - {smallUsdFormatter(formatEther(safeFeiBalance))} in the safe.</Text> */}
@@ -31,6 +34,14 @@ const MODAL_STEP_1: ModalStep = {
         activeStrategies.length ? `
       slurping ${activeStrategies.length} strategies for ${smallUsdFormatter(formatEther(claimableFromStrategies))} and `
           : null} sweeping the safe for {smallUsdFormatter(formatEther(safeFeiBalance))}</Text>
+
+      <VStack>
+        {activeStrategies.map(strat => {
+          return (
+            <Text>{strategyData[strat.strategy]?.symbol}</Text>
+          )
+        })}
+      </VStack>
     </>
   ),
   buttons: ({

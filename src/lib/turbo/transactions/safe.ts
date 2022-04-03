@@ -23,6 +23,7 @@ export const safeBoost = async (
   amount: BigNumber,
   signer: providers.JsonRpcSigner
 ) => {
+
   const turboSafeContract = await createTurboSafe(signer.provider, safe);
   const connectedTurboSafe = turboSafeContract.connect(signer);
   const receipt = await connectedTurboSafe.boost(strategy, amount);

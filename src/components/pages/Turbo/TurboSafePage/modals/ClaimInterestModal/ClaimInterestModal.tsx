@@ -12,6 +12,7 @@ import { safeSweep } from "lib/turbo/transactions/safe";
 import { FEI } from "lib/turbo/utils/constants";
 import { USDPricedTurboSafe, USDPricedStrategy } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { filterUsedStrategies } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 // Todo - reuse Modal Prop Types
 type ClaimInterestModalProps = {
@@ -39,6 +40,7 @@ export const ClaimInterestModal: React.FC<ClaimInterestModalProps> = ({
   }
 
   const activeStrategies: USDPricedStrategy[] = filterUsedStrategies(safe?.usdPricedStrategies ?? []) as USDPricedStrategy[]
+  const strategyData = useERC4626StrategiesDataAsMap(activeStrategies.map(strat => strat.strategy))
 
   const [totalClaimable, claimableFromStrategies, safeFeiBalance] = useUserFeiOwed(safe)
 
@@ -85,7 +87,9 @@ export const ClaimInterestModal: React.FC<ClaimInterestModalProps> = ({
         totalClaimable,
         claimableFromStrategies,
         safeFeiBalance,
-        activeStrategies
+        activeStrategies,
+        strategyData,
+        safe
       }}
       isOpen={isOpen}
       onClose={onClose}
