@@ -1,9 +1,8 @@
 import { commify, formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
-import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 
-import { Button, Divider, Heading, HoverableCard, Link, Progress, Statistic, Text } from "rari-components";
+import { Button, Divider, Heading, HoverableCard, Link, Progress, Statistic, Text, TokenIcon, TokenSymbol } from "rari-components";
 import Tooltip from "rari-components/components/Tooltip";
 import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
 import {
@@ -20,7 +19,6 @@ import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import { constants } from "ethers";
 import { PlusSquareIcon } from "@chakra-ui/icons";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -77,20 +75,17 @@ type SafeGridProps = {
 }
 
 const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
-  const underlyings = safes.map((safe) => safe.collateralAsset);
   // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
   // be a USD value
   const totalBoosted = safes.reduce((acc, safe) => {
     return acc.add(safe.boostedAmount);
   }, constants.Zero);
 
-  console.log({ totalBoosted })
   const totalClaimableInterest = safes.reduce((acc, safe) => {
     // TODO(sharad-s) Calculate interest from safes here
     return constants.Zero;
   }, constants.Zero)
   const netApy = 10;
-  const tokensData = useTokensDataAsMap(underlyings);
 
   return (
     <Box>
@@ -125,11 +120,10 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
             </Box>
           )}
         </HoverableCard>
-        {safes.map((safe, i) => (
+        {safes.map((safe) => (
           <SafeCard
             key={safe.safeAddress}
             safe={safe}
-            tokenData={tokensData[safe.collateralAsset]}
           />
         ))}
       </SimpleGrid>
@@ -139,18 +133,17 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
 
 type SafeCardProps = {
   safe: SafeInfo;
-  tokenData?: TokenData;
 }
 
-const SafeCard: React.FC<SafeCardProps> = ({ safe, tokenData }) => {
+const SafeCard: React.FC<SafeCardProps> = ({ safe }) => {
   return (
     <Link href={`/turbo/safe/${safe.safeAddress}`}>
       <HoverableCard w="100%" variant="ghost" cursor="pointer">
         {(hovered) => (
           <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
             <HStack justify={"start"}>
-              <Image src={tokenData?.logoURL} boxSize="40px" />
-              <Heading>{tokenData?.symbol}</Heading>
+              <TokenIcon tokenAddress={safe.collateralAsset} boxSize={10} />
+              <Heading><TokenSymbol tokenAddress={safe.collateralAsset} /></Heading>
             </HStack>
             <VStack spacing={2} mt={8} alignItems="flex-start">
               <Flex alignItems="baseline">
