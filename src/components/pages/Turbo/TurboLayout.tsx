@@ -20,7 +20,7 @@ const TurboLayout: React.FC<TurboLayoutProps> = (props) => {
        */}
       <ChakraProvider theme={theme}>
         <Box color="white" width="100%" p={12}>
-          <Box maxWidth={["100%", "1000px"]} marginX="auto" {...props} />
+          <Box maxWidth={["100%", "1200px"]} marginX="auto" {...props} />
         </Box>
       </ChakraProvider>
     </>
