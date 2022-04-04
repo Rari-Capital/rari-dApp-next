@@ -5,7 +5,7 @@ import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 
 // Turbo
 import { Modal } from "rari-components";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
@@ -70,11 +70,11 @@ export const BoostStrategyModal: React.FC<
         return "Safe too risky!"
       }
       switch (mode) {
-        // case SafeInteractionMode.BOOST:
-        //   if (parseEther(_amount).gt(maxAmount)) {
-        //     return "You can't boost this much!"
-        //   }
-        //   break;
+        case SafeInteractionMode.BOOST:
+          if (parseEther(_amount).gt(maxAmount)) {
+            return "You can't boost this much!"
+          }
+          break;
         case SafeInteractionMode.LESS:
           if (parseEther(_amount).gt(maxAmount)) {
             return "You can't less this much!"

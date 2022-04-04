@@ -77,7 +77,7 @@ export const createTurboBooster = async (
   return turboBoosterContract;
 };
 
-export const createTurboSafe = async (
+export const createTurboSafe = (
   provider: providers.Provider,
   turboSafe: string
 ) => {

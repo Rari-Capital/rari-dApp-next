@@ -1,11 +1,11 @@
 
 
 import { constants } from "ethers";
-import { parseEther } from "ethers/lib/utils";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { balanceOf } from "utils/erc20Utils";
 import { SafeInfo } from "../fetchers/safes/getSafeInfo";
-import { createFusePoolLensSecondary, createTurboComptroller } from "./turboContracts";
+import { FEI } from "./constants";
+import { createFusePoolLensSecondary, createTurboComptroller, createTurboSafe } from "./turboContracts";
 
 export async function fetchMaxSafeAmount(
     provider: any,
@@ -27,21 +27,26 @@ export async function fetchMaxSafeAmount(
 
     // TODO(@sharad-s) implement after Lens func is in-place: https://github.com/fei-protocol/tribe-turbo/issues/86
     if (mode === SafeInteractionMode.WITHDRAW) {
-        return parseEther("0")
+        const turboSafe = createTurboSafe(provider, safe.safeAddress)
+        const maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress)
+        return maxWithdraw
     }
-    // TODO(@sharad-s) implement after Lens func is in-place: https://github.com/fei-protocol/tribe-turbo/issues/86
+    
     if (mode === SafeInteractionMode.BOOST) {
+        if (strategyIndex === undefined || !safe.strategies) return constants.Zero;
+
         const TurboComptroller = createTurboComptroller(provider, 31337)
         const FusePoolLensSecondary = createFusePoolLensSecondary(provider)
-        const cToken = await TurboComptroller.callStatic.cTokensByUnderlying(safe.collateralAsset)
+
+        const cToken = await TurboComptroller.callStatic.cTokensByUnderlying(FEI)
 
         const maxBorrow =
             await FusePoolLensSecondary.callStatic.getMaxBorrow(
-                userAddress,
+                safe.safeAddress,
                 cToken
             );
 
-        const amount = maxBorrow
+        const amount = maxBorrow.mul(3).div(4)
         return amount
     }
 
