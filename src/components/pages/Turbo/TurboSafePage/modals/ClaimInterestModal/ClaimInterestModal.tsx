@@ -18,7 +18,7 @@ import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 type ClaimInterestModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  safe: USDPricedTurboSafe | undefined;
+  safe?: USDPricedTurboSafe;
 };
 
 export const ClaimInterestModal: React.FC<ClaimInterestModalProps> = ({
