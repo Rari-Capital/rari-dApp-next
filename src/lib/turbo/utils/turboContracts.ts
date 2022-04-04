@@ -12,6 +12,7 @@ import TurboLens from "lib/turbo/abi/TurboLens.json";
 import TurboBooster from "lib/turbo/abi/TurboBooster.json";
 import TurboSafe from "lib/turbo/abi/TurboSafe.json";
 import TurboAuthority from "lib/turbo/abi/Authority.json";
+import FusePoolLensSecondary from "esm/Fuse/contracts/abi/FusePoolLensSecondary.json";
 
 // Utils
 import { Interface } from "ethers/lib/utils";
@@ -29,11 +30,6 @@ export const createTurboRouter = async (provider: providers.JsonRpcProvider, id:
   return turboRouterContract;
 };
 
-export const createERC20 = async (token: string, provider: providers.JsonRpcProvider) => {
-  const erc20Contract = new Contract(token, ERC20.abi, provider);
-
-  return erc20Contract;
-};
 
 export const createTurboMaster = async (provider: providers.JsonRpcProvider, id: number) => {
   const turboMasterContract = new Contract(
@@ -103,6 +99,13 @@ export const createTurboAuthority = async (
   return turboAuthorityContract;
 };
 
+/* Token Contracts */
+
+export const createERC20 = async (token: string, provider: providers.JsonRpcProvider) => {
+  const erc20Contract = new Contract(token, ERC20.abi, provider);
+
+  return erc20Contract;
+};
 
 export const createCERC20 = async (provider: providers.JsonRpcProvider, tokenAddress: string) => {
   const CERC20Contract = new Contract(
@@ -124,6 +127,16 @@ export const createFuseERC4626 = (provider: providers.JsonRpcProvider, strategyA
   return FuseERC4626Contract
 }
 
+/** Lens **/
+
+export const createFusePoolLensSecondary = (provider: providers.JsonRpcProvider) => {
+  const fusePoolLensSecondary = new Contract(
+    "0xc76190E04012f26A364228Cfc41690429C44165d",
+    FusePoolLensSecondary,
+    provider
+  )
+  return fusePoolLensSecondary
+}
 
 /** Interfaces **/
 

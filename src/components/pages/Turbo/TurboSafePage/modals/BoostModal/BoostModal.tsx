@@ -1,12 +1,11 @@
 // Hooks
 import { useRari } from "context/RariContext";
 // Utils
-import { constants } from 'ethers';
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 
 // Turbo
 import { Modal } from "rari-components";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
@@ -14,8 +13,7 @@ import { safeBoost, safeLess } from "lib/turbo/transactions/safe";
 import { SafeInteractionMode, useUpdatedSafeInfo } from "hooks/turbo/useUpdatedSafeInfo";
 import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
-import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
-import useMaxBoost from "hooks/turbo/useMaxBoost";
+import useSafeMaxAmount from "hooks/turbo/useSafeMaxAmount";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
@@ -63,28 +61,31 @@ export const BoostStrategyModal: React.FC<
       }
     )
 
-    const maxBoostAmount = useMaxBoost(safe)
+    const maxAmount = useSafeMaxAmount(safe, mode, strategyIndex)
 
     // Form validation
     const inputError: string | undefined = useMemo(() => {
       const _amount = amount ? amount : '0'
+      if (updatedSafe?.safeUtilization.gte(70)){
+        return "Safe too risky!"
+      }
       switch (mode) {
-        case SafeInteractionMode.BOOST:
-          if (parseEther(_amount).gt(parseEther(maxBoostAmount))) {
-            return "You can't boost this much!"
-          }
-          break;
+        // case SafeInteractionMode.BOOST:
+        //   if (parseEther(_amount).gt(maxAmount)) {
+        //     return "You can't boost this much!"
+        //   }
+        //   break;
         case SafeInteractionMode.LESS:
-          if (parseEther(_amount).gt(strategy?.boostedAmount ?? constants.Zero)) {
+          if (parseEther(_amount).gt(maxAmount)) {
             return "You can't less this much!"
           }
           break;
         default:
           return undefined
       }
-    }, [amount, maxBoostAmount, strategy, mode])
+    }, [amount, maxAmount, strategy, mode, updatedSafe])
 
-    // Boost a strategy with hardcoded amount
+    // Boost a strategy
     const onClickBoost = async () => {
       if (!safe?.safeAddress || !provider || !amount) return;
       const amountBN = parseEther(amount);
@@ -117,9 +118,6 @@ export const BoostStrategyModal: React.FC<
         : amountBN;
 
       const lessingMax = strategy.boostedAmount.eq(amountBN);
-      if (lessingMax) {
-        alert("You slurpin too baby");
-      }
 
       try {
         setTransacting(true);
@@ -139,29 +137,7 @@ export const BoostStrategyModal: React.FC<
       }
     };
 
-    const onClickMax = async () => {
-      try {
-        let maxAmount: string;
-        if (mode === SafeInteractionMode.BOOST) {
-          maxAmount = maxBoostAmount;
-        } else {
-          // LESS
-          maxAmount = formatEther(
-            await fetchMaxSafeAmount(
-              provider,
-              SafeInteractionMode.LESS,
-              address,
-              safe,
-              strategyIndex
-            )
-          )
-        }
-        console.log({ maxAmount, mode })
-        setAmount(maxAmount)
-      } catch (err) {
-        handleGenericError(err, toast)
-      }
-    }
+    const onClickMax = () => setAmount(formatEther(maxAmount))
 
     return (
       <Modal
@@ -178,7 +154,7 @@ export const BoostStrategyModal: React.FC<
           updatedSafe,
           transacting,
           mode,
-          maxBoostAmount,
+          maxAmount,
           strategy,
           erc4626Strategy,
           inputError
