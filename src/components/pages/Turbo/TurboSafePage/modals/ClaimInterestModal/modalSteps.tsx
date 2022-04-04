@@ -1,5 +1,5 @@
 import { VStack } from "@chakra-ui/react";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
 import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
@@ -16,7 +16,7 @@ type ClaimInterestCtx = {
   safeFeiBalance: BigNumber;
   activeStrategies: USDPricedStrategy[];
   strategyData: StrategyInfosMap,
-  safe: USDPricedTurboSafe
+  safe?: USDPricedTurboSafe
 };
 
 type ModalStep = Omit<
@@ -39,7 +39,7 @@ const MODAL_STEP_1: ModalStep = {
       <VStack>
         {activeStrategies.map(strat => {
           return (
-            <Text>{strategyData[strat.strategy]?.symbol} - {strat.feiEarnedUSD * parseFloat(formatEther(safe.tribeDAOFee))}</Text>
+            <Text>{strategyData[strat.strategy]?.symbol} - {strat.feiEarnedUSD * parseFloat(formatEther(safe?.tribeDAOFee ?? constants.Zero))}</Text>
           )
         })}
       </VStack>
