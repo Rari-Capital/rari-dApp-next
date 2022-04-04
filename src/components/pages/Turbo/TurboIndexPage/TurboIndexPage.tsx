@@ -1,7 +1,7 @@
+import { constants } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
-
 import {
   Button,
   Divider,
@@ -16,6 +16,7 @@ import {
 } from "rari-components";
 import Tooltip from "rari-components/components/Tooltip";
 import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
+import { PlusSquareIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -23,13 +24,11 @@ import {
   Image,
   SimpleGrid,
   Stack,
-  useDisclosure,
   VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
-import { constants } from "ethers";
-import { PlusSquareIcon } from "@chakra-ui/icons";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -150,17 +149,16 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe }) => {
         {(hovered) => (
           <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
             <HStack justify={"start"}>
-              <TokenIcon tokenAddress={safe.collateralAsset} boxSize={10} mr={2} />
+              <TokenIcon
+                tokenAddress={safe.collateralAsset}
+                boxSize={10}
+                mr={2}
+              />
               <Heading>
                 <TokenSymbol tokenAddress={safe.collateralAsset} />
               </Heading>
             </HStack>
-            <Stack
-              spacing={2}
-              mt={8}
-              alignItems="flex-start"
-              justify="stretch"
-            >
+            <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch">
               <Flex alignItems="baseline" flex={1}>
                 <Tooltip
                   label={`${commify(formatEther(safe.boostedAmount))} FEI`}
