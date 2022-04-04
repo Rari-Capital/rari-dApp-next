@@ -1,6 +1,6 @@
 import { BigNumber, providers } from "ethers";
-import { createTurboSafe } from "lib/turbo/utils/turboContracts";
 import encodeCall from "lib/turbo/transactions/encodedCalls";
+import { createTurboSafe } from "lib/turbo/utils/turboContracts";
 import { sendRouterWithMultiCall } from "lib/turbo/utils/turboMulticall";
 
 export const createSafe = async (
@@ -14,7 +14,7 @@ export const createSafe = async (
     [encodedSafe],
     chainID
   );
-  return receipt
+  return receipt;
 };
 
 export const safeBoost = async (
@@ -23,7 +23,6 @@ export const safeBoost = async (
   amount: BigNumber,
   signer: providers.JsonRpcSigner
 ) => {
-
   const turboSafeContract = await createTurboSafe(signer.provider, safe);
   const connectedTurboSafe = turboSafeContract.connect(signer);
   const receipt = await connectedTurboSafe.boost(strategy, amount);
@@ -36,6 +35,11 @@ export const safeDeposit = async (
   amount: BigNumber,
   signer: providers.JsonRpcSigner | any
 ) => {
+  if (process.env.NEXT_PUBLIC_USE_MOCKS === "true") {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return;
+  }
+
   const turboSafeContract = await createTurboSafe(signer, safe);
   const tx = await turboSafeContract.deposit(amount, recipient);
   return tx;
@@ -72,7 +76,7 @@ export const safeLess = async (
 
   try {
     const tx = await sendRouterWithMultiCall(signer, encodedCalls, chainID);
-    return tx
+    return tx;
   } catch (err) {
     console.error(err);
   }
@@ -82,7 +86,7 @@ export const safeSlurp = async (
   safe: string,
   strategies: string[],
   signer: any,
-  chainID: number,
+  chainID: number
 ) => {
   const encodedSlurps = strategies.map((vault) =>
     encodeCall.slurp(safe, vault)
@@ -110,12 +114,8 @@ export const safeSweep = async (
   const encodedSweep = encodeCall.sweep(safe, recepient, tokenAddress, amount);
 
   try {
-    const tx = await sendRouterWithMultiCall(
-      signer,
-      [encodedSweep],
-      chainID
-    );
-    return tx
+    const tx = await sendRouterWithMultiCall(signer, [encodedSweep], chainID);
+    return tx;
   } catch (err) {
     console.error(err);
   }

@@ -1,8 +1,8 @@
+import { constants, providers } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { Interface } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Contract } from "@ethersproject/contracts";
-import { parseEther } from "ethers/lib/utils";
-import { constants, providers } from "ethers";
 import { MAX_APPROVAL_AMOUNT } from "./tokenUtils";
 
 export async function checkAllowance(
@@ -95,8 +95,12 @@ export async function checkAllowanceAndApprove(
   underlyingAddress: string,
   amount?: BigNumber
 ) {
+  if (process.env.NEXT_PUBLIC_USE_MOCKS === "true") {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return;
+  }
 
-  const _amount = amount ?? MAX_APPROVAL_AMOUNT
+  const _amount = amount ?? MAX_APPROVAL_AMOUNT;
 
   const hasApprovedEnough = await checkAllowance(
     signer,

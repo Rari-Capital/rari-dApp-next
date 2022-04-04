@@ -10,7 +10,8 @@ import {
 } from "rari-components";
 import { abbreviateAmount } from "utils/bigUtils";
 import StatisticTable from "lib/components/StatisticsTable";
-import { VStack } from "@chakra-ui/react";
+import { Box, Stack, VStack } from "@chakra-ui/react";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 
 type DepositSafeCollateralCtx = {
   incrementStepIndex(): void;
@@ -121,17 +122,21 @@ const MODAL_STEP_1: ModalStep = {
 };
 
 const MODAL_STEP_2: ModalStep = {
-  children: ({ depositAmount }) =>
-  (
-    <>
-      <VStack>
-        <Heading>
-          {commify(depositAmount)} TRIBE
-        </Heading>
-        <Text>Succesfully Deposited</Text>
-      </VStack>
-    </>
-  ),
+  children: ({ depositAmount, updatedSafe }) =>
+    (
+      <Stack alignItems="center" spacing={8}>
+        <CheckCircleIcon boxSize={40} color="neutral" />
+        <Box textAlign="center">
+          <Heading>
+            {commify(depositAmount)}{" "}
+            <TokenSymbol tokenAddress={updatedSafe?.collateralAsset ?? ""} />
+          </Heading>
+          <Text fontSize="lg" my={4}>
+            Successfully deposited
+          </Text>
+        </Box>
+      </Stack>
+    ),
   buttons: ({
     onClose,
     resetStepIndex
