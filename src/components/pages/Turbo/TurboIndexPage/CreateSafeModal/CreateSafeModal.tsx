@@ -51,6 +51,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const [hasApprovals, setHasApproval] = useState<boolean>(hasApproval);
   const [approving, setApproving] = useState(false);
   const [creatingSafe, setCreatingSafe] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   // Utils
   const toast = useToast();
@@ -124,6 +125,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     approve: onClickApprove,
     createSafe: onClickCreateSafe,
     creatingSafe,
+    navigating,
     onClose() {
       // Only allow close if a transaction isn't in progress.
       if (!approving && !creatingSafe) {
@@ -131,8 +133,13 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
         onClose();
       }
     },
-    navigateToCreatedSafe() {
-      router.push("/turbo/safe/0");
+    async navigateToCreatedSafe() {
+      setNavigating(true);
+      try {
+        await router.push("/turbo/safe/0");
+      } finally {
+        setNavigating(false);
+      }
     },
   };
 
