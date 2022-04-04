@@ -1,4 +1,4 @@
-import { tokenInfo } from 'constants/convex';
+import { CONVEX_CTOKEN_INFO } from 'constants/convex';
 import { useRari } from 'context/RariContext'
 import { BigNumber } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
@@ -11,7 +11,7 @@ export const useConvexPoolSuppliedCTokens = (comptrollerAddress: string) => {
 
     const { data: suppliedMarkets } = useQuery(`Pool ${comptrollerAddress}  CTokens User ${address}`, async () => {
 
-        const markets = Object.values(tokenInfo).map((value => value.cToken))
+        const markets = Object.values(CONVEX_CTOKEN_INFO).map((value => value.cToken))
 
         const IComptroller = new Interface(JSON.parse(
             fuse.compoundContracts["contracts/CErc20Delegate.sol:CErc20Delegate"].abi

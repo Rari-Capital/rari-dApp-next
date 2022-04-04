@@ -4,6 +4,7 @@ import {
     Text,
     useDisclosure,
     AvatarGroup,
+    HStack,
 } from "@chakra-ui/react";
 import { Row } from "lib/chakraUtils";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
@@ -77,8 +78,8 @@ export const PluginIncentivesRow: React.FC<{
 }> = ({ incentives, market, tokenData }) => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
-
     const rewardTokens = Object.keys(incentives).map((flywheel, i) => incentives[flywheel].rewardToken)
+    const apr = Object.values(incentives).reduce((number, value) => value.formattedAPR + number, 0)
 
     return (
         <>
@@ -88,35 +89,42 @@ export const PluginIncentivesRow: React.FC<{
                 // mb={.5}
                 crossAxisAlignment="center"
                 mainAxisAlignment="flex-end"
-                py={2}
+                py={4}
                 zIndex={10}
-                onClick={(e) => {
+                onClick={(e: any) => {
                     e.stopPropagation();
                     onOpen();
                 }}
             >
-                <Text fontWeight="bold" mr={1}>
-                    + 🔌
-                </Text>
-                <SimpleTooltip label={"Click for more info"}>
-                    <AvatarGroup size="xs" max={30} ml={2} mr={1} spacing={1} >
-                        {rewardTokens.map((rewardToken, i) => {
-                            return (
-                                <CTokenIcon
-                                    key={i}
-                                    address={rewardToken}
-                                    boxSize="20px"
-                                    // onMouseEnter={() => handleMouseEnter(i)}
-                                    // onMouseLeave={() => handleMouseLeave()}
-                                    _hover={{
-                                        zIndex: 9,
-                                        border: ".5px solid white",
-                                        transform: "scale(1.3);",
-                                    }}
-                                />
-                            );
-                        })}
-                    </AvatarGroup>
+                <HStack>
+                    <Text fontWeight="bold" px={1} fontSize="sm">
+                    {`🔌`}
+                    </Text>
+                </HStack>
+                <SimpleTooltip label={"Click for more rewards info"}>
+                    <HStack>
+                        <AvatarGroup size="xs" max={30} ml={1} mr={1}>
+                            {rewardTokens.map((rewardToken, i) => {
+                                return (
+                                    <CTokenIcon
+                                        key={i}
+                                        address={rewardToken}
+                                        boxSize="20px"
+                                        // onMouseEnter={() => handleMouseEnter(i)}
+                                        // onMouseLeave={() => handleMouseLeave()}
+                                        _hover={{
+                                            zIndex: 9,
+                                            border: ".5px solid white",
+                                            transform: "scale(1.3);",
+                                        }}
+                                    />
+                                );
+                            })}
+                        </AvatarGroup>
+                        <Text color={tokenData?.color} fontWeight="bold" pl={1} fontSize="sm">
+                            + {apr.toFixed(2)}% APR
+                        </Text>
+                    </HStack>
                 </SimpleTooltip>
             </Row>
         </>
