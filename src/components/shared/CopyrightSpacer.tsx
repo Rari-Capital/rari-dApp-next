@@ -1,9 +1,8 @@
-import { Text } from "@chakra-ui/react";
+import { Text } from "rari-components/standalone";
 
 const CopyrightSpacer = ({ forceShow = false }: { forceShow?: boolean }) => {
   return (
     <Text
-      color="#FFFFFF"
       fontSize="xs"
       display={forceShow ? "block" : { md: "none", base: "block" }}
       textAlign="center"

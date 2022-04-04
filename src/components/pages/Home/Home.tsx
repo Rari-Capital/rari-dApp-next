@@ -13,7 +13,7 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen";
 import Marquee from "react-fast-marquee";
 import HomeFuseCard from "./HomeFuseCard";
 
-import { Card } from "rari-components/standalone"
+import { Card, Link } from "rari-components/standalone"
 
 import { motion } from "framer-motion";
 
@@ -38,8 +38,6 @@ import {
   HomepageItems,
 } from "constants/homepage";
 // import { SearchIcon } from "@chakra-ui/icons";
-import DashboardBox from "components/shared/DashboardBox";
-import AppLink from "components/shared/AppLink";
 import { APYWithRefreshMovingProps } from "components/shared/MovingStat";
 import Searchbar from "components/shared/Searchbar";
 import useSWR from "swr";
@@ -195,11 +193,9 @@ const Home = () => {
             crossAxisAlignment="center"
           >
             <Heading size="md">Explore Opportunities</Heading>
-            <AppLink href="/explore">
-              <Text fontSize="md" color="grey">
-                View All
-              </Text>
-            </AppLink>
+            <Link href="/explore" variant="secondary">
+              View All
+            </Link>
           </Row>
 
           <SimpleGrid
