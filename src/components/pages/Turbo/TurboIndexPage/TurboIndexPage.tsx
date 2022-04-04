@@ -155,36 +155,34 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe }) => {
                 <TokenSymbol tokenAddress={safe.collateralAsset} />
               </Heading>
             </HStack>
-            <VStack
+            <Stack
               spacing={2}
               mt={8}
               alignItems="flex-start"
               justify="stretch"
             >
-              <HStack spacing={4}>
-                <Flex alignItems="baseline" flex={1}>
-                  <Tooltip
-                    label={`${commify(formatEther(safe.boostedAmount))} FEI`}
-                  >
-                    <>
-                      <Heading size="md">
-                        {abbreviateAmount(formatEther(safe.boostedAmount))}
-                      </Heading>
-                      <Text variant="secondary" ml={2}>
-                        boosted
-                      </Text>
-                    </>
-                  </Tooltip>
-                </Flex>
-                <Flex alignItems="baseline" flex={1}>
-                  {/* TODO(sharad-s): Use real APY number */}
-                  <Heading size="md">6.56%</Heading>
-                  <Text variant="secondary" ml={2}>
-                    net APY
-                  </Text>
-                </Flex>
-              </HStack>
-            </VStack>
+              <Flex alignItems="baseline" flex={1}>
+                <Tooltip
+                  label={`${commify(formatEther(safe.boostedAmount))} FEI`}
+                >
+                  <>
+                    <Heading size="md">
+                      {abbreviateAmount(formatEther(safe.boostedAmount))}
+                    </Heading>
+                    <Text variant="secondary" ml={2}>
+                      boosted
+                    </Text>
+                  </>
+                </Tooltip>
+              </Flex>
+              <Flex alignItems="baseline" flex={1}>
+                {/* TODO(sharad-s): Use real APY number */}
+                <Heading size="md">6.56%</Heading>
+                <Text variant="secondary" ml={2}>
+                  net APY
+                </Text>
+              </Flex>
+            </Stack>
             <Box mt={8}>
               <Text variant="secondary" mb={2}>
                 Active boost
