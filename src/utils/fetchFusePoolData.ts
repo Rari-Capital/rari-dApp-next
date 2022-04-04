@@ -130,6 +130,10 @@ export const filterPoolName = (name: string) => {
     return "Yearn Soup Pot of Yield";
   }
 
+  if (name === "GMI Hot Tub") {
+    return "GMI Hot Tub ♨️ ";
+  }
+
   return filter.clean(name + "$W@G0N0M1C$").replace("$W@G0N0M1C$", "");
 };
 
