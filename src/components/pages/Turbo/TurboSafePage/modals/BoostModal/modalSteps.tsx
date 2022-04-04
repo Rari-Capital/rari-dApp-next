@@ -12,7 +12,7 @@ import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { HStack, Image, VStack } from "@chakra-ui/react";
 import { commify, formatEther, parseEther } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -53,7 +53,7 @@ const MODAL_STEP_1: ModalStep = {
           />
           <Text variant="secondary" mt="4">
             {mode === SafeInteractionMode.BOOST
-              ? `You can boost ${formatEther(maxAmount)} FEI`
+              ? `You can boost ${parseFloat(formatEther(maxAmount)).toFixed(2)} FEI`
               : `You can less ${formatEther(strategy!.boostedAmount)} FEI`
             }
           </Text>
@@ -87,7 +87,11 @@ const MODAL_STEP_1: ModalStep = {
                 height={4}
                 mr={4}
               />
-              <Text>Lessing the entire strategy will also accrue earned Fei to the Safe.</Text>
+              <Text>
+                Lessing the entire strategy will also accrue {' '}
+                <b>{parseFloat(formatEther(strategy.feiEarned)).toFixed(2)} FEI</b>
+                {' '} to the Safe.
+              </Text>
             </HStack>
           )
         }

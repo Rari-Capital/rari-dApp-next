@@ -41,6 +41,17 @@ export const safeDeposit = async (
   return tx;
 };
 
+export const safeWithdraw = async (
+  safe: string,
+  recipient: string,
+  amount: BigNumber,
+  signer: providers.JsonRpcSigner | any
+) => {
+  const turboSafeContract = await createTurboSafe(signer, safe);
+  const tx = await turboSafeContract.withdraw(amount, recipient, recipient);
+  return tx;
+};
+
 export const safeLess = async (
   safe: string,
   strategy: string,

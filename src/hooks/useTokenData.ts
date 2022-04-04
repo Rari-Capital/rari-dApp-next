@@ -64,8 +64,6 @@ export const fetchTokenData = async (
     _chainId = 1;
   }
 
-  // console.log('fetchTokenData',{address, chainId, _chainid})
-
   if (address !== ETH_TOKEN_DATA.address) {
     try {
       // Since running the vercel functions requires a Vercel account and is super slow,

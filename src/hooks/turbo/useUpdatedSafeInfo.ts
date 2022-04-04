@@ -58,12 +58,33 @@ export const useUpdatedSafeInfo = ({
                 return updatedSafe
             }
 
+            /** WITHDRAW **/
+            if (mode === SafeInteractionMode.WITHDRAW) {
+
+                const collateralAmount = safe.collateralAmount.sub(amount)
+                const collateralValue = collateralAmount
+                    .mul(safe.collateralPrice)
+                    .div(constants.WeiPerEther)
+                const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
+                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue)
+
+                updatedSafe = {
+                    ...safe,
+                    collateralAmount,
+                    collateralValue,
+                    collateralUSD,
+                    safeUtilization
+                }
+
+                return updatedSafe
+            }
+
 
             /** BOOST **/
             if (mode === SafeInteractionMode.BOOST) {
                 console.log({ strategyIndex })
 
-                if (strategyIndex === undefined) return undefined
+                if (strategyIndex === undefined || strategyIndex < 0) return undefined
 
                 const boostedAmount = safe.boostedAmount.add(amount) // boosted FEI 
                 const boostedUSD = calculateFEIValueUSD(boostedAmount, safe.feiPrice, ethUSDBN)
@@ -101,16 +122,15 @@ export const useUpdatedSafeInfo = ({
                     debtValue,
                     safeUtilization,
                     strategies
-                }
+                }   
 
                 return updatedSafe
             }
 
             /** LESS **/
             if (mode === SafeInteractionMode.LESS) {
-                console.log({ strategyIndex })
 
-                if (strategyIndex === undefined) return undefined
+                if (strategyIndex === undefined  || strategyIndex < 0) return undefined
 
                 const boostedAmount = safe.boostedAmount.sub(amount) // boosted FEI 
                 const boostedUSD = calculateFEIValueUSD(boostedAmount, safe.feiPrice, ethUSDBN)

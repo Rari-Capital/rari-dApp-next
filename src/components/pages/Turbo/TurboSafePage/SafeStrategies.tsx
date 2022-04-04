@@ -71,7 +71,7 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
     ),
     [safeStrategies, activeStrategyAddress]
   );
-  
+
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (
     <>
@@ -106,7 +106,7 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
                       <HStack>
                         <TokenIcon tokenAddress={strategyData?.underlying ?? FEI} size="sm" />
                         <Text>
-                          <TokenSymbol tokenAddress={strategyData?.underlying ?? FEI} />
+                          {strategyData?.symbol}
                         </Text>
                       </HStack>
                     </Link>),
