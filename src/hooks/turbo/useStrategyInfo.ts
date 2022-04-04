@@ -2,6 +2,7 @@ import { useQueries, useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 import { ICERC20Delegate, IFuseERC4626 } from "lib/turbo/utils/turboContracts";
 import { callInterfaceWithMulticall } from "utils/multicall";
+import { MOCK_ERC4626_STRATEGY_1 } from "./test/mocks";
 
 export interface FuseERC4626Strategy {
     underlying: string;
@@ -59,6 +60,10 @@ export const useERC4626StrategiesDataAsMap = (strategies: string[]) => {
 
 
 const fetchStrategyData = async (provider: any, strategy: string): Promise<FuseERC4626Strategy> => {
+    if (process.env.NEXT_PUBLIC_USE_MOCKS === "true") {
+        return MOCK_ERC4626_STRATEGY_1;
+    }
+
     const [
         [name],
         [symbol],

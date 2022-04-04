@@ -111,8 +111,7 @@ const MODAL_STEP_1: ModalStep = {
           !!inputError
             ? inputError
             : mode === SafeInteractionMode.LESS
-              // TODO(@nathanleung) - how can we avoid this ternary syntax and coerce empty string to '0'
-              ? strategy?.boostedAmount?.eq(parseEther(amount ? amount : '0'))
+              ? strategy?.boostedAmount?.eq(parseEther(amount || '0'))
                 ? "Less and Accrue Rewards"
                 : "Less"
               : mode,
