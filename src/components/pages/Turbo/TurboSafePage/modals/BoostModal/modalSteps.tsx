@@ -12,9 +12,7 @@ import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { HStack, Image, VStack } from "@chakra-ui/react";
 import { commify, formatEther, parseEther } from "ethers/lib/utils";
-import { mode } from "mathjs";
-import { AmountSelectMode } from "components/shared/AmountSelectNew/AmountSelectNew";
-import { InfoIcon } from "@chakra-ui/icons";
+import { BigNumber } from "ethers";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -24,11 +22,11 @@ type BoostModalCtx = {
   amount: string;
   setAmount(newAmount: string): void;
   transacting: boolean;
-  onClickBoost(): void;
-  onClickLess(): void;
+  onClickBoost(): Promise<void>;
+  onClickLess(): Promise<void>;
   onClose(): void;
   onClickMax(): void;
-  maxBoostAmount: string;
+  maxAmount: BigNumber;
   mode: SafeInteractionMode.BOOST | SafeInteractionMode.LESS;
   strategy: USDPricedStrategy | undefined,
   erc4626Strategy: FuseERC4626Strategy | undefined,
@@ -43,7 +41,7 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: ({ mode }) => `${mode} strategy`,
   subtitle: ({ strategy, erc4626Strategy }) => `Strategy ${erc4626Strategy?.symbol}`,
-  children: ({ onClickMax, setAmount, amount, safe, updatedSafe, mode, maxBoostAmount, strategy }) =>
+  children: ({ onClickMax, setAmount, amount, safe, updatedSafe, mode, maxAmount, strategy }) =>
     !!safe && (
       <>
         <VStack w="100%" mb={3} align="flex-end">
@@ -55,7 +53,7 @@ const MODAL_STEP_1: ModalStep = {
           />
           <Text variant="secondary" mt="4">
             {mode === SafeInteractionMode.BOOST
-              ? `You can boost ${maxBoostAmount} FEI`
+              ? `You can boost ${formatEther(maxAmount)} FEI`
               : `You can less ${formatEther(strategy!.boostedAmount)} FEI`
             }
           </Text>
@@ -82,7 +80,7 @@ const MODAL_STEP_1: ModalStep = {
           isLoading={!updatedSafe}
         />
         {
-          strategy?.boostedAmount?.eq(parseEther(amount ? amount : '0')) && (
+          mode === SafeInteractionMode.LESS && strategy?.boostedAmount?.eq(parseEther(amount ? amount : '0')) && (
             <HStack px={3}>
               <Image
                 src="/static/turbo/action-icons/claim-interest.png"
@@ -121,9 +119,11 @@ const MODAL_STEP_1: ModalStep = {
         disabled: !amount || !!inputError,
         async onClick() {
           try {
-            mode === "Boost"
-              ? await onClickBoost()
-              : await onClickLess()
+            if (mode === "Boost") {
+              await onClickBoost()
+            } else {
+              await onClickLess()
+            }
             incrementStepIndex()
           }
           catch (err) {
