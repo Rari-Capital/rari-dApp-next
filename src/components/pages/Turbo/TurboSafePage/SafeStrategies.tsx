@@ -1,24 +1,22 @@
 import {
+  Flex,
   HStack,
   VStack,
   Image,
   Box,
-  IconButton,
   useDisclosure
 } from "@chakra-ui/react";
-import { MinusIcon, PlusSquareIcon } from "@chakra-ui/icons";
-import { Link, Text, TokenIcon } from "rari-components";
-import { SimpleTooltip } from "components/shared/SimpleTooltip";
-import Table from "lib/components/Table";
+import { Heading, Link, Table, Text, TokenIcon, TokenSymbol, Tooltip } from "rari-components";
 
 // Hooks
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 // Turbo
 import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
+import { keyBy } from 'lodash';
 import { formatEther } from "ethers/lib/utils";
 import { convertMantissaToAPY } from "utils/apyUtils";
 import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
@@ -30,35 +28,50 @@ import { FEI } from "lib/turbo/utils/constants";
 export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
   const trustedStrats: string[] = useTrustedStrategies();
   const safeStrategies: USDPricedStrategy[] = safe.usdPricedStrategies;
-  
+  // Construct a new object where safe strategies are indexed by address
+  // for O(1) access by address (order in the table is not necessarily
+  // stable).
+  const safeStrategiesByAddress = useMemo(() => keyBy(
+    safeStrategies,
+    strategy => strategy.strategy
+  ), [safeStrategies]);
 
   // Fetches FuseERC4626 Data about each strategy
   const strategiesData = useERC4626StrategiesDataAsMap(trustedStrats)
 
-  console.log({ safeStrategies, trustedStrats, strategiesData })
-
-
   const { isOpen: isBoostModalOpen, onOpen: onBoostModalOpen, onClose: onBoostModalClose } = useDisclosure();
 
-  const [activeStrategyIndex, setActiveStrategyIndex] = useState<number | undefined>()
+  const [activeStrategyAddress, setActiveStrategyAddress] = useState<string>()
   const [mode, setMode] = useState<SafeInteractionMode.BOOST | SafeInteractionMode.LESS>(SafeInteractionMode.BOOST)
 
-  const handleBoostClick = (strategyIndex: number) => {
-    setActiveStrategyIndex(strategyIndex);
+  const handleBoostClick = (strategyAddress: string) => {
+    setActiveStrategyAddress(strategyAddress);
     setMode(SafeInteractionMode.BOOST)
     onBoostModalOpen();
   }
 
-  const handleLessClick = (strategyIndex: number) => {
-    setActiveStrategyIndex(strategyIndex);
+  const handleLessClick = (strategyAddress: string) => {
+    setActiveStrategyAddress(strategyAddress);
     setMode(SafeInteractionMode.LESS)
     onBoostModalOpen();
   }
 
-  const activeStrategy = activeStrategyIndex !== undefined ? safeStrategies[activeStrategyIndex] : undefined
+  const activeStrategy = !!activeStrategyAddress
+    ? safeStrategiesByAddress[activeStrategyAddress]
+    : undefined;
 
-  // TODO (@nathanhleung) Tooltips appear on top left for some reason
-  // TODO (@nathanhleung) Table key rendering issues  
+  // For now, a bunch of other components rely on the assumption that the
+  // order of the strategies *stored in the source `safe.usdPricedStrategies`
+  // array* is stable. Since the order of items in the table is not
+  // necessarily stable, we need to translate from a table index to a source
+  // array index using `Array.prototype.findIndex`.
+  const activeStrategyIndex = useMemo(() =>
+    safeStrategies.findIndex(
+      (strategy) => strategy.strategy === activeStrategyAddress
+    ),
+    [safeStrategies, activeStrategyAddress]
+  );
+  
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (
     <>
@@ -67,7 +80,7 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
         onClose={onBoostModalClose}
         safe={safe}
         strategy={activeStrategy}
-        strategyIndex={activeStrategyIndex ?? 0}
+        strategyIndex={activeStrategyIndex}
         erc4626Strategy={activeStrategy ? strategiesData[activeStrategy.strategy] : undefined}
         mode={mode}
       />
@@ -79,6 +92,7 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
             "Earned FEI",
             "APY",
             "Active Boost",
+            "",
           ]}
           rows={
             safeStrategies.map((strat: USDPricedStrategy, i) => {
@@ -86,23 +100,23 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
               const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
               return ({
                 key: strat.strategy,
-                data: [
+                items: [
                   (
                     <Link href={poolId ? `/fuse/pool/${poolId}` : '#'}>
                       <HStack>
                         <TokenIcon tokenAddress={strategyData?.underlying ?? FEI} size="sm" />
                         <Text>
-                          {strategyData?.symbol}
+                          <TokenSymbol tokenAddress={strategyData?.underlying ?? FEI} />
                         </Text>
                       </HStack>
                     </Link>),
                   (
                     <Box>
-                      <SimpleTooltip label={`${formatEther(strat.feiEarned)} FEI`}>
+                      <Tooltip label={`${formatEther(strat.feiEarned)} FEI`}>
                         <Text>
                           {smallUsdFormatter(strat.feiEarnedUSD)}
                         </Text>
-                      </SimpleTooltip>
+                      </Tooltip>
                     </Box>
                   ),
                   convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2) + "%",
@@ -114,24 +128,48 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
                         align={"center"}
                         mr={2}
                       />}
-                      <SimpleTooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
+                      <Tooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
                         <Text>
                           {smallUsdFormatter(strat.boostAmountUSD)}
                         </Text>
-                      </SimpleTooltip>
+                      </Tooltip>
                     </HStack>
                   ),
-                  <HStack>
-                    <SimpleTooltip label="Boost">
-                      <IconButton bg="green" aria-label="boost" onClick={() => handleBoostClick(i)}>
-                        <PlusSquareIcon />
-                      </IconButton>
-                    </SimpleTooltip>
-                    <SimpleTooltip label="Less">
-                      <IconButton bg="red" aria-label="less" onClick={() => handleLessClick(i)}>
-                        <MinusIcon />
-                      </IconButton>
-                    </SimpleTooltip>
+                  <HStack spacing={8}>
+                    <Tooltip label="Boost">
+                      <Flex
+                        cursor="pointer"
+                        alignItems="center"
+                        justifyContent="center"
+                        boxSize={8}
+                        borderRadius="50%"
+                        transition="0.2s opacity"
+                        _hover={{
+                          opacity: 0.5,
+                        }}
+                        background="success"
+                        onClick={() => handleBoostClick(strat.strategy)}
+                      >
+                        <Heading size="sm">+</Heading>
+                      </Flex>
+                    </Tooltip>
+                    <Tooltip label="Less">
+                      <Flex
+                        cursor="pointer"
+                        alignItems="center"
+                        justifyContent="center"
+                        boxSize={8}
+                        borderRadius="50%"
+                        transition="0.2s opacity"
+                        _hover={{
+                          opacity: 0.5,
+                        }}
+                        background="danger"
+                        onClick={() => handleLessClick(strat.strategy)}
+                      >
+                        <Heading size="sm">—</Heading>
+                      </Flex>
+                    </Tooltip>
                   </HStack>
 
                 ]

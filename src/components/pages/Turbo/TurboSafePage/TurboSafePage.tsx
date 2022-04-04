@@ -12,8 +12,11 @@ import {
   Card,
   Divider,
   Heading,
+  Link,
   Progress,
   Text,
+  TokenIcon,
+  TokenSymbol,
 } from "rari-components";
 import { useMemo } from "react";
 import { shortUsdFormatter } from "utils/bigUtils";
@@ -22,7 +25,6 @@ import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
-  Avatar,
   Box,
   Flex,
   HStack,
@@ -39,57 +41,16 @@ import ClaimInterestModal from "./modals/ClaimInterestModal";
 import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import SafeInfoModal from "./modals/TurboInfoModal";
 import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
-import AppLink from "components/shared/AppLink";
 import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { filterUsedStrategies, StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { convertMantissaToAPY } from "utils/apyUtils";
-
-const MOCK_SAFE: USDPricedTurboSafe = {
-  safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
-  collateralAsset: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
-  collateralAmount: BigNumber.from("5000001000000000000000000"),
-  collateralValue: BigNumber.from("1158926336594045961765"),
-  collateralPrice: BigNumber.from("231785220961765"),
-  debtAmount: BigNumber.from("2000000000000000000000000"),
-  debtValue: BigNumber.from("651700000000000000000"),
-  boostedAmount: BigNumber.from("2000000000000000000000000"),
-  feiPrice: BigNumber.from("325850000000000"),
-  feiAmount: BigNumber.from("2000000046982030418498691"),
-  tribeDAOFee: BigNumber.from("750000000000000000"),
-  strategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-      feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
-    },
-  ],
-  safeUtilization: BigNumber.from(50),
-  collateralUSD: 100,
-  debtUSD: 50,
-  boostedUSD: 50,
-  feiAmountUSD: 50,
-  feiPriceUSD: 1,
-  usdPricedStrategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-      feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
-      boostAmountUSD: 50,
-      feiAmountUSD: 50,
-      feiEarnedUSD: 10,
-    },
-  ],
-};
 
 const TurboSafePage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const safeId = id as string;
 
-  // const safe = useSafeInfo(safeId) ?? MOCK_SAFE;
   const safe = useSafeInfo(safeId)
   const tokenData = useTokenData(safe?.collateralAsset);
 
@@ -176,22 +137,25 @@ const TurboSafePage: React.FC = () => {
 
       {isAtLiquidationRisk && <LiquidationAlert safeHealth={safeHealth} />}
 
-      <HStack>
-        <AppLink href="/turbo">
-          <ChevronLeftIcon />
-        </AppLink>
-      </HStack>
+      <Box>
+        <Link href="/turbo">
+          <Flex alignItems="center">
+            <ChevronLeftIcon mr={2} /> <Text fontSize="xs" fontWeight={600}>Back to Turbo Home</Text>
+          </Flex>
+        </Link>
+      </Box>
 
       <Stack
         direction={"row"}
         justify="space-between"
         alignItems="center"
-        spacing={3}
+        spacing={4}
+        mt={8}
       >
         <Skeleton isLoaded={!!tokenData}>
           <HStack>
-            <Avatar src={tokenData?.logoURL} mr={2} />
-            <Heading>{tokenData?.symbol} Safe</Heading>
+            <TokenIcon tokenAddress={tokenData?.address ?? ""} mr={2} />
+            <Heading><TokenSymbol tokenAddress={tokenData?.address ?? ""} /> Safe</Heading>
             <InfoIcon
               onClick={openSafeModal}
               _hover={{
@@ -282,7 +246,7 @@ export const BoostBar: React.FC<{
           </Text>
         </Flex>
         <Text variant="secondary">
-          Liquidated when <Avatar src={tokenData?.logoURL} boxSize={6} mx={1} />
+          Liquidated when <TokenIcon tokenAddress={tokenData?.address ?? ""} boxSize={6} mx={1} />
           $0.25
         </Text>
       </Flex>

@@ -1,5 +1,47 @@
 import { BigNumber } from "ethers";
-import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import { FuseERC4626Strategy } from "../useStrategyInfo";
+
+const MOCK_STRATEGY_1: StrategyInfo = {
+  strategy: "0xaC4c093c777581DC9c4DC935394Ff11e6c58CD45",
+  boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
+  feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
+  feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
+};
+
+const MOCK_STRATEGY_2: StrategyInfo = {
+  // Randomly generated address
+  strategy: "0x3E556610757D238c7c806bBE04536a05828f474b",
+  boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
+  feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
+  feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
+};
+
+const MOCK_USD_PRICED_STRATEGY_1: USDPricedStrategy = {
+  ...MOCK_STRATEGY_1,
+  boostAmountUSD: 50,
+  feiAmountUSD: 50,
+  feiEarnedUSD: 10,
+};
+
+const MOCK_USD_PRICED_STRATEGY_2: USDPricedStrategy = {
+  ...MOCK_STRATEGY_2,
+  boostAmountUSD: 50,
+  feiAmountUSD: 50,
+  feiEarnedUSD: 10,
+};
+
+const MOCK_ERC4626_STRATEGY_1: FuseERC4626Strategy = {
+  underlying: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+  name: "Fei USD",
+  symbol: "FEI",
+  // Randomly generated address
+  fToken: "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+  // Randomly generated address
+  comptroller: "0x517F73a1329330c469BA1446BA248aEAa3b3a883",
+  supplyRatePerBlock: 100,
+};
 
 const MOCK_SAFE_1: USDPricedTurboSafe = {
   safeAddress: "0xCd6442eB75f676671FBFe003A6A6F022CbbB8d38",
@@ -13,31 +55,14 @@ const MOCK_SAFE_1: USDPricedTurboSafe = {
   feiPrice: BigNumber.from("325850000000000"),
   feiAmount: BigNumber.from("2000000046982030418498691"),
   tribeDAOFee: BigNumber.from("750000000000000000"),
-  strategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-      feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
-    },
-  ],
+  strategies: [MOCK_STRATEGY_1, MOCK_STRATEGY_2],
   safeUtilization: BigNumber.from(50),
   collateralUSD: 100,
   debtUSD: 50,
   boostedUSD: 50,
   feiAmountUSD: 50,
   feiPriceUSD: 1,
-  usdPricedStrategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-      feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
-      boostAmountUSD: 50,
-      feiAmountUSD: 50,
-      feiEarnedUSD: 10,
-    },
-  ],
+  usdPricedStrategies: [MOCK_USD_PRICED_STRATEGY_1, MOCK_USD_PRICED_STRATEGY_2],
 };
 
 const MOCK_SAFE_2: USDPricedTurboSafe = {
@@ -53,14 +78,7 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
   feiPrice: BigNumber.from("325850000000000"),
   feiAmount: BigNumber.from("2000000046982030418498691"),
   tribeDAOFee: BigNumber.from("750000000000000000"),
-  strategies: [
-    {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
-      boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
-      feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
-      feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
-    },
-  ],
+  strategies: [MOCK_STRATEGY_1],
   safeUtilization: BigNumber.from(50),
   collateralUSD: 100,
   debtUSD: 50,
@@ -69,7 +87,7 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
   feiPriceUSD: 1,
   usdPricedStrategies: [
     {
-      strategy: "0xB6B4798361033d9BB64f5C8F638c4B7c25bAb7b6",
+      strategy: "0xaC4c093c777581DC9c4DC935394Ff11e6c58CD45",
       boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
       feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
       feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
@@ -80,4 +98,4 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
   ],
 };
 
-export { MOCK_SAFE_1, MOCK_SAFE_2 };
+export { MOCK_SAFE_1, MOCK_SAFE_2, MOCK_ERC4626_STRATEGY_1 };
