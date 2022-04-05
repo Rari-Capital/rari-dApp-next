@@ -11,16 +11,17 @@ import { ITurboRouter } from "lib/turbo/utils/turboContracts";
 export const createSafeAndDeposit = async (
   signer: Signer,
   amount: BigNumber,
-  chainID: number
+  chainID: number,
+  underlyingTokenAddress: string
 ) => {
   const provider = signer.provider;
   if (!provider) return;
 
   const userAddress = await signer.getAddress();
 
-  const pullTokensArgs = [TRIBE, amount, TurboAddresses[chainID].ROUTER];
+  const pullTokensArgs = [underlyingTokenAddress, amount, TurboAddresses[chainID].ROUTER];
 
-  const createAndDepositArgs = [TRIBE, userAddress, amount, amount];
+  const createAndDepositArgs = [underlyingTokenAddress, userAddress, amount, amount];
 
   const encodedCreateSafeAndDeposit = encodeRouterCall(
     ITurboRouter,
@@ -40,15 +41,8 @@ export const createSafeAndDeposit = async (
     signer,
     await signer.getAddress(),
     TurboAddresses[chainID].ROUTER,
-    TRIBE
+    underlyingTokenAddress
   );
-
-  // await approve(
-  //   TurboAddresses[chainID].ROUTER,
-  //   TRIBE,
-  //   //@ts-ignore
-  //   signer
-  // );
 
   const preBalanceRouter = await balanceOf(
     TurboAddresses[chainID].ROUTER,
