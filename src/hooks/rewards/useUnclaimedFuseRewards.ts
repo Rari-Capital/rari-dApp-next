@@ -152,7 +152,7 @@ export function useUnclaimedFuseRewards() {
       console.log({uniqueRDs})
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
-          "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5",
+          address,
           uniqueRDs
         );
 
