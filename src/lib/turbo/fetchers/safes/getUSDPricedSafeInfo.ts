@@ -3,7 +3,7 @@ import { BigNumber, constants } from "ethers";
 import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 import { calculateETHValueUSD, calculateFEIValueUSD } from "lib/turbo/utils/usdUtils";
 import { StrategyInfo } from "../strategies/formatStrategyInfo";
-import { getSafeInfo, SafeInfo } from "./getSafeInfo";
+import { calculateMaxBoost, getSafeInfo, SafeInfo } from "./getSafeInfo";
 
 export interface USDPricedTurboSafe extends SafeInfo {
     collateralUSD: number,
@@ -12,7 +12,9 @@ export interface USDPricedTurboSafe extends SafeInfo {
     feiAmountUSD: number,
     feiPriceUSD: number,
     safeUtilization: BigNumber;
-    usdPricedStrategies: USDPricedStrategy[]
+    usdPricedStrategies: USDPricedStrategy[],
+    maxBoost: number
+
 }
 
 export interface USDPricedStrategy extends StrategyInfo {
@@ -44,6 +46,7 @@ export const getUSDPricedSafeInfo = async (
         const boostedUSD = calculateFEIValueUSD(safeInfo.boostedAmount, safeInfo.feiPrice, ethUSDBN)
         const feiAmountUSD = calculateFEIValueUSD(safeInfo.feiAmount, safeInfo.feiPrice, ethUSDBN)
         const feiPriceUSD = calculateETHValueUSD(safeInfo.feiPrice, ethUSDBN)
+        const maxBoost = calculateMaxBoost(collateralUSD, safeInfo.collateralFactor)
 
         // TODO(@sharad-s) safe utilization needs to account for Safe CF (which should come from the lens)
         const safeUtilization = calculateSafeUtilization(safeInfo.debtValue, safeInfo.collateralValue)
@@ -59,7 +62,8 @@ export const getUSDPricedSafeInfo = async (
             boostedUSD,
             feiPriceUSD,
             safeUtilization,
-            usdPricedStrategies
+            usdPricedStrategies,
+            maxBoost
         }
 
         return usdPricedSafe;
