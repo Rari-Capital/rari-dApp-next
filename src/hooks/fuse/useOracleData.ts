@@ -134,9 +134,9 @@ export const useGetOracleOptions = (
   // We should also set this value initially if it is available and if "Current_Price_Oracle" is null.
   const { data: Default_Price_Oracle } = useQuery(
     "Pool Default Price Oracle " +
-      (defaultOracle ?? "") +
-      " check price feed for " +
-      tokenAddress,
+    (defaultOracle ?? "") +
+    " check price feed for " +
+    tokenAddress,
     async () => {
       if (!defaultOracle) return null;
 
@@ -164,11 +164,11 @@ export const useGetOracleOptions = (
   // If it doesn't have a custom oracle, then query for the default oracle and show that as the "Current oracle"
   const { data: Current_Price_Oracle } = useQuery(
     "MasterOracle " + oracleAddress ??
-      "" +
-        " check price feed for " +
-        tokenAddress +
-        " and default oracle " +
-        defaultOracle,
+    "" +
+    " check price feed for " +
+    tokenAddress +
+    " and default oracle " +
+    defaultOracle,
     async () => {
       if (!isValidAddress) return null;
       if (!oracleContract) return null;
@@ -223,8 +223,9 @@ export const useGetOracleOptions = (
         (!adminOverwrite && !Current_Price_Oracle === null) ||
         !!defaultOracle || // our defaultOracle IS RariMasterPriceOracle. ||
         !oracleData
-      )
+      ) {
         return null;
+      }
 
       // If address is valid and admin can overwrite, get Oracle address for the asset from RariMasterPriceOracle
       const oracleContract = createOracle(
@@ -233,15 +234,21 @@ export const useGetOracleOptions = (
         "MasterPriceOracle"
       );
 
-      const oracleAddress = await oracleContract.callStatic.oracles(
-        tokenAddress
-      );
 
-      // If oracleAddress is empty return null, else return the RARI MASTER PRICE ORACLE
-      if (oracleAddress === "0x0000000000000000000000000000000000000000")
-        return null;
-      return fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
-        .MasterPriceOracle;
+      try {
+        const oracleAddress = await oracleContract.callStatic.oracles(
+          tokenAddress
+        );
+
+        console.log("MasterPriceOracle", oracleContract, { tokenAddress, oracleAddress })
+
+        // If oracleAddress is empty return null, else return the RARI MASTER PRICE ORACLE
+        if (oracleAddress === EmptyAddress) return null;
+        return fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle;
+      } catch {
+        return null
+      }
+
     }
   );
 
@@ -258,9 +265,9 @@ export const useGetOracleOptions = (
       let oracleAddress =
         chainId === ChainID.ARBITRUM
           ? fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
-              .ChainlinkPriceOracleV2
+            .ChainlinkPriceOracleV2
           : fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES
-              .ChainlinkPriceOracleV3;
+            .ChainlinkPriceOracleV3;
 
       // If address is valid and admin can overwrite, get price for the asset from ChainlinkPriceOracle
       const oracleContract = createOracle(
@@ -268,13 +275,18 @@ export const useGetOracleOptions = (
         fuse,
         "ChainlinkPriceOracle"
       );
+      try {
+        const oraclePrice = await oracleContract.callStatic.price(tokenAddress);
+        // If price is zero, this means theres no pricefeed for the asset so return null
+        // If we receive a price, return ChainlinkPriceOracle address
+        if (oraclePrice <= 0) return null;
+        return oracleAddress;
+      } catch (err) {
+        return null
+      }
 
-      const oraclePrice = await oracleContract.callStatic.price(tokenAddress);
 
-      // If price is zero, this means theres no pricefeed for the asset so return null
-      // If we receive a price, return ChainlinkPriceOracle address
-      if (oraclePrice <= 0) return null;
-      return oracleAddress;
+
     }
   );
 
@@ -336,37 +348,41 @@ export const useGetOracleOptions = (
   // In the UniswapV3PriceOracleConfigurator, we will mount the hook above to get info
   const Uniswap_V2_Oracle =
     UniV2Pairs === null ||
-    UniV2Pairs === undefined ||
-    UniV2Pairs.length === 0 ||
-    univ2Error
+      UniV2Pairs === undefined ||
+      UniV2Pairs.length === 0 ||
+      univ2Error
       ? null
       : "";
 
   const SushiSwap_Oracle =
     SushiPairs === null ||
-    SushiPairs === undefined ||
-    SushiPairs.length === 0 ||
-    SushiError
+      SushiPairs === undefined ||
+      SushiPairs.length === 0 ||
+      SushiError
       ? null
       : "";
+
+
+  const oracleOptions = {
+    Default_Price_Oracle,
+    Current_Price_Oracle,
+    Rari_MasterPriceOracle,
+    Chainlink_Oracle,
+    Uniswap_V3_Oracle,
+    Uniswap_V2_Oracle,
+    SushiSwap_Oracle,
+    Custom_Oracle: " ",
+  }
 
   // If tokenAddress is not a valid address return null.
   // If tokenAddress is valid and oracle admin can overwrite or if admin can't overwrite but there's no preset, return all options
   // If tokenAddress is valid but oracle admin can't overwrite, return the preset oracle address,
+
   const Data = !isValidAddress
     ? null
     : adminOverwrite || Current_Price_Oracle === null
-    ? {
-        Default_Price_Oracle,
-        Current_Price_Oracle,
-        Rari_MasterPriceOracle,
-        Chainlink_Oracle,
-        Uniswap_V3_Oracle,
-        Uniswap_V2_Oracle,
-        SushiSwap_Oracle,
-        Custom_Oracle: " ",
-      }
-    : { Current_Price_Oracle };
+      ? oracleOptions
+      : { Current_Price_Oracle };
 
   return Data;
 };

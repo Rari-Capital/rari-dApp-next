@@ -100,8 +100,8 @@ const OracleConfig = ({
     // "Current_Price_Oracle" would only be avialable if you are editing
     if (
       mode === "Editing" &&
-      options &&
-      options["Current_Price_Oracle"] &&
+      !!options &&
+      !!options["Current_Price_Oracle"] &&
       !oracleTouched
     ) {
       setActiveOracleModel("Current_Price_Oracle");
@@ -293,22 +293,20 @@ const OracleConfig = ({
                   ? t("Choose Oracle")
                   : activeOracleModel.replaceAll("_", " ")
               }
-              disabled={
-                !isUserAdmin ||
-                (!oracleData?.adminOverwrite &&
-                  !options.Current_Price_Oracle === null)
-              }
             >
-              {Object.entries(options).map(([key, value]) =>
-                value !== null &&
-                  value !== undefined &&
-                  key !== activeOracleModel &&
-                  (mode === "Adding" ? key !== "Current_Price_Oracle" : true) ? (
-                  // dont show the selected choice in the list
-                  <option key={key} value={key} className="black-bg-option">
-                    {key.replaceAll("_", " ")}
-                  </option>
-                ) : null
+              {Object.entries(options).map(([key, value]) => {
+                console.log({ key, value })
+                if (!!value && key !== activeOracleModel) {
+                  if (mode === "Adding" && key !== "Current_Price_Oracle" || mode === "Editing") {
+                    return (
+                      <>
+                        <option key={key} value={key} className="black-bg-option">
+                          {key.replaceAll("_", " ")}
+                        </option></>
+                    )
+                  }
+                }
+              }
               )}
               {/* <option disabled={true}>Loading...</option> */}
             </Select>

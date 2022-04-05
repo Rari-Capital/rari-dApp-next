@@ -156,8 +156,6 @@ export function useUnclaimedFuseRewards() {
           uniqueRDs
         );
 
-      console.log({unclaimedResults})
-
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 
