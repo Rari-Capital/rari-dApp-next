@@ -10,11 +10,23 @@ const useSafeMaxAmount = (
     mode: SafeInteractionMode,
     strategyIndex?: number //only used for LESS
 ) => {
-    const { provider, address } = useRari();
+    const { provider, address, chainId } = useRari();
 
     const { data: maxAmount } = useQuery(
         `Safe ${safe?.safeAddress} Max ${mode} amount ${!!strategyIndex ? 'Strategy ' + strategyIndex : null}`,
-        async () => fetchMaxSafeAmount(provider, mode, address, safe, strategyIndex)
+        async () => {
+            if (!chainId) return
+
+            fetchMaxSafeAmount(
+                provider, 
+                mode, 
+                address, 
+                safe, 
+                chainId,
+                strategyIndex
+            )
+        } 
+            
     )
 
     return maxAmount ?? constants.Zero

@@ -12,6 +12,7 @@ export async function fetchMaxSafeAmount(
     mode: SafeInteractionMode,
     userAddress: string,
     safe: SafeInfo | undefined,
+    chainId: number,
     strategyIndex?: number,
 ) {
     if (!safe) return constants.Zero
@@ -35,7 +36,7 @@ export async function fetchMaxSafeAmount(
     if (mode === SafeInteractionMode.BOOST) {
         if (strategyIndex === undefined || !safe.strategies) return constants.Zero;
 
-        const TurboComptroller = createTurboComptroller(provider, 31337)
+        const TurboComptroller = createTurboComptroller(provider, chainId)
         const FusePoolLensSecondary = createFusePoolLensSecondary(provider)
 
         const cToken = await TurboComptroller.callStatic.cTokensByUnderlying(FEI)
