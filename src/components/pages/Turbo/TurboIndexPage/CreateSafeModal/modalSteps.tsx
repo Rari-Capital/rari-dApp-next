@@ -14,6 +14,7 @@ import {
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { Dispatch, SetStateAction } from "react";
 
 type CreateSafeCtx = {
   /** A provider to connect to the blockchain with. */
@@ -38,6 +39,10 @@ type CreateSafeCtx = {
   depositAmount?: string;
   /** Set a new amount to deposit into the safe. */
   setDepositAmount(newDepositAmount: string): void;
+  /** */
+  boostAmount?: string;
+  /** */
+  setBoostAmount: Dispatch<SetStateAction<string | undefined>>
   /**
    * Whether the currently selected `underlyingTokenAddress` has approved
    * the router.
@@ -147,7 +152,7 @@ const MODAL_STEP_2: ModalStep = {
 const MODAL_STEP_3: ModalStep = {
   title: "Deposit collateral",
   subtitle: "Collateralizing is required before boosting pools.",
-  children: ({ underlyingTokenAddress, depositAmount, setDepositAmount }) => (
+  children: ({ underlyingTokenAddress, depositAmount, boostAmount, setDepositAmount }) => (
     <Stack>
       <Box>
         <TokenAmountInput
@@ -158,7 +163,7 @@ const MODAL_STEP_3: ModalStep = {
         <StatisticTable
           statistics={[
             ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-            ["Boost balance", `${utils.commify(depositAmount ?? "0")}`],
+            ["Boost balance", `${utils.commify(boostAmount ?? "0")}`],
           ]}
           mt={4}
         />
@@ -184,7 +189,7 @@ const MODAL_STEP_3: ModalStep = {
 };
 
 const MODAL_STEP_4: ModalStep = {
-  children: ({ underlyingTokenAddress, depositAmount, setDepositAmount }) => (
+  children: ({ underlyingTokenAddress, depositAmount, boostAmount }) => (
     <Box>
       <Box textAlign="center">
         <Text fontSize="lg">You are creating</Text>
@@ -197,7 +202,7 @@ const MODAL_STEP_4: ModalStep = {
         mt={8}
         statistics={[
           ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-          ["Boost balance", `${utils.commify(depositAmount ?? "0")}`],
+          ["Boost balance", `${utils.commify(boostAmount ?? "0")}`],
           ["Estimated gas cost", ""],
           ["# of transactions", "3"],
         ]}
@@ -238,10 +243,9 @@ const MODAL_STEP_4: ModalStep = {
       async onClick() {
         if (!hasApproval) {
           await approve();
-        } else {
-          await createSafe(underlyingTokenAddress, provider, chainId);
-          incrementStepIndex();
         }
+        await createSafe(underlyingTokenAddress, provider, chainId);
+        incrementStepIndex();
       },
     },
   ],
