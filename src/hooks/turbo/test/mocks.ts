@@ -63,6 +63,8 @@ const MOCK_SAFE_1: USDPricedTurboSafe = {
   feiAmountUSD: 50,
   feiPriceUSD: 1,
   usdPricedStrategies: [MOCK_USD_PRICED_STRATEGY_1, MOCK_USD_PRICED_STRATEGY_2],
+  maxBoost: 25,
+  collateralFactor: BigNumber.from("100"),
 };
 
 const MOCK_SAFE_2: USDPricedTurboSafe = {
@@ -96,6 +98,8 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
       feiEarnedUSD: 10,
     },
   ],
+  maxBoost: 25,
+  collateralFactor: BigNumber.from("100"),
 };
 
 export { MOCK_SAFE_1, MOCK_SAFE_2, MOCK_ERC4626_STRATEGY_1 };

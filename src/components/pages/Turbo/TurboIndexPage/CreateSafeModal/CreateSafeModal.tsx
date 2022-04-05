@@ -105,7 +105,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       provider.getSigner(), 
       TurboAddresses[chainId].ROUTER, 
       underlyingTokenAddress, 
-      amountBN
+      parseEther(depositAmount || "0")
     )
 
     setHasApproval(true);
