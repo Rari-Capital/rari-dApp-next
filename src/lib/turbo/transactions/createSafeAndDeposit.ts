@@ -1,11 +1,9 @@
 import {
-  callRouterWithMultiCall,
   encodeRouterCall,
   sendRouterWithMultiCall,
 } from "lib/turbo/utils/turboMulticall";
-import { balanceOf, approve, checkAllowanceAndApprove } from "utils/erc20Utils";
 import { BigNumber, Signer } from "ethers";
-import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
+import { TurboAddresses } from "lib/turbo/utils/constants";
 import { ITurboRouter } from "lib/turbo/utils/turboContracts";
 
 export const createSafeAndDeposit = async (
@@ -37,23 +35,7 @@ export const createSafeAndDeposit = async (
 
   const encodedCalls = [encodedPullTokens, encodedCreateSafeAndDeposit];
 
-  await checkAllowanceAndApprove(
-    signer,
-    await signer.getAddress(),
-    TurboAddresses[chainID].ROUTER,
-    underlyingTokenAddress,
-    amount
-  );
-
-
   try {
-    // const simulation = await callRouterWithMultiCall(
-    //   //@ts-ignore
-    //   provider,
-    //   encodedCalls,
-    //   chainID
-    // );
-
     const tx = await sendRouterWithMultiCall(
       signer,
       encodedCalls,
