@@ -48,15 +48,15 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const collateralBalance = useBalanceOf(address, underlyingTokenAddress);
 
   // Used only if user will deposit after creating.
-  const [depositAmount, setDepositAmount] = useState<string>();
+  const [depositAmount, setDepositAmount] = useState<string>("");
 
   // Router State
   const hasApproval = useHasApproval(
     underlyingTokenAddress,
     TurboAddresses[chainId ?? 1].ROUTER,
+    depositAmount,
     address
   );
-  const [hasApprovals, setHasApproval] = useState<boolean>(hasApproval);
 
   // Modal Logic
   const onClickCreateSafe = async () => {
@@ -110,7 +110,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       parseEther(depositAmount || "0")
     )
 
-    setHasApproval(true);
     setApproving(false);
   }
 
@@ -159,8 +158,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       }
     },
   };
-
-  
 
   return (
     <Modal

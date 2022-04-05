@@ -37,7 +37,7 @@ type CreateSafeCtx = {
    * Amount to deposit into the safe. Stored as a string that we'll convert to
    * a `BigNumber` later.
    */
-  depositAmount?: string;
+  depositAmount: string;
   /** Set a new amount to deposit into the safe. */
   setDepositAmount(newDepositAmount: string): void;
   /**
@@ -182,7 +182,7 @@ const MODAL_STEP_3: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: ({ incrementStepIndex, setDepositAmount }) => [
+  buttons: ({ incrementStepIndex, setDepositAmount, depositAmount, collateralBalance }) => [
     {
       children: "Skip",
       variant: "cardmatte",
@@ -192,7 +192,8 @@ const MODAL_STEP_3: ModalStep = {
       },
     },
     {
-      children: "Review",
+      disabled: parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
+      children: parseInt(depositAmount) > parseInt(collateralBalance) ? "Invalid amount" : "Review",
       variant: "neutral",
       onClick() {
         incrementStepIndex();
