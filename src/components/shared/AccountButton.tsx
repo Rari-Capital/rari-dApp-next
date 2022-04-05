@@ -37,7 +37,7 @@ import useENS from "hooks/useENS";
 import { shortENS } from "utils/shortENS";
 
 export const AccountButton = memo(() => {
-  // const { hasClaimableRewards } = useClaimable();
+  const { hasClaimableRewards } = useClaimable();
 
   const {
     isOpen: isSettingsModalOpen,
@@ -57,21 +57,21 @@ export const AccountButton = memo(() => {
 
   return (
     <>
-      {/* <ClaimRGTModal
+      <ClaimRGTModal
         isOpen={isClaimRGTModalOpen}
         onClose={closeClaimRGTModal}
-      /> */}
+      />
 
-      {/* <SettingsModal
+      <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={closeSettingsModal}
         openClaimRGTModal={openClaimRGTModal}
-        // hasClaimableRewards={hasClaimableRewards}
+        hasClaimableRewards={hasClaimableRewards}
       />
       <Buttons
         openModal={authedOpenSettingsModal}
-        // hasClaimableRewards={hasClaimableRewards}
-      /> */}
+        hasClaimableRewards={hasClaimableRewards}
+      />
     </>
   );
 });
