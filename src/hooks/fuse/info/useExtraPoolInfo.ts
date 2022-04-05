@@ -20,6 +20,15 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
       await comptroller.callStatic.oracle()
     );
 
+    const poolOracle = createOracle(oracle, fuse, "MasterPriceOracle");
+
+    let defaultOracle = undefined;
+    try {
+      defaultOracle = await poolOracle.methods.defaultOracle().call();
+    } catch (err) {
+      console.error("Error querying for defaultOracle");
+    }
+
     const closeFactor = await comptroller.callStatic.closeFactorMantissa();
     const liquidationIncentive =
       await comptroller.callStatic.liquidationIncentiveMantissa();
@@ -40,6 +49,7 @@ export const useExtraPoolInfo = (comptrollerAddress: string) => {
       oracle,
       closeFactor,
       liquidationIncentive,
+      defaultOracle
     };
 
     return obj;

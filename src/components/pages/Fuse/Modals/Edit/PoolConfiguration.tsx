@@ -58,6 +58,8 @@ const PoolConfiguration = ({
     assets.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ?? []
   );
 
+  console.log({ oraclesMap })
+
   const changeWhitelistStatus = async (enforce: boolean) => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
@@ -436,7 +438,7 @@ const PoolConfiguration = ({
             <ModalDivider />
 
             {/* OraclesTable */}
-            <OraclesTable oraclesMap={oraclesMap} data={data} />
+            <OraclesTable oraclesMap={oraclesMap} defaultOracle={"data"} />
           </Column>
         </Column>
       ) : (

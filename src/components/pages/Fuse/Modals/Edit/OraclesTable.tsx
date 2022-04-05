@@ -11,15 +11,15 @@ import {
   Th,
   Td,
 } from "@chakra-ui/react";
-import { CTokenIcon } from "components/shared/Icons/CTokenIcon";
+import { CTokenAvatarGroup, CTokenIcon } from "components/shared/Icons/CTokenIcon";
 import { useIdentifyOracle } from "hooks/fuse/useOracleData";
 import { shortAddress } from "utils/shortAddress";
 
 const OraclesTable = ({
-  data,
+  defaultOracle,
   oraclesMap,
 }: {
-  data: any;
+  defaultOracle: string;
   oraclesMap: {
     [oracleAddr: string]: string[];
   };
@@ -33,9 +33,9 @@ const OraclesTable = ({
         </Tr>
       </Thead>
       <Tbody>
-        {!!data.defaultOracle && (
+        {!!defaultOracle && (
           <OracleRow
-            oracle={data.defaultOracle}
+            oracle={defaultOracle}
             underlyings={[]}
             isDefault={true}
           />
@@ -79,13 +79,9 @@ const OracleRow = ({
         <Td>
           {isDefault ? (
             <span style={{ fontWeight: "bold" }}>DEFAULT</span>
-          ) : (
-            <AvatarGroup size="xs" max={30} mr={2}>
-              {underlyings.map((underlying) => {
-                return <CTokenIcon key={underlying} address={underlying} />;
-              })}
-            </AvatarGroup>
-          )}
+          ) :
+            <CTokenAvatarGroup size="xs" max={30} mr={2} tokenAddresses={underlyings} popOnHover />
+          }
         </Td>
       </Tr>
     </>

@@ -78,6 +78,7 @@ import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
+import OraclesTable from "./Modals/Edit/OraclesTable";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => { };
@@ -179,14 +180,6 @@ const FusePoolEditPage = memo(() => {
   const { fuse, isAuthed } = useRari();
   const comptroller = useCreateComptroller(data?.comptroller ?? "", fuse, isAuthed);
 
-  // Maps underlying to oracle
-  const oraclesMap = useOraclesForPool(
-    data?.oracle,
-    data?.assets?.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ??
-    []
-  );
-
-  // console.log({ oraclesMap });
 
   // RewardsDistributor stuff
   const poolIncentives = usePoolIncentives(data?.comptroller);
@@ -267,6 +260,7 @@ const FusePoolEditPage = memo(() => {
               <PoolConfiguration
                 assets={data.assets}
                 comptrollerAddress={data.comptroller}
+                oracleAddress={data.oracle}
               />
             ) : (
               <Center expand>
@@ -407,9 +401,11 @@ export default FusePoolEditPage;
 const PoolConfiguration = ({
   assets,
   comptrollerAddress,
+  oracleAddress,
 }: {
   assets: USDPricedFuseAsset[];
   comptrollerAddress: string;
+  oracleAddress: string;
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -421,6 +417,14 @@ const PoolConfiguration = ({
   const toast = useToast();
 
   const data = useExtraPoolInfo(comptrollerAddress);
+
+  // Maps underlying to oracle
+  const oraclesMap = useOraclesForPool(
+    oracleAddress,
+    assets.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ?? []
+  );
+
+  console.log({ oraclesMap })
 
   const changeWhitelistStatus = async (enforce: boolean) => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
@@ -731,6 +735,10 @@ const PoolConfiguration = ({
                 max={50}
               />
             </ConfigRow>
+            <ModalDivider />
+
+            {/* OraclesTable */}
+            <OraclesTable oraclesMap={oraclesMap} defaultOracle={data.defaultOracle} />
           </Column>
         </Column>
       ) : (

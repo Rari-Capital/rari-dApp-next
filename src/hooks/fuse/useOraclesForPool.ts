@@ -1,12 +1,28 @@
 import { useRari } from "context/RariContext";
+import { defaultAbiCoder } from "ethers/lib/utils";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { createOracle } from "utils/createComptroller";
 
+type OraclesEventData = [
+  underlying: string,
+  oldOracle: string,
+  newOracle: string
+]
+
+type UnderlyingOracleMap = {
+  [underlyingToken: string]: string;
+}
+
+
+export type OracleUnderlyingsMap = {
+  [oracleAddr: string]: string[];
+}
+
 const useOraclesForPool = (
   poolOracle: string | undefined,
   underlyings: string[]
-) => {
+): OracleUnderlyingsMap => {
   const { fuse } = useRari();
 
   const { data } = useQuery(
@@ -17,38 +33,20 @@ const useOraclesForPool = (
       const mpo = createOracle(poolOracle, fuse, "MasterPriceOracle");
 
       // const contract = new ethers.Contract(address, abi, provider.getSigner(0));
-      let eventFilter = mpo.filters.NewOracle();
+      let NewOracleFilter = mpo.filters.NewOracle();
 
-      let events = await mpo.queryFilter(eventFilter, );
+      let eventsFilter = await mpo.queryFilter(NewOracleFilter,);
 
-      console.log({ events, eventFilter });
+      const oraclesData: OraclesEventData[] = eventsFilter?.map(eF =>
+        defaultAbiCoder.decode(["address", "address", "address"], eF.data) as OraclesEventData
+      ) ?? []
 
-      // try {
-      // let events = await mpo.queryFilter(eventFilter);
+      const oraclesMap: UnderlyingOracleMap = oraclesData.reduce((acc: UnderlyingOracleMap, curr) => ({
+        ...acc,
+        [curr[0]]: curr[2]
 
-      // const events = await mpo.getPastEvents("NewOracle", {
-      //   fromBlock: 0,
-      //   toBlock: "latest",
-      // });
-
-      //   const oracles: {
-      //     [underlyingToken: string]: string;
-      //   } = {};
-      //   for (let e of events) {
-      //     if (
-      //       e.returnValues.newOracle !==
-      //       "0x0000000000000000000000000000000000000000"
-      //     )
-      //       oracles[e.returnValues.underlying] = e.returnValues.newOracle;
-      //     else if (oracles[e.returnValues.underlying] !== undefined)
-      //       delete oracles[e.returnValues.underlying];
-      //   }
-
-      //   return oracles;
-      // } catch (err) {
-      //   console.error("useOraclesForPool", err);
-      // }
-      return {};
+      }), {})
+      return oraclesMap;
     }
   );
 
@@ -56,22 +54,20 @@ const useOraclesForPool = (
 
   //   Maps oracle to list of underlyings
   const oraclesMap = useMemo(() => {
-    const map: {
-      [oracleAddr: string]: string[];
-    } = {};
+    const map: OracleUnderlyingsMap = {};
 
     // TODO - bring back
-    // if (!!Object.keys(tokenToOracleMap).length) {
-    //   Object.entries(tokenToOracleMap).map(
-    //     ([underlying, oracleAddr]: [string, string]) => {
-    //       if (!map[oracleAddr]) {
-    //         map[oracleAddr] = [underlying];
-    //       } else {
-    //         map[oracleAddr] = [...map[oracleAddr], underlying];
-    //       }
-    //     }
-    //   );
-    // }
+    if (!!Object.keys(tokenToOracleMap).length) {
+      Object.entries(tokenToOracleMap).map(
+        ([underlying, oracleAddr]: [string, string]) => {
+          if (!map[oracleAddr]) {
+            map[oracleAddr] = [underlying];
+          } else {
+            map[oracleAddr] = [...map[oracleAddr], underlying];
+          }
+        }
+      );
+    }
 
     return map;
   }, [tokenToOracleMap]);
