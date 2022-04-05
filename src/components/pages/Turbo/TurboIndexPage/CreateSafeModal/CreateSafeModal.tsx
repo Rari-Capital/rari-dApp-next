@@ -13,6 +13,8 @@ import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { createSafe } from "lib/turbo/transactions/safe";
 import { approve, checkAllowance } from "utils/erc20Utils";
 import { useBalanceOf } from "hooks/useBalanceOf";
+import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
+import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -114,6 +116,15 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
 
   const balance = formatEther(collateralBalance)
 
+  const onClickMax = async () => {
+    if (!chainId) return
+    try {
+      setDepositAmount(balance.slice(0,balance.indexOf('.')))
+    } catch (err) {
+      handleGenericError(err, toast)
+    }
+  }
+
   // Modal Context
   const createSafeCtx: CreateSafeCtx = {
     provider,
@@ -131,6 +142,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     creatingSafe,
     navigating,
     collateralBalance: balance,
+    onClickMax,
     onClose() {
       // Only allow close if a transaction isn't in progress.
       if (!approving && !creatingSafe) {

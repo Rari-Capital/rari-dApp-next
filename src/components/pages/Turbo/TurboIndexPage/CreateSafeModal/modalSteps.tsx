@@ -54,6 +54,7 @@ type CreateSafeCtx = {
   /** Whether the safe is currently being created. */
   creatingSafe: boolean;
   collateralBalance: string;
+  onClickMax(): Promise<void>;
   /** Function which closes the modal. */
   onClose(): void;
   /** Whether the navigation to the created safe is pending. */
@@ -152,7 +153,7 @@ const MODAL_STEP_2: ModalStep = {
 const MODAL_STEP_3: ModalStep = {
   title: "Deposit collateral",
   subtitle: "Collateralizing is required before boosting pools. This step is optional.",
-  children: ({ underlyingTokenAddress, depositAmount, collateralBalance, setDepositAmount }) => (
+  children: ({ underlyingTokenAddress, onClickMax, depositAmount, collateralBalance, setDepositAmount }) => (
     <Stack>
       <Box>
       <VStack w="100%" mb={3} align="flex-end">
@@ -160,6 +161,7 @@ const MODAL_STEP_3: ModalStep = {
           tokenAddress={underlyingTokenAddress}
           value={depositAmount}
           onChange={setDepositAmount}
+          onClickMax={onClickMax}
         />
         <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
             Balance: {commify(collateralBalance)}{" "}
