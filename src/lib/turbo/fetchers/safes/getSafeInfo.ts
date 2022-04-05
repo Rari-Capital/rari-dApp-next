@@ -1,18 +1,20 @@
 import { BigNumber, constants } from "ethers";
+import { formatEther, parseUnits } from "ethers/lib/utils";
 import { createTurboLens } from "../../utils/turboContracts";
 import { formatStrategiesInfo, LensStrategyInfo, StrategyInfo } from "../strategies/formatStrategyInfo";
 
 // Data directly from the TurboLens
 export type LensSafeInfo = [
   safeAddress: string,
-  collateral: string,
+  collateralAsset: string,
   collateralAmount: BigNumber,
-  collateralValue: BigNumber,
   collateralPrice: BigNumber,
+  collateralFactor: BigNumber,
+  feiPrice: BigNumber,
+  collateralValue: BigNumber,
   debtAmount: BigNumber,
   debtValue: BigNumber,
   boostedAmount: BigNumber,
-  feiPrice: BigNumber,
   feiAmount: BigNumber,
   tribeDAOFee: BigNumber,
   strategyInfo: LensStrategyInfo[],
@@ -23,12 +25,13 @@ export type SafeInfo = {
   safeAddress: string;
   collateralAsset: string;
   collateralAmount: BigNumber;
-  collateralValue: BigNumber;
   collateralPrice: BigNumber;
+  collateralFactor: BigNumber;
+  feiPrice: BigNumber;
+  collateralValue: BigNumber;
   debtAmount: BigNumber;
   debtValue: BigNumber;
   boostedAmount: BigNumber;
-  feiPrice: BigNumber;
   feiAmount: BigNumber;
   tribeDAOFee: BigNumber;
   strategies: StrategyInfo[];
@@ -40,21 +43,27 @@ export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   safeAddress: safe[0],
   collateralAsset: safe[1],
   collateralAmount: safe[2],
-  collateralValue: safe[3],
-  collateralPrice: safe[4],
-  debtAmount: safe[5],
-  debtValue: safe[6],
-  boostedAmount: safe[7],
-  feiPrice: safe[8],
-  feiAmount: safe[9],
-  tribeDAOFee: safe[10],
-  strategies: formatStrategiesInfo(safe[11]),
-  safeUtilization: calculateSafeUtilization(safe[6], safe[3])
+  collateralPrice: safe[3],
+  collateralFactor: safe[4],
+  feiPrice: safe[5],
+  collateralValue: safe[6],
+  debtAmount: safe[7],
+  debtValue: safe[8],
+  boostedAmount: safe[9],
+  feiAmount: safe[10],
+  tribeDAOFee: safe[11],
+  strategies: formatStrategiesInfo(safe[12]),
+  safeUtilization: calculateSafeUtilization(safe[8], safe[6])
 })
 
 // debtValue * 100 / collateralValue
 export const calculateSafeUtilization = (debtValue: BigNumber, collateralValue: BigNumber) => {
   return collateralValue.isZero() ? constants.Zero : debtValue.mul(100).div(collateralValue)
+}
+
+export const calculateMaxBoost = (collateralUSD: number, collateralFactor: BigNumber) => {
+  const maxBoost = collateralUSD * parseFloat(formatEther(collateralFactor))
+  return maxBoost
 }
 
 export const getSafeInfo = async (
