@@ -1,8 +1,7 @@
 import { useQuery } from "react-query";
 import { useRari } from "../../context/RariContext";
 import { createRewardsDistributor } from "utils/createComptroller";
-import { ChainID } from "esm/utils/networks";
-import { flywheels } from "hooks/convex/useConvexRewards";
+import { flywheelsFilter } from "hooks/convex/useConvexRewards";
 
 export interface RewardsDistributorToPoolsMap {
   [rD: string]: {
@@ -21,13 +20,13 @@ export function useUnclaimedFuseRewards() {
 
   // 1. Fetch all Fuse Pools User has supplied to + their Rewards Distribs.
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
-    "unclaimedRewards for " + address + " " + chainId,
+    "unclaimedRewards for " + "" + "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5" + chainId,
     async () => {
       if (!isAuthed) return null
 
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
-          address
+          "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5"
         );
 
       return rewardsDistributorsByFusePool ?? [];
@@ -62,6 +61,7 @@ export function useUnclaimedFuseRewards() {
     }
   });
 
+
   // 2. Reduce this 2D array into a single deduped array of RewardsDistributors
   // New: Filter out Flywheels (hardcoded for now)
   const uniqueRDs: string[] = [
@@ -70,8 +70,7 @@ export function useUnclaimedFuseRewards() {
         return prev.concat(curr);
       }, []) ?? []
     ),
-  ].filter(rd => !Object.keys(flywheels).includes(rd.toLowerCase()));
-
+  ].filter(rd => !Object.keys(flywheelsFilter).includes(rd.toLowerCase()));
   // 3. Create map of {[rewardToken: string] : RewardDistributor[] }
 
   // 3a. Query all individual RewardsDistributors for their rewardTokens
@@ -95,6 +94,8 @@ export function useUnclaimedFuseRewards() {
           //       )
           //     : [];
 
+          console.log("TOKEN", {rewardsDistributorAddress,rewardToken, _markets})
+
           return {
             rewardToken,
             rewardsDistributorAddress,
@@ -109,6 +110,8 @@ export function useUnclaimedFuseRewards() {
         })
       );
 
+      console.log("HERE", {rewardDistributors})
+
       return rewardDistributors;
     }
   );
@@ -117,7 +120,8 @@ export function useUnclaimedFuseRewards() {
   const rewardsDistributors =
     _rewardsDistributors as RewardsDistributorUnclaimed[];
 
-  // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
+  console.log({rewardsDistributors})
+    // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
   const rewardsDistributorsMap: RewardsDistributorMap = {};
 
   rewardsDistributors?.length &&
@@ -149,11 +153,14 @@ export function useUnclaimedFuseRewards() {
     async () => {
       if (!isAuthed) return undefined
 
+      console.log({uniqueRDs})
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
-          address,
+          "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5",
           uniqueRDs
         );
+
+      console.log({unclaimedResults})
 
 
       // console.log({ address, uniqueRDs, unclaimedResults });
@@ -201,11 +208,19 @@ export function useUnclaimedFuseRewards() {
   //   });
 
   //   handle generic err
+  console.log({error, _rdError, unclaimedErr})
   const oopsie = error || _rdError || unclaimedErr;
   if (oopsie) console.log({ oopsie });
 
   //   return uniqueRDs;
 
+  console.log({
+    rewardsDistributorsMap,
+    rewardTokensMap,
+    unclaimed,
+    rewardsDistributorsToPoolsMap,
+  })
+  
   return {
     rewardsDistributorsMap,
     rewardTokensMap,
