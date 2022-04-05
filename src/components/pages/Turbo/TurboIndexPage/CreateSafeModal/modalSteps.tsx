@@ -173,7 +173,7 @@ const MODAL_STEP_3: ModalStep = {
             {
               title: "Collateral",
               primaryValue: `0`,
-              secondaryValue: depositAmount !== "" ? `${commify(depositAmount ?? 0)}` : undefined,
+              secondaryValue: depositAmount !== "" &&  depositAmount !== "0" ? `${commify(depositAmount ?? 0)}` : undefined,
               titleTooltip: "How much collateral you have deposited.",
             }
           ]}
@@ -182,11 +182,12 @@ const MODAL_STEP_3: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: ({ incrementStepIndex }) => [
+  buttons: ({ incrementStepIndex, setDepositAmount }) => [
     {
       children: "Skip",
       variant: "cardmatte",
       onClick() {
+        setDepositAmount("0")
         incrementStepIndex();
       },
     },
