@@ -20,13 +20,13 @@ type DepositSafeCollateralCtx = {
   updatedSafe?: USDPricedTurboSafe;
   hasApproval: boolean;
   approving: boolean;
-  onClickApprove(): void;
+  onClickApprove(): Promise<void>;
   depositAmount: string;
   setDepositAmount(newDepositAmount: string): void;
   depositing: boolean;
   collateralBalance: BigNumber;
-  onClickDeposit(): void;
-  onClickMax(): void;
+  onClickDeposit(): Promise<void>;
+  onClickMax(): Promise<void>;
   onClose(): void;
 };
 
@@ -49,32 +49,32 @@ const MODAL_STEP_1: ModalStep = {
             onClickMax={onClickMax}
           />
           <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
-            Balance: {formatEther(collateralBalance)}{" "}
+            Balance: {commify(formatEther(collateralBalance))}{" "}
             <TokenSymbol tokenAddress={safe.collateralAsset} />
           </Text>
         </VStack>
         <StatisticTable
           statistics={[
             {
-              title: "Collateral deposited",
+              title: "Collateral",
               primaryValue: abbreviateAmount(safe?.collateralUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.collateralUSD),
+              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.collateralUSD),
               titleTooltip: "How much collateral you have deposited.",
-              primaryTooltip: `$ ${safe.collateralUSD}`,
-              secondaryTooltip: `$ ${updatedSafe?.collateralUSD}`
+              primaryTooltip: `$ ${commify(safe.collateralUSD ?? 0)}`,
+              secondaryTooltip: `$ ${commify(updatedSafe?.collateralUSD ?? 0)}`
             },
             {
               title: "Max Boost",
-              primaryValue: abbreviateAmount(safe?.collateralUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.collateralUSD),
+              primaryValue: abbreviateAmount(safe?.maxBoost),
+              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoost),
               titleTooltip: "The maximum amount you can boost. This is collateralUSD * collateralFactor ",
-              primaryTooltip: `$ ${safe.collateralUSD}`,
-              secondaryTooltip: `$ ${updatedSafe?.collateralUSD}`
+              primaryTooltip: `$ ${commify(safe.collateralUSD ?? 0)}`,
+              secondaryTooltip: `$ ${commify(updatedSafe?.maxBoost ?? 0)}`
             },
             {
               title: "Safe Utilization",
               primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
-              secondaryValue: parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
+              secondaryValue: depositAmount === "" ? undefined : parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
               titleTooltip: "The health of your safe. ",
               primaryTooltip: ""
 
@@ -108,9 +108,9 @@ const MODAL_STEP_1: ModalStep = {
           try {
             if (!hasApproval) {
               await onClickApprove();
-            } else {
-              await onClickDeposit();
             }
+
+            await onClickDeposit();
             incrementStepIndex()
           }
           catch (err) {
