@@ -41,24 +41,18 @@ export const createSafeAndDeposit = async (
     signer,
     await signer.getAddress(),
     TurboAddresses[chainID].ROUTER,
-    underlyingTokenAddress
+    underlyingTokenAddress,
+    amount
   );
 
-  const preBalanceRouter = await balanceOf(
-    TurboAddresses[chainID].ROUTER,
-    TRIBE,
-    signer
-  );
 
   try {
-    const simulation = await callRouterWithMultiCall(
-      //@ts-ignore
-      provider,
-      encodedCalls,
-      chainID
-    );
-
-    const preBalanceUser = await balanceOf(userAddress, TRIBE, signer);
+    // const simulation = await callRouterWithMultiCall(
+    //   //@ts-ignore
+    //   provider,
+    //   encodedCalls,
+    //   chainID
+    // );
 
     const tx = await sendRouterWithMultiCall(
       signer,
@@ -67,14 +61,6 @@ export const createSafeAndDeposit = async (
     );
 
     const receipt = await tx.wait(1)
-
-    const postBalanceRouter = await balanceOf(
-      TurboAddresses[chainID].ROUTER,
-      TRIBE,
-      signer
-    );
-
-    const postBalanceUser = await balanceOf(userAddress, TRIBE, signer);
 
     return receipt;
   } catch (e) {

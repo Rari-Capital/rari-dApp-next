@@ -46,7 +46,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const hasApproval = useHasApproval(
     underlyingTokenAddress,
     TurboAddresses[chainId ?? 1].ROUTER,
-    parseEther(depositAmount ?? "0")
+    address
   );
   const [hasApprovals, setHasApproval] = useState<boolean>(hasApproval);
   const [approving, setApproving] = useState(false);
@@ -99,10 +99,13 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     if (!depositAmount || !chainId) return
 
     setApproving(true);
+    const amountBN = parseEther(depositAmount ?? "0");
+
     await approve(
       provider.getSigner(), 
       TurboAddresses[chainId].ROUTER, 
       underlyingTokenAddress, 
+      amountBN
     )
 
     setHasApproval(true);
