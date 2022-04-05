@@ -20,13 +20,13 @@ export function useUnclaimedFuseRewards() {
 
   // 1. Fetch all Fuse Pools User has supplied to + their Rewards Distribs.
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
-    "unclaimedRewards for " + "" + "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5" + chainId,
+    "unclaimedRewards for " + "" + address + chainId,
     async () => {
       if (!isAuthed) return null
 
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
-          "0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5"
+          address
         );
 
       return rewardsDistributorsByFusePool ?? [];
@@ -75,50 +75,46 @@ export function useUnclaimedFuseRewards() {
 
   // 3a. Query all individual RewardsDistributors for their rewardTokens
   const { data: _rewardsDistributors, error: _rdError } = useQuery(
-    "rewardsDistributor data for " + address + " " + chainId,
+    "rewardsDistributor data for " + address + " " + chainId + ` ${uniqueRDs.join(',')}`,
     async () => {
-      const rewardDistributors = await Promise.all(
+
+      const _rewardDistributorsData = await Promise.allSettled(
         uniqueRDs.map(async (rewardsDistributorAddress) => {
-          const instance = createRewardsDistributor(
+
+          const rdInstance = createRewardsDistributor(
             rewardsDistributorAddress,
             fuse
           );
-          const rewardToken = await instance.callStatic.rewardToken();
-          const _markets = await instance.callStatic.getAllMarkets();
 
-          //   const markets = _markets.length
-          //     ? await Promise.all(
-          //         _markets.map((cTokenAddr: string) => {
-          //           const cTokeninstance = createCToken(fuse, cTokenAddr);
-          //         })
-          //       )
-          //     : [];
-
-          console.log("TOKEN", {rewardsDistributorAddress,rewardToken, _markets})
-
-          return {
-            rewardToken,
+          const obj: RewardsDistributorData = {
+            rewardToken: await rdInstance.callStatic.rewardToken(),
             rewardsDistributorAddress,
-            markets: _markets,
+            markets: await rdInstance.callStatic.getAllMarkets(),
             pools: Object.values(
               rewardsDistributorsToPoolsMap[rewardsDistributorAddress]
             ),
             comptrollers: Object.keys(
               rewardsDistributorsToPoolsMap[rewardsDistributorAddress]
             ),
-          };
+          }
+
+          _rewardDistributorsData
+
+
+          return obj
         })
       );
 
-      console.log("HERE", {rewardDistributors})
-
-      return rewardDistributors;
+      let _results = _rewardDistributorsData
+        .filter(({ status }) => status === "fulfilled") as PromiseFulfilledResult<RewardsDistributorData>[]
+      let results = _results.map(({ value }) => value)
+      return results;
     }
   );
 
   // This is an array of RewardsDistributors we care about for this user
   const rewardsDistributors =
-    _rewardsDistributors as RewardsDistributorUnclaimed[];
+    _rewardsDistributors as RewardsDistributorData[];
 
   console.log({rewardsDistributors})
     // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
@@ -212,8 +208,6 @@ export function useUnclaimedFuseRewards() {
   const oopsie = error || _rdError || unclaimedErr;
   if (oopsie) console.log({ oopsie });
 
-  //   return uniqueRDs;
-
   console.log({
     rewardsDistributorsMap,
     rewardTokensMap,
@@ -231,10 +225,10 @@ export function useUnclaimedFuseRewards() {
 
 // maps a rewardTtoken to an array of RD addresses
 export type RewardsTokenMap = {
-  [rewardToken: string]: RewardsDistributorUnclaimed[];
+  [rewardToken: string]: RewardsDistributorData[];
 };
 
-export interface RewardsDistributorUnclaimed {
+export interface RewardsDistributorData{
   rewardToken: string;
   rewardsDistributorAddress: string;
   markets: string[];
@@ -243,7 +237,7 @@ export interface RewardsDistributorUnclaimed {
 }
 
 export interface RewardsDistributorMap {
-  [rewardsDistributorAddr: string]: RewardsDistributorUnclaimed;
+  [rewardsDistributorAddr: string]: RewardsDistributorData;
 }
 
 export interface UnclaimedReward {
