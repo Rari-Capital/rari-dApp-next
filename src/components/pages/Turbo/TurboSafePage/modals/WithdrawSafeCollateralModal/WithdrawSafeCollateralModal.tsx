@@ -24,7 +24,7 @@ type WithdrawSafeCollateralModalProps = {
 export const WithdrawSafeCollateralModal: React.FC<
   WithdrawSafeCollateralModalProps
 > = ({ isOpen, onClose, safe }) => {
-  const { address, provider } = useRari();
+  const { address, provider, chainId } = useRari();
   const toast = useToast();
 
   const [withdrawalAmount, setWithdrawalAmount] = useState<string>("10");
@@ -66,7 +66,8 @@ export const WithdrawSafeCollateralModal: React.FC<
         provider,
         SafeInteractionMode.WITHDRAW,
         address,
-        safe
+        safe,
+        chainId ?? 1
       )
       setWithdrawalAmount(formatEther(maxAmount))
     } catch (err) {
