@@ -58,6 +58,8 @@ type CreateSafeCtx = {
   creatingSafe: boolean;
   /** Function which closes the modal. */
   onClose(): void;
+  /** Whether the navigation to the created safe is pending. */
+  navigating: boolean;
   /**
    * Function which navigates to the safe that was just created in this modal.
    */
@@ -212,7 +214,7 @@ const MODAL_STEP_4: ModalStep = {
   stepBubbles: ({ hasApproval, approving, creatingSafe, depositAmount }) => ({
     steps: 2,
     loading: approving || creatingSafe,
-    activeIndex: !hasApproval && parseEther(depositAmount ?? "0") ? 0 : 1,
+    activeIndex: !hasApproval && parseEther(depositAmount ?? "0").gt(0) ? 0 : 1,
     background: "neutral",
   }),
   buttons: ({
@@ -266,14 +268,15 @@ const MODAL_STEP_5: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: ({ onClose, navigateToCreatedSafe }) => [
+  buttons: ({ onClose, navigateToCreatedSafe, navigating }) => [
     {
-      children: "View Safe",
+      children: navigating ? "Loading..." : "View Safe",
+      loading: navigating,
       variant: "neutral",
-      onClick() {
+      async onClick() {
+        // TODO(sharad-s): replace hardcoded value
+        await navigateToCreatedSafe("0");
         onClose();
-        // TODO(nathanhleung): replace hardcoded value
-        navigateToCreatedSafe("0");
       },
     },
   ],

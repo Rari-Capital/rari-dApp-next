@@ -1,10 +1,22 @@
+import { constants } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
-
-import { Button, Divider, Heading, HoverableCard, Link, Progress, Statistic, Text, TokenIcon, TokenSymbol } from "rari-components";
+import {
+  Button,
+  Divider,
+  Heading,
+  HoverableCard,
+  Link,
+  Progress,
+  Statistic,
+  Text,
+  TokenIcon,
+  TokenSymbol,
+} from "rari-components";
 import Tooltip from "rari-components/components/Tooltip";
 import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
+import { PlusSquareIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -12,13 +24,11 @@ import {
   Image,
   SimpleGrid,
   Stack,
-  useDisclosure,
   VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
-import { constants } from "ethers";
-import { PlusSquareIcon } from "@chakra-ui/icons";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -64,7 +74,11 @@ const TurboIndexPage: React.FC = () => {
         </Box>
       </Stack>
       <Divider mt={20} mb={16} />
-      {hasSafes ? <SafeGrid safes={safes} onClickCreateSafe={onOpen} /> : <TurboFAQ />}
+      {hasSafes ? (
+        <SafeGrid safes={safes} onClickCreateSafe={onOpen} />
+      ) : (
+        <TurboFAQ />
+      )}
     </TurboLayout>
   );
 };
@@ -72,7 +86,7 @@ const TurboIndexPage: React.FC = () => {
 type SafeGridProps = {
   safes: SafeInfo[];
   onClickCreateSafe(): void;
-}
+};
 
 const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
@@ -84,7 +98,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   const totalClaimableInterest = safes.reduce((acc, safe) => {
     // TODO(sharad-s) Calculate interest from safes here
     return constants.Zero;
-  }, constants.Zero)
+  }, constants.Zero);
   const netApy = 10;
 
   return (
@@ -94,37 +108,30 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           title="Total boosted"
           // TODO(sharad-s) What should these tooltips say?
           tooltip="Tooltip"
-          value={(formatEther(totalBoosted) + " FEI")}
+          value={formatEther(totalBoosted) + " FEI"}
         />
         <Statistic
           title="Total claimable interest"
           tooltip="Tooltip"
           value={smallUsdFormatter(totalClaimableInterest.toString())}
         />
-        <Statistic
-          title="Net APY"
-          tooltip="Tooltip"
-          value={`${netApy}%`}
-        />
+        <Statistic title="Net APY" tooltip="Tooltip" value={`${netApy}%`} />
       </HStack>
-      <SimpleGrid columns={2} spacing={8} mt={12}>
-        <HoverableCard variant="ghost" onClick={onClickCreateSafe}>
+      <SimpleGrid columns={3} spacing={4} mt={12}>
+        <HoverableCard variant="ghost" onClick={onClickCreateSafe} p={6}>
           {(hovered) => (
             <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
               <Heading display="flex" alignItems="center">
                 Add safe <PlusSquareIcon ml={4} />
               </Heading>
-              <Text variant="secondary" mt={4} fontSize="xl">
+              <Text variant="secondary" mt={4} fontSize="lg">
                 You may create one safe per approved collateral type.
               </Text>
             </Box>
           )}
         </HoverableCard>
         {safes.map((safe) => (
-          <SafeCard
-            key={safe.safeAddress}
-            safe={safe}
-          />
+          <SafeCard key={safe.safeAddress} safe={safe} />
         ))}
       </SimpleGrid>
     </Box>
@@ -133,38 +140,61 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
 
 type SafeCardProps = {
   safe: SafeInfo;
-}
+};
 
 const SafeCard: React.FC<SafeCardProps> = ({ safe }) => {
   return (
     <Link href={`/turbo/safe/${safe.safeAddress}`}>
-      <HoverableCard w="100%" variant="ghost" cursor="pointer">
+      <HoverableCard w="100%" variant="ghost" cursor="pointer" p={6}>
         {(hovered) => (
           <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
             <HStack justify={"start"}>
-              <TokenIcon tokenAddress={safe.collateralAsset} boxSize={10} />
-              <Heading><TokenSymbol tokenAddress={safe.collateralAsset} /></Heading>
+              <TokenIcon
+                tokenAddress={safe.collateralAsset}
+                boxSize={10}
+                mr={2}
+              />
+              <Heading>
+                <TokenSymbol tokenAddress={safe.collateralAsset} />
+              </Heading>
             </HStack>
-            <VStack spacing={2} mt={8} alignItems="flex-start">
-              <Flex alignItems="baseline">
-                <Tooltip label={`${commify(formatEther(safe.boostedAmount))} FEI`}>
+            <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch">
+              <Flex alignItems="baseline" flex={1}>
+                <Tooltip
+                  label={`${commify(formatEther(safe.boostedAmount))} FEI`}
+                >
                   <>
                     <Heading size="md">
                       {abbreviateAmount(formatEther(safe.boostedAmount))}
                     </Heading>
-                    <Text variant="secondary" ml={2}>boosted</Text>
+                    <Text variant="secondary" ml={2}>
+                      boosted
+                    </Text>
                   </>
                 </Tooltip>
               </Flex>
-            </VStack>
+              <Flex alignItems="baseline" flex={1}>
+                {/* TODO(sharad-s): Use real APY number */}
+                <Heading size="md">6.56%</Heading>
+                <Text variant="secondary" ml={2}>
+                  net APY
+                </Text>
+              </Flex>
+            </Stack>
             <Box mt={8}>
-              <Text variant="secondary" mb={2}>Active boost</Text>
-              <Progress height={4} hideLabel value={safe.safeUtilization.toNumber()} />
+              <Text variant="secondary" mb={2}>
+                Active boost
+              </Text>
+              <Progress
+                height={4}
+                hideLabel
+                value={safe.safeUtilization.toNumber()}
+              />
             </Box>
           </Box>
         )}
       </HoverableCard>
-    </Link >
+    </Link>
   );
 };
 
