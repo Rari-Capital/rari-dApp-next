@@ -211,10 +211,10 @@ const MODAL_STEP_4: ModalStep = {
       />
     </Box>
   ),
-  stepBubbles: ({ hasApproval, approving, creatingSafe, depositAmount }) => ({
+  stepBubbles: ({ approving, creatingSafe }) => ({
     steps: 2,
     loading: approving || creatingSafe,
-    activeIndex: !hasApproval && parseEther(depositAmount ?? "0").gt(0) ? 0 : 1,
+    activeIndex: creatingSafe ? 1 : 0,
     background: "neutral",
   }),
   buttons: ({
