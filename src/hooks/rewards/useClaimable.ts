@@ -112,7 +112,7 @@ export function useClaimable(showPrivate: boolean = false): UseClaimableReturn {
     if (pool2UnclaimedRGT && amountIsNotDust(pool2UnclaimedRGT))
       rgtRewards.push(constructReward("pool2", pool2UnclaimedRGT));
 
-    return [...rgtRewards, ...fuseRewards];
+    return [...fuseRewards];
   }, [
     showPrivate,
     unclaimedFuseRewards,

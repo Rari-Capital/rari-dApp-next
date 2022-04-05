@@ -28,6 +28,44 @@ type FlywheelData = {
 
 // @todo - remove hardcoded flywheel data 
 // Applies only to Pool 156
+export const flywheelsFilter: FlywheelData = {
+  "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
+    rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    rewardTokenSymbol: "CRV",
+    rewardTokenDecimals: 18,
+  },
+  "0x18b9ae8499e560bf94ef581420c38ec4cff8559c": {
+    rewardToken: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
+    rewardTokenSymbol: "CVX",
+    rewardTokenDecimals: 18,
+  },
+  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
+    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+    rewardTokenSymbol: "LDO",
+    rewardTokenDecimals: 18,
+  },
+  "0xe474828eb0c864280b131d3fb8e7d5b4597b0b81": {
+    rewardToken: "0x814b02C1ebc9164972D888495927fe1697F0Fb4c",
+    rewardTokenSymbol: "TRIBE",
+    rewardTokenDecimals: 18,
+  },
+  "0x6484a96a3805b1f049c32a3bf1f01a93e223e519": {
+    rewardToken: "0x814b02C1ebc9164972D888495927fe1697F0Fb4c",
+    rewardTokenSymbol: "TRIBE",
+    rewardTokenDecimals: 18,
+  },
+  "0x7e02339905b92a3c85ed1f1721d4d4d29fb602a0": {
+    rewardToken: "0xba100000625a3754423978a60c9317c58a424e3D",
+    rewardTokenSymbol: "BAL",
+    rewardTokenDecimals: 18,
+  },
+  "0x334b95087586eb032bf6794124911e3aacc84018": {
+    rewardToken: "0xba100000625a3754423978a60c9317c58a424e3D",
+    rewardTokenSymbol: "BAL",
+    rewardTokenDecimals: 18,
+  }
+};
+
 export const flywheels: FlywheelData = {
   "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
     rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
