@@ -49,7 +49,7 @@ export const DepositSafeCollateralModal: React.FC<
 
   // TODO(sharad-s): Debug approval function
   // const hasApproval = useHasApproval(safe?.collateralAsset, safe?.safeAddress)
-  const [hasApproval, setHasApproval] = useState(true);
+  const [hasApproval, setHasApproval] = useState(false);
 
   const updatedSafe = useUpdatedSafeInfo(
     {
@@ -59,7 +59,7 @@ export const DepositSafeCollateralModal: React.FC<
     }
   )
 
-  async function approve() {
+  const approve = async () => {
     setApproving(true);
     const safeAddress = safe?.safeAddress
     if (!safeAddress) return
@@ -85,6 +85,7 @@ export const DepositSafeCollateralModal: React.FC<
     const { safeAddress, collateralAsset } = safe;
 
     try {
+
       setDepositing(true);
       const tx = await safeDeposit(
         safeAddress,
@@ -102,12 +103,14 @@ export const DepositSafeCollateralModal: React.FC<
   };
 
   const onClickMax = async () => {
+    if (!chainId) return
     try {
       const maxAmount = await fetchMaxSafeAmount(
         provider,
         SafeInteractionMode.DEPOSIT,
         address,
-        safe
+        safe,
+        chainId
       )
       setDepositAmount(formatEther(maxAmount))
     } catch (err) {
