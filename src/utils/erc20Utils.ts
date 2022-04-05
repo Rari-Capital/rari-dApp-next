@@ -1,5 +1,5 @@
 import { constants, providers } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { formatEther, parseEther } from "ethers/lib/utils";
 import { Interface } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Contract } from "@ethersproject/contracts";
@@ -23,18 +23,9 @@ export async function checkAllowance(
     spender
   );
 
-  const hasApproval = allowance.gte(amount);
+  console.log({allowance, amount}, allowance.gte(amount))
 
-  console.log({
-    hasApproval,
-    signer,
-    userAddress,
-    spender,
-    underlyingAddress,
-    amount,
-    allowance,
-    erc20Contract,
-  });
+  const hasApproval = allowance.gte(amount);
 
   return hasApproval;
 }
@@ -100,18 +91,16 @@ export async function checkAllowanceAndApprove(
     return;
   }
 
-  const _amount = amount ?? MAX_APPROVAL_AMOUNT;
-
   const hasApprovedEnough = await checkAllowance(
     signer,
     userAddress,
     spender,
     underlyingAddress,
-    _amount
+    amount
   );
 
   if (!hasApprovedEnough) {
-    const tx = await approve(signer, spender, underlyingAddress, _amount);
+    const tx = await approve(signer, spender, underlyingAddress, amount ?? MAX_AMOUNT);
     return tx;
   }
 }

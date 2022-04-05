@@ -135,9 +135,9 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
           >
-            <Searchbar
+            {/* <Searchbar
               width={{ base: "xs", sm: "sm", md: "md", lg: "2xl" }}
-            />
+            /> */}
           </motion.div>
         </Column>
       </Row>

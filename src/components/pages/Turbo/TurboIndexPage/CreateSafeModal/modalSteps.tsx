@@ -222,8 +222,8 @@ const MODAL_STEP_4: ModalStep = {
       />
     </Box>
   ),
-  stepBubbles: ({ approving, creatingSafe }) => ({
-    steps: 2,
+  stepBubbles: ({ approving, creatingSafe, hasApproval }) => ({
+    steps: hasApproval ? 1 : 2,
     loading: approving || creatingSafe,
     activeIndex: creatingSafe ? 1 : 0,
     background: "neutral",

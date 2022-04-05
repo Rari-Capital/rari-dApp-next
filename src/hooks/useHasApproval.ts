@@ -15,7 +15,8 @@ const useHasApproval = (
   const { data } = useQuery(
     ` ${spender} has approval to spend ${underlyingToken} ${amount} on behalf of ${addressToUse}`,
     async () => {
-      if (!addressToUse || !chainId || !spender || !underlyingToken || amount === "" || amount === "0") return false;
+      if (!addressToUse || !chainId || !spender || !underlyingToken) return false;
+      if(amount === "" || amount === "0") return true
 
       return await checkAllowance(
         provider,
