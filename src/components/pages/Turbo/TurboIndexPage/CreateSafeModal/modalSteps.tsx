@@ -1,18 +1,19 @@
 import { BigNumber, utils } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { commify, formatEther, parseEther } from "ethers/lib/utils";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
   HoverableCard,
   ModalProps,
-  StatisticTable,
   Text,
+  StatisticTable as RariStats,
   TokenAmountInput,
   TokenIcon,
   TokenSymbol,
 } from "rari-components";
+import StatisticTable from "lib/components/StatisticsTable";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Flex, Image, Spacer, Stack } from "@chakra-ui/react";
+import { Box, Flex, Image, Spacer, Stack, VStack } from "@chakra-ui/react";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { Dispatch, SetStateAction } from "react";
 
@@ -39,10 +40,6 @@ type CreateSafeCtx = {
   depositAmount?: string;
   /** Set a new amount to deposit into the safe. */
   setDepositAmount(newDepositAmount: string): void;
-  /** */
-  boostAmount?: string;
-  /** */
-  setBoostAmount: Dispatch<SetStateAction<string | undefined>>
   /**
    * Whether the currently selected `underlyingTokenAddress` has approved
    * the router.
@@ -56,6 +53,7 @@ type CreateSafeCtx = {
   createSafe: typeof createSafe;
   /** Whether the safe is currently being created. */
   creatingSafe: boolean;
+  collateralBalance: string;
   /** Function which closes the modal. */
   onClose(): void;
   /** Whether the navigation to the created safe is pending. */
@@ -153,19 +151,29 @@ const MODAL_STEP_2: ModalStep = {
 
 const MODAL_STEP_3: ModalStep = {
   title: "Deposit collateral",
-  subtitle: "Collateralizing is required before boosting pools.",
-  children: ({ underlyingTokenAddress, depositAmount, boostAmount, setDepositAmount }) => (
+  subtitle: "Collateralizing is required before boosting pools. This step is optional.",
+  children: ({ underlyingTokenAddress, depositAmount, collateralBalance, setDepositAmount }) => (
     <Stack>
       <Box>
+      <VStack w="100%" mb={3} align="flex-end">
         <TokenAmountInput
           tokenAddress={underlyingTokenAddress}
           value={depositAmount}
           onChange={setDepositAmount}
         />
+        <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
+            Balance: {commify(collateralBalance)}{" "}
+            <TokenSymbol tokenAddress={underlyingTokenAddress} />
+          </Text>
+        </VStack>
         <StatisticTable
           statistics={[
-            ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-            ["Boost balance", `${utils.commify(boostAmount ?? "0")}`],
+            {
+              title: "Collateral",
+              primaryValue: `0`,
+              secondaryValue: depositAmount !== "" ? `${commify(depositAmount ?? 0)}` : undefined,
+              titleTooltip: "How much collateral you have deposited.",
+            }
           ]}
           mt={4}
         />
@@ -191,7 +199,7 @@ const MODAL_STEP_3: ModalStep = {
 };
 
 const MODAL_STEP_4: ModalStep = {
-  children: ({ underlyingTokenAddress, depositAmount, boostAmount }) => (
+  children: ({ underlyingTokenAddress, depositAmount }) => (
     <Box>
       <Box textAlign="center">
         <Text fontSize="lg">You are creating</Text>
@@ -200,11 +208,10 @@ const MODAL_STEP_4: ModalStep = {
           <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
         </Heading>
       </Box>
-      <StatisticTable
+      <RariStats
         mt={8}
         statistics={[
           ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-          ["Boost balance", `${utils.commify(boostAmount ?? "0")}`],
           ["Estimated gas cost", ""],
           ["# of transactions", "3"],
         ]}
