@@ -41,7 +41,7 @@ export const DepositSafeCollateralModal: React.FC<
   }
 
 
-  const [depositAmount, setDepositAmount] = useState<string>("0");
+  const [depositAmount, setDepositAmount] = useState<string>("");
   const [depositing, setDepositing] = useState(false);
 
   const collateralBalance = useBalanceOf(address, safe?.collateralAsset);
@@ -66,12 +66,11 @@ export const DepositSafeCollateralModal: React.FC<
     try {
       setApproving(true)
       await checkAllowanceAndApprove(
-        await provider.getSigner(),
+        provider.getSigner(),
         address,
         safeAddress,
         safe.collateralAsset
       );
-      incrementStepIndex()
     } catch (err) {
       handleGenericError(err, toast)
     } finally {
@@ -93,7 +92,6 @@ export const DepositSafeCollateralModal: React.FC<
         depositAmountBN,
         provider.getSigner()
       );
-      console.log({ tx });
       await tx.wait(1)
     } catch (err) {
       handleGenericError(err, toast);

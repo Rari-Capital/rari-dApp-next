@@ -68,7 +68,7 @@ const MODAL_STEP_1: ModalStep = {
               primaryValue: abbreviateAmount(safe?.maxBoost),
               secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoost),
               titleTooltip: "The maximum amount you can boost. This is collateralUSD * collateralFactor ",
-              primaryTooltip: `$ ${commify(safe.collateralUSD ?? 0)}`,
+              primaryTooltip: `$ ${commify(safe.maxBoost ?? 0)}`,
               secondaryTooltip: `$ ${commify(updatedSafe?.maxBoost ?? 0)}`
             },
             {
@@ -99,7 +99,7 @@ const MODAL_STEP_1: ModalStep = {
           : depositing
             ? "Depositing..."
             : !hasApproval
-              ? "Approve Router"
+              ? "Approve Safe"
               : "Deposit",
         variant: "neutral",
         loading: approving || depositing,
