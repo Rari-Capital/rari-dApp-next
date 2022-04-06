@@ -2,7 +2,13 @@ import { BigNumber } from "ethers";
 import { motion } from "framer-motion";
 // Components
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { TokenData, useTokenData } from "hooks/useTokenData";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import {
+  StrategyInfo,
+  filterUsedStrategies,
+} from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import Head from "next/head";
 // Hooks
 import { useRouter } from "next/router";
@@ -19,6 +25,7 @@ import {
   TokenSymbol,
 } from "rari-components";
 import { useMemo } from "react";
+import { convertMantissaToAPY } from "utils/apyUtils";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
 import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
@@ -41,17 +48,13 @@ import ClaimInterestModal from "./modals/ClaimInterestModal";
 import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import SafeInfoModal from "./modals/TurboInfoModal";
 import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
-import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
-import { filterUsedStrategies, StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
-import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import { convertMantissaToAPY } from "utils/apyUtils";
 
 const TurboSafePage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const safeId = id as string;
 
-  const safe = useSafeInfo(safeId)
+  const safe = useSafeInfo(safeId);
   const tokenData = useTokenData(safe?.collateralAsset);
 
   const loading = !tokenData || !safe;
@@ -82,20 +85,20 @@ const TurboSafePage: React.FC = () => {
 
   const safeHealth = safe?.safeUtilization;
   const safeStrategies: StrategyInfo[] = safe?.strategies ?? [];
-  const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies)
-  const strategiesData = useERC4626StrategiesDataAsMap(safeStrategies.map(strat => strat.strategy))
+  const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies);
+  const strategiesData = useERC4626StrategiesDataAsMap(
+    safeStrategies.map((strat) => strat.strategy)
+  );
 
   // Average APY across all strategies you have supplied to
   // TODO(@sharad-s) - refactor into a hook
-  const netAPY = Object.keys(strategiesData)
-    .reduce((num, strategyAddress) => {
-      const erc4626Strategy = strategiesData[strategyAddress]
-      if (erc4626Strategy && erc4626Strategy.supplyRatePerBlock) {
-        num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365)
-      }
-      return num / activeStrategies.length
-    }, 0)
-
+  const netAPY = Object.keys(strategiesData).reduce((num, strategyAddress) => {
+    const erc4626Strategy = strategiesData[strategyAddress];
+    if (erc4626Strategy && erc4626Strategy.supplyRatePerBlock) {
+      num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365);
+    }
+    return num / activeStrategies.length;
+  }, 0);
 
   const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
 
@@ -103,10 +106,10 @@ const TurboSafePage: React.FC = () => {
     return safeHealth?.lte(40)
       ? "success"
       : safeHealth?.lte(60)
-        ? "whatsapp"
-        : safeHealth?.lte(80)
-          ? "orange"
-          : "red";
+      ? "whatsapp"
+      : safeHealth?.lte(80)
+      ? "orange"
+      : "red";
   }, [safeHealth]);
 
   return (
@@ -140,7 +143,10 @@ const TurboSafePage: React.FC = () => {
       <Box>
         <Link href="/turbo">
           <Flex alignItems="center">
-            <ChevronLeftIcon mr={2} /> <Text fontSize="xs" fontWeight={600}>Back to Turbo Home</Text>
+            <ChevronLeftIcon mr={2} />{" "}
+            <Text fontSize="xs" fontWeight={600}>
+              All Safes
+            </Text>
           </Flex>
         </Link>
       </Box>
@@ -155,7 +161,9 @@ const TurboSafePage: React.FC = () => {
         <Skeleton isLoaded={!!tokenData}>
           <HStack>
             <TokenIcon tokenAddress={tokenData?.address ?? ""} mr={2} />
-            <Heading><TokenSymbol tokenAddress={tokenData?.address ?? ""} /> Safe</Heading>
+            <Heading>
+              <TokenSymbol tokenAddress={tokenData?.address ?? ""} /> Safe
+            </Heading>
             <InfoIcon
               onClick={openSafeModal}
               _hover={{
@@ -211,7 +219,9 @@ const TurboSafePage: React.FC = () => {
 
       <BoostBar safe={safe} tokenData={tokenData} colorScheme={colorScheme} />
       <Stack spacing={12} my={12}>
-        {!!safe && <SafeStats safe={safe} netAPY={netAPY} tokenData={tokenData} />}
+        {!!safe && (
+          <SafeStats safe={safe} netAPY={netAPY} tokenData={tokenData} />
+        )}
       </Stack>
       {!!safe && <SafeStrategies safe={safe} />}
     </TurboLayout>
@@ -246,7 +256,12 @@ export const BoostBar: React.FC<{
           </Text>
         </Flex>
         <Text variant="secondary">
-          Liquidated when <TokenIcon tokenAddress={tokenData?.address ?? ""} boxSize={6} mx={1} />
+          Liquidated when{" "}
+          <TokenIcon
+            tokenAddress={tokenData?.address ?? ""}
+            boxSize={6}
+            mx={1}
+          />
           $0.25
         </Text>
       </Flex>
