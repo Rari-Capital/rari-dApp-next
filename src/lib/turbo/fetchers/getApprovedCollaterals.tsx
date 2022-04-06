@@ -1,3 +1,10 @@
-import { TRIBE } from "lib/turbo/utils/constants"
+import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
+import { createTurboMaster } from "../utils/turboContracts"
 
-export const getApprovedCollateral: string[] = [TRIBE]
+export const getTurboApprovedCollateral =
+    async (provider: JsonRpcProvider | Web3Provider): Promise<string[]> => {
+        const TurboMaster = createTurboMaster(provider)
+        const TurboPool = await TurboMaster.callStatic.pool()
+
+        return []
+    }

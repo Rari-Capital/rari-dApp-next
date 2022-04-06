@@ -4,7 +4,7 @@ import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { Interface } from "ethers/lib/utils";
 import { filterOnlyObjectProperties } from "./fetchFusePoolData";
 
-type EncodedCall = [string, any]
+export type EncodedCall = [string, any]
 
 export const createMultiCall = (provider: JsonRpcProvider | Web3Provider,) => {
   const multicallContract = new Contract(
@@ -33,6 +33,11 @@ export const sendWithMultiCall = async (
 };
 
 
+type MultiCallReturn = {
+  returnData: any[],
+  blockNum: BigNumber
+}
+
 export const callStaticWithMultiCall = async (
   provider: JsonRpcProvider | Web3Provider,
   encodedCalls: EncodedCall[],
@@ -42,8 +47,9 @@ export const callStaticWithMultiCall = async (
   let options: any = {}
   if (!!address) options.address = address
 
-  const returnDatas = await multicall.callStatic.aggregate(encodedCalls, options)
-
+  const returnDatas: MultiCallReturn = filterOnlyObjectProperties(
+    await multicall.callStatic.aggregate(encodedCalls, options)
+  )
   return returnDatas;
 };
 

@@ -38,5 +38,5 @@ export const formatStrategiesInfo = (
     return shouldFilterStrategies ? filterUsedStrategies(formattedStrategies) : formattedStrategies;
 };
 
-export const filterUsedStrategies = (strats: StrategyInfo[]) =>
-    strats?.filter((s) => s.strategy !== EMPTY_ADDRESS);
+export const filterUsedStrategies = (strats: StrategyInfo[] = []) =>
+    strats.filter((s) => s.boostedAmount._hex !== "0x00");
