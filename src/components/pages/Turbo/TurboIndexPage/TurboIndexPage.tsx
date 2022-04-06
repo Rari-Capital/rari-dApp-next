@@ -60,10 +60,11 @@ const TurboIndexPage: React.FC = () => {
             <Button
               variant="cardmatte"
               as="a"
-              // @ts-ignore
-              // TypeScript doesn't ignore that `as="a"` means that this can
+              // TypeScript doesn't realize that `as="a"` means that this can
               // have an `href` prop.
+              // @ts-ignore
               href="https://medium.com/fei-protocol/the-tribe-dao-strongly-believes-that-a-healthy-and-thriving-defi-ecosystem-needs-a-robust-platform-b1faea700dfa"
+              target="_blank"
             >
               Learn more
             </Button>
