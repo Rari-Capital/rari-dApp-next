@@ -72,6 +72,36 @@ export const CONVEX_CTOKEN_INFO: PluginCTokenInfoType = {
         "curvePoolName": "alUSD",
         "convexPoolName": "alUSD",
         "curvePoolLink": "https://curve.fi/alusd"
+    },
+    "rETHwstETH-f": {
+        "cToken": "0xD88B2E6304d1827e22D2ACC2FbCeD836cd439b85",
+        "plugin": "0x497315203656958b8d82c905ed364ff7d67f0b44",
+        "lpToken": "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08",
+        "depositContract": "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+        "rewardsContract": "0x5c463069b99AfC9333F4dC2203a9f0c6C7658cCc",
+        "curvePoolName": "rETHwstETH",
+        "convexPoolName": "RocketPoolETH",
+        "curvePoolLink": "https://curve.fi/factory/89"
+    },
+    "cvxFXSFXS-f": {
+        "cToken": "0x30916E14C139d65CAfbEEcb3eA525c59df643281",
+        "plugin": "0xa066620554af0d50703e5ee3c58c022c6ae5339d",
+        "lpToken": "0xF3A43307DcAFa93275993862Aae628fCB50dC768",
+        "depositContract": "0xA2cF21b157b2f203e37b616b619f438B5aa86Ee5",
+        "rewardsContract": "0xf27AFAD0142393e4b3E5510aBc5fe3743Ad669Cb",
+        "curvePoolName": "cvxFxs/Fxs",
+        "convexPoolName": "cvxfxs",
+        "curvePoolLink": "https://curve.fi/factory-crypto/18"
+    },
+    "cvxcrv-f": {
+        "cToken": "0x58c8087eF758DF6F6B3dc045cF135C850a8307b6",
+        "plugin": "0xb78ebb2248bb72380e690246f9631cf58c07b444 ",
+        "lpToken": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
+        "depositContract": "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+        "rewardsContract": "0x0392321e86F42C2F94FBb0c6853052487db521F0",
+        "curvePoolName": "cvxCRV",
+        "convexPoolName": "cvxcrv",
+        "curvePoolLink": "https://curve.fi/factory/22"
     }
 }
 
