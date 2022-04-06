@@ -24,10 +24,15 @@ import BoostModal from "./modals/BoostModal";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { FEI } from "lib/turbo/utils/constants";
+import useBoostCapsForStrategies from "hooks/turbo/useBoostCapsForStrategies";
+import { filterUsedStrategies } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 
 export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe }) => {
   const trustedStrats: string[] = useTrustedStrategies();
   const safeStrategies: USDPricedStrategy[] = safe.usdPricedStrategies;
+  const activeStrategies = filterUsedStrategies(safeStrategies)
+
+
   // Construct a new object where safe strategies are indexed by address
   // for O(1) access by address (order in the table is not necessarily
   // stable).
@@ -39,8 +44,8 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
   // Fetches FuseERC4626 Data about each strategy
   const strategiesData = useERC4626StrategiesDataAsMap(trustedStrats)
 
+  // Modal Context
   const { isOpen: isBoostModalOpen, onOpen: onBoostModalOpen, onClose: onBoostModalClose } = useDisclosure();
-
   const [activeStrategyAddress, setActiveStrategyAddress] = useState<string>()
   const [mode, setMode] = useState<SafeInteractionMode.BOOST | SafeInteractionMode.LESS>(SafeInteractionMode.BOOST)
 
@@ -71,6 +76,14 @@ export const SafeStrategies: React.FC<{ safe: USDPricedTurboSafe }> = ({ safe })
     ),
     [safeStrategies, activeStrategyAddress]
   );
+
+  const getBoostCapForStrategy = useBoostCapsForStrategies(
+    safeStrategies.map(({ strategy }) => strategy)
+    )
+
+  console.log({getBoostCapForStrategy})
+
+
 
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (

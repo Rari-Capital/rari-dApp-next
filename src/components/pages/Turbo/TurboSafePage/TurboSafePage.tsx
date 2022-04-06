@@ -90,11 +90,16 @@ const TurboSafePage: React.FC = () => {
     safeStrategies.map((strat) => strat.strategy)
   );
 
-  // Average APY across all strategies you have supplied to
+  console.log({safe})
+
+  // Average APY across all active Fuse strategies
   // TODO(@sharad-s) - refactor into a hook
-  const netAPY = Object.keys(strategiesData).reduce((num, strategyAddress) => {
+  const netAPY = Object.keys(activeStrategies).reduce((num, strategyAddress) => {
     const erc4626Strategy = strategiesData[strategyAddress];
-    if (erc4626Strategy && erc4626Strategy.supplyRatePerBlock) {
+    if (
+      erc4626Strategy 
+      && erc4626Strategy.supplyRatePerBlock
+      ) {
       num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365);
     }
     return num / activeStrategies.length;

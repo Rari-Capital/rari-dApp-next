@@ -4,6 +4,7 @@ import { Interface } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Contract } from "@ethersproject/contracts";
 import { MAX_APPROVAL_AMOUNT } from "./tokenUtils";
+import { Console } from "console";
 
 export async function checkAllowance(
   signer: any,
@@ -23,7 +24,7 @@ export async function checkAllowance(
     spender
   );
 
-  console.log({allowance, amount}, allowance.gte(amount))
+  console.log({ allowance, amount }, allowance.gte(amount))
 
   const hasApproval = allowance.gte(amount);
 
@@ -64,6 +65,7 @@ export async function approve(
     "function approve(address spender, uint256 value) public returns (bool success)",
   ]);
 
+  console.log({ spender, amount })
   const erc20Contract = new Contract(underlyingAddress, erc20Interface, signer);
 
   return await erc20Contract.approve(spender, amount);
@@ -91,6 +93,9 @@ export async function checkAllowanceAndApprove(
     return;
   }
 
+  alert("HI")
+  console.log({ signer, spender, underlyingAddress, amount, MAX_APPROVAL_AMOUNT })
+
   const hasApprovedEnough = await checkAllowance(
     signer,
     userAddress,
@@ -100,11 +105,8 @@ export async function checkAllowanceAndApprove(
   );
 
   if (!hasApprovedEnough) {
-    const tx = await approve(signer, spender, underlyingAddress, amount ?? MAX_AMOUNT);
+    console.log({ signer, spender, underlyingAddress, amount })
+    const tx = await approve(signer, spender, underlyingAddress, amount ?? MAX_APPROVAL_AMOUNT);
     return tx;
   }
 }
-
-const MAX_AMOUNT = BigNumber.from(2)
-  .pow(BigNumber.from(256))
-  .sub(constants.One); // big fucking #
