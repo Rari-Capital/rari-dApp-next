@@ -94,7 +94,7 @@ export const NewHeader = () => {
         </Box> */}
         {!!isMobile && <Spacer />}
         <Flex>
-          <AccountButton />
+          {/* <AccountButton /> */}
           {isMobile && (
             <DashboardBox
               ml={3}
