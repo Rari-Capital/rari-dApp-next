@@ -13,6 +13,8 @@ import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
+import { createTurboMaster } from "lib/turbo/utils/turboContracts";
+import { getRecentEventDecoded } from "lib/turbo/utils/decodeEvents";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -41,6 +43,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const [navigating, setNavigating] = useState(false);
 
   // Safe's chosen underlying asset
+  const [createdSafe, setCreatedSafe] = useState<undefined | string>(undefined);
   const underlyingTokenAddresses = [TRIBE];
   const [underlyingTokenAddress, setUnderlyingTokenAddress] = useState(TRIBE);
   const collateralBalance = useBalanceOf(address, underlyingTokenAddress);
@@ -73,8 +76,12 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           chainId,
           underlyingTokenAddress
         );
+
         receipt = await tx.wait(1);
-        console.log({ receipt });
+        const turboMasterContract = createTurboMaster(provider, chainId)
+
+        const event = await getRecentEventDecoded(turboMasterContract, turboMasterContract.filters.TurboSafeCreated)
+        setCreatedSafe(event.safe);
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
@@ -153,7 +160,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     async navigateToCreatedSafe() {
       setNavigating(true);
       try {
-        await router.push("/turbo/safe/0");
+        await router.push(`/turbo/safe/${createdSafe}`);
       } finally {
         setNavigating(false);
       }
