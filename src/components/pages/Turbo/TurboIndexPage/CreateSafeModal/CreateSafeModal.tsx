@@ -1,20 +1,17 @@
-import { create } from "domain";
 import { useRari } from "context/RariContext";
 import { formatEther, parseEther } from "ethers/lib/utils";
+import { useBalanceOf } from "hooks/useBalanceOf";
 import useHasApproval from "hooks/useHasApproval";
 import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposit";
+import { createSafe } from "lib/turbo/transactions/safe";
 import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
 import { useRouter } from "next/router";
 import { Modal } from "rari-components";
 import { useState } from "react";
+import { approve } from "utils/erc20Utils";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
-import { createSafe } from "lib/turbo/transactions/safe";
-import { approve, checkAllowance } from "utils/erc20Utils";
-import { useBalanceOf } from "hooks/useBalanceOf";
-import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
-import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -75,6 +72,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           chainId,
           underlyingTokenAddress
         );
+        incrementStepIndex();
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
@@ -85,6 +83,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     } else {
       try {
         receipt = await createSafe(underlyingTokenAddress, provider, chainId);
+        incrementStepIndex();
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
@@ -98,31 +97,34 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   };
 
   async function onClickApprove() {
-    if (!depositAmount || !chainId) return
+    if (!depositAmount || !chainId) return;
 
     setApproving(true);
     const amountBN = parseEther(depositAmount ?? "0");
 
-    await approve(
-      provider.getSigner(), 
-      TurboAddresses[chainId].ROUTER, 
-      underlyingTokenAddress, 
-      parseEther(depositAmount || "0")
-    )
-
-    setApproving(false);
-  }
-
-  const balance = formatEther(collateralBalance)
-
-  const onClickMax = async () => {
-    if (!chainId) return
     try {
-      setDepositAmount(balance.slice(0,balance.indexOf('.')))
-    } catch (err) {
-      handleGenericError(err, toast)
+      await approve(
+        provider.getSigner(),
+        TurboAddresses[chainId].ROUTER,
+        underlyingTokenAddress,
+        amountBN
+      );
+      incrementStepIndex();
+    } finally {
+      setApproving(false);
     }
   }
+
+  const balance = formatEther(collateralBalance);
+
+  const onClickMax = async () => {
+    if (!chainId) return;
+    try {
+      setDepositAmount(balance.slice(0, balance.indexOf(".")));
+    } catch (err) {
+      handleGenericError(err, toast);
+    }
+  };
 
   // Modal Context
   const createSafeCtx: CreateSafeCtx = {
@@ -136,8 +138,8 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     setDepositAmount,
     hasApproval,
     approving,
-    approve: onClickApprove,
-    createSafe: onClickCreateSafe,
+    onClickApprove,
+    onClickCreateSafe,
     creatingSafe,
     navigating,
     collateralBalance: balance,

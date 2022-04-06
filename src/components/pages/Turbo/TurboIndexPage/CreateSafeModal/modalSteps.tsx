@@ -1,27 +1,21 @@
 import { BigNumber, utils } from "ethers";
-import { commify, formatEther, parseEther } from "ethers/lib/utils";
+import { commify } from "ethers/lib/utils";
+import StatisticTable from "lib/components/StatisticsTable";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
   HoverableCard,
   ModalProps,
-  Text,
   StatisticTable as RariStats,
+  Text,
   TokenAmountInput,
   TokenIcon,
   TokenSymbol,
 } from "rari-components";
-import StatisticTable from "lib/components/StatisticsTable";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack, VStack } from "@chakra-ui/react";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { Dispatch, SetStateAction } from "react";
 
 type CreateSafeCtx = {
-  /** A provider to connect to the blockchain with. */
-  provider: JsonRpcProvider;
-  /** The current chain ID. */
-  chainId: number;
   /**
    * Function to increment the current step by 1 (i.e. go to the next step in
    * the safe creation process).
@@ -46,11 +40,11 @@ type CreateSafeCtx = {
    */
   hasApproval: boolean;
   /** Function to approve the underlying token of the safe. */
-  approve: () => Promise<void>;
+  onClickApprove: () => Promise<void>;
   /** Whether the approval is currently pending. */
   approving: boolean;
   /** Function which creates a safe. */
-  createSafe: typeof createSafe;
+  onClickCreateSafe: () => Promise<void>;
   /** Whether the safe is currently being created. */
   creatingSafe: boolean;
   collateralBalance: string;
@@ -152,18 +146,25 @@ const MODAL_STEP_2: ModalStep = {
 
 const MODAL_STEP_3: ModalStep = {
   title: "Deposit collateral",
-  subtitle: "Collateralizing is required before boosting pools. This step is optional.",
-  children: ({ underlyingTokenAddress, onClickMax, depositAmount, collateralBalance, setDepositAmount }) => (
+  subtitle:
+    "Collateralizing is required before boosting pools. This step is optional.",
+  children: ({
+    underlyingTokenAddress,
+    onClickMax,
+    depositAmount,
+    collateralBalance,
+    setDepositAmount,
+  }) => (
     <Stack>
       <Box>
-      <VStack w="100%" mb={3} align="flex-end">
-        <TokenAmountInput
-          tokenAddress={underlyingTokenAddress}
-          value={depositAmount}
-          onChange={setDepositAmount}
-          onClickMax={onClickMax}
-        />
-        <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
+        <VStack w="100%" mb={3} align="flex-end">
+          <TokenAmountInput
+            tokenAddress={underlyingTokenAddress}
+            value={depositAmount}
+            onChange={setDepositAmount}
+            onClickMax={onClickMax}
+          />
+          <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
             Balance: {commify(collateralBalance)}{" "}
             <TokenSymbol tokenAddress={underlyingTokenAddress} />
           </Text>
@@ -173,27 +174,39 @@ const MODAL_STEP_3: ModalStep = {
             {
               title: "Collateral",
               primaryValue: `0`,
-              secondaryValue: depositAmount !== "" &&  depositAmount !== "0" ? `${commify(depositAmount ?? 0)}` : undefined,
+              secondaryValue:
+                depositAmount !== "" && depositAmount !== "0"
+                  ? `${commify(depositAmount ?? 0)}`
+                  : undefined,
               titleTooltip: "How much collateral you have deposited.",
-            }
+            },
           ]}
           mt={4}
         />
       </Box>
     </Stack>
   ),
-  buttons: ({ incrementStepIndex, setDepositAmount, depositAmount, collateralBalance }) => [
+  buttons: ({
+    incrementStepIndex,
+    setDepositAmount,
+    depositAmount,
+    collateralBalance,
+  }) => [
     {
       children: "Skip",
       variant: "cardmatte",
       onClick() {
-        setDepositAmount("0")
+        setDepositAmount("0");
         incrementStepIndex();
       },
     },
     {
-      disabled: parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
-      children: parseInt(depositAmount) > parseInt(collateralBalance) ? "Invalid amount" : "Review",
+      disabled:
+        parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
+      children:
+        parseInt(depositAmount) > parseInt(collateralBalance)
+          ? "Invalid amount"
+          : "Review",
       variant: "neutral",
       onClick() {
         incrementStepIndex();
@@ -233,12 +246,8 @@ const MODAL_STEP_4: ModalStep = {
     approving,
     depositAmount,
     creatingSafe,
-    incrementStepIndex,
-    createSafe,
-    provider,
-    chainId,
-    underlyingTokenAddress,
-    approve,
+    onClickCreateSafe,
+    onClickApprove,
   }) => [
     {
       children: approving
@@ -255,10 +264,9 @@ const MODAL_STEP_4: ModalStep = {
       loading: approving || creatingSafe,
       async onClick() {
         if (!hasApproval) {
-          await approve();
+          await onClickApprove();
         }
-        await createSafe(underlyingTokenAddress, provider, chainId);
-        incrementStepIndex();
+        await onClickCreateSafe();
       },
     },
   ],
