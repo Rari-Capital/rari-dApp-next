@@ -56,7 +56,7 @@ type CreateSafeCtx = {
   /**
    * Function which navigates to the safe that was just created in this modal.
    */
-  navigateToCreatedSafe(safeId: string): void;
+  navigateToCreatedSafe(): void;
 };
 
 type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
@@ -248,7 +248,7 @@ const MODAL_STEP_4: ModalStep = {
     creatingSafe,
     onClickCreateSafe,
     onClickApprove,
-    incrementStepIndex
+    incrementStepIndex,
   }) => [
       {
         children: approving
@@ -301,7 +301,7 @@ const MODAL_STEP_5: ModalStep = {
       variant: "neutral",
       async onClick() {
         // TODO(sharad-s): replace hardcoded value
-        await navigateToCreatedSafe("0");
+        await navigateToCreatedSafe();
         onClose();
       },
     },
