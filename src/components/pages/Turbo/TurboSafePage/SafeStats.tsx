@@ -13,27 +13,25 @@ import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
 import { HStack } from "@chakra-ui/react";
 import { TokenData } from "hooks/useTokenData";
 import { useUserFeiOwed } from "hooks/turbo/useUserFeiOwed";
+import { useTurboSafe } from "context/TurboSafeContext";
 
-type SafeStatsProps = {
-  safe: USDPricedTurboSafe;
-  netAPY: number;
-  tokenData?: TokenData;
-};
 
-export const SafeStats: React.FC<SafeStatsProps> = ({ safe, netAPY, tokenData }) => {
+export const SafeStats: React.FC = () => {
   const { address } = useRari();
+  const { usdPricedSafe, netAPY, collateralTokenData, loading } = useTurboSafe()
 
-  const [userFeiOwed] = useUserFeiOwed(safe)
+  const [userFeiOwed] = useUserFeiOwed(usdPricedSafe)
 
   return (
     <HStack h="100%" w="100%" spacing={12} align="flex-start">
       <Statistic
+        loading={loading}
         title={"Total Collateralized"}
-        value={smallStringUsdFormatter(safe.collateralUSD)}
+        value={smallStringUsdFormatter(usdPricedSafe?.collateralUSD ?? 0)}
         secondaryValue={`${commify(
-          parseFloat(formatEther(safe.collateralAmount)).toFixed(2)
-        )} ${tokenData?.symbol}`}
-        tooltip={`Total Collateralized ${tokenData?.symbol}`}
+          parseFloat(formatEther(usdPricedSafe?.collateralAmount ?? 0)).toFixed(2)
+        )} ${collateralTokenData?.symbol}`}
+        tooltip={`Total Collateralized ${collateralTokenData?.symbol}`}
       />
 
       <Statistic
