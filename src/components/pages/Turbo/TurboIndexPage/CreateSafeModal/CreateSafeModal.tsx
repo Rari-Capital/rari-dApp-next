@@ -64,7 +64,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
 
     setCreatingSafe(true);
 
-    const amountBN = parseEther(depositAmount ?? "0");
+    const amountBN = parseEther(depositAmount === "" ? "0" : depositAmount);
 
     let receipt;
     if (!amountBN.isZero()) {
