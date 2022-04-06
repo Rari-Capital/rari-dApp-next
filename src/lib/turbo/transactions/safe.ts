@@ -9,12 +9,12 @@ export const createSafe = async (
   chainID: number
 ) => {
   const encodedSafe = encodeCall.createSafe(underlyingToken);
-  const receipt = await sendRouterWithMultiCall(
+  const tx = await sendRouterWithMultiCall(
     provider.getSigner(),
     [encodedSafe],
     chainID
   );
-  return receipt;
+  return tx;
 };
 
 export const safeBoost = async (

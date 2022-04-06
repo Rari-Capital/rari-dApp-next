@@ -16,6 +16,8 @@ import { checkAllowanceAndApprove } from "utils/erc20Utils";
 import { SafeInteractionMode, useUpdatedSafeInfo } from "hooks/turbo/useUpdatedSafeInfo";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
+import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
+import useHasApproval from "hooks/useHasApproval";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -40,7 +42,6 @@ export const DepositSafeCollateralModal: React.FC<
     setStepIndex(0)
   }
 
-
   const [depositAmount, setDepositAmount] = useState<string>("");
   const [depositing, setDepositing] = useState(false);
 
@@ -48,8 +49,12 @@ export const DepositSafeCollateralModal: React.FC<
   const [approving, setApproving] = useState(false);
 
   // TODO(sharad-s): Debug approval function
-  // const hasApproval = useHasApproval(safe?.collateralAsset, safe?.safeAddress)
-  const [hasApproval, setHasApproval] = useState(false);
+  const hasApproval = useHasApproval(
+    safe?.collateralAsset,
+    safe?.safeAddress,
+    MAX_APPROVAL_AMOUNT.toString()
+  )
+  // const [hasApproval, setHasApproval] = useState(false);
 
   const updatedSafe = useUpdatedSafeInfo(
     {
@@ -69,7 +74,8 @@ export const DepositSafeCollateralModal: React.FC<
         provider.getSigner(),
         address,
         safeAddress,
-        safe.collateralAsset
+        safe.collateralAsset,
+        MAX_APPROVAL_AMOUNT
       );
     } catch (err) {
       handleGenericError(err, toast)
@@ -115,6 +121,8 @@ export const DepositSafeCollateralModal: React.FC<
       handleGenericError(err, toast)
     }
   }
+
+  console.log({ hasApproval })
 
   return (
     <Modal

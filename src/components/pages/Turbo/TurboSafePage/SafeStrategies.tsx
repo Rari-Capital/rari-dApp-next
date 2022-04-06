@@ -32,8 +32,7 @@ export const SafeStrategies: React.FC = () => {
   const { usdPricedSafe } = useTurboSafe();
 
   const trustedStrats: string[] = useTrustedStrategies();
-  const safeStrategies: USDPricedStrategy[] = usdPricedSafe.usdPricedStrategies;
-  const activeStrategies = filterUsedStrategies(safeStrategies)
+  const safeStrategies: USDPricedStrategy[] = usdPricedSafe?.usdPricedStrategies ?? [];
 
   // Construct a new object where safe strategies are indexed by address
   // for O(1) access by address (order in the table is not necessarily

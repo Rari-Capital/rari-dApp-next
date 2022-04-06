@@ -12,6 +12,7 @@ import { approve } from "utils/erc20Utils";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
+import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -66,30 +67,30 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     let receipt;
     if (!amountBN.isZero()) {
       try {
-        receipt = await createSafeAndDeposit(
+        const tx = await createSafeAndDeposit(
           provider.getSigner(),
           amountBN,
           chainId,
           underlyingTokenAddress
         );
-        await receipt.wait();
-        incrementStepIndex();
+        receipt = await tx.wait(1);
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
+        throw err
       } finally {
         setCreatingSafe(false);
       }
     } else {
       try {
-        receipt = await createSafe(underlyingTokenAddress, provider, chainId);
-        await receipt.wait();
-        incrementStepIndex();
+        const tx = await createSafe(underlyingTokenAddress, provider, chainId);
+        const receipt = await tx.wait(1);
         console.log({ receipt });
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
+        throw err
       } finally {
         setCreatingSafe(false);
       }
@@ -102,16 +103,14 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     if (!depositAmount || !chainId) return;
 
     setApproving(true);
-    const amountBN = parseEther(depositAmount ?? "0");
 
     try {
       await approve(
         provider.getSigner(),
         TurboAddresses[chainId].ROUTER,
         underlyingTokenAddress,
-        amountBN
+        MAX_APPROVAL_AMOUNT
       );
-      incrementStepIndex();
     } finally {
       setApproving(false);
     }
