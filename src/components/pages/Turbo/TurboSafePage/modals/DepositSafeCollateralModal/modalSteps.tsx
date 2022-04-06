@@ -125,7 +125,7 @@ const MODAL_STEP_2: ModalStep = {
   children: ({ depositAmount, updatedSafe }) =>
     (
       <Stack alignItems="center" spacing={8}>
-        <CheckCircleIcon boxSize={40} color="neutral" />
+        <CheckCircleIcon boxSize={24} color="neutral" />
         <Box textAlign="center">
           <Heading>
             {commify(depositAmount)}{" "}
