@@ -6,13 +6,13 @@ import {
   Box,
   useDisclosure
 } from "@chakra-ui/react";
-import { Heading, Link, Table, Text, TokenIcon, TokenSymbol, Tooltip } from "rari-components";
+import { Heading, Link, Table, Text, TokenIcon, Tooltip } from "rari-components";
 
 // Hooks
 import { useMemo, useState } from "react";
 
 // Turbo
-import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { USDPricedStrategy } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
@@ -25,7 +25,6 @@ import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { FEI } from "lib/turbo/utils/constants";
 import useBoostCapsForStrategies from "hooks/turbo/useBoostCapsForStrategies";
-import { filterUsedStrategies } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import { useTurboSafe } from "context/TurboSafeContext";
 
 export const SafeStrategies: React.FC = () => {
@@ -81,6 +80,7 @@ export const SafeStrategies: React.FC = () => {
   const getBoostCapForStrategy = useBoostCapsForStrategies(
     safeStrategies.map(({ strategy }) => strategy)
   )
+
 
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (
@@ -158,7 +158,7 @@ export const SafeStrategies: React.FC = () => {
                           opacity: 0.5,
                         }}
                         background="success"
-                        onClick={() => handleBoostClick(strat.strategy)}
+                        onClick={() => handleBoostClick(strat.strategy)}  
                       >
                         <Heading size="sm">+</Heading>
                       </Flex>
@@ -182,9 +182,7 @@ export const SafeStrategies: React.FC = () => {
                         </Flex>
                       </Tooltip>
                     )}
-
                   </HStack>
-
                 ]
               })
             })

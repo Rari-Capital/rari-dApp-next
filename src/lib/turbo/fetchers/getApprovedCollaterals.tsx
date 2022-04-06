@@ -5,6 +5,5 @@ export const getTurboApprovedCollateral =
     async (provider: JsonRpcProvider | Web3Provider): Promise<string[]> => {
         const TurboMaster = createTurboMaster(provider)
         const TurboPool = await TurboMaster.callStatic.pool()
-
         return []
     }
