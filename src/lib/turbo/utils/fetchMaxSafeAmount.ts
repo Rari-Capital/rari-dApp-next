@@ -33,7 +33,7 @@ export async function fetchMaxSafeAmount(
         return maxWithdraw
     }
     
-    if (mode === SafeInteractionMode.BOOST) {
+    if (mode === SafeInteractionMode.BOOST) {        
         if (strategyIndex === undefined || !safe.strategies) return constants.Zero;
 
         const TurboComptroller = createTurboComptroller(provider, chainId)
@@ -48,6 +48,9 @@ export async function fetchMaxSafeAmount(
             );
 
         const amount = maxBorrow.mul(3).div(4)
+
+        console.log({ amount })
+
         return amount
     }
 
