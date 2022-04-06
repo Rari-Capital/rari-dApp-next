@@ -10,8 +10,8 @@ import {
     Box,
     HStack,
 } from "@chakra-ui/react";
-import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { useTurboSafe } from "context/TurboSafeContext";
+import { CheckIcon } from "@chakra-ui/icons";
 
 
 export const OnboardingCard: React.FC<{
@@ -19,6 +19,9 @@ export const OnboardingCard: React.FC<{
 }> = ({ openDepositModal }) => {
     const { safe } = useTurboSafe()
     const { collateralAmount, boostedAmount } = safe ?? {}
+
+    const hasCollateral = collateralAmount?.isZero() ? false : true
+    const hasBoosted = boostedAmount?.isZero() ? false : true
 
     return (
         <motion.div
@@ -31,7 +34,7 @@ export const OnboardingCard: React.FC<{
                 <HStack mt={12} spacing={8}>
                     <HStack flex={1} spacing={6}
                         opacity={0.8}
-                        _hover={{ cursor: "pointer", opacity: "1" }}
+                        _hover={!hasCollateral ? { cursor: "pointer", opacity: "1" } : {}}
                     >
                         <Badge
                             variant="neutral"
@@ -39,7 +42,7 @@ export const OnboardingCard: React.FC<{
                             boxSize={12}
                             onClick={openDepositModal}
                         >
-                            <Heading size="lg">1</Heading>
+                            {hasCollateral ? <CheckIcon /> : <Heading size="lg">1</Heading>}
                         </Badge>
                         <Box>
                             <Heading size="md">Deposit collateral</Heading>
@@ -53,7 +56,7 @@ export const OnboardingCard: React.FC<{
                         _hover={{ cursor: "pointer", opacity: "1" }}
                     >
                         <Badge variant="neutral" fontSize="lg" boxSize={12} opacity={0.8}>
-                            <Heading size="lg">2</Heading>
+                            {hasBoosted ? <CheckIcon /> : <Heading size="lg">2</Heading>}
                         </Badge>
                         <Box>
                             <Heading size="md">Boost a Vault</Heading>

@@ -7,8 +7,10 @@ const useSafeAvgAPY = (
     activeStrategies: StrategyInfo[],
     getERC4626StrategyData: StrategyInfosMap
 ) => {
-    return useMemo(() => Object.keys(activeStrategies).reduce((num, strategyAddress) => {
-        const erc4626Strategy = getERC4626StrategyData[strategyAddress];
+
+    const apy = useMemo(() => activeStrategies.reduce((num, {strategy}) => {
+        const erc4626Strategy = getERC4626StrategyData[strategy];
+        console.log({ erc4626Strategy , getERC4626StrategyData})
         if (
             erc4626Strategy
             && erc4626Strategy.supplyRatePerBlock
@@ -18,7 +20,7 @@ const useSafeAvgAPY = (
         return num / activeStrategies.length;
     }, 0), [activeStrategies, getERC4626StrategyData])
 
-
+    return apy
 }
 
 export default useSafeAvgAPY
