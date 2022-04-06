@@ -38,6 +38,7 @@ import { useState } from "react";
 
 // Context
 import { TurboSafeProvider, useTurboSafe } from "context/TurboSafeContext";
+import BoostMeAlert from "../alerts/BoostMeAlert";
 
 const TurboSafePage: React.FC = () => {
 
@@ -46,6 +47,8 @@ const TurboSafePage: React.FC = () => {
     usdPricedSafe,
     collateralTokenData,
     loading,
+    isAtLiquidationRisk,
+    shouldBoost
   } = useTurboSafe()
 
   const safeHealth = safe?.safeUtilization;
@@ -74,8 +77,9 @@ const TurboSafePage: React.FC = () => {
     onClose: closeClaimInterestModal,
   } = useDisclosure();
 
-  const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
   const [hovered, setHovered] = useState(false)
+
+  console.log({ safe })
 
   return (
     <>
@@ -105,25 +109,29 @@ const TurboSafePage: React.FC = () => {
         safe={safe}
       />
 
-      {/* Alerts */}
-      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
 
       <Box
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        mb={4}
       >
         <Link href="/turbo">
           <Flex alignItems="center">
-            <ChevronLeftIcon mr={2}
+            <ChevronLeftIcon mr={2} boxSize="20px"
               transition="transform 0.2s ease 0s"
               transform={hovered ? "translateX(-5px) scale(1.00)" : ""}
             />{" "}
-            <Text fontSize="xs" fontWeight={600}>
+            <Text fontSize="sm" fontWeight={600}>
               All Safes
             </Text>
           </Flex>
         </Link>
       </Box>
+
+      {/* Alerts */}
+      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
+      {/* {shouldBoost && <BoostMeAlert safeHealth={safeHealth} />} */}
+
 
       <Stack
         direction={"row"}

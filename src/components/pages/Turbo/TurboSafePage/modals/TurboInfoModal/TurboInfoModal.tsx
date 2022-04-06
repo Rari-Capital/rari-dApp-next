@@ -34,6 +34,10 @@ export const SafeInfoModal: React.FC<{ isOpen: any, onClose: any, safe: SafeInfo
                 title={"Tribe Dao Fee Split"}
                 value={formatEther(safe?.tribeDAOFee.mul(100) ?? constants.Zero) + "%"}
             />
+            <Statistic
+                title={"Safe CF"}
+                value={formatEther(safe?.collateralFactor.mul(100) ?? constants.Zero) + "%"}
+            />
         </Modal>
     );
 };

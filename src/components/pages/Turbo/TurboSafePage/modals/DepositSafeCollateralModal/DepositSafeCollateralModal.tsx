@@ -64,6 +64,8 @@ export const DepositSafeCollateralModal: React.FC<
     }
   )
 
+  console.log({ safe })
+
   const approve = async () => {
     setApproving(true);
     const safeAddress = safe?.safeAddress

@@ -1,4 +1,6 @@
+import useSafeAvgAPY from "hooks/turbo/useSafeAvgAPY";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
+import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
 import { StrategyInfosMap, useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { TokenData, useTokenData } from "hooks/useTokenData";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
@@ -33,6 +35,7 @@ type TurboSafeContextData = {
 
     // 
     isAtLiquidationRisk: boolean
+    shouldBoost: boolean
 
     // Colors to display based on safe Health
     colorScheme: string;
@@ -60,18 +63,10 @@ export const TurboSafeProvider = ({
 
     // Average APY across all active Fuse strategies
     // TODO(@sharad-s) - refactor into a hook
-    const netAPY = Object.keys(activeStrategies).reduce((num, strategyAddress) => {
-        const erc4626Strategy = getERC4626StrategyData[strategyAddress];
-        if (
-            erc4626Strategy
-            && erc4626Strategy.supplyRatePerBlock
-        ) {
-            num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365);
-        }
-        return num / activeStrategies.length;
-    }, 0);
+    const netAPY = useSafeAvgAPY(activeStrategies, getERC4626StrategyData)
 
     const isAtLiquidationRisk = safe?.safeUtilization?.gt(80) ?? false;
+    const shouldBoost = useShouldBoostSafe(safe)
 
     const safeHealth = safe?.safeUtilization
     const colorScheme = useMemo(() => {
@@ -85,6 +80,7 @@ export const TurboSafeProvider = ({
     }, [safeHealth]);
 
 
+
     const value = useMemo<TurboSafeContextData>(() => ({
         safe,
         usdPricedSafe: safe,
@@ -94,7 +90,8 @@ export const TurboSafeProvider = ({
         getERC4626StrategyData,
         netAPY,
         isAtLiquidationRisk,
-        colorScheme
+        colorScheme,
+        shouldBoost
     }), [
         safe,
         collateralTokenData,
@@ -103,7 +100,8 @@ export const TurboSafeProvider = ({
         getERC4626StrategyData,
         netAPY,
         isAtLiquidationRisk,
-        colorScheme
+        colorScheme,
+        shouldBoost
     ])
 
 

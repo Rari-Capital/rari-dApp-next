@@ -45,16 +45,18 @@ export const useUpdatedSafeInfo = ({
                     .mul(safe.collateralPrice)
                     .div(constants.WeiPerEther)
                 const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
-                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue)
-                const maxBoost = calculateMaxBoost(collateralUSD, safe.collateralFactor)
-                
+                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue, safe.collateralFactor)
+                const maxBoost = calculateMaxBoost(collateralValue, safe.collateralFactor)
+                const maxBoostUSD = calculateETHValueUSD(maxBoost, ethUSDBN)
+
                 updatedSafe = {
                     ...safe,
                     collateralAmount,
                     collateralValue,
                     collateralUSD,
                     safeUtilization,
-                    maxBoost
+                    maxBoost,
+                    maxBoostUSD
                 }
 
                 return updatedSafe
@@ -68,7 +70,7 @@ export const useUpdatedSafeInfo = ({
                     .mul(safe.collateralPrice)
                     .div(constants.WeiPerEther)
                 const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
-                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue)
+                const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue, safe.collateralFactor)
 
                 updatedSafe = {
                     ...safe,
@@ -95,10 +97,9 @@ export const useUpdatedSafeInfo = ({
                     .mul(safe.feiPrice)
                     .div(constants.WeiPerEther)
 
-                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue)
+                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue, safe.collateralFactor)
 
                 const strategyToUpdate = safe.usdPricedStrategies[strategyIndex]
-
 
                 const stratBoostedAmount = strategyToUpdate.boostedAmount.add(amount)
                 const stratBoostedUSD = calculateFEIValueUSD(stratBoostedAmount, safe.feiPrice, ethUSDBN)
@@ -124,7 +125,7 @@ export const useUpdatedSafeInfo = ({
                     debtValue,
                     safeUtilization,
                     strategies
-                }   
+                }
 
                 return updatedSafe
             }
@@ -132,7 +133,7 @@ export const useUpdatedSafeInfo = ({
             /** LESS **/
             if (mode === SafeInteractionMode.LESS) {
 
-                if (strategyIndex === undefined  || strategyIndex < 0) return undefined
+                if (strategyIndex === undefined || strategyIndex < 0) return undefined
 
                 const boostedAmount = safe.boostedAmount.sub(amount) // boosted FEI 
                 const boostedUSD = calculateFEIValueUSD(boostedAmount, safe.feiPrice, ethUSDBN)
@@ -141,7 +142,7 @@ export const useUpdatedSafeInfo = ({
                     .mul(safe.feiPrice)
                     .div(constants.WeiPerEther)
 
-                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue)
+                const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue, safe.collateralFactor)
 
                 const strategyToUpdate = safe.usdPricedStrategies[strategyIndex]
 

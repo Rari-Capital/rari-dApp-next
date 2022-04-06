@@ -18,6 +18,8 @@ export function chooseBestWeb3Provider(
    */
   vaults?: boolean
 ): JsonRpcProvider | Web3Provider {
+  console.log({ chainId })
+
   let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
   console.log({ chainId, providerURL });
   // return new JsonRpcProvider(providerURL);
@@ -27,7 +29,7 @@ export function chooseBestWeb3Provider(
     return new JsonRpcProvider(providerURL);
   }
 
- if (window.web3) {
+  if (window.web3) {
     return new Web3Provider(window.web3.currentProvider);
   } else {
     return new JsonRpcProvider(providerURL);
@@ -38,7 +40,7 @@ export const initFuseWithProviders = (
   provider = chooseBestWeb3Provider(),
   chainId: ChainID = 1
 ): Fuse => {
-  const fuse = new Fuse(provider, chainId === 31337 ? 1 : chainId );
+  const fuse = new Fuse(provider, chainId === 31337 ? 1 : chainId);
   let lensProvider = getChainMetadata(chainId).rpcUrl ?? "";
   // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(

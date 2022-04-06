@@ -1,9 +1,9 @@
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 import { calculateETHValueUSD, calculateFEIValueUSD } from "lib/turbo/utils/usdUtils";
 import { StrategyInfo } from "../strategies/formatStrategyInfo";
-import { calculateMaxBoost, getSafeInfo, SafeInfo } from "./getSafeInfo";
+import { getSafeInfo, SafeInfo } from "./getSafeInfo";
 
 export interface USDPricedTurboSafe extends SafeInfo {
     collateralUSD: number,
@@ -11,9 +11,8 @@ export interface USDPricedTurboSafe extends SafeInfo {
     boostedUSD: number,
     feiAmountUSD: number,
     feiPriceUSD: number,
-    safeUtilization: BigNumber;
     usdPricedStrategies: USDPricedStrategy[],
-    maxBoost: number
+    maxBoostUSD: number
 
 }
 
@@ -46,10 +45,7 @@ export const getUSDPricedSafeInfo = async (
         const boostedUSD = calculateFEIValueUSD(safeInfo.boostedAmount, safeInfo.feiPrice, ethUSDBN)
         const feiAmountUSD = calculateFEIValueUSD(safeInfo.feiAmount, safeInfo.feiPrice, ethUSDBN)
         const feiPriceUSD = calculateETHValueUSD(safeInfo.feiPrice, ethUSDBN)
-        const maxBoost = calculateMaxBoost(collateralUSD, safeInfo.collateralFactor)
-
-        // TODO(@sharad-s) safe utilization needs to account for Safe CF (which should come from the lens)
-        const safeUtilization = calculateSafeUtilization(safeInfo.debtValue, safeInfo.collateralValue)
+        const maxBoostUSD = calculateETHValueUSD(safeInfo.maxBoost, ethUSDBN)
 
         // Add USD values to each strategyInfo
         const usdPricedStrategies = getUSDPricedStrategies(ethUSDBN, safeInfo.feiPrice, safeInfo.strategies)
@@ -61,9 +57,8 @@ export const getUSDPricedSafeInfo = async (
             feiAmountUSD,
             boostedUSD,
             feiPriceUSD,
-            safeUtilization,
             usdPricedStrategies,
-            maxBoost
+            maxBoostUSD
         }
 
         return usdPricedSafe;
@@ -128,11 +123,4 @@ export const getUSDPricedStrategies = (
 }
 
 
-// debtValue * 100 / collateralValue * cf
-export const calculateSafeUtilization = (
-    debtValue: BigNumber,
-    collateralValue: BigNumber,
-    cf: BigNumber = BigNumber.from(60)
-) => {
-    return collateralValue.isZero() ? constants.Zero : debtValue.mul(100).div(collateralValue)
-}
+

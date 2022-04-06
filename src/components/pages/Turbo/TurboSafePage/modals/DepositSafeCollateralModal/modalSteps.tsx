@@ -65,11 +65,11 @@ const MODAL_STEP_1: ModalStep = {
             },
             {
               title: "Max Boost",
-              primaryValue: abbreviateAmount(safe?.maxBoost),
-              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoost),
+              primaryValue: abbreviateAmount(safe?.maxBoostUSD),
+              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoostUSD),
               titleTooltip: "The maximum amount you can boost. This is collateralUSD * collateralFactor ",
-              primaryTooltip: `$ ${commify(safe.maxBoost ?? 0)}`,
-              secondaryTooltip: `$ ${commify(updatedSafe?.maxBoost ?? 0)}`
+              primaryTooltip: `$ ${commify(safe.maxBoostUSD ?? 0)}`,
+              secondaryTooltip: `$ ${commify(updatedSafe?.maxBoostUSD ?? 0)}`
             },
             {
               title: "Safe Utilization",
@@ -129,7 +129,6 @@ const MODAL_STEP_2: ModalStep = {
         <Box textAlign="center">
           <Heading>
             {commify(depositAmount)}{" "}
-            <TokenSymbol tokenAddress={updatedSafe?.collateralAsset ?? ""} />
           </Heading>
           <Text fontSize="lg" my={4}>
             Successfully deposited

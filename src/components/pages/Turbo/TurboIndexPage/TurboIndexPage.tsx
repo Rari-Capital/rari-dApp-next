@@ -10,7 +10,7 @@ import {
   Statistic,
   Text,
 } from "rari-components";
-import {smallUsdFormatter } from "utils/bigUtils";
+import { smallUsdFormatter } from "utils/bigUtils";
 import { PlusSquareIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -23,12 +23,18 @@ import {
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import SafeCard from "./SafeCard";
+import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
+import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const safes = useAllUserSafes() ?? [];
   const hasSafes = safes.length > 0;
+
+  const isAuthorized = useIsUserAuthorizedToCreateSafes()
+  {/* TODO(sharad-s): Use real APY number */ }
 
   return (
     <TurboLayout>
@@ -46,11 +52,18 @@ const TurboIndexPage: React.FC = () => {
             FEI line of credit.
           </Text>
           <HStack pt={8} spacing={4}>
-            {!hasSafes && (
-              <Button variant="success" onClick={onOpen}>
-                Create a safe
-              </Button>
-            )}
+            {!hasSafes
+              ? isAuthorized
+                ? (
+                  <Button variant="success" onClick={onOpen}>
+                    Create a safe
+                  </Button>
+                )
+
+                : <Button variant="warning" onClick={onOpen} disabled={true}>
+                  Unauthorized
+                </Button> :
+              null}
             <Button
               variant="cardmatte"
               as="a"
@@ -70,7 +83,10 @@ const TurboIndexPage: React.FC = () => {
       </Stack>
       <Divider mt={20} mb={16} />
       {hasSafes ? (
-        <SafeGrid safes={safes} onClickCreateSafe={onOpen} />
+        <SafeGrid
+          safes={safes}
+          onClickCreateSafe={onOpen}
+        />
       ) : (
         <TurboFAQ />
       )}
@@ -84,6 +100,10 @@ type SafeGridProps = {
 };
 
 const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
+
+  const allStrategies = useTrustedStrategies()
+  const getERC4626StrategyData = useERC4626StrategiesDataAsMap(allStrategies)
+
   // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
   // be a USD value
   const totalBoosted = safes.reduce((acc, safe) => {
@@ -103,7 +123,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           title="Total boosted"
           // TODO(sharad-s) What should these tooltips say?
           tooltip="Tooltip"
-          value={formatEther(totalBoosted) + " FEI"}
+          value={parseFloat(formatEther(totalBoosted)).toFixed(2) + " FEI"}
         />
         <Statistic
           title="Total claimable interest"
@@ -126,7 +146,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           )}
         </HoverableCard>
         {safes.map((safe) => (
-          <SafeCard key={safe.safeAddress} safe={safe} />
+          <SafeCard key={safe.safeAddress} safe={safe} getERC4626StrategyData={getERC4626StrategyData} />
         ))}
       </SimpleGrid>
     </Box>

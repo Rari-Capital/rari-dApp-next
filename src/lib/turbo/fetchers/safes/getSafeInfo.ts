@@ -1,5 +1,4 @@
 import { BigNumber, constants } from "ethers";
-import { formatEther, parseUnits } from "ethers/lib/utils";
 import { createTurboLens } from "../../utils/turboContracts";
 import { formatStrategiesInfo, LensStrategyInfo, StrategyInfo } from "../strategies/formatStrategyInfo";
 
@@ -35,7 +34,8 @@ export type SafeInfo = {
   feiAmount: BigNumber;
   tribeDAOFee: BigNumber;
   strategies: StrategyInfo[];
-  safeUtilization: BigNumber
+  safeUtilization: BigNumber;
+  maxBoost: BigNumber
 };
 
 
@@ -53,16 +53,23 @@ export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   feiAmount: safe[10],
   tribeDAOFee: safe[11],
   strategies: formatStrategiesInfo(safe[12]),
-  safeUtilization: calculateSafeUtilization(safe[8], safe[6])
+  safeUtilization: calculateSafeUtilization(safe[8], safe[6], safe[4]),
+  maxBoost: calculateMaxBoost(safe[6], safe[4])
 })
 
 // debtValue * 100 / collateralValue
-export const calculateSafeUtilization = (debtValue: BigNumber, collateralValue: BigNumber) => {
-  return collateralValue.isZero() ? constants.Zero : debtValue.mul(100).div(collateralValue)
+export const calculateSafeUtilization = (
+  debtValue: BigNumber,
+  collateralValue: BigNumber,
+  collateralFactor: BigNumber,
+) => {
+  return collateralValue.isZero()
+    ? constants.Zero :
+    debtValue.mul(100).div(collateralValue.mul(collateralFactor).div(constants.WeiPerEther))
 }
 
-export const calculateMaxBoost = (collateralUSD: number, collateralFactor: BigNumber) => {
-  const maxBoost = collateralUSD * parseFloat(formatEther(collateralFactor))
+export const calculateMaxBoost = (collateralValue: BigNumber, collateralFactor: BigNumber) => {
+  const maxBoost = collateralValue.mul(collateralFactor).div(constants.WeiPerEther)
   return maxBoost
 }
 
