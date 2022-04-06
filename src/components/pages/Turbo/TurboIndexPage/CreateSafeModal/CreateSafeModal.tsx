@@ -72,6 +72,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           chainId,
           underlyingTokenAddress
         );
+        await receipt.wait();
         incrementStepIndex();
         console.log({ receipt });
       } catch (err) {
@@ -83,6 +84,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     } else {
       try {
         receipt = await createSafe(underlyingTokenAddress, provider, chainId);
+        await receipt.wait();
         incrementStepIndex();
         console.log({ receipt });
       } catch (err) {
@@ -128,8 +130,6 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
 
   // Modal Context
   const createSafeCtx: CreateSafeCtx = {
-    provider,
-    chainId: chainId ?? 1,
     incrementStepIndex,
     underlyingTokenAddresses,
     underlyingTokenAddress,
