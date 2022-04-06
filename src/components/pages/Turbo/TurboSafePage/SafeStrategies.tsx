@@ -136,10 +136,10 @@ export const SafeStrategies: React.FC = () => {
                         boxSize={"20px"}
                         src="/static/turbo/turbo-engine-green.svg"
                         align={"center"}
-                        mr={2}
+                        mr={1}
                       />}
                       <Tooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
-                        <Text>
+                        <Text color={!strat.boostedAmount.isZero() ? "#62DBA1" : ""}>
                           {smallUsdFormatter(strat.boostAmountUSD)}
                         </Text>
                       </Tooltip>
@@ -163,23 +163,26 @@ export const SafeStrategies: React.FC = () => {
                         <Heading size="sm">+</Heading>
                       </Flex>
                     </Tooltip>
-                    <Tooltip label="Less">
-                      <Flex
-                        cursor="pointer"
-                        alignItems="center"
-                        justifyContent="center"
-                        boxSize={8}
-                        borderRadius="50%"
-                        transition="0.2s opacity"
-                        _hover={{
-                          opacity: 0.5,
-                        }}
-                        background="danger"
-                        onClick={() => handleLessClick(strat.strategy)}
-                      >
-                        <Heading size="sm">—</Heading>
-                      </Flex>
-                    </Tooltip>
+                    {!strat.boostedAmount.isZero() && (
+                      <Tooltip label="Less">
+                        <Flex
+                          cursor="pointer"
+                          alignItems="center"
+                          justifyContent="center"
+                          boxSize={8}
+                          borderRadius="50%"
+                          transition="0.2s opacity"
+                          _hover={{
+                            opacity: 0.5,
+                          }}
+                          background="danger"
+                          onClick={() => handleLessClick(strat.strategy)}
+                        >
+                          <Heading size="sm">—</Heading>
+                        </Flex>
+                      </Tooltip>
+                    )}
+
                   </HStack>
 
                 ]

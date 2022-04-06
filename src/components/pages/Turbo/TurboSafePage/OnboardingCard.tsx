@@ -10,11 +10,16 @@ import {
     Box,
     HStack,
 } from "@chakra-ui/react";
+import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { useTurboSafe } from "context/TurboSafeContext";
 
 
 export const OnboardingCard: React.FC<{
     openDepositModal: () => void;
 }> = ({ openDepositModal }) => {
+    const { safe } = useTurboSafe()
+    const { collateralAmount, boostedAmount } = safe ?? {}
+
     return (
         <motion.div
             initial={{ opacity: 0, y: -40 }}
@@ -24,14 +29,15 @@ export const OnboardingCard: React.FC<{
             <Card>
                 <Heading size="lg">Getting Started</Heading>
                 <HStack mt={12} spacing={8}>
-                    <HStack flex={1} spacing={6}>
+                    <HStack flex={1} spacing={6}
+                        opacity={0.8}
+                        _hover={{ cursor: "pointer", opacity: "1" }}
+                    >
                         <Badge
                             variant="neutral"
                             fontSize="lg"
                             boxSize={12}
                             onClick={openDepositModal}
-                            opacity={0.8}
-                            _hover={{ cursor: "pointer", opacity: "1" }}
                         >
                             <Heading size="lg">1</Heading>
                         </Badge>
@@ -42,14 +48,17 @@ export const OnboardingCard: React.FC<{
                             </Text>
                         </Box>
                     </HStack>
-                    <HStack flex={1} spacing={6}>
+                    <HStack flex={1} spacing={6}
+                        opacity={0.8}
+                        _hover={{ cursor: "pointer", opacity: "1" }}
+                    >
                         <Badge variant="neutral" fontSize="lg" boxSize={12} opacity={0.8}>
                             <Heading size="lg">2</Heading>
                         </Badge>
                         <Box>
-                            <Heading size="md">Boost a pool</Heading>
+                            <Heading size="md">Boost a Vault</Heading>
                             <Text variant="secondary">
-                                Click to boost a random pool, or scroll below for options.
+                                Click to boost a random Vault, or scroll below for options.
                             </Text>
                         </Box>
                     </HStack>

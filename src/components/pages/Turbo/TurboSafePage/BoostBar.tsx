@@ -16,7 +16,9 @@ import { toInt } from "utils/ethersUtils";
 
 export const BoostBar: React.FC = () => {
     const { usdPricedSafe, collateralTokenData: tokenData, colorScheme } = useTurboSafe();
-    const { boostedUSD, collateralUSD, safeUtilization } = usdPricedSafe ?? {}
+    const { boostedUSD, safeUtilization, maxBoostUSD, maxBoost } = usdPricedSafe ?? {}
+
+    console.log({ usdPricedSafe })
 
     return (
         <Box mt={12}>
@@ -32,7 +34,7 @@ export const BoostBar: React.FC = () => {
                         {shortUsdFormatter(boostedUSD ?? 0)} boosted
                     </Heading>
                     <Text variant="neutral">
-                        / {shortUsdFormatter(collateralUSD ?? 0)} ({toInt(safeUtilization)}
+                        / {shortUsdFormatter(maxBoostUSD ?? 0)} ({toInt(safeUtilization)}
                         %)
                     </Text>
                 </Flex>

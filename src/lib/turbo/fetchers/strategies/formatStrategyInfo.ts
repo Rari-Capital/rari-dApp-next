@@ -31,7 +31,7 @@ export const formatStrategiesInfo = (
             strategy: strategy[0],
             boostedAmount: strategy[1],
             feiAmount: strategy[2],
-            feiEarned: strategy[2].sub(strategy[1])
+            feiEarned: strategy[1].sub(strategy[2])
         };
     });
 
