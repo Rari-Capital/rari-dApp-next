@@ -1,37 +1,16 @@
-import { BigNumber } from "ethers";
-import { motion } from "framer-motion";
-// Components
-import { useSafeInfo } from "hooks/turbo/useSafeInfo";
-import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
-import { TokenData, useTokenData } from "hooks/useTokenData";
-import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import {
-  StrategyInfo,
-  filterUsedStrategies,
-} from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import Head from "next/head";
-// Hooks
-import { useRouter } from "next/router";
+
+// Components
 import {
-  Badge,
   Button,
-  Card,
   Divider,
   Heading,
   Link,
-  Progress,
   Text,
   TokenIcon,
   TokenSymbol,
 } from "rari-components";
-import { useMemo } from "react";
-import { convertMantissaToAPY } from "utils/apyUtils";
-import { shortUsdFormatter } from "utils/bigUtils";
-import { toInt } from "utils/ethersUtils";
-import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
 import {
-  Alert,
-  AlertIcon,
   Box,
   Flex,
   HStack,
@@ -41,6 +20,7 @@ import {
   Stack,
   useDisclosure,
 } from "@chakra-ui/react";
+import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
 import TurboLayout from "../TurboLayout";
 import { SafeStats } from "./SafeStats";
 import { SafeStrategies } from "./SafeStrategies";
@@ -48,16 +28,27 @@ import ClaimInterestModal from "./modals/ClaimInterestModal";
 import DepositSafeCollateralModal from "./modals/DepositSafeCollateralModal/DepositSafeCollateralModal";
 import SafeInfoModal from "./modals/TurboInfoModal";
 import WithdrawSafeCollateralModal from "./modals/WithdrawSafeCollateralModal";
+import AtRiskOfLiquidationAlert from "../alerts/AtRiskOfLiquidationAlert";
+import { OnboardingCard } from "./OnboardingCard";
+import { BoostBar } from "./BoostBar";
+
+// Hooks
+import { useRouter } from "next/router";
+import { useState } from "react";
+
+// Context
+import { TurboSafeProvider, useTurboSafe } from "context/TurboSafeContext";
 
 const TurboSafePage: React.FC = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const safeId = id as string;
 
-  const safe = useSafeInfo(safeId);
-  const tokenData = useTokenData(safe?.collateralAsset);
+  const {
+    safe,
+    usdPricedSafe,
+    collateralTokenData,
+    loading,
+  } = useTurboSafe()
 
-  const loading = !tokenData || !safe;
+  const safeHealth = safe?.safeUtilization;
 
   const {
     isOpen: isDepositModalOpen,
@@ -83,59 +74,30 @@ const TurboSafePage: React.FC = () => {
     onClose: closeClaimInterestModal,
   } = useDisclosure();
 
-  const safeHealth = safe?.safeUtilization;
-  const safeStrategies: StrategyInfo[] = safe?.strategies ?? [];
-  const activeStrategies: StrategyInfo[] = filterUsedStrategies(safeStrategies);
-  const strategiesData = useERC4626StrategiesDataAsMap(
-    safeStrategies.map((strat) => strat.strategy)
-  );
-
-  console.log({safe})
-
-  // Average APY across all active Fuse strategies
-  // TODO(@sharad-s) - refactor into a hook
-  const netAPY = Object.keys(activeStrategies).reduce((num, strategyAddress) => {
-    const erc4626Strategy = strategiesData[strategyAddress];
-    if (
-      erc4626Strategy 
-      && erc4626Strategy.supplyRatePerBlock
-      ) {
-      num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365);
-    }
-    return num / activeStrategies.length;
-  }, 0);
-
   const isAtLiquidationRisk = safeHealth?.gt(80) ?? false;
-
-  const colorScheme = useMemo(() => {
-    return safeHealth?.lte(40)
-      ? "success"
-      : safeHealth?.lte(60)
-      ? "whatsapp"
-      : safeHealth?.lte(80)
-      ? "orange"
-      : "red";
-  }, [safeHealth]);
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <TurboLayout>
+    <>
       <Head>
-        <title>{tokenData?.symbol} Safe | Tribe Turbo</title>
+        <title>{collateralTokenData?.symbol} Safe | Tribe Turbo</title>
       </Head>
+
+      {/* Modals */}
       <DepositSafeCollateralModal
         isOpen={isDepositModalOpen}
         onClose={closeDepositModal}
-        safe={safe}
+        safe={usdPricedSafe}
       />
       <WithdrawSafeCollateralModal
         isOpen={isWithdrawModalOpen}
         onClose={closeWithdrawModal}
-        safe={safe}
+        safe={usdPricedSafe}
       />
       <ClaimInterestModal
         isOpen={isClaimInterestModalOpen}
         onClose={closeClaimInterestModal}
-        safe={safe}
+        safe={usdPricedSafe}
       />
       <SafeInfoModal
         isOpen={isSafeModalOpen}
@@ -143,12 +105,19 @@ const TurboSafePage: React.FC = () => {
         safe={safe}
       />
 
-      {isAtLiquidationRisk && <LiquidationAlert safeHealth={safeHealth} />}
+      {/* Alerts */}
+      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
 
-      <Box>
+      <Box
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         <Link href="/turbo">
           <Flex alignItems="center">
-            <ChevronLeftIcon mr={2} />{" "}
+            <ChevronLeftIcon mr={2}
+              transition="transform 0.2s ease 0s"
+              transform={hovered ? "translateX(-5px) scale(1.00)" : ""}
+            />{" "}
             <Text fontSize="xs" fontWeight={600}>
               All Safes
             </Text>
@@ -163,11 +132,11 @@ const TurboSafePage: React.FC = () => {
         spacing={4}
         mt={8}
       >
-        <Skeleton isLoaded={!!tokenData}>
+        <Skeleton isLoaded={!loading}>
           <HStack>
-            <TokenIcon tokenAddress={tokenData?.address ?? ""} mr={2} />
+            <TokenIcon tokenAddress={safe?.collateralAsset ?? ""} mr={2} />
             <Heading>
-              <TokenSymbol tokenAddress={tokenData?.address ?? ""} /> Safe
+              <TokenSymbol tokenAddress={safe?.collateralAsset ?? ""} /> Safe
             </Heading>
             <InfoIcon
               onClick={openSafeModal}
@@ -179,165 +148,96 @@ const TurboSafePage: React.FC = () => {
         </Skeleton>
         <Spacer />
 
-        <HStack>
-          <Button
-            variant="cardmatte"
-            onClick={openDepositModal}
-            disabled={!tokenData}
-          >
-            <Image
-              src="/static/turbo/action-icons/deposit-collateral.png"
-              height={4}
-              mr={3}
-            />
-            Deposit Collateral
-          </Button>
-          <Button
-            variant="cardmatte"
-            onClick={openWithdrawModal}
-            disabled={!tokenData}
-          >
-            <Image
-              src="/static/turbo/action-icons/withdraw-collateral.png"
-              height={4}
-              mr={3}
-            />
-            Withdraw Collateral
-          </Button>
-          <Button
-            variant="cardmatte"
-            onClick={openClaimInterestModal}
-            disabled={!tokenData}
-          >
-            <Image
-              src="/static/turbo/action-icons/claim-interest.png"
-              height={4}
-              mr={3}
-            />
-            Claim Interest
-          </Button>
-        </HStack>
+        <Buttons
+          openDepositModal={openDepositModal}
+          openWithdrawModal={openWithdrawModal}
+          openClaimInterestModal={openClaimInterestModal}
+        />
+
       </Stack>
       <Divider my={12} />
 
-      {!safe?.boostedAmount && !loading && <OnboardingCard />}
+      {safe?.boostedAmount.isZero() && !loading &&
+        <OnboardingCard
+          openDepositModal={openDepositModal}
+        />
+      }
+      <BoostBar />
 
-      <BoostBar safe={safe} tokenData={tokenData} colorScheme={colorScheme} />
       <Stack spacing={12} my={12}>
-        {!!safe && (
-          <SafeStats safe={safe} netAPY={netAPY} tokenData={tokenData} />
-        )}
+        <SafeStats />
       </Stack>
-      {!!safe && <SafeStrategies safe={safe} />}
-    </TurboLayout>
+
+      <SafeStrategies />
+    </>
   );
 };
 
-export default TurboSafePage;
-
-export const BoostBar: React.FC<{
-  safe: USDPricedTurboSafe | undefined;
-  tokenData: TokenData | undefined;
-  colorScheme: string;
-}> = ({ safe, tokenData, colorScheme }) => {
-  const { boostedUSD, collateralUSD, safeUtilization } = safe ?? {};
-
-  return (
-    <Box mt={12}>
-      <Flex justifyContent="space-between" alignItems="baseline">
-        <Flex alignItems="baseline">
-          <Image
-            boxSize={"30px"}
-            src="/static/turbo/turbo-engine-green.svg"
-            align={"center"}
-            mr={2}
-          />
-          <Heading variant="success" size="lg" mr={2}>
-            {shortUsdFormatter(boostedUSD ?? 0)} boosted
-          </Heading>
-          <Text variant="neutral">
-            / {shortUsdFormatter(collateralUSD ?? 0)} ({toInt(safeUtilization)}
-            %)
-          </Text>
-        </Flex>
-        <Text variant="secondary">
-          Liquidated when{" "}
-          <TokenIcon
-            tokenAddress={tokenData?.address ?? ""}
-            boxSize={6}
-            mx={1}
-          />
-          $0.25
-        </Text>
-      </Flex>
-      <Progress
-        size="xs"
-        width="100%"
-        height={4}
-        mt={4}
-        hideLabel
-        barVariant={colorScheme}
-        value={toInt(safeUtilization)}
-      />
-    </Box>
-  );
-};
-
-export const OnboardingCard = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -40 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 40 }}
-    >
-      <Card>
-        <Heading size="lg">Getting Started</Heading>
-        <HStack mt={12} spacing={8}>
-          <HStack flex={1} spacing={6}>
-            <Badge variant="neutral" fontSize="lg" boxSize={12}>
-              <Heading size="lg">1</Heading>
-            </Badge>
-            <Box>
-              <Heading size="md">Deposit collateral</Heading>
-              <Text variant="secondary">
-                Collateralizing is required step before boosting pools.
-              </Text>
-            </Box>
-          </HStack>
-          <HStack flex={1} spacing={6}>
-            <Badge variant="neutral" fontSize="lg" boxSize={12}>
-              <Heading size="lg">2</Heading>
-            </Badge>
-            <Box>
-              <Heading size="md">Boost a pool</Heading>
-              <Text variant="secondary">
-                Click to boost a random pool, or scroll below for options.
-              </Text>
-            </Box>
-          </HStack>
-        </HStack>
-      </Card>
-    </motion.div>
-  );
-};
-
-const LiquidationAlert: React.FC<{ safeHealth: BigNumber | undefined }> = ({
-  safeHealth,
+export const Buttons: React.FC<{
+  openDepositModal: any,
+  openWithdrawModal: any,
+  openClaimInterestModal: any,
+}> = ({
+  openDepositModal,
+  openWithdrawModal,
+  openClaimInterestModal,
 }) => {
+    const { loading } = useTurboSafe();
+
+    return (
+      <HStack>
+        <Button
+          variant="cardmatte"
+          onClick={openDepositModal}
+          disabled={loading}
+        >
+          <Image
+            src="/static/turbo/action-icons/deposit-collateral.png"
+            height={4}
+            mr={3}
+          />
+          Deposit Collateral
+        </Button>
+        <Button
+          variant="cardmatte"
+          onClick={openWithdrawModal}
+          disabled={loading}
+        >
+          <Image
+            src="/static/turbo/action-icons/withdraw-collateral.png"
+            height={4}
+            mr={3}
+          />
+          Withdraw Collateral
+        </Button>
+        <Button
+          variant="cardmatte"
+          onClick={openClaimInterestModal}
+          disabled={loading}
+        >
+          <Image
+            src="/static/turbo/action-icons/claim-interest.png"
+            height={4}
+            mr={3}
+          />
+          Claim Interest
+        </Button>
+      </HStack>
+    )
+  }
+
+export default () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const safeAddress = id as string;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -40 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 40 }}
-    >
-      <Alert colorScheme={"#DB6464"} borderRadius={5} mb={10}>
-        <AlertIcon />
-        <Text>
-          With a <b>{safeHealth?.toNumber()}%</b> utilization, you are at
-          liquidation risk. Please deposit more collateral, or unboost.
-        </Text>
-        <Box h="100%" ml="auto"></Box>
-      </Alert>
-    </motion.div>
-  );
-};
+    <TurboLayout>
+      <TurboSafeProvider safeAddress={safeAddress}>
+        <TurboSafePage />
+      </TurboSafeProvider>
+    </TurboLayout>
+  )
+}
+
+
