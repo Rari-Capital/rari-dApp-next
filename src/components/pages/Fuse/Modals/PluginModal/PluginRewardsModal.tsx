@@ -62,11 +62,10 @@ export const PluginRewardsModal = ({
                                 {/* <AppLink isExternal={true} href="https://www.convexfinance.com/stake"> */}
                                 <VStack align={"flex-start"} my={2}>
                                     <InfoIcon size="15px" />
-                                    <HStack>
-                                        <Text>This market streams </Text> <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} /> <Text>rewards from the</Text>
-                                    </HStack>
-                                    <Text> from the <b>{pluginTokenInfo?.convexPoolName}</b> Convex pool </Text>
-                                    <Text> to suppliers of <b>{pluginTokenInfo?.curvePoolName}</b> Curve LPs. </Text>
+                                    <Text>This market streams
+                                        <CTokenAvatarGroup tokenAddresses={rewardTokens} popOnHover={false} /> rewards
+                                        from the <b>{pluginTokenInfo?.convexPoolName}</b> Convex pool
+                                        to suppliers of <b>{pluginTokenInfo?.curvePoolName}</b> Curve LPs. </Text>
                                     {/* <Text fontSize="sm"> Deposit your {pluginTokenInfo?.curvePoolName} Curve LP tokens into Fuse to borrow against it while earning all the same rewards from Convex.</Text> */}
                                     {/* <Text py={1}>View reward rates for <b>{pluginTokenInfo?.convexPoolName}</b> on Convex </Text> */}
                                 </VStack>
