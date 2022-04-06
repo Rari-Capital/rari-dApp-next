@@ -275,7 +275,7 @@ const MODAL_STEP_4: ModalStep = {
 const MODAL_STEP_5: ModalStep = {
   children: ({ underlyingTokenAddress }) => (
     <Stack alignItems="center" spacing={8}>
-      <CheckCircleIcon boxSize={40} color="neutral" />
+      <CheckCircleIcon boxSize={24} color="neutral" />
       <Box textAlign="center">
         <Heading>
           <TokenIcon tokenAddress={underlyingTokenAddress} />{" "}
