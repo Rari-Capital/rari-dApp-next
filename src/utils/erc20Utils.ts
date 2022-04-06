@@ -1,10 +1,9 @@
 import { constants, providers } from "ethers";
-import { formatEther, parseEther } from "ethers/lib/utils";
+import { parseEther } from "ethers/lib/utils";
 import { Interface } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Contract } from "@ethersproject/contracts";
 import { MAX_APPROVAL_AMOUNT } from "./tokenUtils";
-import { Console } from "console";
 
 export async function checkAllowance(
   signer: any,
@@ -103,6 +102,8 @@ export async function checkAllowanceAndApprove(
     underlyingAddress,
     amount
   );
+
+  alert("HAS APPROVED ENOUGH: " + String(hasApprovedEnough))
 
   if (!hasApprovedEnough) {
     console.log({ signer, spender, underlyingAddress, amount })

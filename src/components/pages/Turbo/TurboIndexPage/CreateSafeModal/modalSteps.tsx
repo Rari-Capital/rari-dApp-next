@@ -192,27 +192,27 @@ const MODAL_STEP_3: ModalStep = {
     depositAmount,
     collateralBalance,
   }) => [
-    {
-      children: "Skip",
-      variant: "cardmatte",
-      onClick() {
-        setDepositAmount("0");
-        incrementStepIndex();
+      {
+        children: "Skip",
+        variant: "cardmatte",
+        onClick() {
+          setDepositAmount("0");
+          incrementStepIndex();
+        },
       },
-    },
-    {
-      disabled:
-        parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
-      children:
-        parseInt(depositAmount) > parseInt(collateralBalance)
-          ? "Invalid amount"
-          : "Review",
-      variant: "neutral",
-      onClick() {
-        incrementStepIndex();
+      {
+        disabled:
+          parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
+        children:
+          parseInt(depositAmount) > parseInt(collateralBalance)
+            ? "Invalid amount"
+            : "Review",
+        variant: "neutral",
+        onClick() {
+          incrementStepIndex();
+        },
       },
-    },
-  ],
+    ],
 };
 
 const MODAL_STEP_4: ModalStep = {
@@ -248,28 +248,35 @@ const MODAL_STEP_4: ModalStep = {
     creatingSafe,
     onClickCreateSafe,
     onClickApprove,
+    incrementStepIndex
   }) => [
-    {
-      children: approving
-        ? "Approving..."
-        : creatingSafe
-        ? "Creating Safe..."
-        : !hasApproval &&
-          BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-        ? "Approve Router"
-        : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-        ? "Create Safe & Deposit"
-        : "Create Safe",
-      variant: "neutral",
-      loading: approving || creatingSafe,
-      async onClick() {
-        if (!hasApproval) {
-          await onClickApprove();
-        }
-        await onClickCreateSafe();
+      {
+        children: approving
+          ? "Approving..."
+          : creatingSafe
+            ? "Creating Safe..."
+            : !hasApproval &&
+              BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+              ? "Approve Router"
+              : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+                ? "Create Safe & Deposit"
+                : "Create Safe",
+        variant: "neutral",
+        loading: approving || creatingSafe,
+        async onClick() {
+          try {
+
+            if (!hasApproval) {
+              await onClickApprove();
+            } 
+            await onClickCreateSafe();
+            incrementStepIndex()
+          } catch (err) {
+            throw err
+          }
+        },
       },
-    },
-  ],
+    ],
 };
 
 const MODAL_STEP_5: ModalStep = {

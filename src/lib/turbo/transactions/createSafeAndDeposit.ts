@@ -42,10 +42,9 @@ export const createSafeAndDeposit = async (
       chainID
     );
 
-    const receipt = await tx.wait(1)
-
-    return receipt;
+    return tx;
   } catch (e) {
     console.log(e);
+    throw e
   }
 };

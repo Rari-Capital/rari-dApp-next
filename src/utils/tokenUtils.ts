@@ -9,7 +9,7 @@ import { Fuse } from "../esm/index"
 import { ETH_TOKEN_DATA, TokenData } from "hooks/useTokenData";
 
 // Ethers
-import { Contract, BigNumber } from 'ethers'
+import { Contract, BigNumber, constants } from 'ethers'
 
 import Tokens from "../static/compiled/tokens.json";
 
@@ -114,10 +114,7 @@ export const checkHasApprovedEnough = async ({
     .gte(approvedForAmount);
 };
 
-export const MAX_APPROVAL_AMOUNT = BigNumber.from(2)
-  .pow(256)
-  .sub(1); // big fucking #
-
+export const MAX_APPROVAL_AMOUNT = constants.MaxUint256
 
 const ETH_AND_WETH = [
   "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
