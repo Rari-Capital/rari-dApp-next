@@ -236,7 +236,7 @@ const MODAL_STEP_3: ModalStep = {
 };
 
 const MODAL_STEP_4: ModalStep = {
-  children: ({ underlyingTokenAddress, depositAmount }) => (
+  children: ({ underlyingTokenAddress, depositAmount, safeSimulation }) => (
     <Box>
       <Box textAlign="center">
         <Text fontSize="lg">You are creating</Text>
@@ -249,8 +249,8 @@ const MODAL_STEP_4: ModalStep = {
         mt={8}
         statistics={[
           ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-          ["USD Value", ""],
-          ["Max Boost", "3"],
+          ["USD Value", `$${utils.commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2))}`],
+          ["Max Boost", `$${utils.commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2))}`],
         ]}
       />
     </Box>
