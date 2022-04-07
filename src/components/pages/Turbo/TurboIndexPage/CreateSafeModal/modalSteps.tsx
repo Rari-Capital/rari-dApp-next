@@ -1,5 +1,5 @@
 import { BigNumber, utils } from "ethers";
-import { commify } from "ethers/lib/utils";
+import { commify, formatEther } from "ethers/lib/utils";
 import StatisticTable from "lib/components/StatisticsTable";
 import { createSafe } from "lib/turbo/transactions/safe";
 import {
@@ -48,6 +48,7 @@ type CreateSafeCtx = {
   /** Whether the safe is currently being created. */
   creatingSafe: boolean;
   collateralBalance: string;
+  safeSimulation: any;
   onClickMax(): Promise<void>;
   /** Function which closes the modal. */
   onClose(): void;
@@ -154,6 +155,7 @@ const MODAL_STEP_3: ModalStep = {
     depositAmount,
     collateralBalance,
     setDepositAmount,
+    safeSimulation
   }) => (
     <Stack>
       <Box>
@@ -175,11 +177,29 @@ const MODAL_STEP_3: ModalStep = {
               title: "Collateral",
               primaryValue: `0`,
               secondaryValue:
-                depositAmount !== "" && depositAmount !== "0"
-                  ? `${commify(depositAmount ?? 0)}`
-                  : undefined,
+                !depositAmount || depositAmount === "0"
+                  ? undefined
+                  : `${commify(depositAmount ?? 0)}`,
               titleTooltip: "How much collateral you have deposited.",
             },
+            {
+              title: "Collateral value",
+              primaryValue: "0",
+              secondaryValue:
+                !depositAmount || depositAmount === "0" || !safeSimulation
+                  ? undefined
+                  : "$" + commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2)),
+              titleTooltip: "The total collateral value denominated in dollars.",
+            },
+            {
+              title: "Max boost",
+              primaryValue: "0",
+              secondaryValue:
+                !depositAmount || depositAmount === "0" || !safeSimulation
+                  ? undefined
+                  : "$" + commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2)),
+              titleTooltip: "The total boostable amount.",
+            }
           ]}
           mt={4}
         />

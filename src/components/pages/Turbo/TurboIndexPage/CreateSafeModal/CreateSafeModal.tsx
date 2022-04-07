@@ -13,10 +13,14 @@ import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
-import { createTurboMaster } from "lib/turbo/utils/turboContracts";
+import { createTurboComptroller, createTurboMaster } from "lib/turbo/utils/turboContracts";
 import { getRecentEventDecoded } from "lib/turbo/utils/decodeEvents";
 import { useQuery } from "react-query";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
+import { BigNumber, constants } from "ethers";
+import { calculateMaxBoost } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { getMarketCf } from "lib/turbo/utils/getMarketCF";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -29,7 +33,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
 }) => {
   // Rari and NextJs
   const router = useRouter();
-  const { address, provider, chainId } = useRari();
+  const { address, provider, chainId, fuse, isAuthed } = useRari();
   const toast = useToast();
 
   // Modal State
@@ -61,15 +65,30 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     address
   );
 
-  const { data: updatedSafeData } = useQuery('updated safe for amount ' + depositAmount,
+  const { data: safeSimulation } = useQuery('Safe creation and deposit simulation for deposit amount:' + depositAmount,
     async () => {
-      const ethUSDBN = await getEthUsdPriceBN()
-      const collateralValueUSD = 0;
-      const maxBoost = 0
+      if (depositAmount === "0" || !depositAmount || !chainId) return
 
-      //TODO: (@cryptickoan) implement this updatedSafeData function
+      // 1. Get eth price and collateral price. 
+      // @note - collaterael price is denominated in ether. collateralPrice * ethPrice = collateralPriceToUSD
+      const ethUSDBN = (await getEthUsdPriceBN()).div(constants.WeiPerEther)
+      const collateralPriceBN = await getPriceFromOracles(
+          TRIBE,
+          TurboAddresses[1].COMPTROLLER, 
+          fuse, 
+          isAuthed
+        )
+
+      // Get collateral factor
+      const collateralFactor = await getMarketCf(provider, chainId, underlyingTokenAddress)
+     
+      // Calculations
+      const amountBN = BigNumber.from(depositAmount);
+      const collateralUSD = collateralPriceBN.mul(ethUSDBN).mul(amountBN)
+      const maxBoost = calculateMaxBoost(collateralUSD, collateralFactor)
+
       return {
-        collateralValueUSD,
+        collateralUSD,
         maxBoost
       }
     }
@@ -163,6 +182,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     onClickApprove,
     onClickCreateSafe,
     creatingSafe,
+    safeSimulation,
     navigating,
     collateralBalance: balance,
     onClickMax,
