@@ -2,7 +2,7 @@ import { commify, formatEther, formatUnits } from "ethers/lib/utils";
 import { Statistic } from "rari-components";
 // Hooks
 import { smallStringUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { HStack } from "@chakra-ui/react";
+import { Stack } from "@chakra-ui/react";
 import { useUserFeiOwed } from "hooks/turbo/useUserFeiOwed";
 import { useTurboSafe } from "context/TurboSafeContext";
 
@@ -13,7 +13,7 @@ export const SafeStats: React.FC = () => {
   const [userFeiOwed] = useUserFeiOwed(usdPricedSafe)
 
   return (
-    <HStack h="100%" w="100%" spacing={12} align="flex-start">
+    <Stack direction={["column", "row"]} h="100%" w="100%" spacing={12} align="flex-start">
       <Statistic
         loading={loading}
         title={"Total Collateralized"}
@@ -51,6 +51,6 @@ export const SafeStats: React.FC = () => {
         title={"User Balance FEI"}
         value={formatEther(userBalanceOfFei) + " FEI"}
       /> */}
-    </HStack>
+    </Stack>
   );
 };

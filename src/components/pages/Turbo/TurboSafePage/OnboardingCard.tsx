@@ -5,10 +5,10 @@ import {
     Heading,
     Text,
 } from "rari-components";
-
 import {
     Box,
     HStack,
+    Stack,
 } from "@chakra-ui/react";
 import { useTurboSafe } from "context/TurboSafeContext";
 import { CheckIcon } from "@chakra-ui/icons";
@@ -33,7 +33,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ openDepositModal
         >
             <Card>
                 <Heading size="lg">Getting Started</Heading>
-                <HStack mt={12} spacing={8}>
+                <Stack mt={12} spacing={8} direction={["column", "column", "row"]}>
                     <HStack flex={1} spacing={6}
                         _hover={!hasCollateral ? { cursor: "pointer", opacity: "0.5" } : {}}
                         transition="opacity 0.2s ease"
@@ -68,7 +68,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ openDepositModal
                             </Text>
                         </Box>
                     </HStack>
-                </HStack>
+                </Stack>
             </Card>
         </motion.div>
     );
