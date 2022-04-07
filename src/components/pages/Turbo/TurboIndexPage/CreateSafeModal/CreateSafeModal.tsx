@@ -15,6 +15,8 @@ import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
 import { createTurboMaster } from "lib/turbo/utils/turboContracts";
 import { getRecentEventDecoded } from "lib/turbo/utils/decodeEvents";
+import { useQuery } from "react-query";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -58,6 +60,20 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     depositAmount,
     address
   );
+
+  const { data: updatedSafeData } = useQuery('updated safe for amount ' + depositAmount,
+    async () => {
+      const ethUSDBN = await getEthUsdPriceBN()
+      const collateralUSD = 0;
+      const maxBoost = 0
+
+      //TODO: (@cryptickoan) implement this updatedSafeData function
+      return {
+        collateralUSD,
+        maxBoost
+      }
+    }
+  )
 
   // Modal Logic
   const onClickCreateSafe = async () => {
