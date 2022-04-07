@@ -21,7 +21,7 @@ const AtRiskOfLiquidationAlert: React.FC<{ safeHealth: BigNumber | undefined }> 
                 <AlertIcon />
                 <Text>
                     With a <b>{safeHealth?.toNumber()}%</b> utilization, you are at
-                    liquidation risk. Please deposit more collateral, or unboost.
+                    liquidation risk. Please <b>deposit more collateral</b>, or <b>unboost</b>.
                 </Text>
                 <Box h="100%" ml="auto"></Box>
             </Alert>

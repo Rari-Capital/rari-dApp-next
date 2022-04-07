@@ -60,7 +60,8 @@ const MOCK_SAFE_1: USDPricedTurboSafe = {
   tribeDAOFee: BigNumber.from("750000000000000000"),
   strategies: [MOCK_STRATEGY_1, MOCK_STRATEGY_2],
   safeUtilization: BigNumber.from(50),
-  collateralUSD: 100,
+  collateralValueUSD: 100,
+  collateralPriceUSD: 1,
   debtUSD: 50,
   boostedUSD: 50,
   feiAmountUSD: 50,
@@ -69,6 +70,8 @@ const MOCK_SAFE_1: USDPricedTurboSafe = {
   maxBoost: BigNumber.from("20000000000000000000000000"),
   maxBoostUSD: 20000000000000000000000000,
   collateralFactor: BigNumber.from("100"),
+  liquidationPrice: .01,
+  liquidationPriceUSD: .32
 };
 
 const MOCK_SAFE_2: USDPricedTurboSafe = {
@@ -86,7 +89,8 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
   tribeDAOFee: BigNumber.from("750000000000000000"),
   strategies: [MOCK_STRATEGY_1],
   safeUtilization: BigNumber.from(50),
-  collateralUSD: 100,
+  collateralValueUSD: 100,
+  collateralPriceUSD: 1,
   debtUSD: 50,
   boostedUSD: 50,
   feiAmountUSD: 50,
@@ -105,6 +109,8 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
   maxBoost: BigNumber.from("20000000000000000000000000"),
   maxBoostUSD: 20000000000000000000000000,
   collateralFactor: BigNumber.from("100"),
+  liquidationPrice: .01,
+  liquidationPriceUSD: .32
 };
 
 export { MOCK_SAFE_1, MOCK_SAFE_2, MOCK_ERC4626_STRATEGY_1 };

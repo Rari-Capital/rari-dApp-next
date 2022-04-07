@@ -92,7 +92,6 @@ export async function checkAllowanceAndApprove(
     return;
   }
 
-  alert("HI")
   console.log({ signer, spender, underlyingAddress, amount, MAX_APPROVAL_AMOUNT })
 
   const hasApprovedEnough = await checkAllowance(

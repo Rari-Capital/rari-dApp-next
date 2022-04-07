@@ -44,7 +44,7 @@ export const useUpdatedSafeInfo = ({
                 const collateralValue = collateralAmount
                     .mul(safe.collateralPrice)
                     .div(constants.WeiPerEther)
-                const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
+                const collateralValueUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
                 const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue, safe.collateralFactor)
                 const maxBoost = calculateMaxBoost(collateralValue, safe.collateralFactor)
                 const maxBoostUSD = calculateETHValueUSD(maxBoost, ethUSDBN)
@@ -53,7 +53,7 @@ export const useUpdatedSafeInfo = ({
                     ...safe,
                     collateralAmount,
                     collateralValue,
-                    collateralUSD,
+                    collateralValueUSD,
                     safeUtilization,
                     maxBoost,
                     maxBoostUSD
@@ -69,14 +69,14 @@ export const useUpdatedSafeInfo = ({
                 const collateralValue = collateralAmount
                     .mul(safe.collateralPrice)
                     .div(constants.WeiPerEther)
-                const collateralUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
+                const collateralValueUSD = calculateETHValueUSD(collateralValue, ethUSDBN)
                 const safeUtilization = calculateSafeUtilization(safe.debtValue, collateralValue, safe.collateralFactor)
 
                 updatedSafe = {
                     ...safe,
                     collateralAmount,
                     collateralValue,
-                    collateralUSD,
+                    collateralValueUSD,
                     safeUtilization
                 }
 

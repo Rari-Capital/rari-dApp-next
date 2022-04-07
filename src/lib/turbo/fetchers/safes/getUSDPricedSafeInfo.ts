@@ -1,25 +1,28 @@
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 import { calculateETHValueUSD, calculateFEIValueUSD } from "lib/turbo/utils/usdUtils";
 import { StrategyInfo } from "../strategies/formatStrategyInfo";
 import { getSafeInfo, SafeInfo } from "./getSafeInfo";
 
 export interface USDPricedTurboSafe extends SafeInfo {
-    collateralUSD: number,
+    collateralValueUSD: number,
+    collateralPriceUSD: number,
     debtUSD: number,
     boostedUSD: number,
     feiAmountUSD: number,
     feiPriceUSD: number,
     usdPricedStrategies: USDPricedStrategy[],
-    maxBoostUSD: number
-
+    maxBoostUSD: number,
+    liquidationPriceUSD: number,
 }
 
 export interface USDPricedStrategy extends StrategyInfo {
     boostAmountUSD: number,
     feiAmountUSD: number,
     feiEarnedUSD: number,
+    feiClaimableUSD: number,
 }
 
 export const getUSDPricedSafeInfo = async (
@@ -40,25 +43,29 @@ export const getUSDPricedSafeInfo = async (
             ]
         )
 
-        const collateralUSD = calculateETHValueUSD(safeInfo.collateralValue, ethUSDBN)
+        const collateralValueUSD = calculateETHValueUSD(safeInfo.collateralValue, ethUSDBN)
+        const collateralPriceUSD = calculateETHValueUSD(safeInfo.collateralPrice, ethUSDBN)
         const debtUSD = calculateETHValueUSD(safeInfo.debtValue, ethUSDBN)
         const boostedUSD = calculateFEIValueUSD(safeInfo.boostedAmount, safeInfo.feiPrice, ethUSDBN)
         const feiAmountUSD = calculateFEIValueUSD(safeInfo.feiAmount, safeInfo.feiPrice, ethUSDBN)
         const feiPriceUSD = calculateETHValueUSD(safeInfo.feiPrice, ethUSDBN)
         const maxBoostUSD = calculateETHValueUSD(safeInfo.maxBoost, ethUSDBN)
+        const liquidationPriceUSD = calculateETHValueUSD(parseEther(safeInfo.liquidationPrice.toString()), ethUSDBN)
 
         // Add USD values to each strategyInfo
         const usdPricedStrategies = getUSDPricedStrategies(ethUSDBN, safeInfo.feiPrice, safeInfo.strategies)
 
         const usdPricedSafe: USDPricedTurboSafe = {
             ...safeInfo,
-            collateralUSD,
+            collateralValueUSD,
+            collateralPriceUSD,
             debtUSD,
             feiAmountUSD,
             boostedUSD,
             feiPriceUSD,
             usdPricedStrategies,
-            maxBoostUSD
+            maxBoostUSD,
+            liquidationPriceUSD
         }
 
         return usdPricedSafe;
@@ -87,12 +94,17 @@ export const getUSDPricedStrategies = (
             : calculateFEIValueUSD(strategy.feiAmount, feiPriceBN, ethUSDBN)
 
         let feiEarnedUSD = feiAmountUSD - boostAmountUSD
+        let feiClaimableUSD = strategy.strategy === EMPTY_ADDRESS
+            ? 0
+            : calculateFEIValueUSD(strategy.feiClaimable, feiPriceBN, ethUSDBN)
+
 
         let usdStrat: USDPricedStrategy = {
             ...strategy,
             boostAmountUSD,
             feiAmountUSD,
-            feiEarnedUSD
+            feiEarnedUSD,
+            feiClaimableUSD
         }
 
         usdPricedStrategies.push(usdStrat)

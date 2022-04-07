@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
+import { useQueryClient } from "react-query";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
 }) => {
   const { provider, chainId, address } = useRari();
   const toast = useToast();
+  const queryClient = useQueryClient()
 
   const [stepIndex, setStepIndex] = useState(0);
   function incrementStepIndex() {
@@ -67,9 +69,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
   // Form validation
   const inputError: string | undefined = useMemo(() => {
     const _amount = amount ? amount : "0";
-    if (updatedSafe?.safeUtilization.gte(70)) {
-      return "Safe too risky!";
-    }
+
     switch (mode) {
       case SafeInteractionMode.BOOST:
         if (parseEther(_amount).gt(maxAmount)) {
@@ -107,6 +107,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
       handleGenericError(err, toast);
     } finally {
       setTransacting(false);
+      await queryClient.refetchQueries();
     }
   };
 
@@ -137,6 +138,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
       handleGenericError(err, toast);
     } finally {
       setTransacting(false);
+      await queryClient.refetchQueries();
     }
   };
 

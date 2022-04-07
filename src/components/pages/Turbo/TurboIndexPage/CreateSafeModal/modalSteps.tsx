@@ -229,8 +229,8 @@ const MODAL_STEP_4: ModalStep = {
         mt={8}
         statistics={[
           ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-          ["Estimated gas cost", ""],
-          ["# of transactions", "3"],
+          ["USD Value", ""],
+          ["Max Boost", "3"],
         ]}
       />
     </Box>
@@ -268,7 +268,7 @@ const MODAL_STEP_4: ModalStep = {
 
             if (!hasApproval) {
               await onClickApprove();
-            } 
+            }
             await onClickCreateSafe();
             incrementStepIndex()
           } catch (err) {

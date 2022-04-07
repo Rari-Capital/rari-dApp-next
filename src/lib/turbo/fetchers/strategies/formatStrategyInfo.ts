@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 
 
@@ -18,11 +18,13 @@ export type StrategyInfo = {
     feiAmount: BigNumber;
     /// @notice the amount of fei earned by the strategy
     feiEarned: BigNumber;
+    feiClaimable: BigNumber
 };
 
 
 export const formatStrategiesInfo = (
     strategies: LensStrategyInfo[],
+    tribeDAOFeeShare: BigNumber,
     shouldFilterStrategies: boolean = false
 ): StrategyInfo[] | [] => {
 
@@ -31,7 +33,8 @@ export const formatStrategiesInfo = (
             strategy: strategy[0],
             boostedAmount: strategy[1],
             feiAmount: strategy[2],
-            feiEarned: strategy[1].sub(strategy[2])
+            feiEarned: strategy[2].sub(strategy[1]),
+            feiClaimable: strategy[2].sub(strategy[1]).mul(constants.WeiPerEther.sub(tribeDAOFeeShare)).div(constants.WeiPerEther)
         };
     });
 

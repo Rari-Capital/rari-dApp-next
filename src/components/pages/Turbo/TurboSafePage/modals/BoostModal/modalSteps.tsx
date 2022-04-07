@@ -59,9 +59,12 @@ const MODAL_STEP_1: ModalStep = {
           <Text variant="secondary" mt="4">
             {mode === SafeInteractionMode.BOOST
               ? `You can boost ${parseFloat(formatEther(maxAmount)).toFixed(
-                  2
-                )} FEI`
-              : `You can less ${formatEther(strategy!.boostedAmount)} FEI`}
+                2
+              )} FEI`
+              : `You can less ${parseFloat(formatEther(strategy!.boostedAmount
+              )).toFixed(
+                2
+              )} FEI`}
           </Text>
         </VStack>
         <StatisticTable
@@ -78,7 +81,7 @@ const MODAL_STEP_1: ModalStep = {
               title: "Safe Utilization",
               primaryValue:
                 parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) +
-                  "%" ?? "?",
+                "%" ?? "?",
               secondaryValue:
                 parseFloat(
                   updatedSafe?.safeUtilization.toString() ?? "0"
@@ -118,37 +121,37 @@ const MODAL_STEP_1: ModalStep = {
     incrementStepIndex,
     inputError,
   }) => [
-    {
-      children: !!inputError
-        ? inputError
-        : mode === SafeInteractionMode.LESS
-        ? strategy?.boostedAmount?.eq(parseEther(amount || "0"))
-          ? "Less and Accrue Rewards"
-          : "Less"
-        : mode,
-      variant: "neutral",
-      loading: transacting,
-      disabled: transacting || !amount || !!inputError,
-      async onClick() {
-        try {
-          if (mode === "Boost") {
-            await onClickBoost();
-          } else {
-            await onClickLess();
+      {
+        children: !!inputError
+          ? inputError
+          : mode === SafeInteractionMode.LESS
+            ? strategy?.boostedAmount?.eq(parseEther(amount || "0"))
+              ? "Less and Accrue Rewards"
+              : "Less"
+            : mode,
+        variant: "neutral",
+        loading: transacting,
+        disabled: !amount || !!inputError,
+        async onClick() {
+          try {
+            if (mode === "Boost") {
+              await onClickBoost();
+            } else {
+              await onClickLess();
+            }
+          } catch (err) {
+            throw err;
           }
-        } catch (err) {
-          throw err;
-        }
+        },
       },
-    },
-  ],
+    ],
 };
 
 const MODAL_STEP_2: ModalStep = {
   children: ({ amount, mode }) => (
     <>
       <VStack>
-        <Heading>{commify(amount)} FEI</Heading>
+        <Heading>{commify(parseFloat(amount).toFixed(2))} FEI</Heading>
         <Text>Succesfully {mode}ed</Text>
       </VStack>
     </>

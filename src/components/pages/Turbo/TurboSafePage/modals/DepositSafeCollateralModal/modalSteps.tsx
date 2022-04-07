@@ -57,17 +57,17 @@ const MODAL_STEP_1: ModalStep = {
           statistics={[
             {
               title: "Collateral",
-              primaryValue: abbreviateAmount(safe?.collateralUSD),
-              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.collateralUSD),
+              primaryValue: abbreviateAmount(safe?.collateralValueUSD),
+              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.collateralValueUSD),
               titleTooltip: "How much collateral you have deposited.",
-              primaryTooltip: `$ ${commify(safe.collateralUSD ?? 0)}`,
-              secondaryTooltip: `$ ${commify(updatedSafe?.collateralUSD ?? 0)}`
+              primaryTooltip: `$ ${commify(safe.collateralValueUSD ?? 0)}`,
+              secondaryTooltip: `$ ${commify(updatedSafe?.collateralValueUSD ?? 0)}`
             },
             {
               title: "Max Boost",
               primaryValue: abbreviateAmount(safe?.maxBoostUSD),
               secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoostUSD),
-              titleTooltip: "The maximum amount you can boost. This is collateralUSD * collateralFactor ",
+              titleTooltip: "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
               primaryTooltip: `$ ${commify(safe.maxBoostUSD ?? 0)}`,
               secondaryTooltip: `$ ${commify(updatedSafe?.maxBoostUSD ?? 0)}`
             },

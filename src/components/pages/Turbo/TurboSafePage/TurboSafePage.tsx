@@ -79,12 +79,13 @@ const TurboSafePage: React.FC = () => {
 
   const [hovered, setHovered] = useState(false)
 
-  function onClickBoostRandom() {
+  function onClickBoost() {
     // TODO(sharad-s) Need to implement
+    // TODO(sharad-s) Move strategyIndex to context
     alert("Boosting random safe!")
+    
   }
 
-  console.log({ safe })
 
   return (
     <>
@@ -135,8 +136,6 @@ const TurboSafePage: React.FC = () => {
 
       {/* Alerts */}
       {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
-      {/* {shouldBoost && <BoostMeAlert safeHealth={safeHealth} />} */}
-
 
       <Stack
         direction={"row"}
@@ -173,7 +172,7 @@ const TurboSafePage: React.FC = () => {
       {safe?.boostedAmount.isZero() && !loading &&
         <OnboardingCard
           openDepositModal={openDepositModal}
-          onClickBoostRandom={onClickBoostRandom}
+          onClickBoost={onClickBoost}
         />
       }
       <BoostBar />
