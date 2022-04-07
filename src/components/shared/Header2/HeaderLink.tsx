@@ -6,7 +6,6 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -96,7 +95,8 @@ export const HeaderLink = ({
 const splitHairs = (path: string) =>
   path
     .replace(/\/+$/, "")
-    .split("/")
+    // Split on `/` or `?`
+    .split(/\/|\?/)
     .filter((str) => !!str);
 
 // Dropdown Header Link
