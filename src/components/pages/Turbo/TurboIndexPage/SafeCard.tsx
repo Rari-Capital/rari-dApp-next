@@ -60,7 +60,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 <TokenSymbol tokenAddress={safe.collateralAsset} />
                             </Heading>
                             <Spacer />
-                            {boostMe && <Badge variant="success">Boost Me! 🔥</Badge>}
+                            {boostMe && <Badge variant="success">Boost Me 🔥</Badge>}
                         </HStack>
                         <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch">
                             <Flex alignItems="baseline" flex={1}>

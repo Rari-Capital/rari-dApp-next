@@ -11,6 +11,7 @@ const MOCK_STRATEGY_1: StrategyInfo = {
   boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
   feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
   feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
+  feiClaimable: BigNumber.from("0x0001a784384483c3a3ebd4"),
 };
 
 const MOCK_STRATEGY_2: StrategyInfo = {
@@ -19,6 +20,7 @@ const MOCK_STRATEGY_2: StrategyInfo = {
   boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
   feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
   feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
+  feiClaimable: BigNumber.from("0x0001a784384483c3a3ebd4"),
 };
 
 const MOCK_USD_PRICED_STRATEGY_1: USDPricedStrategy = {
@@ -26,6 +28,8 @@ const MOCK_USD_PRICED_STRATEGY_1: USDPricedStrategy = {
   boostAmountUSD: 50,
   feiAmountUSD: 50,
   feiEarnedUSD: 10,
+  feiClaimableUSD: 10,
+
 };
 
 const MOCK_USD_PRICED_STRATEGY_2: USDPricedStrategy = {
@@ -33,6 +37,7 @@ const MOCK_USD_PRICED_STRATEGY_2: USDPricedStrategy = {
   boostAmountUSD: 50,
   feiAmountUSD: 50,
   feiEarnedUSD: 10,
+  feiClaimableUSD: 10,
 };
 
 const MOCK_ERC4626_STRATEGY_1: FuseERC4626Strategy = {
@@ -101,9 +106,11 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
       boostedAmount: BigNumber.from("0x01a784379d99db42000000"),
       feiAmount: BigNumber.from("0x01a784384483c3a3ebd483"),
       feiEarned: BigNumber.from("0x0001a784384483c3a3ebd4"),
+      feiClaimable: BigNumber.from("0x0001a784384483c3a3ebd4"),
       boostAmountUSD: 50,
       feiAmountUSD: 50,
       feiEarnedUSD: 10,
+      feiClaimableUSD: 1
     },
   ],
   maxBoost: BigNumber.from("20000000000000000000000000"),

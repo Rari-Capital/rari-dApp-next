@@ -125,8 +125,6 @@ export const DepositSafeCollateralModal: React.FC<
     }
   }
 
-  console.log({ hasApproval })
-
   return (
     <Modal
       ctx={{

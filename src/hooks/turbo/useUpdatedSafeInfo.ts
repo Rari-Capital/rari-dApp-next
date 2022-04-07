@@ -32,6 +32,7 @@ export const useUpdatedSafeInfo = ({
         `Updated safe info for ${safe?.safeAddress} for mode ${mode} and amount ${amount.toString()}`,
         async () => {
             if (!provider || !chainId || !safe) return;
+
             const ethUSDBN = await getEthUsdPriceBN()
 
             let updatedSafe: USDPricedTurboSafe;
@@ -133,6 +134,7 @@ export const useUpdatedSafeInfo = ({
             /** LESS **/
             if (mode === SafeInteractionMode.LESS) {
 
+
                 if (strategyIndex === undefined || strategyIndex < 0) return undefined
 
                 const boostedAmount = safe.boostedAmount.sub(amount) // boosted FEI 
@@ -141,6 +143,10 @@ export const useUpdatedSafeInfo = ({
                 const debtValue = debtAmount
                     .mul(safe.feiPrice)
                     .div(constants.WeiPerEther)
+
+                console.log({boostedAmount, boostedUSD, debtAmount, debtValue})
+
+
 
                 const safeUtilization = calculateSafeUtilization(debtValue, safe.collateralValue, safe.collateralFactor)
 

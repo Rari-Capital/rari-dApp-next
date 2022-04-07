@@ -24,7 +24,6 @@ import BoostModal from "./modals/BoostModal";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { FEI } from "lib/turbo/utils/constants";
-import useBoostCapsForStrategies from "hooks/turbo/useBoostCapsForStrategies";
 import { useTurboSafe } from "context/TurboSafeContext";
 
 export const SafeStrategies: React.FC = () => {
@@ -77,12 +76,8 @@ export const SafeStrategies: React.FC = () => {
     [safeStrategies, activeStrategyAddress]
   );
 
-  const getBoostCapForStrategy = useBoostCapsForStrategies(
-    safeStrategies.map(({ strategy }) => strategy)
-  )
-
   const userPercent = usdPricedSafe?.tribeDAOFee ? 1 - parseFloat(formatEther(usdPricedSafe?.tribeDAOFee)) : 1
-  console.log({ userPercent })
+
 
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (

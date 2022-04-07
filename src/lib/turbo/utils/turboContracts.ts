@@ -31,7 +31,7 @@ export const createTurboRouter = async (provider: providers.JsonRpcProvider, id:
 };
 
 
-export const createTurboMaster = (provider: providers.JsonRpcProvider, id: number = 1) => {
+export const createTurboMaster = (provider: providers.Provider, id: number = 1) => {
   const turboMasterContract = new Contract(
     TurboAddresses[id].MASTER,
     TurboMaster.abi,
@@ -64,7 +64,7 @@ export const createTurboLens = (provider: providers.Provider, chainID: number) =
   return turboLens;
 };
 
-export const createTurboBooster = async (
+export const createTurboBooster = (
   provider: providers.Provider,
   chainID: number
 ) => {

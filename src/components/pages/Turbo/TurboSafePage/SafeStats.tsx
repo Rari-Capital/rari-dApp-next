@@ -14,7 +14,6 @@ export const SafeStats: React.FC = () => {
 
   return (
     <HStack h="100%" w="100%" spacing={12} align="flex-start">
-      {/* You are just a */}
       <Statistic
         loading={loading}
         title={"Total Collateralized"}
@@ -26,6 +25,7 @@ export const SafeStats: React.FC = () => {
       />
 
       <Statistic
+        loading={loading}
         title={"Claimable FEI"}
         value={smallUsdFormatter(formatEther(userFeiOwed))}
         secondaryValue={`${commify(
@@ -36,6 +36,7 @@ export const SafeStats: React.FC = () => {
       />
 
       <Statistic
+        loading={loading}
         title={"Avg. APY"}
         value={netAPY.toFixed(2) + "%"}
         tooltip="Average APY earned across all active strategies."
