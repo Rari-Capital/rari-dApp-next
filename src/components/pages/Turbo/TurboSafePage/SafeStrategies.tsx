@@ -17,7 +17,7 @@ import { USDPricedStrategy } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo
 // Utils
 import { smallUsdFormatter } from "utils/bigUtils";
 import { keyBy } from 'lodash';
-import { formatEther } from "ethers/lib/utils";
+import { formatEther, formatUnits } from "ethers/lib/utils";
 import { convertMantissaToAPY } from "utils/apyUtils";
 import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import BoostModal from "./modals/BoostModal";
@@ -81,6 +81,8 @@ export const SafeStrategies: React.FC = () => {
     safeStrategies.map(({ strategy }) => strategy)
   )
 
+  const userPercent = usdPricedSafe?.tribeDAOFee ? 1 - parseFloat(formatEther(usdPricedSafe?.tribeDAOFee)) : 1
+  console.log({ userPercent })
 
   // TODO (@sharad-s) Need to find a way to merge "active" and "inactive" strategies elegantly. Inactive Strategies have no strat address 
   return (
@@ -108,6 +110,8 @@ export const SafeStrategies: React.FC = () => {
             safeStrategies.map((strat: USDPricedStrategy, i) => {
               const strategyData = strategiesData[strat.strategy]
               const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
+              const grossApy = convertMantissaToAPY((strategyData?.supplyRatePerBlock ?? 0), 365)
+              const netAPY = grossApy * userPercent
               return ({
                 key: strat.strategy,
                 items: [
@@ -122,14 +126,22 @@ export const SafeStrategies: React.FC = () => {
                     </Link>),
                   (
                     <Box>
-                      <Tooltip label={`${formatEther(strat.feiEarned)} FEI`}>
+                      <Tooltip label={`${formatEther(strat.feiClaimable)} FEI`}>
                         <Text>
-                          {smallUsdFormatter(strat.feiEarnedUSD)}
+                          {smallUsdFormatter(strat.feiClaimableUSD)}
                         </Text>
                       </Tooltip>
                     </Box>
                   ),
-                  convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2) + "%",
+                  (
+                    <Box>
+                      <Tooltip label={`${convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2)}% from Fuse after ${formatUnits(usdPricedSafe?.tribeDAOFee ?? 0, 16)}% TribeDAO Revenue Split`}>
+                        <Text>
+                          {netAPY.toFixed(2) + "%"}
+                        </Text>
+                      </Tooltip>
+                    </Box>
+                  ),
                   (
                     <HStack>
                       {strat.boostedAmount.gt(0) && <Image
@@ -158,30 +170,28 @@ export const SafeStrategies: React.FC = () => {
                           opacity: 0.5,
                         }}
                         background="success"
-                        onClick={() => handleBoostClick(strat.strategy)}  
+                        onClick={() => handleBoostClick(strat.strategy)}
                       >
                         <Heading size="sm" color="black">+</Heading>
                       </Flex>
                     </Tooltip>
-                    {!strat.boostedAmount.isZero() && (
-                      <Tooltip label="Less">
-                        <Flex
-                          cursor="pointer"
-                          alignItems="center"
-                          justifyContent="center"
-                          boxSize={8}
-                          borderRadius="50%"
-                          transition="0.2s opacity"
-                          _hover={{
-                            opacity: 0.5,
-                          }}
-                          background="danger"
-                          onClick={() => handleLessClick(strat.strategy)}
-                        >
-                          <Heading size="sm" color="black">—</Heading>
-                        </Flex>
-                      </Tooltip>
-                    )}
+                    <Tooltip label="Less">
+                      <Flex
+                        cursor="pointer"
+                        alignItems="center"
+                        justifyContent="center"
+                        boxSize={8}
+                        borderRadius="50%"
+                        transition="0.2s opacity"
+                        _hover={{
+                          opacity: 0.5,
+                        }}
+                        background="danger"
+                        onClick={() => handleLessClick(strat.strategy)}
+                      >
+                        <Heading size="sm" color="black">—</Heading>
+                      </Flex>
+                    </Tooltip>
                   </HStack>
                 ]
               })

@@ -1,3 +1,4 @@
+import { formatEther, formatUnits } from "ethers/lib/utils";
 import useSafeAvgAPY from "hooks/turbo/useSafeAvgAPY";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
@@ -63,7 +64,11 @@ export const TurboSafeProvider = ({
 
     // Average APY across all active Fuse strategies
     // TODO(@sharad-s) - refactor into a hook
-    const netAPY = useSafeAvgAPY(activeStrategies, getERC4626StrategyData)
+    const netAPY = useSafeAvgAPY(
+        activeStrategies,
+        getERC4626StrategyData,
+        parseFloat(formatEther(safe?.tribeDAOFee ?? 0))
+    )
 
     const isAtLiquidationRisk = safe?.safeUtilization?.gt(80) ?? false;
     const shouldBoost = useShouldBoostSafe(safe)
@@ -76,7 +81,7 @@ export const TurboSafeProvider = ({
                 ? "whatsapp"
                 : safeHealth?.lte(80)
                     ? "orange"
-                    : "red";
+                    : "#DB6464";
     }, [safeHealth]);
 
 

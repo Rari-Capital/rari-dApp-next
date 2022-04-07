@@ -18,6 +18,7 @@ import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInf
 import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
 import useHasApproval from "hooks/useHasApproval";
+import { useQueryClient } from "react-query";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -31,6 +32,7 @@ export const DepositSafeCollateralModal: React.FC<
 > = ({ isOpen, onClose, safe }) => {
   const { address, provider, chainId } = useRari();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const [stepIndex, setStepIndex] = useState(0);
   function incrementStepIndex() {
@@ -103,6 +105,7 @@ export const DepositSafeCollateralModal: React.FC<
       handleGenericError(err, toast);
     } finally {
       setDepositing(false);
+      await queryClient.refetchQueries();
     }
   };
 

@@ -64,12 +64,12 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   const { data: updatedSafeData } = useQuery('updated safe for amount ' + depositAmount,
     async () => {
       const ethUSDBN = await getEthUsdPriceBN()
-      const collateralUSD = 0;
+      const collateralValueUSD = 0;
       const maxBoost = 0
 
       //TODO: (@cryptickoan) implement this updatedSafeData function
       return {
-        collateralUSD,
+        collateralValueUSD,
         maxBoost
       }
     }

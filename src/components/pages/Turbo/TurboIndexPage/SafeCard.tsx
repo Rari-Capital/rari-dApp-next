@@ -35,7 +35,11 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
 
     const usdPricedSafeInfo = useSafeInfo(safe.safeAddress)
 
-    const avgAPY = useSafeAvgAPY(filterUsedStrategies(safe.strategies), getERC4626StrategyData)
+    const avgAPY = useSafeAvgAPY(
+        filterUsedStrategies(safe.strategies),
+        getERC4626StrategyData,
+        parseFloat(formatEther(safe?.tribeDAOFee ?? 0))
+    )
 
     const tokenData = useTokenData(safe.collateralAsset)
 
@@ -65,7 +69,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 >
                                     <>
                                         <Heading size="md">
-                                            {abbreviateAmount(usdPricedSafeInfo?.collateralUSD)}
+                                            {abbreviateAmount(usdPricedSafeInfo?.collateralValueUSD)}
                                         </Heading>
                                         <Text variant="secondary" ml={2}>
                                             deposited
@@ -87,7 +91,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 </Text>
                             </HStack>
                             <Progress
-                                height={4}
+                                height={3}
                                 hideLabel
                                 value={safe.safeUtilization.toNumber()}
                             />
