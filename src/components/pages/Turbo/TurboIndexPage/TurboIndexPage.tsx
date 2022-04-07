@@ -132,7 +132,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
         <Statistic title="Net APY" tooltip="Tooltip" value={`${netAPY.toFixed(2)}%`} />
       </HStack>
       <SimpleGrid columns={[2, 2, 2, 3]} spacing={4} mt={12}>
-        <HoverableCard variant="active" onClick={onClickCreateSafe} p={6}>
+        <HoverableCard variant="active" onClick={onClickCreateSafe}>
           {(hovered) => (
             <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
               <Heading display="flex" alignItems="center" size="lg">
