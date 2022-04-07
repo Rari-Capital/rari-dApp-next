@@ -18,19 +18,17 @@ export const BoostBar: React.FC = () => {
     const { usdPricedSafe, collateralTokenData: tokenData, colorScheme } = useTurboSafe();
     const { boostedUSD, safeUtilization, maxBoostUSD, maxBoost } = usdPricedSafe ?? {}
 
-    console.log({ usdPricedSafe })
-
     return (
         <Box mt={12}>
             <Flex justifyContent="space-between" alignItems="baseline">
-                <Flex alignItems="baseline">
+                <Flex alignItems="baseline" justifyContent="baseline">
                     <Image
-                        boxSize={"30px"}
                         src="/static/turbo/turbo-engine-green.svg"
-                        align={"center"}
-                        mr={2}
+                        boxSize={10}
+                        alignSelf="flex-end"
+                        pb={2}
                     />
-                    <Heading variant="success" size="lg" mr={2}>
+                    <Heading variant="success" size="xl" mx={2}>
                         {shortUsdFormatter(boostedUSD ?? 0)} boosted
                     </Heading>
                     <Text variant="neutral">
@@ -44,14 +42,14 @@ export const BoostBar: React.FC = () => {
                         tokenAddress={tokenData?.address ?? ""}
                         boxSize={6}
                         mx={1}
-                    />
+                    />= 
                     $0.25
                 </Text>
             </Flex>
             <Progress
                 size="xs"
                 width="100%"
-                height={4}
+                height={3}
                 mt={4}
                 hideLabel
                 barVariant={colorScheme}

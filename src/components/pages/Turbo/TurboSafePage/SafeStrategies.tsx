@@ -98,8 +98,8 @@ export const SafeStrategies: React.FC = () => {
         <Table
           width="100%"
           headings={[
-            "Strategy",
-            "Earned FEI",
+            "Pool Name",
+            "Claimable Interest",
             "APY",
             "Active Boost",
             "",
@@ -160,7 +160,7 @@ export const SafeStrategies: React.FC = () => {
                         background="success"
                         onClick={() => handleBoostClick(strat.strategy)}  
                       >
-                        <Heading size="sm">+</Heading>
+                        <Heading size="sm" color="black">+</Heading>
                       </Flex>
                     </Tooltip>
                     {!strat.boostedAmount.isZero() && (
@@ -178,7 +178,7 @@ export const SafeStrategies: React.FC = () => {
                           background="danger"
                           onClick={() => handleLessClick(strat.strategy)}
                         >
-                          <Heading size="sm">—</Heading>
+                          <Heading size="sm" color="black">—</Heading>
                         </Flex>
                       </Tooltip>
                     )}
