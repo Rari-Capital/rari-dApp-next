@@ -13,10 +13,12 @@ import {
 import { useTurboSafe } from "context/TurboSafeContext";
 import { CheckIcon } from "@chakra-ui/icons";
 
-
-export const OnboardingCard: React.FC<{
+type OnboardingCardProps = {
     openDepositModal: () => void;
-}> = ({ openDepositModal }) => {
+    onClickBoostRandom: () => void;
+}
+
+export const OnboardingCard: React.FC<OnboardingCardProps> = ({ openDepositModal, onClickBoostRandom }) => {
     const { safe } = useTurboSafe()
     const { collateralAmount, boostedAmount } = safe ?? {}
 
@@ -33,14 +35,14 @@ export const OnboardingCard: React.FC<{
                 <Heading size="lg">Getting Started</Heading>
                 <HStack mt={12} spacing={8}>
                     <HStack flex={1} spacing={6}
-                        opacity={0.8}
-                        _hover={!hasCollateral ? { cursor: "pointer", opacity: "1" } : {}}
+                        _hover={!hasCollateral ? { cursor: "pointer", opacity: "0.5" } : {}}
+                        transition="opacity 0.2s ease"
+                        onClick={openDepositModal}
                     >
                         <Badge
                             variant="neutral"
                             fontSize="lg"
                             boxSize={12}
-                            onClick={openDepositModal}
                         >
                             {hasCollateral ? <CheckIcon /> : <Heading size="lg">1</Heading>}
                         </Badge>
@@ -52,8 +54,9 @@ export const OnboardingCard: React.FC<{
                         </Box>
                     </HStack>
                     <HStack flex={1} spacing={6}
-                        opacity={0.8}
-                        _hover={{ cursor: "pointer", opacity: "1" }}
+                        _hover={{ cursor: "pointer", opacity: "0.5" }}
+                        transition="opacity 0.2s ease"
+                        onClick={onClickBoostRandom}
                     >
                         <Badge variant="neutral" fontSize="lg" boxSize={12} opacity={0.8}>
                             {hasBoosted ? <CheckIcon /> : <Heading size="lg">2</Heading>}
