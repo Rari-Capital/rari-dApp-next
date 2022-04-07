@@ -51,7 +51,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
 
     return (
         <Link href={`/turbo/safe/${safe.safeAddress}`}>
-            <HoverableCard w="100%" variant="ghost" cursor="pointer" p={6}>
+            <HoverableCard w="100%" cursor="pointer" p={6}>
                 {(hovered) => (
                     <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
                         <HStack justify={"start"}>
@@ -60,7 +60,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 boxSize={10}
                                 mr={2}
                             />
-                            <Heading>
+                            <Heading size="lg">
                                 <TokenSymbol tokenAddress={safe.collateralAsset} />
                             </Heading>
                             <Spacer />
@@ -68,7 +68,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                             {isAtLiquidationRisk && <Badge variant="warning">At Risk ❗</Badge>}
                             {boostMe && <Badge variant="success">Boost Me 🔥</Badge>}
                         </HStack>
-                        <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch">
+                        <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch" direction="row">
                             <Flex alignItems="baseline" flex={1}>
                                 <Tooltip
                                     label={`${commify(formatUnits(safe.collateralAmount, tokenData?.decimals))} ${tokenData?.symbol}`}
@@ -77,7 +77,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                         <Heading size="md">
                                             {abbreviateAmount(usdPricedSafeInfo?.collateralValueUSD)}
                                         </Heading>
-                                        <Text variant="secondary" ml={2}>
+                                        <Text variant="secondary" ml={2} fontSize="md">
                                             deposited
                                         </Text>
                                     </>
@@ -85,14 +85,14 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                             </Flex>
                             <Flex alignItems="baseline" flex={1}>
                                 <Heading size="md">{avgAPY.toFixed(2)}%</Heading>
-                                <Text variant="secondary" ml={2}>
+                                <Text variant="secondary" ml={2} fontSize="md">
                                     APY
                                 </Text>
                             </Flex>
                         </Stack>
                         <Box mt={8}>
-                            <HStack mb={2} align="start">
-                                <Text variant="secondary" mb={2}>
+                            <HStack mb={1} align="start">
+                                <Text variant="secondary">
                                     Active boost
                                 </Text>
                             </HStack>
@@ -101,6 +101,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 hideLabel
                                 barVariant={color}
                                 value={safe.safeUtilization.toNumber()}
+                                background="#353535"
                             />
                         </Box>
                     </Box>
