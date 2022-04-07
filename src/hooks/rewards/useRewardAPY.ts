@@ -25,6 +25,7 @@ import {
 import { convertMantissaToAPR, convertMantissaToAPY } from "utils/apyUtils";
 import { constants, BigNumber } from "ethers";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { formatEther } from "ethers/lib/utils";
 
 // ( ( rewardSupplySpeed * rewardEthPrice ) / ( underlyingTotalSupply * underlyingEthPrice / 1e18 / 1e18 ) )
 // (
@@ -315,14 +316,13 @@ export const getPriceFromOracles = async (
   comptroller: string,
   fuse: Fuse,
   isAuthed: boolean
-) => {
+): Promise<BigNumber> => {
   // Rari MPO
   const masterPriceOracle = createMasterPriceOracle(fuse, true);
 
   // Pool's MPO
   const comptrollerInstance = useCreateComptroller(comptroller, fuse, isAuthed);
   const oracleAddress: string = await comptrollerInstance.callStatic.oracle();
-  // const oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
   const oracleContract = createOracle(
     oracleAddress,
     fuse,
@@ -377,7 +377,7 @@ export const useAssetPricesInEth = (
 
       // Calc usd prices
       for (let i = 0; i < tokenAddresses.length; i++) {
-        const priceInEth = parseFloat(tokenPricesInEth[i]);
+        const priceInEth = parseFloat(tokenPricesInEth[i].toString());
         const tokenData = tokensData[tokenAddresses[i]];
         const decimals = tokenData?.decimals ?? 18;
 
@@ -397,7 +397,7 @@ export const useAssetPricesInEth = (
       for (let i = 0; i < tokenAddresses.length; i++) {
         const tokenAddress = tokenAddresses[i];
         const usdPrice = tokenUSDPrices[i];
-        const ethPrice = parseFloat(tokenPricesInEth[i]);
+        const ethPrice = parseFloat(tokenPricesInEth[i].toString());
         tokenPrices[tokenAddress] = {
           ethPrice,
           usdPrice,
