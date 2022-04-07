@@ -51,7 +51,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
 
     return (
         <Link href={`/turbo/safe/${safe.safeAddress}`}>
-            <HoverableCard w="100%" cursor="pointer" p={6}>
+            <HoverableCard w="100%" cursor="pointer">
                 {(hovered) => (
                     <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
                         <HStack justify={"start"}>
@@ -74,11 +74,11 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                     label={`${commify(formatUnits(safe.collateralAmount, tokenData?.decimals))} ${tokenData?.symbol}`}
                                 >
                                     <>
-                                        <Heading size="md">
+                                        <Heading size="md" variant="success">
                                             {abbreviateAmount(usdPricedSafeInfo?.collateralValueUSD)}
                                         </Heading>
                                         <Text variant="secondary" ml={2} fontSize="md">
-                                            deposited
+                                            boosted
                                         </Text>
                                     </>
                                 </Tooltip>
