@@ -103,7 +103,7 @@ const MODAL_STEP_1: ModalStep = {
               : "Deposit",
         variant: "neutral",
         loading: approving || depositing,
-        disabled: !depositAmount || depositAmount === "0",
+        disabled: approving || depositing || !depositAmount || depositAmount === "0",
         async onClick() {
           try {
             if (!hasApproval) {
