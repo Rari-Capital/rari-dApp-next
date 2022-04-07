@@ -28,15 +28,25 @@ export const getStrategiesAvgAPY = (
     getERC4626StrategyData: StrategyInfosMap,
     tribeDaoFeeShare: number
 ) => {
+
+
+    const numActiveStrategies = strategies.reduce((acc, strategy) => {
+        return strategy.boostedAmount.isZero() ? acc : acc + 1
+    }, 0)
+
     return strategies.reduce((num, { strategy }) => {
         const erc4626Strategy = getERC4626StrategyData[strategy];
         if (
             erc4626Strategy
             && erc4626Strategy.supplyRatePerBlock
         ) {
-            num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365) * (1 - tribeDaoFeeShare);
+            let apy = convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365)
+            let userShare = (1 - tribeDaoFeeShare);
+            let userAPY = apy * userShare;
+            num += userAPY / numActiveStrategies
         }
-        return num / strategies.length;
+
+        return num
     }, 0)
 }
 
