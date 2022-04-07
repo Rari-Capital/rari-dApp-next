@@ -1,4 +1,3 @@
-import { constants } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
 import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
@@ -17,6 +16,7 @@ import { smallUsdFormatter } from "utils/bigUtils";
 import { PlusSquareIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Flex,
   HStack,
   Image,
   SimpleGrid,
@@ -131,12 +131,21 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
         />
         <Statistic title="Net APY" tooltip="Tooltip" value={`${netAPY.toFixed(2)}%`} />
       </HStack>
-      <SimpleGrid columns={3} spacing={4} mt={12}>
-        <HoverableCard variant="ghost" onClick={onClickCreateSafe} p={6}>
+      <SimpleGrid columns={[2, 2, 2, 3]} spacing={4} mt={12}>
+        <HoverableCard variant="active" onClick={onClickCreateSafe} p={6}>
           {(hovered) => (
             <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
-              <Heading display="flex" alignItems="center">
-                Add safe <PlusSquareIcon ml={4} />
+              <Heading display="flex" alignItems="center" size="lg">
+                Add safe <Flex
+                  alignItems="center"
+                  justifyContent="center"
+                  boxSize={6}
+                  borderRadius="50%"
+                  background="white"
+                  ml={4}
+                >
+                  <Heading size="sm" color="black">+</Heading>
+                </Flex>
               </Heading>
               <Text variant="secondary" mt={4} fontSize="lg">
                 You may create one safe per approved collateral type.
