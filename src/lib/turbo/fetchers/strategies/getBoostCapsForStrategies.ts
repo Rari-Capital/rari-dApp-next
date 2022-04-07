@@ -15,13 +15,14 @@ type BoostCapForStrategyMap = {
 export const getBoostCapForStrategy = async (
     provider: JsonRpcProvider | Web3Provider,
     strategy: string
-): Promise<[boostCap: BigNumber, totalBoosted: BigNumber]> => {
+): Promise<[boostCap: BigNumber, totalBoosted: BigNumber, boostRemaining: BigNumber]> => {
     const multicallProvider = new providers.MulticallProvider(provider)
     const booster = createTurboBooster(multicallProvider, 1)
     const master = createTurboMaster(multicallProvider, 1)
     const cap = await booster.callStatic.getBoostCapForVault(strategy)
     const totalBoosted = await master.callStatic.getTotalBoostedForVault(strategy)
-    return [cap, totalBoosted]
+    const boostRemaining = cap.sub(totalBoosted)
+    return [cap, totalBoosted, boostRemaining]
 }
 
 // Multicall Boost Caps for all strategies passed in

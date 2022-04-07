@@ -13,6 +13,7 @@ import {
 import { useTurboSafe } from "context/TurboSafeContext";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
+import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 
 
 export const BoostBar: React.FC = () => {
@@ -20,23 +21,31 @@ export const BoostBar: React.FC = () => {
         usdPricedSafe,
         collateralTokenData: tokenData,
         colorScheme,
-        isAtLiquidationRisk
+        isAtLiquidationRisk,
     } = useTurboSafe();
     const { boostedUSD, safeUtilization, maxBoostUSD, liquidationPriceUSD } = usdPricedSafe ?? {}
+
+    console.log({ safeUtilization, colorScheme })
 
     return (
         <Box my={12}>
             <Flex justifyContent="space-between" alignItems="baseline" >
                 <Flex alignItems="baseline" justifyContent="baseline">
-                    <Image
+                    <TurboEngineIcon
+                        fill={!safeUtilization?.isZero() ? colorScheme : "grey"}
+                        boxSize={10}
+                        pb={2}
+                        alignSelf="flex-end"
+                    />
+                    {/* <Image
                         src={isAtLiquidationRisk
                             ? "/static/turbo/turbo-engine-red.svg"
-                            : "/static/turbo/turbo-engine-green.svg"
+                            : "/static/turbo/turbo-engine-raw.svg"
                         }
                         boxSize={10}
                         alignSelf="flex-end"
                         pb={2}
-                    />
+                    /> */}
                     <Heading
                         variant="success"
                         size="xl"
