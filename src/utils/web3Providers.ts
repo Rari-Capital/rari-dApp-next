@@ -18,7 +18,6 @@ export function chooseBestWeb3Provider(
    */
   vaults?: boolean
 ): JsonRpcProvider | Web3Provider {
-  console.log({ chainId })
 
   let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
   console.log({ chainId, providerURL });

@@ -29,7 +29,7 @@ export const AdminAlert = ({
 
   return (
     <Alert
-      colorScheme={isAdmin ? "green" : "red"}
+      colorScheme={isAdmin ? "green" : "yellow"}
       borderRadius={5}
       mt="5"
       {...alertProps}

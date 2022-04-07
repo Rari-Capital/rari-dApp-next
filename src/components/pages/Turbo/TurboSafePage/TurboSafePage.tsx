@@ -40,6 +40,7 @@ import { useState } from "react";
 // Context
 import { TurboSafeProvider, useTurboSafe } from "context/TurboSafeContext";
 import BoostMeAlert from "../alerts/BoostMeAlert";
+import { AdminAlert } from "components/shared/AdminAlert";
 
 const TurboSafePage: React.FC = () => {
   const {
@@ -49,7 +50,8 @@ const TurboSafePage: React.FC = () => {
     loading,
     isAtLiquidationRisk,
     shouldBoost,
-  } = useTurboSafe();
+    isUserAdmin
+  } = useTurboSafe()
 
   const safeHealth = safe?.safeUtilization;
 
@@ -134,9 +136,8 @@ const TurboSafePage: React.FC = () => {
       </Box>
 
       {/* Alerts */}
-      {isAtLiquidationRisk && (
-        <AtRiskOfLiquidationAlert safeHealth={safeHealth} />
-      )}
+      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
+      {!isUserAdmin && <AdminAlert isAdmin={false} isNotAdminText="You are not the owner of this Safe" />}
 
       <Stack
         direction={["column", "column", "column", "row"]}
