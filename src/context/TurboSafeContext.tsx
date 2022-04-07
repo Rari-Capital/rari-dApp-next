@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import useSafeAvgAPY from "hooks/turbo/useSafeAvgAPY";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
+import { useUserIsSafeOwner } from "hooks/turbo/useSafeOwner";
 import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
 import { StrategyInfosMap, useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 import { TokenData, useTokenData } from "hooks/useTokenData";
@@ -43,9 +44,10 @@ type TurboSafeContextData = {
     // Net APY of safe
     netAPY: number;
 
-    // 
+    // bools
     isAtLiquidationRisk: boolean
     shouldBoost: boolean
+    isUserAdmin: boolean
 
     // Colors to display based on safe Health
     colorScheme: string;
@@ -63,6 +65,7 @@ export const TurboSafeProvider = ({
 
     const safe = useSafeInfo(safeAddress);
     const collateralTokenData = useTokenData(safe?.collateralAsset);
+    const isUserAdmin = useUserIsSafeOwner(safeAddress)
     const loading = !collateralTokenData || !safe;
 
     // Strategies
@@ -96,7 +99,8 @@ export const TurboSafeProvider = ({
         netAPY,
         isAtLiquidationRisk,
         colorScheme,
-        shouldBoost
+        shouldBoost,
+        isUserAdmin
     }), [
         safe,
         collateralTokenData,
@@ -106,7 +110,8 @@ export const TurboSafeProvider = ({
         netAPY,
         isAtLiquidationRisk,
         colorScheme,
-        shouldBoost
+        shouldBoost,
+        isUserAdmin
     ])
 
 
