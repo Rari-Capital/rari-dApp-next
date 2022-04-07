@@ -1,10 +1,9 @@
 
 
-import { BigNumber, constants } from "ethers";
+import { constants } from "ethers";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
 import { balanceOf } from "utils/erc20Utils";
 import { SafeInfo } from "../fetchers/safes/getSafeInfo";
-import { getBoostCapForStrategy } from "../fetchers/strategies/getBoostCapsForStrategies";
 import { FEI } from "./constants";
 import { createFusePoolLensSecondary, createTurboComptroller, createTurboSafe } from "./turboContracts";
 
@@ -33,8 +32,8 @@ export async function fetchMaxSafeAmount(
         const maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress)
         return maxWithdraw
     }
-
-    if (mode === SafeInteractionMode.BOOST) {
+    
+    if (mode === SafeInteractionMode.BOOST) {        
         if (strategyIndex === undefined || !safe.strategies) return constants.Zero;
 
         const TurboComptroller = createTurboComptroller(provider, chainId)
@@ -42,27 +41,15 @@ export async function fetchMaxSafeAmount(
 
         const cToken = await TurboComptroller.callStatic.cTokensByUnderlying(FEI)
 
-        const maxBorrow: BigNumber =
+        const maxBorrow =
             await FusePoolLensSecondary.callStatic.getMaxBorrow(
                 safe.safeAddress,
                 cToken
             );
 
-        const [_, __, boostRemaining] = await getBoostCapForStrategy(provider, safe.strategies[strategyIndex].strategy)
+        const amount = maxBorrow.mul(3).div(4)
 
-        const maxBorrowAmount = maxBorrow.mul(3).div(4)
-
-        let maxAmount: BigNumber;
-        if (maxBorrowAmount.gt(boostRemaining)) {
-            maxAmount = boostRemaining
-        } else {
-            maxAmount = maxBorrowAmount 
-        }
-
-        console.log({ maxAmount })
-
-        return maxAmount
-
+        return amount
     }
 
     // This one is unique as it is applied to a specific strategy
