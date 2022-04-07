@@ -9,8 +9,8 @@ import {
     Text,
     TokenIcon,
     TokenSymbol,
+    Tooltip,
 } from "rari-components";
-import Tooltip from "rari-components/components/Tooltip";
 import { abbreviateAmount } from "utils/bigUtils";
 import {
     Box,

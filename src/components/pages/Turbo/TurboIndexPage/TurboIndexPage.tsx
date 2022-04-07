@@ -13,7 +13,7 @@ import {
   Text,
 } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
-import { PlusSquareIcon, WarningIcon } from "@chakra-ui/icons";
+import { TriangleDownIcon, TriangleUpIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -28,6 +28,7 @@ import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import SafeCard from "./SafeCard";
 import useAggregateSafeData from "hooks/turbo/useAggregateSafeData";
+import { useState } from "react";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -115,6 +116,9 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
     netAPY
   } = useAggregateSafeData(safes, getERC4626StrategyData)
 
+  // TODO(sharad-s) write APY triangle implementation
+  const [apyIncreasing, setApyIncreasing] = useState(true);
+
   return (
     <Box>
       <HStack spacing={8}>
@@ -129,7 +133,16 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           tooltip="Tooltip"
           value={smallUsdFormatter(totalClaimableUSD)}
         />
-        <Statistic title="Net APY" tooltip="Tooltip" value={`${netAPY.toFixed(2)}%`} />
+        <Statistic title="Net APY" tooltip="Tooltip" value={(
+          // TODO(sharad-s) click here to toggle between states -- delete when
+          // real implementation is done
+          <Flex alignItems="center" onClick={() => setApyIncreasing(!apyIncreasing)}>
+            <Heading size="lg" mr={4}>
+              {netAPY.toFixed(2)}%
+            </Heading>
+            {apyIncreasing ? <TriangleUpIcon color="success" /> : <TriangleDownIcon color="danger" />}
+          </Flex>
+        )} />
       </HStack>
       <SimpleGrid columns={[2, 2, 2, 3]} spacing={4} mt={12}>
         <HoverableCard variant="active" onClick={onClickCreateSafe}>
