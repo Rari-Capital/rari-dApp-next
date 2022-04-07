@@ -8,6 +8,7 @@ export const TurboAddresses: TurboAddresses = {
         BOOSTER: "0xf6c7f4a90b10c9eaaf2a6676ce81fe8673453e72",
         CLERK: "0x1F45Af9bfDb6ab4B95311e27BEcA59B33A7E17D7",
         COMPTROLLER: "0x1d9EEE473CC1B3b6D316740F5677Ef36E8f0329e",
+        ORACLE: "0xFb5b08d17dc5Bc5C8627c10dBed11614b43dc0F1",
         TURBO_AUTHORITY: "0x286c9724a0C1875233cf17A4ffE475A0BD8158dE"
     },
     31337: {
@@ -19,6 +20,7 @@ export const TurboAddresses: TurboAddresses = {
         BOOSTER: "0xf6c7f4a90b10c9eaaf2a6676ce81fe8673453e72",
         CLERK: "0x1F45Af9bfDb6ab4B95311e27BEcA59B33A7E17D7",
         COMPTROLLER: "0x1d9EEE473CC1B3b6D316740F5677Ef36E8f0329e",
+        ORACLE: "0xFb5b08d17dc5Bc5C8627c10dBed11614b43dc0F1",
         TURBO_AUTHORITY: "0x286c9724a0C1875233cf17A4ffE475A0BD8158dE"
     }
 }
@@ -32,7 +34,8 @@ type TurboAddresses = {
         STRATEGY: string,
         BOOSTER: string,
         CLERK: string,
-        COMPTROLLER: string
+        COMPTROLLER: string,
+        ORACLE: string,
         TURBO_AUTHORITY: string
     }
 }
