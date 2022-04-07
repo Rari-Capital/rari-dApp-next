@@ -74,7 +74,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 </Tooltip>
                             </Flex>
                             <Flex alignItems="baseline" flex={1}>
-                                <Heading size="md">{avgAPY}%</Heading>
+                                <Heading size="md">{avgAPY.toFixed(2)}%</Heading>
                                 <Text variant="secondary" ml={2}>
                                     APY
                                 </Text>
