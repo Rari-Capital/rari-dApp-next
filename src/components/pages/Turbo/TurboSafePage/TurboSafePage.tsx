@@ -18,6 +18,7 @@ import {
   Skeleton,
   Spacer,
   Stack,
+  StackProps,
   useDisclosure,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
@@ -41,15 +42,14 @@ import { TurboSafeProvider, useTurboSafe } from "context/TurboSafeContext";
 import BoostMeAlert from "../alerts/BoostMeAlert";
 
 const TurboSafePage: React.FC = () => {
-
   const {
     safe,
     usdPricedSafe,
     collateralTokenData,
     loading,
     isAtLiquidationRisk,
-    shouldBoost
-  } = useTurboSafe()
+    shouldBoost,
+  } = useTurboSafe();
 
   const safeHealth = safe?.safeUtilization;
 
@@ -77,15 +77,13 @@ const TurboSafePage: React.FC = () => {
     onClose: closeClaimInterestModal,
   } = useDisclosure();
 
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered] = useState(false);
 
   function onClickBoost() {
     // TODO(sharad-s) Need to implement
     // TODO(sharad-s) Move strategyIndex to context
-    alert("Boosting random safe!")
-    
+    alert("Boosting random safe!");
   }
-
 
   return (
     <>
@@ -115,7 +113,6 @@ const TurboSafePage: React.FC = () => {
         safe={safe}
       />
 
-
       <Box
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -123,7 +120,9 @@ const TurboSafePage: React.FC = () => {
       >
         <Link href="/turbo">
           <Flex alignItems="center">
-            <ChevronLeftIcon mr={2} boxSize="20px"
+            <ChevronLeftIcon
+              mr={2}
+              boxSize="20px"
               transition="transform 0.2s ease 0s"
               transform={hovered ? "translateX(-5px) scale(1.00)" : ""}
             />{" "}
@@ -135,12 +134,14 @@ const TurboSafePage: React.FC = () => {
       </Box>
 
       {/* Alerts */}
-      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
+      {isAtLiquidationRisk && (
+        <AtRiskOfLiquidationAlert safeHealth={safeHealth} />
+      )}
 
       <Stack
-        direction={"row"}
+        direction={["column", "column", "column", "row"]}
         justify="space-between"
-        alignItems="center"
+        alignItems={["flex-start", "flex-start", "flex-start", "center"]}
         spacing={4}
         mt={8}
       >
@@ -158,23 +159,20 @@ const TurboSafePage: React.FC = () => {
             />
           </HStack>
         </Skeleton>
-        <Spacer />
-
         <Buttons
+          mt={[4, 4, 4, 0]}
           openDepositModal={openDepositModal}
           openWithdrawModal={openWithdrawModal}
           openClaimInterestModal={openClaimInterestModal}
         />
-
       </Stack>
-      <Divider my={12} />
-
-      {safe?.boostedAmount.isZero() && !loading &&
+      <Divider my={8} />
+      {safe?.boostedAmount.isZero() && !loading && (
         <OnboardingCard
           openDepositModal={openDepositModal}
           onClickBoost={onClickBoost}
         />
-      }
+      )}
       <BoostBar />
 
       <Stack spacing={12} my={12}>
@@ -186,58 +184,52 @@ const TurboSafePage: React.FC = () => {
   );
 };
 
-export const Buttons: React.FC<{
-  openDepositModal: any,
-  openWithdrawModal: any,
-  openClaimInterestModal: any,
-}> = ({
-  openDepositModal,
-  openWithdrawModal,
-  openClaimInterestModal,
-}) => {
-    const { loading } = useTurboSafe();
+type ButtonsProps = StackProps & {
+  openDepositModal: any;
+  openWithdrawModal: any;
+  openClaimInterestModal: any;
+};
 
-    return (
-      <HStack>
-        <Button
-          variant="cardmatte"
-          onClick={openDepositModal}
-          disabled={loading}
-        >
-          <Image
-            src="/static/turbo/action-icons/deposit-collateral.png"
-            height={4}
-            mr={3}
-          />
-          Deposit Collateral
-        </Button>
-        <Button
-          variant="cardmatte"
-          onClick={openWithdrawModal}
-          disabled={loading}
-        >
-          <Image
-            src="/static/turbo/action-icons/withdraw-collateral.png"
-            height={4}
-            mr={3}
-          />
-          Withdraw Collateral
-        </Button>
-        <Button
-          variant="cardmatte"
-          onClick={openClaimInterestModal}
-          disabled={loading}
-        >
-          <Image
-            src="/static/turbo/action-icons/claim-interest.png"
-            height={4}
-            mr={3}
-          />
-          Claim Interest
-        </Button>
-      </HStack>
-    )
-  }
+export const Buttons: React.FC<ButtonsProps> = ({ openDepositModal, openWithdrawModal, openClaimInterestModal, ...restProps }) => {
+  const { loading } = useTurboSafe();
+
+  return (
+    <HStack {...restProps}>
+      <Button variant="cardmatte" onClick={openDepositModal} disabled={loading}>
+        <Image
+          src="/static/turbo/action-icons/deposit-collateral.png"
+          height={4}
+          mr={3}
+        />
+        Deposit Collateral
+      </Button>
+      <Button
+        variant="cardmatte"
+        onClick={openWithdrawModal}
+        disabled={loading}
+      >
+        <Image
+          src="/static/turbo/action-icons/withdraw-collateral.png"
+          height={4}
+          mr={3}
+        />
+        Withdraw Collateral
+      </Button>
+      <Button
+        variant="cardmatte"
+        onClick={openClaimInterestModal}
+        disabled={loading}
+      >
+        <Image
+          src="/static/turbo/action-icons/claim-interest.png"
+          height={4}
+          mr={3}
+        />
+        Claim Interest
+      </Button>
+    </HStack>
+  );
+};
 
 export default () => {
   const router = useRouter();
@@ -250,7 +242,5 @@ export default () => {
         <TurboSafePage />
       </TurboSafeProvider>
     </TurboLayout>
-  )
-}
-
-
+  );
+};
