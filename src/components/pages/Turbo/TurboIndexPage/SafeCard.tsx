@@ -25,6 +25,7 @@ import { filterUsedStrategies } from "lib/turbo/fetchers/strategies/formatStrate
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import { useTokenData } from "hooks/useTokenData";
 import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
+import { getSafeColor } from "context/TurboSafeContext";
 
 type SafeCardProps = {
     safe: SafeInfo;
@@ -44,6 +45,9 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
     const tokenData = useTokenData(safe.collateralAsset)
 
     const boostMe = useShouldBoostSafe(safe)
+    const isAtLiquidationRisk = usdPricedSafeInfo?.safeUtilization.gt(80) ?? false
+
+    const color = getSafeColor(safe?.safeUtilization)
 
     return (
         <Link href={`/turbo/safe/${safe.safeAddress}`}>
@@ -60,6 +64,8 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                                 <TokenSymbol tokenAddress={safe.collateralAsset} />
                             </Heading>
                             <Spacer />
+
+                            {isAtLiquidationRisk && <Badge variant="warning">At Risk ❗</Badge>}
                             {boostMe && <Badge variant="success">Boost Me 🔥</Badge>}
                         </HStack>
                         <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch">
@@ -93,6 +99,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                             <Progress
                                 height={3}
                                 hideLabel
+                                barVariant={color}
                                 value={safe.safeUtilization.toNumber()}
                             />
                         </Box>

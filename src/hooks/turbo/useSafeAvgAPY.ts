@@ -11,19 +11,33 @@ const useSafeAvgAPY = (
     tribeDaoFeeShare: number
 ) => {
 
-    const apy = useMemo<number>(() => activeStrategies.reduce((num, { strategy }) => {
+    const apy = useMemo<number>(
+        () => getStrategiesAvgAPY(
+            activeStrategies,
+            getERC4626StrategyData,
+            tribeDaoFeeShare
+        ),
+        [activeStrategies, getERC4626StrategyData, tribeDaoFeeShare]
+    )
+
+    return apy
+}
+
+export const getStrategiesAvgAPY = (
+    strategies: StrategyInfo[],
+    getERC4626StrategyData: StrategyInfosMap,
+    tribeDaoFeeShare: number
+) => {
+    return strategies.reduce((num, { strategy }) => {
         const erc4626Strategy = getERC4626StrategyData[strategy];
-        console.log({ erc4626Strategy, getERC4626StrategyData })
         if (
             erc4626Strategy
             && erc4626Strategy.supplyRatePerBlock
         ) {
-            num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365);
+            num += convertMantissaToAPY(erc4626Strategy.supplyRatePerBlock, 365) * (1 - tribeDaoFeeShare);
         }
-        return num / activeStrategies.length;
-    }, 0), [activeStrategies, getERC4626StrategyData])
-
-    return apy * (1 - tribeDaoFeeShare)
+        return num / strategies.length;
+    }, 0)
 }
 
 export default useSafeAvgAPY

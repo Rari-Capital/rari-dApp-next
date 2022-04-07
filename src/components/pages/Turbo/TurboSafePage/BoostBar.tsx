@@ -25,8 +25,6 @@ export const BoostBar: React.FC = () => {
     } = useTurboSafe();
     const { boostedUSD, safeUtilization, maxBoostUSD, liquidationPriceUSD } = usdPricedSafe ?? {}
 
-    console.log({ safeUtilization, colorScheme })
-
     return (
         <Box my={12}>
             <Flex justifyContent="space-between" alignItems="baseline" >

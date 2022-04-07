@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import useSafeAvgAPY from "hooks/turbo/useSafeAvgAPY";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
@@ -8,8 +9,16 @@ import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { filterUsedStrategies, StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import { createContext, useContext, ReactNode, useMemo } from "react";
-import { convertMantissaToAPY } from "utils/apyUtils";
-import { Pool } from "../utils/poolUtils";
+
+export const getSafeColor = (safeHealth: BigNumber | undefined) => {
+    return safeHealth?.lte(40)
+        ? "#4DD691"
+        : safeHealth?.lte(60)
+            ? "#4DD691"
+            : safeHealth?.lte(80)
+                ? "orange"
+                : "#DB6464";
+}
 
 type TurboSafeContextData = {
 
@@ -74,15 +83,7 @@ export const TurboSafeProvider = ({
     const shouldBoost = useShouldBoostSafe(safe)
 
     const safeHealth = safe?.safeUtilization
-    const colorScheme = useMemo(() => {
-        return safeHealth?.lte(40)
-            ? "#4DD691"
-            : safeHealth?.lte(60)
-                ? "#4DD691"
-                : safeHealth?.lte(80)
-                    ? "orange"
-                    : "#DB6464";
-    }, [safeHealth]);
+    const colorScheme = useMemo(() => getSafeColor(safeHealth), [safeHealth]);
 
 
     const value = useMemo<TurboSafeContextData>(() => ({

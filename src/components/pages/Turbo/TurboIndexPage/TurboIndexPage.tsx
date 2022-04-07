@@ -27,6 +27,7 @@ import {
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import SafeCard from "./SafeCard";
+import useAggregateSafeData from "hooks/turbo/useAggregateSafeData";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -107,17 +108,12 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   const allStrategies = useTrustedStrategies();
   const getERC4626StrategyData = useERC4626StrategiesDataAsMap(allStrategies);
 
-  // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
-  // be a USD value
-  const totalBoosted = safes.reduce((acc, safe) => {
-    return acc.add(safe.boostedAmount);
-  }, constants.Zero);
-
-  const totalClaimableInterest = safes.reduce((acc, safe) => {
-    // TODO(sharad-s) Calculate interest from safes here
-    return constants.Zero;
-  }, constants.Zero);
-  const netApy = 10;
+  const {
+    totalBoosted,
+    totalClaimable,
+    totalClaimableUSD,
+    netAPY
+  } = useAggregateSafeData(safes, getERC4626StrategyData)
 
   return (
     <Box>
@@ -131,9 +127,9 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
         <Statistic
           title="Total claimable interest"
           tooltip="Tooltip"
-          value={smallUsdFormatter(totalClaimableInterest.toString())}
+          value={smallUsdFormatter(totalClaimableUSD)}
         />
-        <Statistic title="Net APY" tooltip="Tooltip" value={`${netApy}%`} />
+        <Statistic title="Net APY" tooltip="Tooltip" value={`${netAPY.toFixed(2)}%`} />
       </HStack>
       <SimpleGrid columns={3} spacing={4} mt={12}>
         <HoverableCard variant="ghost" onClick={onClickCreateSafe} p={6}>

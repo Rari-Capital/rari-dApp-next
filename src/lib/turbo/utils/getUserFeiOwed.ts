@@ -2,7 +2,7 @@ import { BigNumber, constants } from "ethers";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 
 // (boostedAmount - debtAmount) + ((feiAmount - boostedAmount) * revShare)
-export const getUserFeiOwed = (safe: SafeInfo | undefined) => {
+export const getUserFeiOwed = (safe: SafeInfo | undefined): BigNumber => {
   if (!safe) return constants.Zero;
   const { boostedAmount, debtAmount, feiAmount, tribeDAOFee } = safe;
   const boostedAmountAfterDebtRepaid = boostedAmount.sub(debtAmount);
