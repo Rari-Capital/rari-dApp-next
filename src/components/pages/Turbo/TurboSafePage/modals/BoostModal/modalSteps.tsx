@@ -128,7 +128,7 @@ const MODAL_STEP_1: ModalStep = {
         : mode,
       variant: "neutral",
       loading: transacting,
-      disabled: !amount || !!inputError,
+      disabled: transacting || !amount || !!inputError,
       async onClick() {
         try {
           if (mode === "Boost") {
