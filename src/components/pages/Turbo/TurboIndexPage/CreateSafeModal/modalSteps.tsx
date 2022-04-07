@@ -245,14 +245,16 @@ const MODAL_STEP_4: ModalStep = {
           <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
         </Heading>
       </Box>
-      <RariStats
-        mt={8}
-        statistics={[
-          ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-          ["USD Value", `$${utils.commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2))}`],
-          ["Max Boost", `$${utils.commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2))}`],
-        ]}
-      />
+      { !depositAmount || depositAmount === "0" ? null :
+        <RariStats
+          mt={8}
+          statistics={[
+            ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
+            ["USD Value", `$${utils.commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2))}`],
+            ["Max Boost", `$${utils.commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2))}`],
+          ]}
+        />
+      }
     </Box>
   ),
   stepBubbles: ({ approving, creatingSafe, hasApproval }) => ({
