@@ -27,7 +27,7 @@ export const BoostBar: React.FC = () => {
 
     return (
         <Box my={12}>
-            <Flex justifyContent="space-between" alignItems="baseline" >
+            <Flex justifyContent="space-between" alignItems="baseline" flexWrap="wrap">
                 <Flex alignItems="baseline" justifyContent="baseline">
                     <TurboEngineIcon
                         fill={!safeUtilization?.isZero() ? colorScheme : "grey"}

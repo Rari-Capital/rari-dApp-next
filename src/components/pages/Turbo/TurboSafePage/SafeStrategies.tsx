@@ -1,9 +1,8 @@
 import {
+  Box,
   Flex,
   HStack,
-  VStack,
   Image,
-  Box,
   useDisclosure
 } from "@chakra-ui/react";
 import { Heading, Link, Table, Text, TokenIcon, Tooltip } from "rari-components";
@@ -91,110 +90,108 @@ export const SafeStrategies: React.FC = () => {
         erc4626Strategy={activeStrategy ? strategiesData[activeStrategy.strategy] : undefined}
         mode={mode}
       />
-      <VStack w="100%">
-        <Table
-          width="100%"
-          headings={[
-            "Pool Name",
-            "Claimable Interest",
-            "APY",
-            "Active Boost",
-            "",
-          ]}
-          rows={
-            safeStrategies.map((strat: USDPricedStrategy, i) => {
-              const strategyData = strategiesData[strat.strategy]
-              const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
-              const grossApy = convertMantissaToAPY((strategyData?.supplyRatePerBlock ?? 0), 365)
-              const netAPY = grossApy * userPercent
-              return ({
-                key: strat.strategy,
-                items: [
-                  (
-                    <Link href={poolId ? `/fuse/pool/${poolId}` : '#'}>
-                      <HStack>
-                        <TokenIcon tokenAddress={strategyData?.underlying ?? FEI} size="sm" />
-                        <Text>
-                          {strategyData?.symbol}
-                        </Text>
-                      </HStack>
-                    </Link>),
-                  (
-                    <Box>
-                      <Tooltip label={`${formatEther(strat.feiClaimable)} FEI`}>
-                        <Text>
-                          {smallUsdFormatter(strat.feiClaimableUSD)}
-                        </Text>
-                      </Tooltip>
-                    </Box>
-                  ),
-                  (
-                    <Box>
-                      <Tooltip label={`${convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2)}% from Fuse after ${formatUnits(usdPricedSafe?.tribeDAOFee ?? 0, 16)}% TribeDAO Revenue Split`}>
-                        <Text>
-                          {netAPY.toFixed(2) + "%"}
-                        </Text>
-                      </Tooltip>
-                    </Box>
-                  ),
-                  (
+      <Table
+        width="100%"
+        headings={[
+          "Pool Name",
+          "Claimable Interest",
+          "APY",
+          "Active Boost",
+          "",
+        ]}
+        rows={
+          safeStrategies.map((strat: USDPricedStrategy, i) => {
+            const strategyData = strategiesData[strat.strategy]
+            const poolId: string | undefined = strategyData?.symbol?.split('-')[1]
+            const grossApy = convertMantissaToAPY((strategyData?.supplyRatePerBlock ?? 0), 365)
+            const netAPY = grossApy * userPercent
+            return ({
+              key: strat.strategy,
+              items: [
+                (
+                  <Link href={poolId ? `/fuse/pool/${poolId}` : '#'}>
                     <HStack>
-                      {strat.boostedAmount.gt(0) && <Image
-                        boxSize={"20px"}
-                        src="/static/turbo/turbo-engine-green.svg"
-                        align={"center"}
-                        mr={1}
-                      />}
-                      <Tooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
-                        <Text color={!strat.boostedAmount.isZero() ? "#62DBA1" : ""}>
-                          {smallUsdFormatter(strat.boostAmountUSD)}
-                        </Text>
-                      </Tooltip>
+                      <TokenIcon tokenAddress={strategyData?.underlying ?? FEI} size="sm" />
+                      <Text>
+                        {strategyData?.symbol}
+                      </Text>
                     </HStack>
-                  ),
-                  <HStack spacing={8}>
-                    <Tooltip label="Boost">
-                      <Flex
-                        cursor="pointer"
-                        alignItems="center"
-                        justifyContent="center"
-                        boxSize={8}
-                        borderRadius="50%"
-                        transition="0.2s opacity"
-                        _hover={{
-                          opacity: 0.5,
-                        }}
-                        background="success"
-                        onClick={() => handleBoostClick(strat.strategy)}
-                      >
-                        <Heading size="sm" color="black">+</Heading>
-                      </Flex>
+                  </Link>),
+                (
+                  <Box>
+                    <Tooltip label={`${formatEther(strat.feiClaimable)} FEI`}>
+                      <Text>
+                        {smallUsdFormatter(strat.feiClaimableUSD)}
+                      </Text>
                     </Tooltip>
-                    <Tooltip label="Less">
-                      <Flex
-                        cursor="pointer"
-                        alignItems="center"
-                        justifyContent="center"
-                        boxSize={8}
-                        borderRadius="50%"
-                        transition="0.2s opacity"
-                        _hover={{
-                          opacity: 0.5,
-                        }}
-                        background="danger"
-                        onClick={() => handleLessClick(strat.strategy)}
-                      >
-                        <Heading size="sm" color="black">—</Heading>
-                      </Flex>
+                  </Box>
+                ),
+                (
+                  <Box>
+                    <Tooltip label={`${convertMantissaToAPY(strategyData?.supplyRatePerBlock, 365).toFixed(2)}% from Fuse after ${formatUnits(usdPricedSafe?.tribeDAOFee ?? 0, 16)}% TribeDAO Revenue Split`}>
+                      <Text>
+                        {netAPY.toFixed(2) + "%"}
+                      </Text>
+                    </Tooltip>
+                  </Box>
+                ),
+                (
+                  <HStack>
+                    {strat.boostedAmount.gt(0) && <Image
+                      boxSize={"20px"}
+                      src="/static/turbo/turbo-engine-green.svg"
+                      align={"center"}
+                      mr={1}
+                    />}
+                    <Tooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
+                      <Text color={!strat.boostedAmount.isZero() ? "#62DBA1" : ""}>
+                        {smallUsdFormatter(strat.boostAmountUSD)}
+                      </Text>
                     </Tooltip>
                   </HStack>
-                ]
-              })
+                ),
+                <HStack spacing={8}>
+                  <Tooltip label="Boost">
+                    <Flex
+                      cursor="pointer"
+                      alignItems="center"
+                      justifyContent="center"
+                      boxSize={8}
+                      borderRadius="50%"
+                      transition="0.2s opacity"
+                      _hover={{
+                        opacity: 0.5,
+                      }}
+                      background="success"
+                      onClick={() => handleBoostClick(strat.strategy)}
+                    >
+                      <Heading size="sm" color="black">+</Heading>
+                    </Flex>
+                  </Tooltip>
+                  <Tooltip label="Less">
+                    <Flex
+                      cursor="pointer"
+                      alignItems="center"
+                      justifyContent="center"
+                      boxSize={8}
+                      borderRadius="50%"
+                      transition="0.2s opacity"
+                      _hover={{
+                        opacity: 0.5,
+                      }}
+                      background="danger"
+                      onClick={() => handleLessClick(strat.strategy)}
+                    >
+                      <Heading size="sm" color="black">—</Heading>
+                    </Flex>
+                  </Tooltip>
+                </HStack>
+              ]
             })
-          }
+          })
+        }
 
-        />
-      </VStack>
+      />
     </>
   );
 };

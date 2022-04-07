@@ -16,7 +16,6 @@ import {
   HStack,
   Image,
   Skeleton,
-  Spacer,
   Stack,
   StackProps,
   useDisclosure,
@@ -203,7 +202,7 @@ export const Buttons: React.FC<ButtonsProps> = ({ openDepositModal, openWithdraw
   const { loading } = useTurboSafe();
 
   return (
-    <HStack {...restProps}>
+    <Stack direction={["column", "column", "row"]} {...restProps}>
       <Button variant="cardmatte" onClick={openDepositModal} disabled={loading}>
         <Image
           src="/static/turbo/action-icons/deposit-collateral.png"
@@ -236,7 +235,7 @@ export const Buttons: React.FC<ButtonsProps> = ({ openDepositModal, openWithdraw
         />
         Claim Interest
       </Button>
-    </HStack>
+    </Stack>
   );
 };
 

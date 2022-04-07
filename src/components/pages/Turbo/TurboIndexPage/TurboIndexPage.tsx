@@ -150,7 +150,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           </Flex>
         )} />
       </HStack>
-      <SimpleGrid columns={[2, 2, 2, 3]} spacing={4} mt={12}>
+      <SimpleGrid columns={[1, 1, 2, 3]} spacing={4} mt={12}>
         <HoverableCard variant="active" onClick={onClickCreateSafe}>
           {(hovered) => (
             <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
