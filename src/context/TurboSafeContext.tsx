@@ -76,14 +76,13 @@ export const TurboSafeProvider = ({
     const safeHealth = safe?.safeUtilization
     const colorScheme = useMemo(() => {
         return safeHealth?.lte(40)
-            ? "success"
+            ? "#4DD691"
             : safeHealth?.lte(60)
-                ? "whatsapp"
+                ? "#4DD691"
                 : safeHealth?.lte(80)
                     ? "orange"
                     : "#DB6464";
     }, [safeHealth]);
-
 
 
     const value = useMemo<TurboSafeContextData>(() => ({

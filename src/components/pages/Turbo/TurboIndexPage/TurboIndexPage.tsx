@@ -14,7 +14,7 @@ import {
   Text,
 } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
-import { PlusSquareIcon } from "@chakra-ui/icons";
+import { PlusSquareIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Box,
   HStack,
@@ -22,6 +22,7 @@ import {
   SimpleGrid,
   Stack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
@@ -50,35 +51,43 @@ const TurboIndexPage: React.FC = () => {
             yield generated from approved strategies earning off of a costless
             FEI line of credit.
           </Text>
-          <HStack pt={8} spacing={4}>
-            {!hasSafes ? (
-              isAuthorized ? (
-                <Button variant="success" onClick={onOpen}>
+          {/* Buttons */}
+          <VStack w="100%" align="flex-start">
+            <HStack pt={8} spacing={4} mb={4}>
+              {!hasSafes && (
+                <Button variant={isAuthorized ? "success" : "warning"} onClick={onOpen} disabled={!isAuthorized}>
                   Create a safe
                 </Button>
-              ) : (
-                <Button variant="warning" onClick={onOpen} disabled={true}>
-                  Unauthorized
-                </Button>
-              )
-            ) : null}
-            <Button
-              variant="cardmatte"
-              as="a"
-              // TypeScript doesn't realize that `as="a"` means that this can
-              // have an `href` prop.
-              // @ts-ignore
-              href="https://medium.com/fei-protocol/the-tribe-dao-strongly-believes-that-a-healthy-and-thriving-defi-ecosystem-needs-a-robust-platform-b1faea700dfa"
-              target="_blank"
-            >
-              Learn more
-            </Button>
-          </HStack>
+              )}
+              <Button
+                variant="cardmatte"
+                as="a"
+                // TypeScript doesn't realize that `as="a"` means that this can
+                // have an `href` prop.
+                // @ts-ignore
+                href="https://medium.com/fei-protocol/the-tribe-dao-strongly-believes-that-a-healthy-and-thriving-defi-ecosystem-needs-a-robust-platform-b1faea700dfa"
+                target="_blank"
+              >
+                Learn more
+              </Button>
+            </HStack>
+            {!hasSafes && !isAuthorized && (
+              <HStack>
+                <WarningIcon color="warning" />
+                <Text color={"warning"}>
+                  Turbo is in beta, and safe creation is only open to authorized users.
+                </Text>
+              </HStack>
+            )}
+
+
+          </VStack>
         </Box>
         <Box flex={1}>
           <Image src="/static/turbo/turbo.png" />
         </Box>
       </Stack>
+
       <Divider mt={20} mb={16} />
       {hasSafes ? (
         <SafeGrid safes={safes} onClickCreateSafe={onOpen} />

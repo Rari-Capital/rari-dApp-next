@@ -6,7 +6,7 @@ import { Card } from "rari-components";
 type Statistic = {
     title: string;
     primaryValue: string;
-    secondaryValue?: string;
+    secondaryValue?: string | undefined;
     titleTooltip?: string;
     primaryTooltip?: string;
     secondaryTooltip?: string;
