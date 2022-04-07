@@ -32,7 +32,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ openDepositModal
             exit={{ opacity: 0, y: 40 }}
         >
             <Card>
-                <Heading size="lg" fontWeight={"semibold"}>Getting Started</Heading>
+                <Heading size="lg">Getting Started</Heading>
                 <HStack mt={12} spacing={8}>
                     <HStack flex={1} spacing={6}
                         _hover={!hasCollateral ? { cursor: "pointer", opacity: "0.5" } : {}}
