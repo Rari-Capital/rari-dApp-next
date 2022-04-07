@@ -1,10 +1,12 @@
 import Head from "next/head";
 import theme from "rari-components/theme";
-import { Box, BoxProps, ChakraProvider } from "@chakra-ui/react";
+import { Box, BoxProps, ChakraProvider, Fade } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 
 type TurboLayoutProps = BoxProps;
 
 const TurboLayout: React.FC<TurboLayoutProps> = (props) => {
+  const router = useRouter()
   return (
     <>
       <Head>
@@ -20,7 +22,12 @@ const TurboLayout: React.FC<TurboLayoutProps> = (props) => {
        */}
       <ChakraProvider theme={theme}>
         <Box color="white" width="100%" p={12}>
-          <Box maxWidth={["100%", "1200px"]} marginX="auto" {...props} />
+          <Fade
+            key={router.route}
+            in={true}
+          >
+            <Box maxWidth={["100%", "1200px"]} marginX="auto" {...props} />
+          </Fade>
         </Box>
       </ChakraProvider>
     </>

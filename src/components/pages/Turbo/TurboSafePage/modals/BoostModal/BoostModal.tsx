@@ -20,6 +20,7 @@ import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
 import { useQueryClient } from "react-query";
+import { useBoostCapForStrategy } from "hooks/turbo/useBoostCapsForStrategies";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
@@ -66,6 +67,14 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
 
   const maxAmount = useSafeMaxAmount(safe, mode, strategyIndex);
 
+  const isRiskyBoost = mode === SafeInteractionMode.BOOST && !!updatedSafe?.safeUtilization?.gt(75)
+
+  // Boost cap for a vault
+  const [boostCap, totalBoosted] = useBoostCapForStrategy(strategy?.strategy) ?? []
+  const percentTotalBoosted = boostCap && totalBoosted
+    ? parseFloat(formatEther(totalBoosted)) / parseFloat(formatEther(boostCap)) * 100
+    : undefined
+
   // Form validation
   const inputError: string | undefined = useMemo(() => {
     const _amount = amount ? amount : "0";
@@ -74,6 +83,11 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
       case SafeInteractionMode.BOOST:
         if (parseEther(_amount).gt(maxAmount)) {
           return "You can't boost this much!";
+        }
+        if (!!boostCap && !!totalBoosted) {
+          if (parseFloat(formatEther(totalBoosted)) + parseFloat(_amount) > parseFloat(formatEther(boostCap))) {
+            return "Boost amount exceeds Cap for Vault";
+          }
         }
         break;
       case SafeInteractionMode.LESS:
@@ -163,6 +177,12 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
         strategy,
         erc4626Strategy,
         inputError,
+        // Boost caps
+        boostCap,
+        totalBoosted,
+        percentTotalBoosted,
+        // Risk
+        isRiskyBoost
       }}
       isOpen={isOpen}
       onClose={onClose}

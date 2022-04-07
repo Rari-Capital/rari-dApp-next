@@ -13,7 +13,7 @@ import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
-import { createTurboComptroller, createTurboMaster } from "lib/turbo/utils/turboContracts";
+import { createTurboMaster } from "lib/turbo/utils/turboContracts";
 import { getRecentEventDecoded } from "lib/turbo/utils/decodeEvents";
 import { useQuery } from "react-query";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
