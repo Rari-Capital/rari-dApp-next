@@ -29,6 +29,8 @@ import CreateSafeModal from "./CreateSafeModal/";
 import SafeCard from "./SafeCard";
 import useAggregateSafeData from "hooks/turbo/useAggregateSafeData";
 import { useState } from "react";
+import { useRariTokenData } from "rari-components/hooks";
+import { TRIBE } from "lib/turbo/utils/constants";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +39,10 @@ const TurboIndexPage: React.FC = () => {
   const hasSafes = safes.length > 0;
 
   const isAuthorized = useIsUserAuthorizedToCreateSafes();
+  // Prefetch Tribe data so it's in the `TokenIcon`/`TokenSymbol` cache.
+  // This allows collateral types to load instantly when the "Create Safe"
+  // modal is initially opened.
+  const _ = useRariTokenData(TRIBE);
 
   return (
     <TurboLayout>
