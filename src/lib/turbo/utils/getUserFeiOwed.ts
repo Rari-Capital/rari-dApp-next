@@ -17,3 +17,12 @@ export const getUserFeiOwed = (safe: SafeInfo | undefined): BigNumber => {
 
   return feiOwedForUser;
 };
+
+// (boostedAmount - debtAmount) + ((feiAmount - boostedAmount) * revShare)
+export const getUserFeiOwedWithBalance = (safe: SafeInfo | undefined, safeBalanceOfFei: BigNumber): BigNumber => {
+  if (!safe) return constants.Zero;
+  const claimableFromStrategies = getUserFeiOwed(safe)
+  const total = claimableFromStrategies.add(safeBalanceOfFei)
+  return total;
+};
+
