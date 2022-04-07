@@ -20,8 +20,9 @@ import {
   Stack,
   StackProps,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { ChevronLeftIcon, InfoIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, InfoIcon, WarningTwoIcon } from "@chakra-ui/icons";
 import TurboLayout from "../TurboLayout";
 import { SafeStats } from "./SafeStats";
 import { SafeStrategies } from "./SafeStrategies";
@@ -137,7 +138,6 @@ const TurboSafePage: React.FC = () => {
 
       {/* Alerts */}
       {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
-      {!isUserAdmin && <AdminAlert isAdmin={false} isNotAdminText="You are not the owner of this Safe" />}
 
       <Stack
         direction={["column", "column", "column", "row"]}
@@ -147,18 +147,26 @@ const TurboSafePage: React.FC = () => {
         mt={8}
       >
         <Skeleton isLoaded={!loading}>
-          <HStack>
-            <TokenIcon tokenAddress={safe?.collateralAsset ?? ""} mr={2} />
-            <Heading>
-              <TokenSymbol tokenAddress={safe?.collateralAsset ?? ""} /> Safe
-            </Heading>
-            <InfoIcon
-              onClick={openSafeModal}
-              _hover={{
-                cursor: "pointer",
-              }}
-            />
-          </HStack>
+          <VStack>
+            <HStack>
+              <TokenIcon tokenAddress={safe?.collateralAsset ?? ""} mr={2} />
+              <Heading>
+                <TokenSymbol tokenAddress={safe?.collateralAsset ?? ""} /> Safe
+              </Heading>
+              <InfoIcon
+                onClick={openSafeModal}
+                _hover={{
+                  cursor: "pointer",
+                }}
+              />
+            </HStack>
+            {!isUserAdmin &&
+              <HStack color="warning" mt={4}>
+                <WarningTwoIcon />
+                <Text>You are not the admin of this safe</Text>
+              </HStack>
+            }
+          </VStack>
         </Skeleton>
         <Buttons
           mt={[4, 4, 4, 0]}
