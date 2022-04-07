@@ -1,5 +1,8 @@
 import { BigNumber } from "ethers";
-import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import {
+  USDPricedStrategy,
+  USDPricedTurboSafe,
+} from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { StrategyInfo } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import { FuseERC4626Strategy } from "../useStrategyInfo";
 
@@ -63,7 +66,8 @@ const MOCK_SAFE_1: USDPricedTurboSafe = {
   feiAmountUSD: 50,
   feiPriceUSD: 1,
   usdPricedStrategies: [MOCK_USD_PRICED_STRATEGY_1, MOCK_USD_PRICED_STRATEGY_2],
-  maxBoost: 25,
+  maxBoost: BigNumber.from("20000000000000000000000000"),
+  maxBoostUSD: 20000000000000000000000000,
   collateralFactor: BigNumber.from("100"),
 };
 
@@ -98,7 +102,8 @@ const MOCK_SAFE_2: USDPricedTurboSafe = {
       feiEarnedUSD: 10,
     },
   ],
-  maxBoost: 25,
+  maxBoost: BigNumber.from("20000000000000000000000000"),
+  maxBoostUSD: 20000000000000000000000000,
   collateralFactor: BigNumber.from("100"),
 };
 

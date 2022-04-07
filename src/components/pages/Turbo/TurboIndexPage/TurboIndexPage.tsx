@@ -1,5 +1,8 @@
 import { constants } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
+import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
+import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
+import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
 import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import {
@@ -23,9 +26,6 @@ import {
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
 import SafeCard from "./SafeCard";
-import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
-import { useTrustedStrategies } from "hooks/turbo/useTrustedStrategies";
-import { useERC4626StrategiesDataAsMap } from "hooks/turbo/useStrategyInfo";
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -33,8 +33,7 @@ const TurboIndexPage: React.FC = () => {
   const safes = useAllUserSafes() ?? [];
   const hasSafes = safes.length > 0;
 
-  const isAuthorized = useIsUserAuthorizedToCreateSafes()
-  {/* TODO(sharad-s): Use real APY number */ }
+  const isAuthorized = useIsUserAuthorizedToCreateSafes();
 
   return (
     <TurboLayout>
@@ -52,18 +51,17 @@ const TurboIndexPage: React.FC = () => {
             FEI line of credit.
           </Text>
           <HStack pt={8} spacing={4}>
-            {!hasSafes
-              ? isAuthorized
-                ? (
-                  <Button variant="success" onClick={onOpen}>
-                    Create a safe
-                  </Button>
-                )
-
-                : <Button variant="warning" onClick={onOpen} disabled={true}>
+            {!hasSafes ? (
+              isAuthorized ? (
+                <Button variant="success" onClick={onOpen}>
+                  Create a safe
+                </Button>
+              ) : (
+                <Button variant="warning" onClick={onOpen} disabled={true}>
                   Unauthorized
-                </Button> :
-              null}
+                </Button>
+              )
+            ) : null}
             <Button
               variant="cardmatte"
               as="a"
@@ -83,10 +81,7 @@ const TurboIndexPage: React.FC = () => {
       </Stack>
       <Divider mt={20} mb={16} />
       {hasSafes ? (
-        <SafeGrid
-          safes={safes}
-          onClickCreateSafe={onOpen}
-        />
+        <SafeGrid safes={safes} onClickCreateSafe={onOpen} />
       ) : (
         <TurboFAQ />
       )}
@@ -100,9 +95,8 @@ type SafeGridProps = {
 };
 
 const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
-
-  const allStrategies = useTrustedStrategies()
-  const getERC4626StrategyData = useERC4626StrategiesDataAsMap(allStrategies)
+  const allStrategies = useTrustedStrategies();
+  const getERC4626StrategyData = useERC4626StrategiesDataAsMap(allStrategies);
 
   // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
   // be a USD value
@@ -146,7 +140,11 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           )}
         </HoverableCard>
         {safes.map((safe) => (
-          <SafeCard key={safe.safeAddress} safe={safe} getERC4626StrategyData={getERC4626StrategyData} />
+          <SafeCard
+            key={safe.safeAddress}
+            safe={safe}
+            getERC4626StrategyData={getERC4626StrategyData}
+          />
         ))}
       </SimpleGrid>
     </Box>
