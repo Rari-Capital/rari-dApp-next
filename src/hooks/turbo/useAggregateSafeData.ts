@@ -1,9 +1,11 @@
 import { getEthUsdPriceBN } from 'esm/utils/getUSDPriceBN';
 import { BigNumber, constants } from 'ethers'
 import { formatEther } from 'ethers/lib/utils';
+import { useBalancesOfMultipleAddresses } from 'hooks/useBalanceOf';
 import { SafeInfo } from 'lib/turbo/fetchers/safes/getSafeInfo';
 import { filterUsedStrategies } from 'lib/turbo/fetchers/strategies/formatStrategyInfo';
-import { getUserFeiOwed } from 'lib/turbo/utils/getUserFeiOwed';
+import { FEI } from 'lib/turbo/utils/constants';
+import { getUserFeiOwed, getUserFeiOwedWithBalance } from 'lib/turbo/utils/getUserFeiOwed';
 import { calculateETHValueUSD, calculateFEIValueUSD } from 'lib/turbo/utils/usdUtils';
 import { useQuery } from 'react-query';
 import { convertMantissaToAPY } from 'utils/apyUtils';
@@ -29,6 +31,8 @@ const useAggregateSafeData = (
     getERC4626StrategyData: StrategyInfosMap
 ): AggregateSafeData => {
 
+    const balancesFEI = useBalancesOfMultipleAddresses(safes.map(safe => safe.safeAddress), FEI)
+    console.log({ balancesFEI })
 
     const { data } = useQuery<AggregateSafeData>(
         `user aggregate safes ${safes.map(safe => safe.safeAddress).join(', ')}`,
@@ -40,19 +44,17 @@ const useAggregateSafeData = (
                 return safe.boostedAmount.isZero() ? acc : acc + 1
             }, 0)
 
-            // TODO(sharad-s) I think `boostedAmount` is in the native token -- needs to
-            // be a USD value
             const totalBoosted = safes.reduce((acc, safe) => {
                 return acc.add(safe.boostedAmount);
             }, constants.Zero)
 
             let totalClaimable = safes.reduce((acc, safe) => {
-                return acc.add(getUserFeiOwed(safe));
+                return acc.add(getUserFeiOwedWithBalance(safe, balancesFEI[safe.safeAddress]));
             }, constants.Zero)
 
             let totalClaimableUSD = calculateFEIValueUSD(totalClaimable, feiPrice, ethUSD)
 
-            let netAPY = safes.reduce((acc, safe) => {
+            let netAPY = !numActiveSafes ? 0 : safes.reduce((acc, safe) => {
                 const apy = getStrategiesAvgAPY(
                     filterUsedStrategies(safe.strategies),
                     getERC4626StrategyData,
