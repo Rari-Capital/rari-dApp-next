@@ -41,7 +41,7 @@ export const PluginRewardsModal = ({
     const index = eligibleTokens.indexOf(market.underlyingSymbol)
     const symbol = tokenData?.symbol ?? market.underlyingSymbol
 
-    const pluginTokenInfo = CONVEX_CTOKEN_INFO[market.underlyingSymbol]
+    const pluginTokenInfo = CONVEX_CTOKEN_INFO?.[market.underlyingSymbol] ?? {}
 
     return (
         <>

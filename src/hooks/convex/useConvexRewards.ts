@@ -67,6 +67,11 @@ export const flywheelsFilter: FlywheelData = {
 };
 
 export const flywheels: FlywheelData = {
+  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
+    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+    rewardTokenSymbol: "LDO",
+    rewardTokenDecimals: 18,
+  },
   "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
     rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     rewardTokenSymbol: "CRV",
@@ -77,11 +82,7 @@ export const flywheels: FlywheelData = {
     rewardTokenSymbol: "CVX",
     rewardTokenDecimals: 18,
   },
-  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
-    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
-    rewardTokenSymbol: "LDO",
-    rewardTokenDecimals: 18,
-  },
+
 };
 
 // Mapping of flywheel -> Undelrying Claimable
