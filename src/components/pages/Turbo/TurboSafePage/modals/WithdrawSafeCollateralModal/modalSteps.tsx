@@ -27,7 +27,7 @@ type ModalStep = Omit<
 
 const MODAL_STEP_1: ModalStep = {
   title: "Withdraw Collateral",
-  subtitle: "Lorem Ipsum is simply dummy text",
+  subtitle: "Withdraw collateral from this safe.",
   children: ({ setWithdrawalAmount, withdrawalAmount, onClickMax, safe, updatedSafe, maxAmount }) =>
     !!safe && (
       <>

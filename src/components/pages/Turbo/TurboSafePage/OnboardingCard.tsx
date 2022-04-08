@@ -11,7 +11,7 @@ import {
     Stack,
 } from "@chakra-ui/react";
 import { useTurboSafe } from "context/TurboSafeContext";
-import { CheckIcon } from "@chakra-ui/icons";
+import { ArrowLeftIcon, CheckIcon } from "@chakra-ui/icons";
 
 type OnboardingCardProps = {
     openDepositModal: () => void;
@@ -38,33 +38,41 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ openDepositModal
                         _hover={!hasCollateral ? { cursor: "pointer", opacity: "0.5" } : {}}
                         transition="opacity 0.2s ease"
                         onClick={() => hasCollateral ? null : openDepositModal()}
+                        opacity={hasCollateral ? 0.25 : 1}
                     >
                         <Badge
-                            variant="neutral"
+                            background={hasCollateral ? "gray" : "neutral"}
+                            variant="light"
                             fontSize="lg"
                             boxSize={12}
                         >
                             {hasCollateral ? <CheckIcon /> : <Heading size="lg">1</Heading>}
                         </Badge>
                         <Box>
-                            <Heading size="md">Deposit collateral</Heading>
+                            <Heading size="md">Deposit collateral{hasCollateral ? "" : "  →"}</Heading>
                             <Text variant="secondary">
                                 Collateralizing is required step before boosting pools.
                             </Text>
                         </Box>
                     </HStack>
                     <HStack flex={1} spacing={6}
-                        _hover={{ cursor: "pointer", opacity: "0.5" }}
+                        _hover={!hasCollateral || hasBoosted ? undefined : { cursor: "pointer", opacity: "0.5" }}
                         transition="opacity 0.2s ease"
                         onClick={onClickBoost}
+                        opacity={!hasCollateral || hasBoosted ? 0.25 : 1}
                     >
-                        <Badge variant="neutral" fontSize="lg" boxSize={12} opacity={0.8}>
+                        <Badge
+                            background={!hasCollateral || hasBoosted ? "gray" : "neutral"}
+                            variant="light"
+                            fontSize="lg"
+                            boxSize={12}
+                        >
                             {hasBoosted ? <CheckIcon /> : <Heading size="lg">2</Heading>}
                         </Badge>
                         <Box>
-                            <Heading size="md">Boost a Vault</Heading>
+                            <Heading size="md">Boost a pool</Heading>
                             <Text variant="secondary">
-                                Click to boost your first vault, or scroll below for options.
+                                Click to boost a random pool, or scroll below for options
                             </Text>
                         </Box>
                     </HStack>

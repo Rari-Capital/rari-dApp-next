@@ -65,8 +65,8 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, getERC4626StrategyData }) => 
                             </Heading>
                             <Spacer />
 
-                            {isAtLiquidationRisk && <Badge variant="warning">At Risk ❗</Badge>}
-                            {boostMe && <Badge variant="success">Boost Me 🔥</Badge>}
+                            {isAtLiquidationRisk && <Badge background="warning">At Risk ❗</Badge>}
+                            {boostMe && <Badge background="success">Boost Me 🔥</Badge>}
                         </HStack>
                         <Stack spacing={2} mt={8} alignItems="flex-start" justify="stretch" direction="row">
                             <Flex alignItems="baseline" flex={1}>
