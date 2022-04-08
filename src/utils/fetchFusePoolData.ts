@@ -133,6 +133,9 @@ export const filterPoolName = (name: string) => {
   if (name === "GMI Hot Tub") {
     return "GMI Hot Tub ♨️ ";
   }
+  if (name === "Gk's preferred") {
+    return "Regen Pool";
+  }
 
   return filter.clean(name + "$W@G0N0M1C$").replace("$W@G0N0M1C$", "");
 };
