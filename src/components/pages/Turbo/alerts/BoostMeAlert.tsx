@@ -7,6 +7,7 @@ import {
     Box,
 } from "@chakra-ui/react"
 import { Text } from 'rari-components';
+import theme from 'rari-components/theme';
 
 const BoostMeAlert: React.FC<{ safeHealth: BigNumber | undefined }> = ({
     safeHealth,
@@ -17,7 +18,7 @@ const BoostMeAlert: React.FC<{ safeHealth: BigNumber | undefined }> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
         >
-            <Alert colorScheme={"#4DD691"} borderRadius={5} mb={10}>
+            <Alert colorScheme={theme.colors.success} borderRadius={5} mb={10}>
                 <AlertIcon />
                 <Text>
                     Looks like you have collateral deposited but a <b>{safeHealth?.toNumber()}%</b> utilization. Boost some strategies!

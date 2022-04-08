@@ -7,6 +7,7 @@ import {
     Box,
 } from "@chakra-ui/react"
 import { Text } from 'rari-components';
+import theme from 'rari-components/theme';
 
 const AtRiskOfLiquidationAlert: React.FC<{ safeHealth: BigNumber | undefined }> = ({
     safeHealth,
@@ -17,7 +18,7 @@ const AtRiskOfLiquidationAlert: React.FC<{ safeHealth: BigNumber | undefined }> 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
         >
-            <Alert colorScheme={"#DB6464"} borderRadius={5} mb={10}>
+            <Alert colorScheme={theme.colors.danger} borderRadius={5} mb={10}>
                 <AlertIcon />
                 <Text>
                     With a <b>{safeHealth?.toNumber()}%</b> utilization, you are at
