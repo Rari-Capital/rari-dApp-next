@@ -37,7 +37,7 @@ type ModalStep = Omit<
 
 const MODAL_STEP_1: ModalStep = {
   title: "Deposit Collateral",
-  subtitle: "Lorem Ipsum is simply dummy text",
+  subtitle: "Collateralizing is required before boosting pools.",
   children: ({ onClickMax, setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) =>
     !!safe && (
       <>
