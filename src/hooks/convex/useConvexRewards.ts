@@ -9,14 +9,10 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { useConvexPoolSuppliedCTokens } from "hooks/convex/useConvexPoolSuppliedCTokens";
 import { POOL_156_COMPTROLLER } from "constants/convex";
 
-const FLYWHEEL_LENS_ROUTER = "0xe7813367804d5a8bc19c27a143c8b837d373e3b7";
+const FLYWHEEL_LENS_ROUTER = "0x683B4D8e4A62CE13e899c264b242C309fb8490e8";
 
-const createFlywheelLens = (provider: any) => new Contract(
-  FLYWHEEL_LENS_ROUTER,
-  JSON.stringify(FlywheelLensABI),
-  provider
-);
-
+const createFlywheelLens = (provider: any) =>
+  new Contract(FLYWHEEL_LENS_ROUTER, JSON.stringify(FlywheelLensABI), provider);
 
 type FlywheelData = {
   [flywheel: string]: {
@@ -26,12 +22,20 @@ type FlywheelData = {
   };
 };
 
-// @todo - remove hardcoded flywheel data 
-// Applies only to Pool 156
-export const flywheelsFilter: FlywheelData = {
+export const flywheels: FlywheelData = {
+  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
+    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+    rewardTokenSymbol: "LDO",
+    rewardTokenDecimals: 18,
+  },
   "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
     rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     rewardTokenSymbol: "CRV",
+    rewardTokenDecimals: 18,
+  },
+  "0x30e9a1bc6a6a478fc32f9ac900c6530ad3a1616f": {
+    rewardToken: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0",
+    rewardTokenSymbol: "FXS",
     rewardTokenDecimals: 18,
   },
   "0x18b9ae8499e560bf94ef581420c38ec4cff8559c": {
@@ -39,11 +43,12 @@ export const flywheelsFilter: FlywheelData = {
     rewardTokenSymbol: "CVX",
     rewardTokenDecimals: 18,
   },
-  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
-    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
-    rewardTokenSymbol: "LDO",
-    rewardTokenDecimals: 18,
-  },
+};
+
+// @todo - remove hardcoded flywheel data
+// Applies only to Pool 156
+export const flywheelsFilter: FlywheelData = {
+  ...flywheels,
   "0xe474828eb0c864280b131d3fb8e7d5b4597b0b81": {
     rewardToken: "0x814b02C1ebc9164972D888495927fe1697F0Fb4c",
     rewardTokenSymbol: "TRIBE",
@@ -63,30 +68,7 @@ export const flywheelsFilter: FlywheelData = {
     rewardToken: "0xba100000625a3754423978a60c9317c58a424e3D",
     rewardTokenSymbol: "BAL",
     rewardTokenDecimals: 18,
-  }
-};
-
-export const flywheels: FlywheelData = {
-  "0x506ce4145833e55000cbd4c89ac9ba180647eb5e": {
-    rewardToken: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
-    rewardTokenSymbol: "LDO",
-    rewardTokenDecimals: 18,
   },
-  "0x65dfbde18d7f12a680480abf6e17f345d8637829": {
-    rewardToken: "0xD533a949740bb3306d119CC777fa900bA034cd52",
-    rewardTokenSymbol: "CRV",
-    rewardTokenDecimals: 18,
-  },
-  "0x18b9ae8499e560bf94ef581420c38ec4cff8559c": {
-    rewardToken: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
-    rewardTokenSymbol: "CVX",
-    rewardTokenDecimals: 18,
-  },
-  "0x30e9a1bc6a6a478fc32f9ac900c6530ad3a1616f": {
-    rewardToken: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0",
-    rewardTokenSymbol: "FXS",
-    rewardTokenDecimals: 18,
-  }
 };
 
 // Mapping of flywheel -> Undelrying Claimable
@@ -103,8 +85,8 @@ export type FlywheelRewardsByMarket = {
 };
 interface FlywheelMaxClaimable {
   call: () => any;
-  flywheelRewardsTotals: FlywheelRewardsTotal,
-  estiamtedGas: BigNumber | undefined,
+  flywheelRewardsTotals: FlywheelRewardsTotal;
+  estiamtedGas: BigNumber | undefined;
   hasClaimable: boolean;
 }
 
@@ -112,9 +94,9 @@ interface FlywheelMaxClaimable {
 // Only used on Mainnnet Pool 156 data right now.
 export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   const { fuse, address, chainId } = useRari();
-  const { provider } = fuse
+  const { provider } = fuse;
 
-  const lens = createFlywheelLens(provider)
+  const lens = createFlywheelLens(provider);
   // TODO - remove hardcoded flywheel data
   const flywheelAddresses = Object.keys(flywheels);
   const accrueForAll = new Array(flywheelAddresses.length).fill(true);
@@ -123,7 +105,8 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   const { data, error } = useQuery(
     `Unclaimed by ${address} for markets ${cTokens?.join(" + ")}`,
     async () => {
-      if (!cTokens || !cTokens.length || !address || chainId !== 1) return undefined;
+      if (!cTokens || !cTokens.length || !address || chainId !== 1)
+        return undefined;
       let flywheelRewardsTotals: FlywheelRewardsTotal = {};
 
       try {
@@ -132,7 +115,6 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
           cTokens,
           flywheelAddresses,
           accrueForAll,
-          claimRewards,
         };
 
         let result: BigNumber[] =
@@ -141,23 +123,20 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
             cTokens,
             flywheelAddresses,
             accrueForAll,
-            claimRewards
           );
 
-        let hasClaimable = false
-        result.forEach(
-          (claimable, i) => {
-            if (!claimable.isZero()) hasClaimable = true
-            flywheelRewardsTotals[flywheelAddresses[i]] = claimable
-          }
-        );
+        console.log({ obj, result });
+        let hasClaimable = false;
+        result.forEach((claimable, i) => {
+          if (!claimable.isZero()) hasClaimable = true;
+          flywheelRewardsTotals[flywheelAddresses[i]] = claimable;
+        });
 
         let estimatedGas = await lens.estimateGas.getUnclaimedRewardsByMarkets(
           address,
           cTokens,
           flywheelAddresses,
           accrueForAll,
-          claimRewards
         );
 
         return { flywheelRewardsTotals, estimatedGas, hasClaimable };
@@ -178,7 +157,6 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
         cTokens,
         flywheelAddresses,
         accrueForAll,
-        claimRewards,
         { from: address }
       )
       .then((unsignedTx) => {
@@ -188,7 +166,7 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
   }, [address, cTokens, provider]);
 
   const obj = { ...data, call };
-  return obj
+  return obj;
 };
 
 /**
@@ -250,29 +228,26 @@ export const useFlywheelsTotalUSD = (
 };
  */
 
-
-
 export const useConvexMaxClaimable = () => {
-  const cTokens: string[] | undefined = useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER)
-  const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(cTokens ?? [])
-  return convexRewards
-}
-
+  const cTokens: string[] | undefined =
+    useConvexPoolSuppliedCTokens(POOL_156_COMPTROLLER);
+  const convexRewards = useMaxUnclaimedFlywheelRewardsByMarkets(cTokens ?? []);
+  return convexRewards;
+};
 
 interface CTokenPluginRewardsMap {
-  [cToken: string]: FlywheelPluginRewardsMap
+  [cToken: string]: FlywheelPluginRewardsMap;
 }
 
 export type FlywheelPluginRewardsMap = {
   [flywheel: string]: {
     rewardToken: string;
     formattedAPR: number;
-  }
-}
-
+  };
+};
 
 export interface FlywheelCTokensMap {
-  [flywheel: string]: string[]
+  [flywheel: string]: string[];
 }
 
 interface MarketRewardInfo {
@@ -281,9 +256,9 @@ interface MarketRewardInfo {
 }
 
 interface RewardsInfo {
-  flywheel: string,
-  formattedAPR: BigNumber,
-  rewardToken: string
+  flywheel: string;
+  formattedAPR: BigNumber;
+  rewardToken: string;
 }
 
 export interface FlywheelIncentivesData {
@@ -293,53 +268,63 @@ export interface FlywheelIncentivesData {
   rewardTokens: string[];
 }
 
-export const useConvexPoolIncentives = (comptroller?: string): FlywheelIncentivesData | undefined => {
+export const useConvexPoolIncentives = (
+  comptroller?: string
+): FlywheelIncentivesData | undefined => {
   const { fuse } = useRari();
-  const { provider } = fuse
+  const { provider } = fuse;
 
-  const { data } = useQuery(`plugin incentives for pool ${comptroller}`, async () => {
-    if (comptroller?.toLowerCase() !== "0x07cd53380fe9b2a5e64099591b498c73f0efaa66") return undefined
-    const lens = createFlywheelLens(provider)
-    let result: MarketRewardInfo[] = await lens.callStatic.getMarketRewardsInfo(comptroller)
-    let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {}
-    let flywheelCTokensMap: FlywheelCTokensMap = {}
-    let uniqueRewardTokens: Set<string> = new Set<string>()
+  const { data } = useQuery(
+    `plugin incentives for pool ${comptroller}`,
+    async () => {
+      if (
+        comptroller?.toLowerCase() !==
+        "0x07cd53380fe9b2a5e64099591b498c73f0efaa66"
+      )
+        return undefined;
+      const lens = createFlywheelLens(provider);
+      let result: MarketRewardInfo[] =
+        await lens.callStatic.getMarketRewardsInfo(comptroller);
+      let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {};
+      let flywheelCTokensMap: FlywheelCTokensMap = {};
+      let uniqueRewardTokens: Set<string> = new Set<string>();
 
-    if (result) {
-      result.forEach(marketRewardInfo => {
-        const { market, rewardsInfo } = marketRewardInfo
+      if (result) {
+        result.forEach((marketRewardInfo) => {
+          const { market, rewardsInfo } = marketRewardInfo;
 
-        rewardsInfo.forEach(flywheelData => {
-          const { flywheel, formattedAPR, rewardToken } = filterOnlyObjectProperties(flywheelData)
-          const obj = {
-            rewardToken,
-            formattedAPR: parseFloat(formattedAPR.toString()) / 1e16,
-          }
+          rewardsInfo.forEach((flywheelData) => {
+            const { flywheel, formattedAPR, rewardToken } =
+              filterOnlyObjectProperties(flywheelData);
+            const obj = {
+              rewardToken,
+              formattedAPR: parseFloat(formattedAPR.toString()) / 1e16,
+            };
 
-          if (!formattedAPR.isZero()) {
-            uniqueRewardTokens.add(rewardToken)
-            // flywheelCTokensMap[flywheel] = [...flywheelCTokensMap[flywheel], market]
-            cTokenPluginRewardsMap[market] = {
-              ...cTokenPluginRewardsMap[market],
-              [flywheel]: obj
+            if (!formattedAPR.isZero()) {
+              uniqueRewardTokens.add(rewardToken);
+              // flywheelCTokensMap[flywheel] = [...flywheelCTokensMap[flywheel], market]
+              cTokenPluginRewardsMap[market] = {
+                ...cTokenPluginRewardsMap[market],
+                [flywheel]: obj,
+              };
             }
-          }
-        })
-      })
+          });
+        });
+      }
+
+      const rewardTokens = Array.from(uniqueRewardTokens);
+
+      const _result: FlywheelIncentivesData = {
+        incentives: cTokenPluginRewardsMap,
+        hasIncentives: !!rewardTokens.length,
+        rewardTokens,
+        rewardsDistributorCtokens: flywheelCTokensMap,
+      };
+
+      return _result;
     }
+  );
 
-    const rewardTokens = Array.from(uniqueRewardTokens)
-
-    const _result: FlywheelIncentivesData = {
-      incentives: cTokenPluginRewardsMap,
-      hasIncentives: !!rewardTokens.length,
-      rewardTokens,
-      rewardsDistributorCtokens: flywheelCTokensMap
-    }
-
-    return _result
-  })
-
-  return data
-
-}
+  return data;
+};

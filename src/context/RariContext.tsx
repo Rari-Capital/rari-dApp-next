@@ -132,9 +132,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // if (requestedAddress) {
-    //   setAddress(requestedAddress as string)
-    // }
+    if (requestedAddress) {
+      setAddress(requestedAddress as string)
+    }
   }, [requestedAddress])
   
 
