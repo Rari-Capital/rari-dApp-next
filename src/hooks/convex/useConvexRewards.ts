@@ -9,7 +9,7 @@ import { filterOnlyObjectProperties } from "utils/fetchFusePoolData";
 import { useConvexPoolSuppliedCTokens } from "hooks/convex/useConvexPoolSuppliedCTokens";
 import { POOL_156_COMPTROLLER } from "constants/convex";
 
-const FLYWHEEL_LENS_ROUTER = "0x683B4D8e4A62CE13e899c264b242C309fb8490e8";
+const FLYWHEEL_LENS_ROUTER = "0xcd9704f874d69f0cb2ddfd04ff8e5c88f3caf02e";
 
 const createFlywheelLens = (provider: any) =>
   new Contract(FLYWHEEL_LENS_ROUTER, JSON.stringify(FlywheelLensABI), provider);
@@ -283,8 +283,11 @@ export const useConvexPoolIncentives = (
       )
         return undefined;
       const lens = createFlywheelLens(provider);
+      console.log({lens, comptroller})
       let result: MarketRewardInfo[] =
         await lens.callStatic.getMarketRewardsInfo(comptroller);
+      console.log({result, comptroller})
+
       let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {};
       let flywheelCTokensMap: FlywheelCTokensMap = {};
       let uniqueRewardTokens: Set<string> = new Set<string>();
