@@ -82,7 +82,11 @@ export const flywheels: FlywheelData = {
     rewardTokenSymbol: "CVX",
     rewardTokenDecimals: 18,
   },
-
+  "0x30e9a1bc6a6a478fc32f9ac900c6530ad3a1616f": {
+    rewardToken: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0",
+    rewardTokenSymbol: "FXS",
+    rewardTokenDecimals: 18,
+  }
 };
 
 // Mapping of flywheel -> Undelrying Claimable
