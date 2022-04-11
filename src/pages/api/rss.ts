@@ -5,7 +5,10 @@ import { variance, median } from "mathjs";
 import fetch from "node-fetch";
 
 import { fetchFusePoolData } from "utils/fetchFusePoolData";
-import { alchemyURL, initFuseWithProviders, providerURL } from "utils/web3Providers";
+import {
+  alchemyURL,
+  initFuseWithProviders,
+} from "utils/web3Providers";
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
