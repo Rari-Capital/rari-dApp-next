@@ -115,12 +115,12 @@ export const PoolRow = ({
               <Center height="100%" width="13%">
                 <b>{poolNumber}</b>
               </Center>
-              <Center height="100%" width="16%">
-                <b>{smallUsdFormatter(tvl)}</b>
-              </Center>
-              <Center height="100%" width="16%">
-                <b>{smallUsdFormatter(borrowed)}</b>
-              </Center>
+                <Center height="100%" width="16%">
+                  <b>{smallUsdFormatter(tvl)}</b>
+                </Center>
+                <Center height="100%" width="16%">
+                  <b>{smallUsdFormatter(borrowed)}</b>
+                </Center>
             </>
           )}
         </Row>
