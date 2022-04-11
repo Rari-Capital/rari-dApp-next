@@ -12,13 +12,14 @@ export function chooseBestWeb3Provider(
    */
   chainId = 1,
   /**
-   * If true this is being used by vaults, in which case we only need a JsonRpc provider 
-   *  thats because this app only reads opportunities from vaults and routes the user to the old 
+   * If true this is being used by vaults, in which case we only need a JsonRpc provider
+   *  thats because this app only reads opportunities from vaults and routes the user to the old
    *  interface if they want to interact with vaults.
    */
   vaults?: boolean
 ): JsonRpcProvider | Web3Provider {
   let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
+  console.log({ chainId, providerURL });
   // return new JsonRpcProvider(providerURL);
 
   const isClient = typeof window === "object";

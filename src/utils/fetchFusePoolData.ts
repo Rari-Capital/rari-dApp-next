@@ -129,7 +129,6 @@ export const filterPoolName = (name: string) => {
   if (name === "Yearn's Yield") {
     return "Yearn Soup Pot of Yield";
   }
-
   if (name === "GMI Hot Tub") {
     return "GMI Hot Tub ♨️ ";
   }
