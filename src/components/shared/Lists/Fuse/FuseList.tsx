@@ -22,7 +22,6 @@ import { useSortableList } from "hooks/useSortableList";
 import { Center, Column, useIsMobile } from "lib/chakraUtils";
 import { filterPoolName, FusePoolData } from "utils/fetchFusePoolData";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { letterScore, usePoolRSS } from "hooks/useRSS";
 
 // Types
 import { SortableTableHeader } from "../Common";
@@ -93,7 +92,7 @@ export const FuseList = ({
                   />
 
                   {/* Pool # */}
-                  <Th fontSize="sm">{t("Pool Risk Score")}</Th>
+                  {/* <Th fontSize="sm">{t("Pool Risk Score")}</Th> */}
                 </>
               )}
             </Tr>
@@ -152,8 +151,7 @@ export const FusePoolRow = ({
   );
 
   const isEmpty = tokens.length === 0;
-  const rss = usePoolRSS(poolNumber);
-  const rssScore = rss ? letterScore(rss.totalScore) : "?";
+  const rssScore = "?";
 
   return (
     <AppLink
@@ -203,18 +201,6 @@ export const FusePoolRow = ({
             {smaller
               ? shortUsdFormatter(parseFloat(borrowed.toString()))
               : smallUsdFormatter(parseFloat(borrowed.toString()))}
-          </Td>
-          {/* Risk Score # */}
-          <Td isNumeric={true} fontWeight="bold">
-            <SimpleTooltip
-              label={
-                "Underlying RSS: " +
-                (rss ? rss.totalScore.toFixed(2) : "?") +
-                "%"
-              }
-            >
-              {rssScore}
-            </SimpleTooltip>
           </Td>
         </>
       )}

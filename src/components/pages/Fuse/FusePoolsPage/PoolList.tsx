@@ -50,9 +50,9 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
               {t("Total Borrowed")}
             </Text>
 
-            <Text fontWeight="bold" textAlign="center" width="15%">
+            {/* <Text fontWeight="bold" textAlign="center" width="15%">
               {t("Pool Risk Score")}
-            </Text>
+            </Text> */}
           </>
         )}
       </Row>

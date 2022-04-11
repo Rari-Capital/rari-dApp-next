@@ -2,10 +2,7 @@
 import { ModalDivider } from "components/shared/Modal";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
 import AppLink from "components/shared/AppLink";
-import { AvatarGroup, Text } from "@chakra-ui/react";
-
-// Hooks
-import { letterScore, usePoolRSS } from "hooks/useRSS";
+import { AvatarGroup, Box, HStack, Text } from "@chakra-ui/react";
 
 // Utils
 import { Center, Column, Row, useIsMobile } from "lib/chakraUtils";
@@ -37,8 +34,8 @@ export const PoolRow = ({
 }) => {
   const isEmpty = tokens.length === 0;
 
-  const rss = usePoolRSS(poolNumber);
-  const rssScore = rss ? letterScore(rss.totalScore) : "?";
+  // const rss = usePoolRSS(poolNumber);
+  const rssScore = "?";
 
   const isMobile = useIsMobile();
 
@@ -86,14 +83,19 @@ export const PoolRow = ({
                 boxSize={"15px"}
                 mb="2px"
               />
-              <Row mainAxisAlignment="flex-start"
-              crossAxisAlignment="center"> 
-                <Text>{name.length > 20 && rewardTokens.length > 0 ? name.substring(0, 20) + '...' : name}</Text>
+              <Row mainAxisAlignment="flex-start" crossAxisAlignment="center">
+                <Text>
+                  {name.length > 20 && rewardTokens.length > 0
+                    ? name.substring(0, 20) + "..."
+                    : name}
+                </Text>
                 {rewardTokens.length > 0 ? (
                   <>
-                  <Text mx={2} fontWeight={'bold'}>·</Text>
+                    <Text mx={2} fontWeight={"bold"}>
+                      ·
+                    </Text>
                     <Text fontSize={14} color={"rgb(200, 128, 200)"}>
-                    🎉 Offering rewards
+                      🎉 Offering rewards
                     </Text>
                     <AvatarGroup size="2xs" max={30} ml={2}>
                       {rewardTokens.map((address) => {
@@ -102,8 +104,8 @@ export const PoolRow = ({
                     </AvatarGroup>
                   </>
                 ) : null}
-                </Row>
               </Row>
+            </Row>
           </Column>
 
           {isMobile ? null : (
@@ -111,23 +113,12 @@ export const PoolRow = ({
               <Center height="100%" width="13%">
                 <b>{poolNumber}</b>
               </Center>
-              <Center height="100%" width="16%">
-                <b>{smallUsdFormatter(tvl)}</b>
-              </Center>
-              <Center height="100%" width="16%">
-                <b>{smallUsdFormatter(borrowed)}</b>
-              </Center>
-              <Center height="100%" width="15%">
-                <SimpleTooltip
-                  label={
-                    "Underlying RSS: " +
-                    (rss ? rss.totalScore.toFixed(2) : "?") +
-                    "%"
-                  }
-                >
-                  <b>{rssScore}</b>
-                </SimpleTooltip>
-              </Center>
+                <Center height="100%" width="16%">
+                  <b>{smallUsdFormatter(tvl)}</b>
+                </Center>
+                <Center height="100%" width="16%">
+                  <b>{smallUsdFormatter(borrowed)}</b>
+                </Center>
             </>
           )}
         </Row>

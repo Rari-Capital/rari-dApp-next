@@ -5,7 +5,7 @@ import { variance, median } from "mathjs";
 import fetch from "node-fetch";
 
 import { fetchFusePoolData } from "utils/fetchFusePoolData";
-import { initFuseWithProviders, providerURL } from "utils/web3Providers";
+import { alchemyURL, initFuseWithProviders } from "utils/web3Providers";
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -271,6 +271,8 @@ export default async (request: NowRequest, response: NowResponse) => {
     timeZone: "America/Los_Angeles",
   });
 
+  console.log({address, poolID})
+
   if (address) {
     response.setHeader("Cache-Control", "s-maxage=3600");
     try {
@@ -294,6 +296,8 @@ export default async (request: NowRequest, response: NowResponse) => {
     const liquidity = await weightedCalculation(async () => {
       return totalLiquidityUSD > 50_000 ? totalLiquidityUSD / 2_000_000 : 0;
     }, 25);
+
+    console.log({assets, totalLiquidityUSD, comptroller, liquidity})
 
     const collateralFactor = await weightedCalculation(async () => {
       // @ts-ignore
