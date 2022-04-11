@@ -65,34 +65,39 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     address
   );
 
-  const { data: safeSimulation } = useQuery('Safe creation and deposit simulation for deposit amount:' + depositAmount,
+  const { data: safeSimulation } = useQuery(
+    "Safe creation and deposit simulation for deposit amount:" + depositAmount,
     async () => {
-      if (depositAmount === "0" || !depositAmount || !chainId) return
+      if (depositAmount === "0" || !depositAmount || !chainId) return;
 
-      // 1. Get eth price and collateral price. 
+      // 1. Get eth price and collateral price.
       // @note - collaterael price is denominated in ether. collateralPrice * ethPrice = collateralPriceToUSD
-      const ethUSDBN = (await getEthUsdPriceBN()).div(constants.WeiPerEther)
+      const ethUSDBN = (await getEthUsdPriceBN()).div(constants.WeiPerEther);
       const collateralPriceBN = await getPriceFromOracles(
-          TRIBE,
-          TurboAddresses[1].COMPTROLLER, 
-          fuse, 
-          isAuthed
-        )
+        TRIBE,
+        TurboAddresses[1].COMPTROLLER,
+        fuse,
+        isAuthed
+      );
 
       // Get collateral factor
-      const collateralFactor = await getMarketCf(provider, chainId, underlyingTokenAddress)
-     
+      const collateralFactor = await getMarketCf(
+        provider,
+        chainId,
+        underlyingTokenAddress
+      );
+
       // Calculations
       const amountBN = BigNumber.from(depositAmount);
-      const collateralUSD = collateralPriceBN.mul(ethUSDBN).mul(amountBN)
-      const maxBoost = calculateMaxBoost(collateralUSD, collateralFactor)
+      const collateralUSD = collateralPriceBN.mul(ethUSDBN).mul(amountBN);
+      const maxBoost = calculateMaxBoost(collateralUSD, collateralFactor);
 
       return {
         collateralUSD,
-        maxBoost
-      }
+        maxBoost,
+      };
     }
-  )
+  );
 
   // Modal Logic
   const onClickCreateSafe = async () => {
@@ -113,14 +118,16 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
         );
 
         receipt = await tx.wait(1);
-        const turboMasterContract = createTurboMaster(provider, chainId)
-
-        const event = await getRecentEventDecoded(turboMasterContract, turboMasterContract.filters.TurboSafeCreated)
+        const turboMasterContract = createTurboMaster(provider, chainId);
+        const event = await getRecentEventDecoded(
+          turboMasterContract,
+          turboMasterContract.filters.TurboSafeCreated
+        );
         setCreatedSafe(event.safe);
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
-        throw err
+        throw err;
       } finally {
         setCreatingSafe(false);
       }
@@ -132,7 +139,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
-        throw err
+        throw err;
       } finally {
         setCreatingSafe(false);
       }
@@ -186,6 +193,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     navigating,
     collateralBalance: balance,
     onClickMax,
+    createdSafe,
     onClose() {
       // Only allow close if a transaction isn't in progress.
       if (!approving && !creatingSafe) {
@@ -194,6 +202,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       }
     },
     async navigateToCreatedSafe() {
+      if (!createdSafe) return;
       setNavigating(true);
       try {
         await router.push(`/turbo/safe/${createdSafe}`);

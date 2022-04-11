@@ -41,6 +41,8 @@ import { useState } from "react";
 import { TurboSafeProvider, useTurboSafe } from "context/TurboSafeContext";
 import BoostMeAlert from "../alerts/BoostMeAlert";
 import { AdminAlert } from "components/shared/AdminAlert";
+import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
+import BoostModal from "./modals/BoostModal";
 
 const TurboSafePage: React.FC = () => {
   const {
@@ -50,8 +52,8 @@ const TurboSafePage: React.FC = () => {
     loading,
     isAtLiquidationRisk,
     shouldBoost,
-    isUserAdmin
-  } = useTurboSafe()
+    isUserAdmin,
+  } = useTurboSafe();
 
   const safeHealth = safe?.safeUtilization;
 
@@ -81,11 +83,30 @@ const TurboSafePage: React.FC = () => {
 
   const [hovered, setHovered] = useState(false);
 
-  function onClickBoost() {
-    // TODO(sharad-s) Need to implement
-    // TODO(sharad-s) Move strategyIndex to context
-    alert("Boosting random safe!");
-  }
+  /* Strategy + Boost Modal State */
+  const [activeStrategyAddress, setActiveStrategyAddress] = useState<string>();
+
+  const {
+    isOpen: isBoostModalOpen,
+    onOpen: onBoostModalOpen,
+    onClose: onBoostModalClose,
+  } = useDisclosure();
+
+  const [boostMode, setBoostMode] = useState<
+    SafeInteractionMode.BOOST | SafeInteractionMode.LESS | undefined
+  >();
+
+  const onClickBoost = (strategyAddress: string) => {
+    setActiveStrategyAddress(strategyAddress);
+    setBoostMode(SafeInteractionMode.BOOST);
+    onBoostModalOpen();
+  };
+
+  const onClickLess = (strategyAddress: string) => {
+    setActiveStrategyAddress(strategyAddress);
+    setBoostMode(SafeInteractionMode.LESS);
+    onBoostModalOpen();
+  };
 
   return (
     <>
@@ -112,8 +133,16 @@ const TurboSafePage: React.FC = () => {
       <SafeInfoModal
         isOpen={isSafeModalOpen}
         onClose={closeSafeModal}
-        safe={safe}
+        safe={usdPricedSafe}
       />
+      {!!activeStrategyAddress && !!boostMode && (
+        <BoostModal
+          isOpen={isBoostModalOpen}
+          onClose={onBoostModalClose}
+          activeStrategyAddress={activeStrategyAddress}
+          mode={boostMode}
+        />
+      )}
 
       <Box
         onMouseEnter={() => setHovered(true)}
@@ -136,7 +165,9 @@ const TurboSafePage: React.FC = () => {
       </Box>
 
       {/* Alerts */}
-      {isAtLiquidationRisk && <AtRiskOfLiquidationAlert safeHealth={safeHealth} />}
+      {isAtLiquidationRisk && (
+        <AtRiskOfLiquidationAlert safeHealth={safeHealth} />
+      )}
 
       <Stack
         direction={["column", "column", "column", "row"]}
@@ -159,12 +190,12 @@ const TurboSafePage: React.FC = () => {
                 }}
               />
             </HStack>
-            {!isUserAdmin &&
+            {!isUserAdmin && (
               <HStack color="warning" mt={4}>
                 <WarningTwoIcon />
                 <Text>You are not the admin of this safe</Text>
               </HStack>
-            }
+            )}
           </VStack>
         </Skeleton>
         <Buttons
@@ -187,7 +218,7 @@ const TurboSafePage: React.FC = () => {
         <SafeStats />
       </Stack>
 
-      <SafeStrategies />
+      <SafeStrategies onClickBoost={onClickBoost} onClickLess={onClickLess} />
     </>
   );
 };
@@ -198,7 +229,12 @@ type ButtonsProps = StackProps & {
   openClaimInterestModal: any;
 };
 
-export const Buttons: React.FC<ButtonsProps> = ({ openDepositModal, openWithdrawModal, openClaimInterestModal, ...restProps }) => {
+export const Buttons: React.FC<ButtonsProps> = ({
+  openDepositModal,
+  openWithdrawModal,
+  openClaimInterestModal,
+  ...restProps
+}) => {
   const { loading } = useTurboSafe();
 
   return (
