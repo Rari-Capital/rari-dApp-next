@@ -220,15 +220,20 @@ export const TokenDataOverrides: {
     },
     // CRV cvxFXS-FXS
     "0xF3A43307DcAFa93275993862Aae628fCB50dC768": {
-      symbol: "CRVcvxFXS"
+      symbol: "CRVcvxFXS",
+      logoURL:
+        "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xfeef77d3f69374f66429c91d732a244f074bdf74.png",
     },
     "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08": {
-      symbol: "CRVrETHwstETH"
+      symbol: "CRVrETHwstETH",
+      logoURL: "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xae78736cd615f374d3085123a210448e74fc6393.png"
     },
-    
+
     "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8": {
-      symbol: "cvxCRV"
-    }
+      symbol: "cvxCRV",
+      logoURL:
+        "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7.png",
+    },
   },
   [ChainID.ARBITRUM]: {
     "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": {
