@@ -20,7 +20,7 @@ const weightedCalculation = async (
   return clamp((await calculation()) ?? 0, 0, 1) * weight;
 };
 
-const fuse = initFuseWithProviders(providerURL);
+const fuse = initFuseWithProviders();
 
 async function computeAssetRSS(address: string) {
   address = address.toLowerCase();
@@ -29,7 +29,6 @@ async function computeAssetRSS(address: string) {
   if (address === "0x0000000000000000000000000000000000000000") {
     return {
       liquidityUSD: 4_000_000_000,
-
       mcap: 33,
       volatility: 20,
       liquidity: 32,
@@ -46,7 +45,6 @@ async function computeAssetRSS(address: string) {
   if (address === "0xB8c77482e45F1F44dE1745F52C74426C631bDD52") {
     return {
       liquidityUSD: 0,
-
       mcap: 33,
       volatility: 20,
       liquidity: 0,
@@ -271,172 +269,181 @@ export default async (request: NowRequest, response: NowResponse) => {
     timeZone: "America/Los_Angeles",
   });
 
-  console.log({address, poolID})
+  console.log({ address, poolID });
 
-  if (address) {
-    response.setHeader("Cache-Control", "s-maxage=3600");
-    try {
-      const rss = await computeAssetRSS(address);
-      return response.json({ ...rss, lastUpdated });
-    } catch (err) {
-      // console.log({ err });
-      return response.status(500);
-    }
-  } else if (poolID) {
-    const { assets, totalLiquidityUSD, comptroller } = (await fetchFusePoolData(
-      poolID,
-      "0x0000000000000000000000000000000000000000",
-      fuse,
-      undefined,
-      false
-    ))!;
+  try {
+    if (address) {
+      response.setHeader("Cache-Control", "s-maxage=3600");
+      try {
+        const rss = await computeAssetRSS(address);
+        return response.json({ ...rss, lastUpdated });
+      } catch (err) {
+        // console.log({ err });
+        return response.status(500);
+      }
+    } else if (poolID) {
+      const { assets, totalLiquidityUSD, comptroller } =
+        (await fetchFusePoolData(
+          poolID,
+          "0x0000000000000000000000000000000000000000",
+          fuse,
+          undefined,
+          false
+        ))!;
 
-    // console.timeEnd("poolData");
+      // console.timeEnd("poolData");
 
-    const liquidity = await weightedCalculation(async () => {
-      return totalLiquidityUSD > 50_000 ? totalLiquidityUSD / 2_000_000 : 0;
-    }, 25);
+      const liquidity = await weightedCalculation(async () => {
+        return totalLiquidityUSD > 50_000 ? totalLiquidityUSD / 2_000_000 : 0;
+      }, 25);
 
-    console.log({assets, totalLiquidityUSD, comptroller, liquidity})
+      console.log({ assets, totalLiquidityUSD, comptroller, liquidity });
 
-    const collateralFactor = await weightedCalculation(async () => {
-      // @ts-ignore
-      const avgCollatFactor = assets.reduce(
-        (a, b, _, { length }) => a + b.collateralFactor / 1e16 / length,
-        0
-      );
+      const collateralFactor = await weightedCalculation(async () => {
+        // @ts-ignore
+        const avgCollatFactor = assets.reduce(
+          (a, b, _, { length }) => a + b.collateralFactor / 1e16 / length,
+          0
+        );
 
-      // Returns a percentage in the range of 45% -> 90% (where 90% is 0% and 45% is 100%)
-      return -1 * (1 / 45) * avgCollatFactor + 2;
-    }, 10);
+        // Returns a percentage in the range of 45% -> 90% (where 90% is 0% and 45% is 100%)
+        return -1 * (1 / 45) * avgCollatFactor + 2;
+      }, 10);
 
-    const reserveFactor = await weightedCalculation(async () => {
-      // @ts-ignore
-      const avgReserveFactor = assets.reduce(
-        (a, b, _, { length }) => a + b.reserveFactor / 1e16 / length,
-        0
-      );
+      const reserveFactor = await weightedCalculation(async () => {
+        // @ts-ignore
+        const avgReserveFactor = assets.reduce(
+          (a, b, _, { length }) => a + b.reserveFactor / 1e16 / length,
+          0
+        );
 
-      return avgReserveFactor <= 2 ? 0 : avgReserveFactor / 22;
-    }, 10);
+        return avgReserveFactor <= 2 ? 0 : avgReserveFactor / 22;
+      }, 10);
 
-    const utilization = await weightedCalculation(async () => {
-      for (let i = 0; i < assets.length; i++) {
-        const asset = assets[i];
+      const utilization = await weightedCalculation(async () => {
+        for (let i = 0; i < assets.length; i++) {
+          const asset = assets[i];
 
-        // If this asset has more than 75% utilization, fail
-        if (
-          // @ts-ignore
-          asset.totalSupply === "0"
-            ? false
-            : asset.totalBorrow / asset.totalSupply >= 0.75
-        ) {
-          return 0;
+          // If this asset has more than 75% utilization, fail
+          if (
+            // @ts-ignore
+            asset.totalSupply === "0"
+              ? false
+              : asset.totalBorrow / asset.totalSupply >= 0.75
+          ) {
+            return 0;
+          }
         }
-      }
 
-      return 1;
-    }, 10);
-
-    let assetsRSS: ThenArg<ReturnType<typeof computeAssetRSS>>[] = [];
-    let totalRSS = 0;
-
-    // Do all the fetching in parallel and then resolve this promise once they have all fetched.
-    // console.log("awaiting promise");
-    await new Promise((resolve, reject) => {
-      let completed = 0;
-
-      for (let i = 0; i < assets.length; i++) {
-        const asset = assets[i];
-
-        // console.time(asset.underlyingSymbol);
-        fetch(
-          `http://${
-            process.env.VERCEL_URL ?? `app.rari.capital`
-          }/api/rss?address=` + asset.underlyingToken
-        )
-          .then((res) => res.json())
-          .then((rss) => {
-            assetsRSS[i] = rss;
-            totalRSS += rss.totalScore;
-            completed++;
-
-            // console.timeEnd(asset.underlyingSymbol);
-            if (completed === assets.length) {
-              resolve(true);
-            }
-          })
-          .catch((err) => {
-            console.error(err);
-            reject(err);
-          });
-      }
-    });
-
-    const averageRSS = await weightedCalculation(async () => {
-      return totalRSS / assets.length / 100;
-    }, 15);
-
-    const upgradeable = await weightedCalculation(async () => {
-      const { 0: admin, 1: upgradeable } =
-        await fuse.contracts.FusePoolLens.getPoolOwnership(comptroller).call({
-          gas: 1e18,
-        });
-
-      // Rari Controlled Multisig
-      if (
-        admin.toLowerCase() === "0xa731585ab05fc9f83555cf9bff8f58ee94e18f85" ||
-        admin.toLowerCase() === "0x5ea4a9a7592683bf0bc187d6da706c6c4770976f" ||
-        admin.toLowerCase() === "0x7d7ec1c9b40f8d4125d2ee524e16b65b3ee83e8f" ||
-        (admin.toLowerCase() === "0x7b502f1aa0f48b83ca6349e1f42cacd8150307a6" &&
-          comptroller.toLowerCase() ==
-            "0xd4bdcca1ca76ced6fc8bb1ba91c5d7c0ca4fe567") ||
-        (admin.toLowerCase() === "0x521cf3d673f4b2025be0bdb03d6410b111cd17d5" &&
-          comptroller.toLowerCase() ==
-            "0x8583fdff34ddc3744a46eabc1503769af0bc6604")
-      ) {
         return 1;
-      }
+      }, 10);
 
-      return upgradeable ? 0 : 1;
-    }, 10);
+      let assetsRSS: ThenArg<ReturnType<typeof computeAssetRSS>>[] = [];
+      let totalRSS = 0;
 
-    const mustPass = await weightedCalculation(async () => {
-      const comptrollerContract = new fuse.web3.eth.Contract(
-        JSON.parse(
-          fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
-        ),
-        comptroller
-      );
+      // Do all the fetching in parallel and then resolve this promise once they have all fetched.
+      // console.log("awaiting promise");
+      await new Promise((resolve, reject) => {
+        let completed = 0;
 
-      // Ex: 8
-      const liquidationIncentive =
-        parseInt(
-          (await comptrollerContract.liquidationIncentiveMantissa()).toString()
-        ) /
-          1e16 -
-        100;
+        for (let i = 0; i < assets.length; i++) {
+          const asset = assets[i];
 
-      for (let i = 0; i < assetsRSS.length; i++) {
-        const rss = assetsRSS[i];
-        const asset = assets[i];
+          // console.time(asset.underlyingSymbol);
+          fetch(
+            `http://${
+              process.env.VERCEL_URL ?? `app.rari.capital`
+            }/api/rss?address=` + asset.underlyingToken
+          )
+            .then((res) => res.json())
+            .then((rss) => {
+              assetsRSS[i] = rss;
+              totalRSS += rss.totalScore;
+              completed++;
 
-        // Ex: 75
-        const collateralFactor = asset.collateralFactor / 1e16;
+              // console.timeEnd(asset.underlyingSymbol);
+              if (completed === assets.length) {
+                resolve(true);
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              reject(err);
+            });
+        }
+      });
 
-        // If the AMM liquidity is less than 2x the $ amount supplied, fail
-        if (rss.liquidityUSD < 2 * asset.totalSupplyUSD) {
-          return 0;
+      const averageRSS = await weightedCalculation(async () => {
+        return totalRSS / assets.length / 100;
+      }, 15);
+
+      const upgradeable = await weightedCalculation(async () => {
+        const { 0: admin, 1: upgradeable } =
+          await fuse.contracts.FusePoolLens.getPoolOwnership(comptroller).call({
+            gas: 1e18,
+          });
+
+        // Rari Controlled Multisig
+        if (
+          admin.toLowerCase() ===
+            "0xa731585ab05fc9f83555cf9bff8f58ee94e18f85" ||
+          admin.toLowerCase() ===
+            "0x5ea4a9a7592683bf0bc187d6da706c6c4770976f" ||
+          admin.toLowerCase() ===
+            "0x7d7ec1c9b40f8d4125d2ee524e16b65b3ee83e8f" ||
+          (admin.toLowerCase() ===
+            "0x7b502f1aa0f48b83ca6349e1f42cacd8150307a6" &&
+            comptroller.toLowerCase() ==
+              "0xd4bdcca1ca76ced6fc8bb1ba91c5d7c0ca4fe567") ||
+          (admin.toLowerCase() ===
+            "0x521cf3d673f4b2025be0bdb03d6410b111cd17d5" &&
+            comptroller.toLowerCase() ==
+              "0x8583fdff34ddc3744a46eabc1503769af0bc6604")
+        ) {
+          return 1;
         }
 
-        // If any of the RSS asset scores are less than 60, fail
-        if (rss.totalScore < 60) {
-          return 0;
-        }
+        return upgradeable ? 0 : 1;
+      }, 10);
 
-        // If the collateral factor and liquidation incentive do not have at least a 5% safety margin, fail
-        if (collateralFactor + liquidationIncentive > 95) {
-          /* 
+      const mustPass = await weightedCalculation(async () => {
+        const comptrollerContract = new fuse.web3.eth.Contract(
+          JSON.parse(
+            fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
+          ),
+          comptroller
+        );
+
+        // Ex: 8
+        const liquidationIncentive =
+          parseInt(
+            (
+              await comptrollerContract.liquidationIncentiveMantissa()
+            ).toString()
+          ) /
+            1e16 -
+          100;
+
+        for (let i = 0; i < assetsRSS.length; i++) {
+          const rss = assetsRSS[i];
+          const asset = assets[i];
+
+          // Ex: 75
+          const collateralFactor = asset.collateralFactor / 1e16;
+
+          // If the AMM liquidity is less than 2x the $ amount supplied, fail
+          if (rss.liquidityUSD < 2 * asset.totalSupplyUSD) {
+            return 0;
+          }
+
+          // If any of the RSS asset scores are less than 60, fail
+          if (rss.totalScore < 60) {
+            return 0;
+          }
+
+          // If the collateral factor and liquidation incentive do not have at least a 5% safety margin, fail
+          if (collateralFactor + liquidationIncentive > 95) {
+            /* 
         
           See this tweet for why: https://twitter.com/transmissions11/status/1378862288266960898
         
@@ -444,42 +451,47 @@ export default async (request: NowRequest, response: NowResponse) => {
         
           */
 
-          return 0;
+            return 0;
+          }
+
+          // If the liquidation incentive is less than or equal to 1/10th of the collateral factor, fail
+          if (liquidationIncentive <= collateralFactor / 10) {
+            return 0;
+          }
         }
 
-        // If the liquidation incentive is less than or equal to 1/10th of the collateral factor, fail
-        if (liquidationIncentive <= collateralFactor / 10) {
-          return 0;
-        }
-      }
+        return 1;
+      }, 20);
 
-      return 1;
-    }, 20);
-
-    response.setHeader("Cache-Control", "s-maxage=3600");
-    response.json({
-      liquidity,
-      collateralFactor,
-      reserveFactor,
-      utilization,
-      averageRSS,
-      upgradeable,
-      mustPass,
-
-      totalScore:
-        liquidity +
-        collateralFactor +
-        reserveFactor +
-        utilization +
-        averageRSS +
-        upgradeable +
+      response.setHeader("Cache-Control", "s-maxage=3600");
+      response.json({
+        liquidity,
+        collateralFactor,
+        reserveFactor,
+        utilization,
+        averageRSS,
+        upgradeable,
         mustPass,
 
-      lastUpdated,
-    });
+        totalScore:
+          liquidity +
+          collateralFactor +
+          reserveFactor +
+          utilization +
+          averageRSS +
+          upgradeable +
+          mustPass,
 
-    // console.log("done!");
-  } else {
-    response.status(404).send("Specify address or poolID!");
+        lastUpdated,
+      });
+
+      // console.log("done!");
+    } else {
+      return response.status(404).send("Specify address or poolID!");
+    }
+  } catch (err) {
+    return response
+      .status(404)
+      .send(`Error fetching RSS pool ${poolID} address ${address}`);
   }
 };
