@@ -64,6 +64,7 @@ const fetchStrategyData = async (provider: any, strategy: string): Promise<FuseE
         return MOCK_ERC4626_STRATEGY_1;
     }
 
+    // Get stuff from FuseERC4626
     const [
         [name],
         [symbol],
@@ -78,6 +79,7 @@ const fetchStrategyData = async (provider: any, strategy: string): Promise<FuseE
         [[], [], [], [], []]
     )
 
+    // Get SupplyRate from CERC20
     const [
         [supplyRatePerBlock]
     ] = await callInterfaceWithMulticall(
@@ -87,6 +89,8 @@ const fetchStrategyData = async (provider: any, strategy: string): Promise<FuseE
         ["supplyRatePerBlock"],
         [[]]
     )
+
+    // Get pool name
 
     let result: FuseERC4626Strategy = {
         name,

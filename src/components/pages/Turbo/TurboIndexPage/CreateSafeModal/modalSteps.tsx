@@ -58,6 +58,7 @@ type CreateSafeCtx = {
    * Function which navigates to the safe that was just created in this modal.
    */
   navigateToCreatedSafe(): void;
+  createdSafe: string | undefined;
 };
 
 type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
@@ -155,7 +156,7 @@ const MODAL_STEP_3: ModalStep = {
     depositAmount,
     collateralBalance,
     setDepositAmount,
-    safeSimulation
+    safeSimulation,
   }) => (
     <Stack>
       <Box>
@@ -188,8 +189,14 @@ const MODAL_STEP_3: ModalStep = {
               secondaryValue:
                 !depositAmount || depositAmount === "0" || !safeSimulation
                   ? undefined
-                  : "$" + commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2)),
-              titleTooltip: "The total collateral value denominated in dollars.",
+                  : "$" +
+                    commify(
+                      parseFloat(
+                        formatEther(safeSimulation.collateralUSD)
+                      ).toFixed(2)
+                    ),
+              titleTooltip:
+                "The total collateral value denominated in dollars.",
             },
             {
               title: "Max boost",
@@ -197,9 +204,14 @@ const MODAL_STEP_3: ModalStep = {
               secondaryValue:
                 !depositAmount || depositAmount === "0" || !safeSimulation
                   ? undefined
-                  : "$" + commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2)),
+                  : "$" +
+                    commify(
+                      parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(
+                        2
+                      )
+                    ),
               titleTooltip: "The total boostable amount.",
-            }
+            },
           ]}
           mt={4}
         />
@@ -212,27 +224,27 @@ const MODAL_STEP_3: ModalStep = {
     depositAmount,
     collateralBalance,
   }) => [
-      {
-        children: "Skip",
-        variant: "cardmatte",
-        onClick() {
-          setDepositAmount("0");
-          incrementStepIndex();
-        },
+    {
+      children: "Skip",
+      variant: "cardmatte",
+      onClick() {
+        setDepositAmount("0");
+        incrementStepIndex();
       },
-      {
-        disabled:
-          parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
-        children:
-          parseInt(depositAmount) > parseInt(collateralBalance)
-            ? "Invalid amount"
-            : "Review",
-        variant: "neutral",
-        onClick() {
-          incrementStepIndex();
-        },
+    },
+    {
+      disabled:
+        parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
+      children:
+        parseInt(depositAmount) > parseInt(collateralBalance)
+          ? "Invalid amount"
+          : "Review",
+      variant: "neutral",
+      onClick() {
+        incrementStepIndex();
       },
-    ],
+    },
+  ],
 };
 
 const MODAL_STEP_4: ModalStep = {
@@ -245,16 +257,26 @@ const MODAL_STEP_4: ModalStep = {
           <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
         </Heading>
       </Box>
-      { !depositAmount || depositAmount === "0" ? null :
+      {!depositAmount || depositAmount === "0" ? null : (
         <RariStats
           mt={8}
           statistics={[
             ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-            ["USD Value", `$${utils.commify(parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2))}`],
-            ["Max Boost", `$${utils.commify(parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2))}`],
+            [
+              "USD Value",
+              `$${utils.commify(
+                parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2)
+              )}`,
+            ],
+            [
+              "Max Boost",
+              `$${utils.commify(
+                parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2)
+              )}`,
+            ],
           ]}
         />
-      }
+      )}
     </Box>
   ),
   stepBubbles: ({ approving, creatingSafe, hasApproval }) => ({
@@ -272,33 +294,32 @@ const MODAL_STEP_4: ModalStep = {
     onClickApprove,
     incrementStepIndex,
   }) => [
-      {
-        children: approving
-          ? "Approving..."
-          : creatingSafe
-            ? "Creating Safe..."
-            : !hasApproval &&
-              BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-              ? "Approve Router"
-              : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
-                ? "Create Safe & Deposit"
-                : "Create Safe",
-        variant: "neutral",
-        loading: approving || creatingSafe,
-        async onClick() {
-          try {
-
-            if (!hasApproval) {
-              await onClickApprove();
-            }
-            await onClickCreateSafe();
-            incrementStepIndex()
-          } catch (err) {
-            throw err
+    {
+      children: approving
+        ? "Approving..."
+        : creatingSafe
+        ? "Creating Safe..."
+        : !hasApproval &&
+          BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+        ? "Approve Router"
+        : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+        ? "Create Safe & Deposit"
+        : "Create Safe",
+      variant: "neutral",
+      loading: approving || creatingSafe,
+      async onClick() {
+        try {
+          if (!hasApproval) {
+            await onClickApprove();
           }
-        },
+          await onClickCreateSafe();
+          incrementStepIndex();
+        } catch (err) {
+          throw err;
+        }
       },
-    ],
+    },
+  ],
 };
 
 const MODAL_STEP_5: ModalStep = {
@@ -316,13 +337,13 @@ const MODAL_STEP_5: ModalStep = {
       </Box>
     </Stack>
   ),
-  buttons: ({ onClose, navigateToCreatedSafe, navigating }) => [
+  buttons: ({ onClose, navigateToCreatedSafe, createdSafe, navigating }) => [
     {
       children: navigating ? "Loading..." : "View Safe",
       loading: navigating,
+      disabled: !createdSafe,
       variant: "neutral",
       async onClick() {
-        // TODO(sharad-s): replace hardcoded value
         await navigateToCreatedSafe();
         onClose();
       },

@@ -21,29 +21,59 @@ import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
 import { useQueryClient } from "react-query";
 import { useBoostCapForStrategy } from "hooks/turbo/useBoostCapsForStrategies";
+import { useTurboSafe } from "context/TurboSafeContext";
+
+// Utils
+import { keyBy } from "lodash";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  safe: USDPricedTurboSafe | undefined;
-  strategy: USDPricedStrategy | undefined;
-  erc4626Strategy: FuseERC4626Strategy | undefined;
-  strategyIndex: number;
+  activeStrategyAddress: string;
   mode: SafeInteractionMode.BOOST | SafeInteractionMode.LESS;
 };
 
 export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
   isOpen,
   onClose,
-  safe,
-  strategy,
-  erc4626Strategy,
-  strategyIndex,
+  activeStrategyAddress,
   mode,
 }) => {
-  const { provider, chainId, address } = useRari();
+  const { provider, chainId } = useRari();
   const toast = useToast();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
+
+  /** Strategy ? **/
+  const { usdPricedSafe, getERC4626StrategyData } = useTurboSafe();
+  const safeStrategies: USDPricedStrategy[] =
+    usdPricedSafe?.usdPricedStrategies ?? [];
+
+  // Construct a new object where safe strategies are indexed by address
+  // for O(1) access by address (order in the table is not necessarily
+  // stable).
+  const safeStrategiesByAddress = useMemo(
+    () => keyBy(safeStrategies, (strategy) => strategy.strategy),
+    [safeStrategies]
+  );
+
+  const strategy = !!activeStrategyAddress
+    ? safeStrategiesByAddress[activeStrategyAddress]
+    : undefined;
+
+  // For now, a bunch of other components rely on the assumption that the
+  // order of the strategies *stored in the source `safe.usdPricedStrategies`
+  // array* is stable. Since the order of items in the table is not
+  // necessarily stable, we need to translate from a table index to a source
+  // array index using `Array.prototype.findIndex`.
+  const activeStrategyIndex = useMemo(
+    () =>
+      safeStrategies.findIndex(
+        (strategy) => strategy.strategy === activeStrategyAddress
+      ),
+    [safeStrategies, activeStrategyAddress]
+  );
+
+  const erc4626Strategy = getERC4626StrategyData[activeStrategyAddress];
 
   const [stepIndex, setStepIndex] = useState(0);
   function incrementStepIndex() {
@@ -60,20 +90,26 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
 
   const updatedSafe = useUpdatedSafeInfo({
     mode,
-    safe,
+    safe: usdPricedSafe,
     amount: parseUnits(!!amount ? amount : "0", 18),
-    strategyIndex,
+    strategyIndex: activeStrategyIndex,
   });
 
-  const maxAmount = useSafeMaxAmount(safe, mode, strategyIndex);
+  const maxAmount = useSafeMaxAmount(usdPricedSafe, mode, activeStrategyIndex);
 
-  const isRiskyBoost = mode === SafeInteractionMode.BOOST && !!updatedSafe?.safeUtilization?.gt(75)
+  const isRiskyBoost =
+    mode === SafeInteractionMode.BOOST &&
+    !!updatedSafe?.safeUtilization?.gt(75);
 
   // Boost cap for a vault
-  const [boostCap, totalBoosted] = useBoostCapForStrategy(strategy?.strategy) ?? []
-  const percentTotalBoosted = boostCap && totalBoosted
-    ? parseFloat(formatEther(totalBoosted)) / parseFloat(formatEther(boostCap)) * 100
-    : undefined
+  const [boostCap, totalBoosted] =
+    useBoostCapForStrategy(strategy?.strategy) ?? [];
+  const percentTotalBoosted =
+    boostCap && totalBoosted
+      ? (parseFloat(formatEther(totalBoosted)) /
+          parseFloat(formatEther(boostCap))) *
+        100
+      : undefined;
 
   // Form validation
   const inputError: string | undefined = useMemo(() => {
@@ -85,7 +121,10 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
           return "You can't boost this much!";
         }
         if (!!boostCap && !!totalBoosted) {
-          if (parseFloat(formatEther(totalBoosted)) + parseFloat(_amount) > parseFloat(formatEther(boostCap))) {
+          if (
+            parseFloat(formatEther(totalBoosted)) + parseFloat(_amount) >
+            parseFloat(formatEther(boostCap))
+          ) {
             return "Boost amount exceeds Cap for Vault";
           }
         }
@@ -102,14 +141,14 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
 
   // Boost a strategy
   const onClickBoost = async () => {
-    if (!safe?.safeAddress || !provider || !amount) return;
+    if (!usdPricedSafe?.safeAddress || !provider || !amount) return;
     const amountBN = parseEther(amount);
     const strategyAddress = strategy!.strategy;
 
     try {
       setTransacting(true);
       const tx = await safeBoost(
-        safe.safeAddress,
+        usdPricedSafe.safeAddress,
         strategyAddress,
         amountBN,
         //@ts-ignore
@@ -127,7 +166,8 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
 
   // Less a strategy
   const onClickLess = async () => {
-    if (!safe?.safeAddress || !provider || !amount || !strategy) return;
+    if (!usdPricedSafe?.safeAddress || !provider || !amount || !strategy)
+      return;
 
     let amountBN = parseEther(amount);
     amountBN = amountBN.gte(strategy.boostedAmount)
@@ -139,7 +179,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
     try {
       setTransacting(true);
       const tx = await safeLess(
-        safe.safeAddress,
+        usdPricedSafe.safeAddress,
         strategy.strategy,
         amountBN,
         lessingMax,
@@ -169,7 +209,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
         setAmount,
         resetStepIndex,
         amount,
-        safe,
+        safe: usdPricedSafe,
         updatedSafe,
         transacting,
         mode,
@@ -182,7 +222,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
         totalBoosted,
         percentTotalBoosted,
         // Risk
-        isRiskyBoost
+        isRiskyBoost,
       }}
       isOpen={isOpen}
       onClose={onClose}

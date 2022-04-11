@@ -63,6 +63,7 @@ export const TurboSafeProvider = ({
     children: ReactNode;
 }) => {
 
+    /** General Safe Data **/
     const safe = useSafeInfo(safeAddress);
     const collateralTokenData = useTokenData(safe?.collateralAsset);
     const isUserAdmin = useUserIsSafeOwner(safeAddress)
@@ -75,19 +76,19 @@ export const TurboSafeProvider = ({
     );
 
     // Average APY across all active Fuse strategies
-    // TODO(@sharad-s) - refactor into a hook
     const netAPY = useSafeAvgAPY(
         activeStrategies,
         getERC4626StrategyData,
         parseFloat(formatEther(safe?.tribeDAOFee ?? 0))
     )
 
+    /** Safe metadata **/
     const isAtLiquidationRisk = safe?.safeUtilization?.gt(80) ?? false;
     const shouldBoost = useShouldBoostSafe(safe)
-
     const safeHealth = safe?.safeUtilization
-    const colorScheme = useMemo(() => getSafeColor(safeHealth), [safeHealth]);
+    const colorScheme = useMemo(() => getSafeColor(safe?.safeUtilization), [safeHealth]);
 
+    /**  Boost / Less **/
 
     const value = useMemo<TurboSafeContextData>(() => ({
         safe,
