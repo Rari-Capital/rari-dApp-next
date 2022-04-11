@@ -170,43 +170,64 @@ export const TokenDataOverrides: {
     },
     // ICHI oneBTC
     "0xEc4325F0518584F0774b483c215F65474EAbD27F": {
-      logoURL: "https://cdn.discordapp.com/attachments/953712381886861372/957671684515696660/logo.png",
-      symbol: "oneBTC"
+      logoURL:
+        "https://cdn.discordapp.com/attachments/953712381886861372/957671684515696660/logo.png",
+      symbol: "oneBTC",
     },
     // ICHI oneUNI
     "0x8290D7a64F25e6b5002d98367E8367c1b532b534": {
-      logoURL: "https://cdn.discordapp.com/attachments/953712381886861372/957671604060553257/logo.png",
-      symbol: "oneUNI"
+      logoURL:
+        "https://cdn.discordapp.com/attachments/953712381886861372/957671604060553257/logo.png",
+      symbol: "oneUNI",
     },
     // ICHI oneUNI
     "0xfaeCcee632912c42a7c88c3544885A8D455408FA": {
-      logoURL: "https://cdn.discordapp.com/attachments/953712381886861372/956944983515086959/ICHI_Uni.png",
-      symbol: "oneUNI_LP"
+      logoURL:
+        "https://cdn.discordapp.com/attachments/953712381886861372/956944983515086959/ICHI_Uni.png",
+      symbol: "oneUNI_LP",
     },
     // ICHI oneBTC Angel Vault LP
     "0x5318c21c96256ce4b73c27D405147df97d28E0Be": {
-      logoURL: "https://cdn.discordapp.com/attachments/953712381886861372/956945051240513596/ICHI_BTC.png",
-      symbol: "oneBTC_LP"
+      logoURL:
+        "https://cdn.discordapp.com/attachments/953712381886861372/956945051240513596/ICHI_BTC.png",
+      symbol: "oneBTC_LP",
     },
     // FOX
     "0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d": {
-      symbol: "FOX"
+      symbol: "FOX",
     },
     // oneFOX
     "0x03352D267951E96c6F7235037C5DFD2AB1466232": {
-      symbol: "oneFOX"
+      symbol: "oneFOX",
     },
     // oneFOX ICHI Angel Vault LP
     "0x779F9BAd1f4B1Ef5198AD9361DBf3791F9e0D596": {
       name: "oneFOX Angel Vault LP",
-      logoURL: "https://cdn.discordapp.com/attachments/954083960454000711/960193552732782652/OneFOX_Angel_Vault_LP.png",
-      symbol: "oneFOX ICHI LP"
+      logoURL:
+        "https://cdn.discordapp.com/attachments/954083960454000711/960193552732782652/OneFOX_Angel_Vault_LP.png",
+      symbol: "oneFOX ICHI LP",
     },
     // UNI-v2 WETH-Fox LP
     "0x470e8de2eBaef52014A47Cb5E6aF86884947F08c": {
-      logoURL: "https://cdn.discordapp.com/attachments/954083960454000711/960196275008073818/FOX-WETH_UniswapV2_LP.png",
+      logoURL:
+        "https://cdn.discordapp.com/attachments/954083960454000711/960196275008073818/FOX-WETH_UniswapV2_LP.png",
       name: "FOX-ETH UniV2 LP",
       symbol: "FOX-ETH UniV2 LP",
+    },
+    // Badger bveCVX: {
+    "0xfd05D3C7fe2924020620A8bE4961bBaA747e6305": {
+      logoURL: "https://app.badger.com/assets/icons/bvecvx.svg",
+    },
+    // CRV cvxFXS-FXS
+    "0xF3A43307DcAFa93275993862Aae628fCB50dC768": {
+      symbol: "CRVcvxFXS"
+    },
+    "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08": {
+      symbol: "CRVrETHwstETH"
+    },
+    
+    "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8": {
+      symbol: "cvxCRV"
     }
   },
   [ChainID.ARBITRUM]: {

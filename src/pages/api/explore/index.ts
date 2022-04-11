@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 // GQL
-import { fetchTokensAPIDataAsMap } from "utils/services";
 import { queryTopFuseAsset } from "services/gql";
-import { TokensDataMap } from "types/tokens";
 import { stables } from "gql/getTopPerformingFuseStable";
 import { ChainID } from "esm/utils/networks";
 

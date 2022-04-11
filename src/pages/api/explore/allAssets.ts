@@ -13,6 +13,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<AllAssetsResponse>
 ) {
+  res.setHeader("Cache-Control", "s-maxage=3600");
   if (req.method === "GET") {
     const chainId = req.query.chainId
       ? parseFloat(req.query.chainId as string)

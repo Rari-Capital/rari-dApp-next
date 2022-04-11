@@ -21,6 +21,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<APISearchReturn | undefined>
 ) {
+  res.setHeader("Cache-Control", "s-maxage=3600");
   if (req.method === "GET") {
     const { text, address, chainId: _chainId } = req.query;
 
