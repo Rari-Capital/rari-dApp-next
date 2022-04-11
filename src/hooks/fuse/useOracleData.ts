@@ -105,11 +105,16 @@ export const useOracleData = (
         await oracleContract.callStatic.canAdminOverwrite();
 
       let defaultOracle: string | undefined = undefined;
-      try {
-        defaultOracle = await oracleContract.callStatic.defaultOracle();
-      } catch (err) {
-        console.log("Error fetching default oracle for Pool Oracle");
-        console.error(err);
+
+      if (!(oracleAddress === fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle)) {
+        try {
+          defaultOracle = await oracleContract.callStatic.defaultOracle();
+        } catch (err) {
+          console.log("Error fetching default oracle for Pool Oracle");
+          console.error(err);
+        }
+      } else {
+        defaultOracle = fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle
       }
 
       return { admin, adminOverwrite, oracleContract, defaultOracle };

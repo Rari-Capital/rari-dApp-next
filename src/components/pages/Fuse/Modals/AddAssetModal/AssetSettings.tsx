@@ -170,7 +170,7 @@ const AssetSettings = ({
 
   // Sharad: New stuff  - to skip oracle step if possible
   const [defaultOracle, setDefaultOracle] = useState<string>(
-    ETH_TOKEN_DATA.address
+    oracleData?.defaultOracle ?? ETH_TOKEN_DATA.address
   );
   const [customOracleForToken, setCustomOracleForToken] = useState<string>(
     ETH_TOKEN_DATA.address
