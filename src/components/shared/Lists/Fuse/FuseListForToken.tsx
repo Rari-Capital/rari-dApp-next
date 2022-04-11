@@ -27,7 +27,6 @@ import {
   USDPricedFuseAsset,
 } from "utils/fetchFusePoolData";
 import { shortUsdFormatter, smallUsdFormatter } from "utils/bigUtils";
-import { letterScore, usePoolRSS } from "hooks/useRSS";
 
 // Types
 import { SortableTableHeader } from "../Common";
@@ -130,8 +129,8 @@ export const FuseListForToken = ({
                   isActive={sortBy === "assetBorrowedUSD"}
                 /> */}
 
-                {/* Pool # */}
-                <Th fontSize="sm">{t("Pool Risk Score")}</Th>
+                {/* Pool #
+                <Th fontSize="sm">{t("Pool Risk Score")}</Th> */}
 
                 {/* Pool APY */}
                 <SortableTableHeader
@@ -208,8 +207,9 @@ export const FusePoolAssetRow = ({
   );
 
   const isEmpty = tokens.length === 0;
-  const rss = usePoolRSS(poolNumber);
-  const rssScore = rss ? letterScore(rss.totalScore) : "?";
+  // const rss = usePoolRSS(poolNumber);
+  // const rssScore = rss ? letterScore(rss.totalScore) : "?";
+  const rssScore = "?"
 
   return (
     <AppLink
@@ -260,18 +260,6 @@ export const FusePoolAssetRow = ({
               ? shortUsdFormatter(pool.assetBorrowedUSD)
               : smallUsdFormatter(pool.assetBorrowedUSD)}
           </Td> */}
-          {/* Risk Score # */}
-          <Td isNumeric={true} fontWeight="bold">
-            <SimpleTooltip
-              label={
-                "Underlying RSS: " +
-                (rss ? rss.totalScore.toFixed(2) : "?") +
-                "%"
-              }
-            >
-              {rssScore}
-            </SimpleTooltip>
-          </Td>
           <Td
             isNumeric={true}
             fontWeight="bold"
