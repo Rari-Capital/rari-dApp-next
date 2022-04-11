@@ -23,7 +23,7 @@ const weightedCalculation = async (
   return clamp((await calculation()) ?? 0, 0, 1) * weight;
 };
 
-const fuse = initFuseWithProviders(alchemyURL);
+const fuse = initFuseWithProviders();
 
 async function computeAssetRSS(address: string) {
   address = address.toLowerCase();
