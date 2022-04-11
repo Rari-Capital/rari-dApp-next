@@ -3,13 +3,15 @@ import Filter from "bad-words";
 import { TokenData } from "hooks/useTokenData";
 import { Fuse } from "../esm/index";
 import { BigNumber } from "@ethersproject/bignumber";
-import { constants } from "ethers";
+import { constants, Contract } from "ethers";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import { EmptyAddress } from "context/RariContext";
 import { callInterfaceWithMulticall, sendWithMultiCall } from "./multicall";
 import { Interface } from "ethers/lib/utils";
 export const filter = new Filter({ placeHolder: " " });
 filter.addWords(...["R1", "R2", "R3", "R4", "R5", "R6", "R7"]);
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { useCreateComptroller } from "./createComptroller";
 
 export function filterOnlyObjectProperties<T>(obj: T) {
   return Object.fromEntries(
@@ -149,17 +151,13 @@ export const fetchFusePoolData = async (
 ): Promise<FusePoolData | undefined> => {
   if (!poolId) return undefined;
 
-  const addressToUse = address === EmptyAddress ? "" : address
+  const addressToUse = address === EmptyAddress ? EmptyAddress : address
 
   const {
     comptroller,
     name: _unfiliteredName,
     isPrivate,
   } = await fuse.contracts.FusePoolDirectory.pools(poolId);
-
-  const IComptroller = new Interface(JSON.parse(
-    fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
-  ))
 
   // Remove any profanity from the pool name
   let name = filterPoolName(_unfiliteredName);
@@ -171,7 +169,6 @@ export const fetchFusePoolData = async (
     )
   ).map(filterOnlyObjectPropertiesBNtoNumber);
 
-
   let totalLiquidityUSD = constants.Zero;
 
   let totalSupplyBalanceUSD = constants.Zero;
@@ -180,17 +177,31 @@ export const fetchFusePoolData = async (
   let totalSuppliedUSD = constants.Zero;
   let totalBorrowedUSD = constants.Zero;
 
-  const ethPrice: BigNumber =
-    // prefer rari because it has caching
-    await getEthUsdPriceBN();
+  const ethPrice: BigNumber = await getEthUsdPriceBN();
+  const comptrollerContract = useCreateComptroller(
+    comptroller,
+    fuse,
+    isAuthed
+  )
 
-  let [[admin], [oracle]] = await callInterfaceWithMulticall(fuse.provider, IComptroller, comptroller, ["admin", "oracle"], [[], []])
+  const admin = await comptrollerContract.callStatic.admin()
+  const oracle = await comptrollerContract.callStatic.oracle()
+
   let oracleModel: string | undefined = await fuse.getPriceOracle(oracle);
+
 
   // Whitelisted (Verified)
   const isAdminWhitelisted =
     await fuse.contracts.FusePoolDirectory.callStatic.adminWhitelist(admin);
 
+    console.log({
+      comptroller,
+      _unfiliteredName,
+      assets,
+      admin,
+      oracle,
+      oracleModel
+    })
   for (let i = 0; i < assets.length; i++) {
     let asset = assets[i];
 
