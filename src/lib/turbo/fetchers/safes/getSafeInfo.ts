@@ -1,7 +1,11 @@
 import { BigNumber, constants } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import { createTurboLens } from "../../utils/turboContracts";
-import { formatStrategiesInfo, LensStrategyInfo, StrategyInfo } from "../strategies/formatStrategyInfo";
+import {
+  formatStrategiesInfo,
+  LensStrategyInfo,
+  StrategyInfo,
+} from "../strategies/formatStrategyInfo";
 
 // Data directly from the TurboLens
 export type LensSafeInfo = [
@@ -17,7 +21,7 @@ export type LensSafeInfo = [
   boostedAmount: BigNumber,
   feiAmount: BigNumber,
   tribeDAOFee: BigNumber,
-  strategyInfo: LensStrategyInfo[],
+  strategyInfo: LensStrategyInfo[]
 ];
 
 // Formatted Safe Data
@@ -37,9 +41,8 @@ export type SafeInfo = {
   strategies: StrategyInfo[];
   safeUtilization: BigNumber;
   maxBoost: BigNumber;
-  liquidationPrice: number
+  liquidationPrice: number;
 };
-
 
 export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   safeAddress: safe[0],
@@ -57,24 +60,36 @@ export const formatSafeInfo = (safe: LensSafeInfo): SafeInfo => ({
   strategies: formatStrategiesInfo(safe[12], safe[11]),
   safeUtilization: calculateSafeUtilization(safe[8], safe[6], safe[4]),
   maxBoost: calculateMaxBoost(safe[6], safe[4]),
-  liquidationPrice: calcuateLiquidationPrice(safe[8], safe[6], safe[4], safe[3])
-})
+  liquidationPrice: calcuateLiquidationPrice(
+    safe[8],
+    safe[6],
+    safe[4],
+    safe[3]
+  ),
+});
 
 // debtValue * 100 / collateralValue
 export const calculateSafeUtilization = (
   debtValue: BigNumber,
   collateralValue: BigNumber,
-  collateralFactor: BigNumber,
+  collateralFactor: BigNumber
 ) => {
   return collateralValue.isZero()
-    ? constants.Zero :
-    debtValue.mul(100).div(collateralValue.mul(collateralFactor).div(constants.WeiPerEther))
-}
+    ? constants.Zero
+    : debtValue
+        .mul(100)
+        .div(collateralValue.mul(collateralFactor).div(constants.WeiPerEther));
+};
 
-export const calculateMaxBoost = (collateralValue: BigNumber, collateralFactor: BigNumber) => {
-  const maxBoost = collateralValue.mul(collateralFactor).div(constants.WeiPerEther)
-  return maxBoost
-}
+export const calculateMaxBoost = (
+  collateralValue: BigNumber,
+  collateralFactor: BigNumber
+) => {
+  const maxBoost = collateralValue
+    .mul(collateralFactor)
+    .div(constants.WeiPerEther);
+  return maxBoost;
+};
 
 export const calcuateLiquidationPrice = (
   debtValue: BigNumber,
@@ -82,10 +97,15 @@ export const calcuateLiquidationPrice = (
   collateralFactor: BigNumber,
   collateralPrice: BigNumber
 ): number => {
-  const util = (calculateSafeUtilization(debtValue, collateralValue, collateralFactor)).toNumber()
-  const liqPriceETH = parseFloat(formatUnits(collateralPrice.mul(util), 20))
-  return liqPriceETH
-}
+  const util = calculateSafeUtilization(
+    debtValue,
+    collateralValue,
+    collateralFactor
+  ).toNumber();
+  const liqPriceETH = parseFloat(formatUnits(collateralPrice.mul(util), 20));
+  console.log({liqPriceETH})
+  return liqPriceETH;
+};
 
 export const getSafeInfo = async (
   provider: any,
@@ -102,6 +122,6 @@ export const getSafeInfo = async (
     return result;
   } catch (err) {
     console.log(err);
-    throw err
+    throw err;
   }
 };

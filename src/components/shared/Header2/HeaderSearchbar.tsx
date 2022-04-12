@@ -9,6 +9,7 @@ type HeaderSearchbarProps = {
 const HeaderSearchbar: React.FC<HeaderSearchbarProps> = ({
   width = "375px",
 }) => {
+  return null
   return <Searchbar width={width} height="33px" smaller />;
 };
 

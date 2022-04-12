@@ -6,20 +6,28 @@ import { Stack } from "@chakra-ui/react";
 import { useUserFeiOwed } from "hooks/turbo/useUserFeiOwed";
 import { useTurboSafe } from "context/TurboSafeContext";
 
-
 export const SafeStats: React.FC = () => {
-  const { usdPricedSafe, netAPY, collateralTokenData, loading } = useTurboSafe()
+  const { usdPricedSafe, netAPY, collateralTokenData, loading } =
+    useTurboSafe();
 
-  const [userFeiOwed] = useUserFeiOwed(usdPricedSafe)
+  const [userFeiOwed] = useUserFeiOwed(usdPricedSafe);
 
   return (
-    <Stack direction={["column", "row"]} h="100%" w="100%" spacing={12} align="flex-start">
+    <Stack
+      direction={["column", "row"]}
+      h="100%"
+      w="100%"
+      spacing={12}
+      align="flex-start"
+    >
       <Statistic
         loading={loading}
         title={"Total Collateralized"}
         value={smallStringUsdFormatter(usdPricedSafe?.collateralValueUSD ?? 0)}
         secondaryValue={`${commify(
-          parseFloat(formatEther(usdPricedSafe?.collateralAmount ?? 0)).toFixed(2)
+          parseFloat(formatEther(usdPricedSafe?.collateralAmount ?? 0)).toFixed(
+            2
+          )
         )} ${collateralTokenData?.symbol}`}
         tooltip={`Total Collateralized ${collateralTokenData?.symbol}`}
       />
@@ -31,18 +39,24 @@ export const SafeStats: React.FC = () => {
         secondaryValue={`${commify(
           parseFloat(formatEther(userFeiOwed)).toFixed(3)
         )} FEI`}
-        tooltip={`Sum of all claimable FEI across all boosted strategies after after ${formatUnits(usdPricedSafe?.tribeDAOFee ?? 0, 16)}% TribeDAO Revenue Split.`}
+        tooltip={`Sum of all claimable FEI across all boosted strategies after after ${formatUnits(
+          usdPricedSafe?.tribeDAOFee ?? 0,
+          16
+        )}% TribeDAO Revenue Split.`}
         mr={20}
       />
 
-      <Statistic
-        loading={loading}
-        title={"Avg. APY"}
-        value={netAPY.toFixed(2) + "%"}
-        tooltip="Average APY earned across all active strategies."
-        mr={10}
-        h="100%"
-      />
+      {usdPricedSafe?.boostedAmount && usdPricedSafe.boostedAmount.gt(0) && (
+        <Statistic
+          loading={loading}
+          title={"Avg. APY"}
+          value={netAPY.toFixed(2) + "%"}
+          tooltip="Average APY earned across all active strategies."
+          mr={10}
+          h="100%"
+        />
+      )}
+
       {/* <Statistic
         title={"Safe Balance FEI"}
         value={formatEther(safeBalanceOfFei) + " FEI"}
