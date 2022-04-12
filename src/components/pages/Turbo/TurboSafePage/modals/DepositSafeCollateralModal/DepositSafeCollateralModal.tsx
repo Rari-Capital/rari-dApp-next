@@ -104,6 +104,11 @@ export const DepositSafeCollateralModal: React.FC<
       handleGenericError(err, toast);
     } finally {
       setDepositing(false);
+
+      setTimeout(() => {
+        onClose()
+        resetStepIndex()
+      }, 1500)
       await queryClient.refetchQueries();
     }
   };
