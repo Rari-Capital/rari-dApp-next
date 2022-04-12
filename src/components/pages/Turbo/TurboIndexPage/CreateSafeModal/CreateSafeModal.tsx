@@ -21,11 +21,17 @@ import { getPriceFromOracles } from "hooks/rewards/useRewardAPY";
 import { BigNumber, constants } from "ethers";
 import { calculateMaxBoost } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { getMarketCf } from "lib/turbo/utils/getMarketCF";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
   "isOpen" | "onClose"
 >;
+
+export type SimulatedSafe = {
+  collateralUSD: BigNumber,
+  maxBoost: BigNumber
+}
 
 export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   isOpen,
@@ -65,7 +71,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     address
   );
 
-  const { data: safeSimulation } = useQuery(
+  const { data: safeSimulation } = useQuery<SimulatedSafe>(
     "Safe creation and deposit simulation for deposit amount:" + depositAmount,
     async () => {
       if (depositAmount === "0" || !depositAmount || !chainId) return;
@@ -92,10 +98,11 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       const collateralUSD = collateralPriceBN.mul(ethUSDBN).mul(amountBN);
       const maxBoost = calculateMaxBoost(collateralUSD, collateralFactor);
 
-      return {
+      const safe: SimulatedSafe = {
         collateralUSD,
         maxBoost,
       };
+      return safe;
     }
   );
 
