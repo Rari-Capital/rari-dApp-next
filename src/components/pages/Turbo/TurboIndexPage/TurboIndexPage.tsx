@@ -13,7 +13,11 @@ import {
   Text,
 } from "rari-components";
 import { smallUsdFormatter } from "utils/bigUtils";
-import { TriangleDownIcon, TriangleUpIcon, WarningIcon } from "@chakra-ui/icons";
+import {
+  TriangleDownIcon,
+  TriangleUpIcon,
+  WarningIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -31,6 +35,9 @@ import useAggregateSafeData from "hooks/turbo/useAggregateSafeData";
 import { useState } from "react";
 import { useRariTokenData } from "rari-components/hooks";
 import { TRIBE } from "lib/turbo/utils/constants";
+
+import { motion } from 'framer-motion';
+
 
 const TurboIndexPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -63,7 +70,11 @@ const TurboIndexPage: React.FC = () => {
           <VStack w="100%" align="flex-start">
             <HStack pt={8} spacing={4} mb={4}>
               {!hasSafes && (
-                <Button variant={isAuthorized ? "success" : "warning"} onClick={onOpen} disabled={!isAuthorized}>
+                <Button
+                  variant={isAuthorized ? "success" : "warning"}
+                  onClick={onOpen}
+                  disabled={!isAuthorized}
+                >
                   Create a safe
                 </Button>
               )}
@@ -83,12 +94,11 @@ const TurboIndexPage: React.FC = () => {
               <HStack>
                 <WarningIcon color="warning" />
                 <Text color={"warning"}>
-                  Turbo is in beta, and safe creation is only open to authorized users.
+                  Turbo is in beta, and safe creation is only open to authorized
+                  users.
                 </Text>
               </HStack>
             )}
-
-
           </VStack>
         </Box>
         <Box flex={1}>
@@ -115,12 +125,8 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
   const allStrategies = useTrustedStrategies();
   const getERC4626StrategyData = useERC4626StrategiesDataAsMap(allStrategies);
 
-  const {
-    totalBoosted,
-    totalClaimable,
-    totalClaimableUSD,
-    netAPY
-  } = useAggregateSafeData(safes, getERC4626StrategyData)
+  const { totalBoosted, totalClaimable, totalClaimableUSD, netAPY } =
+    useAggregateSafeData(safes, getERC4626StrategyData);
 
   // TODO(sharad-s) write APY triangle implementation
   const [apyIncreasing, setApyIncreasing] = useState(true);
@@ -132,46 +138,62 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
           title="Total boosted"
           // TODO(sharad-s) What should these tooltips say?
           tooltip="Tooltip"
-          value={commify(parseFloat(formatEther(totalBoosted)).toFixed(2)) + " FEI"}
+          value={
+            commify(parseFloat(formatEther(totalBoosted)).toFixed(2)) + " FEI"
+          }
         />
         <Statistic
           title="Total claimable interest"
           tooltip="Tooltip"
           value={smallUsdFormatter(totalClaimableUSD)}
         />
-        <Statistic title="Net APY" tooltip="Tooltip" value={(
-          // TODO(sharad-s) click here to toggle between states -- delete when
-          // real implementation is done
-          <Flex alignItems="center" onClick={() => setApyIncreasing(!apyIncreasing)}>
-            <Heading size="lg" mr={4}>
-              {netAPY.toFixed(2)}%
-            </Heading>
-            {apyIncreasing ? <TriangleUpIcon color="success" /> : <TriangleDownIcon color="danger" />}
-          </Flex>
-        )} />
+        <Statistic
+          title="Net APY"
+          tooltip="Tooltip"
+          value={
+            // TODO(sharad-s) click here to toggle between states -- delete when
+            // real implementation is done
+            <Flex
+              alignItems="center"
+              onClick={() => setApyIncreasing(!apyIncreasing)}
+            >
+              <Heading size="lg" mr={4}>
+                {netAPY.toFixed(2)}%
+              </Heading>
+              {apyIncreasing ? (
+                <TriangleUpIcon color="success" />
+              ) : (
+                <TriangleDownIcon color="danger" />
+              )}
+            </Flex>
+          }
+        />
       </HStack>
       <SimpleGrid columns={[1, 1, 2, 3]} spacing={4} mt={12}>
-        <HoverableCard variant="active" onClick={onClickCreateSafe}>
-          {(hovered) => (
-            <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
-              <Heading display="flex" alignItems="center" size="lg">
-                Add safe <Flex
-                  alignItems="center"
-                  justifyContent="center"
-                  boxSize={6}
-                  borderRadius="50%"
-                  background="white"
-                  ml={4}
-                >
-                  <Heading size="sm" color="black">+</Heading>
-                </Flex>
-              </Heading>
-              <Text variant="secondary" mt={4} fontSize="lg">
-                You may create one safe per approved collateral type.
-              </Text>
-            </Box>
-          )}
-        </HoverableCard>
+          <HoverableCard variant="active" onClick={onClickCreateSafe}>
+            {(hovered) => (
+              <Box opacity={hovered ? 0.5 : 1} transition="0.2s opacity">
+                <Heading display="flex" alignItems="center" size="lg">
+                  Add safe{" "}
+                  <Flex
+                    alignItems="center"
+                    justifyContent="center"
+                    boxSize={6}
+                    borderRadius="50%"
+                    background="white"
+                    ml={4}
+                  >
+                    <Heading size="sm" color="black">
+                      +
+                    </Heading>
+                  </Flex>
+                </Heading>
+                <Text variant="secondary" mt={4} fontSize="lg">
+                  You may create one safe per approved collateral type.
+                </Text>
+              </Box>
+            )}
+          </HoverableCard>
         {safes.map((safe) => (
           <SafeCard
             key={safe.safeAddress}
@@ -186,27 +208,29 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
 
 const TurboFAQ = () => (
   <Stack spacing={12}>
-
     <HStack>
-      <Image boxSize={"md"} src="https://media.discordapp.net/attachments/958411922330509314/959902592236929154/otrorr.png?width=1220&height=1220" />
+      <Image
+        boxSize={"md"}
+        src="https://media.discordapp.net/attachments/958411922330509314/959902592236929154/otrorr.png?width=1220&height=1220"
+      />
       <Box>
         <Heading size="md">How does it work?</Heading>
         <Text variant="secondary" mt={4}>
           Turbo can be used by individuals, treasuries, DAOs, protocols, or any
           on-chain entity. Turbo Safes allow these parties to create a
-          collateralized Fuse position with an approved DeFi token as the primary
-          collateral type.
+          collateralized Fuse position with an approved DeFi token as the
+          primary collateral type.
           <br />
           <br />
-          Once the DeFi token is collateralized in a Fuse pool, the owner of this
-          safe can then mint FEI at 0% APR, making this process completely free to
-          the borrower. The FEI is minted at no cost so long as that FEI is
-          supplied into a yield generating strategy that is compliant with
+          Once the DeFi token is collateralized in a Fuse pool, the owner of
+          this safe can then mint FEI at 0% APR, making this process completely
+          free to the borrower. The FEI is minted at no cost so long as that FEI
+          is supplied into a yield generating strategy that is compliant with
           ERC-4626, such as: Fuse plug-ins, tokenized vaults, etc.
           <br />
           <br />
-          The users of Turbo will most likely deposit this FEI back into their own
-          Fuse pool so that their community can borrow FEI against their
+          The users of Turbo will most likely deposit this FEI back into their
+          own Fuse pool so that their community can borrow FEI against their
           collateral types and provide a revenue split to the issuer and the
           minter (Tribe DAO).
         </Text>

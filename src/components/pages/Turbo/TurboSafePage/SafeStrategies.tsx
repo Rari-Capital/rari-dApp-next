@@ -17,12 +17,19 @@ import { formatEther, formatUnits } from "ethers/lib/utils";
 import { convertMantissaToAPY } from "utils/apyUtils";
 import { FEI } from "lib/turbo/utils/constants";
 import { useTurboSafe } from "context/TurboSafeContext";
+import { getStrategyFusePoolId } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
+import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 
 export const SafeStrategies: React.FC<{
   onClickBoost: (strategyAddress: string) => void;
   onClickLess: (strategyAddress: string) => void;
 }> = ({ onClickBoost, onClickLess }) => {
-  const { usdPricedSafe, getERC4626StrategyData } = useTurboSafe();
+  const {
+    usdPricedSafe,
+    getERC4626StrategyData,
+    isAtLiquidationRisk,
+    colorScheme,
+  } = useTurboSafe();
 
   const safeStrategies: USDPricedStrategy[] =
     usdPricedSafe?.usdPricedStrategies ?? [];
@@ -47,8 +54,9 @@ export const SafeStrategies: React.FC<{
         ]}
         rows={safeStrategies.map((strat: USDPricedStrategy, i) => {
           const strategyData = getERC4626StrategyData[strat.strategy];
-          const poolId: string | undefined =
-            strategyData?.symbol?.split("-")[1];
+          const poolId: string | undefined = getStrategyFusePoolId(
+            strategyData?.symbol
+          );
           const grossApy = convertMantissaToAPY(
             strategyData?.supplyRatePerBlock ?? 0,
             365
@@ -66,13 +74,13 @@ export const SafeStrategies: React.FC<{
                     tokenAddress={strategyData?.underlying ?? FEI}
                     size="sm"
                   />
-                  <Text>{strategyData?.symbol}</Text>
+                  <Text>{strategyData?.name}</Text>
                 </HStack>
               </Link>,
               <Box>
                 <Tooltip label={`${formatEther(strat.feiClaimable)} FEI`}>
                   <Text>
-                    {strat.feiClaimableUSD > 0
+                    {strat.feiClaimableUSD > 0 || strat.boostAmountUSD > 0
                       ? smallUsdFormatter(strat.feiClaimableUSD)
                       : "-"}
                   </Text>
@@ -92,14 +100,12 @@ export const SafeStrategies: React.FC<{
                 </Tooltip>
               </Box>,
               <HStack>
-                {strat.boostedAmount.gt(0) && (
-                  <Image
-                    boxSize={"20px"}
-                    src="/static/turbo/turbo-engine-green.svg"
-                    align={"center"}
-                    mr={1}
-                  />
-                )}
+                <TurboEngineIcon
+                  fill={strat.boostedAmount.isZero() ? "grey" : "#4DD691"}
+                  boxSize={"20px"}
+                  mr={1}
+                  align={"center"}
+                />
                 <Tooltip label={`${formatEther(strat.boostedAmount)} FEI`}>
                   <Text color={!strat.boostedAmount.isZero() ? "#62DBA1" : ""}>
                     {strat.boostAmountUSD > 0
@@ -117,11 +123,15 @@ export const SafeStrategies: React.FC<{
                     boxSize={8}
                     borderRadius="50%"
                     transition="0.2s opacity"
+                    opacity={!isAtLiquidationRisk ? 1 : 0.5}
                     _hover={{
                       opacity: 0.5,
+                      cursor: !isAtLiquidationRisk ? "pointer" : "not-allowed",
                     }}
                     background="success"
-                    onClick={() => onClickBoost(strat.strategy)}
+                    onClick={() =>
+                      !isAtLiquidationRisk ? onClickBoost(strat.strategy) : null
+                    }
                   >
                     <Heading size="sm" color="black">
                       +

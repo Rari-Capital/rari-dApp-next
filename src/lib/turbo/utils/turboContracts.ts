@@ -3,25 +3,32 @@ import { Contract } from "ethers";
 // ABIS
 import TurboRouter from "lib/turbo/abi/TurboRouter.json";
 import TurboMaster from "lib/turbo/abi/TurboMaster.json";
-import ERC20 from "lib/turbo/abi/ERC20.json"
-import CERC20 from "lib/turbo/abi/CERC20.json"
-import CERC20Delegate from "lib/turbo/abi/CERC20Delegate.json"
-import FuseERC4626 from "lib/turbo/abi/FuseERC4626.json"
+import ERC20 from "lib/turbo/abi/ERC20.json";
+import CERC20 from "lib/turbo/abi/CERC20.json";
+import CERC20Delegate from "lib/turbo/abi/CERC20Delegate.json";
+import FuseERC4626 from "lib/turbo/abi/FuseERC4626.json";
 import TurboComptroller from "lib/turbo/abi/comptroller.json";
 import TurboLens from "lib/turbo/abi/TurboLens.json";
 import TurboBooster from "lib/turbo/abi/TurboBooster.json";
 import TurboSafe from "lib/turbo/abi/TurboSafe.json";
 import TurboAuthority from "lib/turbo/abi/Authority.json";
+
+// Fuse
 import FusePoolLensSecondary from "esm/Fuse/contracts/abi/FusePoolLensSecondary.json";
+import FusePoolLens from "esm/Fuse/contracts/abi/FusePoolLens.json";
+import FusePoolDirectory from "esm/Fuse/contracts/abi/FusepoolDirectory.json";
 
 // Utils
 import { Interface } from "ethers/lib/utils";
 import { TurboAddresses } from "../utils/constants";
 import { providers } from "ethers";
-
+import addresses from "esm/Fuse/addresses";
 
 //** Contracts **/
-export const createTurboRouter = async (provider: providers.JsonRpcProvider, id: number) => {
+export const createTurboRouter = async (
+  provider: providers.JsonRpcProvider,
+  id: number
+) => {
   const turboRouterContract = new Contract(
     TurboAddresses[id].ROUTER,
     TurboRouter.abi,
@@ -30,8 +37,10 @@ export const createTurboRouter = async (provider: providers.JsonRpcProvider, id:
   return turboRouterContract;
 };
 
-
-export const createTurboMaster = (provider: providers.Provider, id: number = 1) => {
+export const createTurboMaster = (
+  provider: providers.Provider,
+  id: number = 1
+) => {
   const turboMasterContract = new Contract(
     TurboAddresses[id].MASTER,
     TurboMaster.abi,
@@ -54,7 +63,10 @@ export const createTurboComptroller = (
   return turboRouterContract;
 };
 
-export const createTurboLens = (provider: providers.Provider, chainID: number) => {
+export const createTurboLens = (
+  provider: providers.Provider,
+  chainID: number
+) => {
   const turboLens = new Contract(
     TurboAddresses[chainID].LENS,
     TurboLens.abi,
@@ -89,7 +101,6 @@ export const createTurboAuthority = async (
   provider: providers.BaseProvider,
   authorityAddress: string
 ) => {
-
   const turboAuthorityContract = new Contract(
     authorityAddress,
     TurboAuthority.abi,
@@ -101,42 +112,70 @@ export const createTurboAuthority = async (
 
 /* Token Contracts */
 
-export const createERC20 = async (token: string, provider: providers.JsonRpcProvider) => {
+export const createERC20 = async (
+  token: string,
+  provider: providers.JsonRpcProvider
+) => {
   const erc20Contract = new Contract(token, ERC20.abi, provider);
 
   return erc20Contract;
 };
 
-export const createCERC20 = async (provider: providers.JsonRpcProvider, tokenAddress: string) => {
-  const CERC20Contract = new Contract(
-    tokenAddress,
-    CERC20.abi,
-    provider
-  )
+export const createCERC20 = async (
+  provider: providers.JsonRpcProvider,
+  tokenAddress: string
+) => {
+  const CERC20Contract = new Contract(tokenAddress, CERC20.abi, provider);
 
-  return CERC20Contract
-}
+  return CERC20Contract;
+};
 
-export const createFuseERC4626 = (provider: providers.JsonRpcProvider, strategyAddress: string) => {
+export const createFuseERC4626 = (
+  provider: providers.JsonRpcProvider,
+  strategyAddress: string
+) => {
   const FuseERC4626Contract = new Contract(
     strategyAddress,
     FuseERC4626,
     provider
-  )
+  );
 
-  return FuseERC4626Contract
-}
+  return FuseERC4626Contract;
+};
 
 /** Lens **/
 
-export const createFusePoolLensSecondary = (provider: providers.JsonRpcProvider) => {
+export const createFusePoolLensSecondary = (
+  provider: providers.JsonRpcProvider,
+  chainId: number = 1
+) => {
+  const addr = addresses[chainId].FUSE_POOL_LENS_SECONDARY_CONTRACT_ADDRESS;
+
   const fusePoolLensSecondary = new Contract(
-    "0xc76190E04012f26A364228Cfc41690429C44165d",
+    addr,
     FusePoolLensSecondary,
     provider
-  )
-  return fusePoolLensSecondary
-}
+  );
+  return fusePoolLensSecondary;
+};
+
+export const createFusePoolLens = (
+  provider: providers.JsonRpcProvider,
+  chainId: number = 1
+) => {
+  const addr = addresses[chainId].FUSE_POOL_LENS_CONTRACT_ADDRESS;
+  const fusePoolLens = new Contract(addr, FusePoolLens, provider);
+  return fusePoolLens;
+};
+
+export const createFusePoolDirectory = (
+  provider: providers.JsonRpcProvider,
+  chainId: number = 1
+) => {
+  const addr = addresses[chainId].FUSE_POOL_DIRECTORY_CONTRACT_ADDRESS;
+  const fusePoolDir = new Contract(addr, FusePoolDirectory, provider);
+  return fusePoolDir;
+};
 
 /** Interfaces **/
 

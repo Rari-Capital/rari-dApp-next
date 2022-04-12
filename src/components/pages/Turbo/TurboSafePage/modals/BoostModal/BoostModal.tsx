@@ -25,6 +25,7 @@ import { useTurboSafe } from "context/TurboSafeContext";
 
 // Utils
 import { keyBy } from "lodash";
+import useUpdatedStrategyRate from "hooks/turbo/useUpdatedStrategyRate";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
@@ -94,6 +95,13 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
     amount: parseUnits(!!amount ? amount : "0", 18),
     strategyIndex: activeStrategyIndex,
   });
+
+  const updatedRate = useUpdatedStrategyRate(
+    mode,
+    usdPricedSafe,
+    activeStrategyIndex,
+    parseUnits(!!amount ? amount : "0", 18)
+  );
 
   const maxAmount = useSafeMaxAmount(usdPricedSafe, mode, activeStrategyIndex);
 

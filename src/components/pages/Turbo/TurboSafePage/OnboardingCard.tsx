@@ -84,7 +84,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
             <Box>
               <Heading size="md">Boost a pool</Heading>
               <Text variant="secondary">
-                Click to boost a random pool, or scroll below for options
+                Click to boost your first pool, or scroll below for options
               </Text>
             </Box>
           </HStack>

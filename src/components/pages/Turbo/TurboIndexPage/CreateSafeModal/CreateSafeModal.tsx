@@ -60,7 +60,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   // Router State
   const hasApproval = useHasApproval(
     underlyingTokenAddress,
-    TurboAddresses[chainId ?? 1].ROUTER,
+    TurboAddresses[chainId ?? 1]?.ROUTER,
     depositAmount,
     address
   );

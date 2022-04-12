@@ -25,7 +25,8 @@ const useSafeMaxAmount = (
         address,
         safe,
         chainId,
-        strategyIndex
+        strategyIndex,
+        false,
       );
     }
   );

@@ -1,10 +1,11 @@
 // Components
 import { Heading, Progress, Text, TokenIcon } from "rari-components";
-import { Box, Flex, Image } from "@chakra-ui/react";
+import { Box, Flex, HStack, Image } from "@chakra-ui/react";
 import { useTurboSafe } from "context/TurboSafeContext";
 import { shortUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
 import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
 
 export const BoostBar: React.FC = () => {
   const {
@@ -54,15 +55,22 @@ export const BoostBar: React.FC = () => {
           </Text>
         </Flex>
         {!!boostedUSD && (
-          <Text variant="secondary">
-            Liquidated when{" "}
-            <TokenIcon
-              tokenAddress={tokenData?.address ?? ""}
-              boxSize={6}
-              mx={1}
-            />
-            = ${liquidationPriceUSD?.toFixed(2)}
-          </Text>
+          <HStack>
+            <Text variant="secondary">Liquidated when </Text>
+            <SimpleTooltip label={`${tokenData?.symbol}
+             $${liquidationPriceUSD?.toFixed(6)}`}>
+              <HStack>
+                <TokenIcon
+                  tokenAddress={tokenData?.address ?? ""}
+                  boxSize={6}
+                  mx={1}
+                />
+                <Text variant="secondary">
+                  = ${liquidationPriceUSD?.toFixed(2)}
+                </Text>
+              </HStack>
+            </SimpleTooltip>
+          </HStack>
         )}
       </Flex>
       <Progress
