@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import StatisticTable from "lib/components/StatisticsTable";
 import { createSafe } from "lib/turbo/transactions/safe";
@@ -14,6 +14,7 @@ import {
 } from "rari-components";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Flex, Image, Spacer, Stack, VStack } from "@chakra-ui/react";
+import { SimulatedSafe } from "./CreateSafeModal";
 
 type CreateSafeCtx = {
   /**
@@ -48,7 +49,7 @@ type CreateSafeCtx = {
   /** Whether the safe is currently being created. */
   creatingSafe: boolean;
   collateralBalance: string;
-  safeSimulation: any;
+  safeSimulation: SimulatedSafe | undefined;
   onClickMax(): Promise<void>;
   /** Function which closes the modal. */
   onClose(): void;
@@ -192,7 +193,9 @@ const MODAL_STEP_3: ModalStep = {
                   : "$" +
                     commify(
                       parseFloat(
-                        formatEther(safeSimulation.collateralUSD)
+                        formatEther(
+                          safeSimulation?.collateralUSD ?? constants.Zero
+                        )
                       ).toFixed(2)
                     ),
               titleTooltip:
@@ -206,9 +209,9 @@ const MODAL_STEP_3: ModalStep = {
                   ? undefined
                   : "$" +
                     commify(
-                      parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(
-                        2
-                      )
+                      parseFloat(
+                        formatEther(safeSimulation?.maxBoost ?? constants.Z)
+                      ).toFixed(2)
                     ),
               titleTooltip: "The total boostable amount.",
             },
@@ -265,13 +268,17 @@ const MODAL_STEP_4: ModalStep = {
             [
               "USD Value",
               `$${utils.commify(
-                parseFloat(formatEther(safeSimulation.collateralUSD)).toFixed(2)
+                parseFloat(
+                  formatEther(safeSimulation?.collateralUSD ?? 0)
+                ).toFixed(2)
               )}`,
             ],
             [
               "Max Boost",
               `$${utils.commify(
-                parseFloat(formatEther(safeSimulation.maxBoost)).toFixed(2)
+                parseFloat(
+                  formatEther(safeSimulation?.maxBoost ?? constants.Zero)
+                ).toFixed(2)
               )}`,
             ],
           ]}
