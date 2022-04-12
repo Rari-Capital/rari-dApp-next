@@ -98,6 +98,7 @@ export const DepositSafeCollateralModal: React.FC<
         depositAmountBN,
         provider.getSigner()
       );
+      incrementStepIndex()
       await tx.wait(1)
     } catch (err) {
       handleGenericError(err, toast);

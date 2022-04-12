@@ -90,7 +90,6 @@ const MODAL_STEP_1: ModalStep = {
     hasApproval,
     onClickApprove,
     onClickDeposit,
-    incrementStepIndex,
     depositAmount,
   }) => [
       {
@@ -111,7 +110,6 @@ const MODAL_STEP_1: ModalStep = {
             }
 
             await onClickDeposit();
-            incrementStepIndex()
           }
           catch (err) {
             throw err
@@ -129,6 +127,7 @@ const MODAL_STEP_2: ModalStep = {
         <Box textAlign="center">
           <Heading>
             {commify(depositAmount)}{" "}
+           {updatedSafe ? <TokenSymbol tokenAddress={updatedSafe.collateralAsset} /> : null}
           </Heading>
           <Text fontSize="lg" my={4}>
             Successfully deposited
