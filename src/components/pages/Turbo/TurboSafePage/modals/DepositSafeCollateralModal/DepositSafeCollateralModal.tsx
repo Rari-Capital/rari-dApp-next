@@ -50,13 +50,11 @@ export const DepositSafeCollateralModal: React.FC<
   const collateralBalance = useBalanceOf(address, safe?.collateralAsset);
   const [approving, setApproving] = useState(false);
 
-  // TODO(sharad-s): Debug approval function
   const hasApproval = useHasApproval(
     safe?.collateralAsset,
     safe?.safeAddress,
-    MAX_APPROVAL_AMOUNT.toString()
+    depositAmount
   )
-  // const [hasApproval, setHasApproval] = useState(false);
 
   const updatedSafe = useUpdatedSafeInfo(
     {
