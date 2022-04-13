@@ -30,7 +30,7 @@ export const useIdentifyOracle = (
 ): string => {
   const { fuse } = useRari();
 
-  const { data } = useQuery("Identifying Oracle " + oracleAddr, async () => {
+  const { data } = useQuery("Identifying Oracle " + tokenAddr, async () => {
     if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address)
       return "MasterPriceOracle";
 

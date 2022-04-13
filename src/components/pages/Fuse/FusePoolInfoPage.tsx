@@ -390,8 +390,9 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
   const oracleIdentity = useIdentifyOracle(
     selectedAsset.oracle,
     poolOracle,
-    selectedAsset.underlyingToken,
-  );
+    selectedAsset.underlyingToken
+  )
+
   // Link to MPO if asset is ETH
   const oracleAddress =
     (selectedAsset.underlyingToken === ETH_TOKEN_DATA.address || selectedAsset.oracle === ETH_TOKEN_DATA.address)
@@ -511,23 +512,24 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
           crossAxisAlignment="center"
           captionFirst={true}
         />
-
-        <SimpleTooltip label={oracleIdentity}>
-          <Link
-            href={`https://etherscan.io/address/${oracleAddress}`}
-            isExternal
-            _hover={{ pointer: "cursor", color: "#21C35E" }}
-          >
-            <CaptionedStat
-              stat={truncate(oracleIdentity, 20)}
-              statSize="md"
-              captionSize="xs"
-              caption={t("Oracle")}
-              crossAxisAlignment="center"
-              captionFirst={true}
-            />
-          </Link>
-        </SimpleTooltip>
+        { !oracleIdentity ? <Spinner/> :
+          <SimpleTooltip label={oracleIdentity}>
+            <Link
+              href={`https://etherscan.io/address/${oracleAddress}`}
+              isExternal
+              _hover={{ pointer: "cursor", color: "#21C35E" }}
+            >
+              <CaptionedStat
+                stat={truncate(oracleIdentity, 20)}
+                statSize="md"
+                captionSize="xs"
+                caption={t("Oracle")}
+                crossAxisAlignment="center"
+                captionFirst={true}
+              />
+            </Link>
+          </SimpleTooltip>
+        }
 
         <CaptionedStat
           stat={
