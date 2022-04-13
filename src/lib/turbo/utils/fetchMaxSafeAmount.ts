@@ -31,8 +31,29 @@ export async function fetchMaxSafeAmount(
 
   // TODO(@sharad-s) implement after Lens func is in-place: https://github.com/fei-protocol/tribe-turbo/issues/86
   if (mode === SafeInteractionMode.WITHDRAW) {
-    const turboSafe = createTurboSafe(provider, safe.safeAddress);
-    const maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress);
+    // const turboSafe = createTurboSafe(provider, safe.safeAddress);
+    // const maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress);
+    const TurboComptroller = createTurboComptroller(provider, chainId);
+    const FusePoolLensSecondary = createFusePoolLensSecondary(provider);
+
+    const cToken = await TurboComptroller.callStatic.cTokensByUnderlying(FEI);
+    const collateralCToken =
+      await TurboComptroller.callStatic.cTokensByUnderlying(
+        safe.collateralAsset
+      );
+
+    const maxWithdraw = await FusePoolLensSecondary.callStatic.getMaxRedeem(
+      safe.safeAddress,
+      collateralCToken
+    );
+
+    console.log({
+      cToken,
+      collateralCToken,
+      maxWithdraw,
+      FusePoolLensSecondary,
+    });
+
     return maxWithdraw;
   }
 

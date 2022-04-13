@@ -49,7 +49,6 @@ const TurboFAQ = () => {
           erat, eu commodo nisl. Morbi felis est, tincidunt eget lorem a,
           egestas volutpat neque.
         </Text>
-        <SafeGrid safes={safes} />
       </Box>
 
       <Box>

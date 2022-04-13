@@ -76,9 +76,9 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, previewMode = false }) => {
                 {!previewMode ? (
                   <>
                     {isAtLiquidationRisk && (
-                      <Badge background="warning">At Risk ❗</Badge>
+                      <Badge background="warning">At Risk</Badge>
                     )}
-                    {boostMe && <Badge background="success">Boost Me 🔥</Badge>}
+                    {boostMe && <Badge background="success">Boost Me</Badge>}
                   </>
                 ) : null}
               </HStack>
@@ -102,7 +102,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, previewMode = false }) => {
                         )}
                       </Heading>
                       <Text variant="secondary" ml={2} fontSize="md">
-                        boosted
+                        deposited
                       </Text>
                     </>
                   </Tooltip>

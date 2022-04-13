@@ -54,24 +54,24 @@ export const BoostBar: React.FC = () => {
             %)
           </Text>
         </Flex>
-        {!!boostedUSD && (
-          <HStack>
-            <Text variant="secondary">Liquidated when </Text>
-            <SimpleTooltip label={`${tokenData?.symbol}
-             $${liquidationPriceUSD?.toFixed(6)}`}>
-              <HStack>
-                <TokenIcon
-                  tokenAddress={tokenData?.address ?? ""}
-                  boxSize={6}
-                  mx={1}
-                />
-                <Text variant="secondary">
-                  = ${liquidationPriceUSD?.toFixed(2)}
-                </Text>
-              </HStack>
-            </SimpleTooltip>
-          </HStack>
-        )}
+        <HStack>
+          <Text variant="secondary">Liquidated when </Text>
+          <SimpleTooltip
+            label={`${tokenData?.symbol}
+             $${liquidationPriceUSD?.toFixed(6)}`}
+          >
+            <HStack>
+              <TokenIcon
+                tokenAddress={tokenData?.address ?? ""}
+                boxSize={6}
+                mx={1}
+              />
+              <Text variant="secondary">
+                = ${liquidationPriceUSD?.toFixed(2)}
+              </Text>
+            </HStack>
+          </SimpleTooltip>
+        </HStack>
       </Flex>
       <Progress
         size="xs"
