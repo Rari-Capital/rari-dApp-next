@@ -1,10 +1,5 @@
 // Chakra and UI
-import {
-  Box,
-  Spinner,
-  Text,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Spinner, Text, HStack, Alert } from "@chakra-ui/react";
 import { Column, Center, RowOrColumn } from "lib/chakraUtils";
 import DashboardBox from "components/shared/DashboardBox";
 
@@ -32,14 +27,14 @@ import { useIsComptrollerAdmin } from "hooks/fuse/useIsComptrollerAdmin";
 
 import { AdminAlert, PendingAdminAlert } from "components/shared/AdminAlert";
 import AppLink from "components/shared/AppLink";
-import { EditIcon } from "@chakra-ui/icons";
+import { EditIcon, WarningTwoIcon } from "@chakra-ui/icons";
 import { FuseUniV3Alert } from "./Banners/FuseUniV3Alert";
 import { FuseRewardsBanner } from "./Banners/FuseRewardsBanner";
 import { CollateralRatioBar } from "./Banners/CollateralRatioBar";
 import { SupplyList } from "./SupplyList";
 import { BorrowList } from "./BorrowList";
 import { useConvexPoolIncentives } from "hooks/convex/useConvexRewards";
-
+import { isWarnedComptroller } from "constants/fuse";
 
 const FusePoolPage = memo(() => {
   const { isAuthed } = useRari();
@@ -54,12 +49,18 @@ const FusePoolPage = memo(() => {
   const { rewardTokens: rdRewardTokens } = incentivesData;
 
   const pluginIncentives = useConvexPoolIncentives(data?.comptroller);
-  const { rewardTokens: pluginRewardTokens = [], hasIncentives: hasPluginIncentives } = pluginIncentives ?? {}
+  const {
+    rewardTokens: pluginRewardTokens = [],
+    hasIncentives: hasPluginIncentives,
+  } = pluginIncentives ?? {};
 
-  const rewardTokens = useMemo(() => [...rdRewardTokens, ...pluginRewardTokens], [pluginRewardTokens, rdRewardTokens])
-  const rewardTokensData = useTokensDataAsMap(rewardTokens)
+  const rewardTokens = useMemo(
+    () => [...rdRewardTokens, ...pluginRewardTokens],
+    [pluginRewardTokens, rdRewardTokens]
+  );
+  const rewardTokensData = useTokensDataAsMap(rewardTokens);
 
-  const isAdmin = useIsComptrollerAdmin(data?.comptroller);  
+  const isAdmin = useIsComptrollerAdmin(data?.comptroller);
 
   return (
     <>
@@ -103,14 +104,25 @@ const FusePoolPage = memo(() => {
           />
         )}
 
+        {!!data && isWarnedComptroller(data.comptroller) && (
+          <Alert colorScheme={"red"} borderRadius={5} mt="5">
+            <HStack>
+              <WarningTwoIcon color="red" mr={2} />
+              <Text color="black">Funds deposited in this pool are at risk. Do not use this pool</Text>
+            </HStack>
+          </Alert>
+        )}
+
         {!!data && isAuthed && (
           <PendingAdminAlert comptroller={data?.comptroller} />
         )}
 
-        <FuseRewardsBanner
-          rewardTokensData={rewardTokensData}
-          hasPluginIncentives={hasPluginIncentives}
-        />
+        {!!data && !isWarnedComptroller(data.comptroller) && (
+          <FuseRewardsBanner
+            rewardTokensData={rewardTokensData}
+            hasPluginIncentives={hasPluginIncentives}
+          />
+        )}
 
         <FuseUniV3Alert assets={data?.assets ?? []} />
 
