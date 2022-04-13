@@ -283,8 +283,6 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
       return null;
     }
 
-    console.log({ pools })
-
     if (!pools.length) {
       return [];
     }

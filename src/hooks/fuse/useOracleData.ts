@@ -63,8 +63,6 @@ export const useIdentifyOracle = (
       // Identify type of oracle used
       const identity = await fuse.identifyPriceOracle(tokenOracle);
 
-      console.log("useIdentifyOracle", { identity, tokenOracle, tokenAddr });
-
       return identity;
     }
 

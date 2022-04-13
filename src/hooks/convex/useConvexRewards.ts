@@ -125,7 +125,6 @@ export const useMaxUnclaimedFlywheelRewardsByMarkets = (cTokens: string[]) => {
             accrueForAll,
           );
 
-        console.log({ obj, result });
         let hasClaimable = false;
         result.forEach((claimable, i) => {
           if (!claimable.isZero()) hasClaimable = true;
@@ -283,10 +282,8 @@ export const useConvexPoolIncentives = (
       )
         return undefined;
       const lens = createFlywheelLens(provider);
-      console.log({lens, comptroller})
       let result: MarketRewardInfo[] =
         await lens.callStatic.getMarketRewardsInfo(comptroller);
-      console.log({result, comptroller})
 
       let cTokenPluginRewardsMap: CTokenPluginRewardsMap = {};
       let flywheelCTokensMap: FlywheelCTokensMap = {};

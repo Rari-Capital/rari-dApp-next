@@ -168,8 +168,6 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
       const rDs = rewardTokensMap[rewardToken];
       const rDAddresses = rDs.map((rD) => rD.rewardsDistributorAddress); // all rewardsdistributors for this token
 
-      console.log({ rDs, rDAddresses })
-
       if (!!rDs.length) {
         setClaimingToken(rewardToken);
         claimRewardsFromRewardsDistributors(fuse, address, rDAddresses)

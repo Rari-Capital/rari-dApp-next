@@ -116,7 +116,6 @@ export function useUnclaimedFuseRewards() {
   const rewardsDistributors =
     _rewardsDistributors as RewardsDistributorData[];
 
-  console.log({rewardsDistributors})
     // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
   const rewardsDistributorsMap: RewardsDistributorMap = {};
 
@@ -149,7 +148,6 @@ export function useUnclaimedFuseRewards() {
     async () => {
       if (!isAuthed) return undefined
 
-      console.log({uniqueRDs})
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,

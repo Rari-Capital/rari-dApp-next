@@ -85,12 +85,7 @@ const useUpdatedUserAssets = ({
                 : constants.Zero
             ),
           };
-          console.log({
-            supplyBalance,
-            assetToBeUpdated,
-            ethPrice,
-            updatedAsset,
-          });
+          
         } else if (mode === Mode.BORROW || mode === AmountSelectMode.BORROW) {
           const borrowBalance = assetToBeUpdated.borrowBalance.add(amount);
 

@@ -295,7 +295,6 @@ const OracleConfig = ({
               }
             >
               {Object.entries(options).map(([key, value]) => {
-                console.log({ key, value })
                 if (!!value && key !== activeOracleModel) {
                   if (mode === "Adding" && key !== "Current_Price_Oracle" || mode === "Editing") {
                     return (

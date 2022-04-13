@@ -58,8 +58,6 @@ const PoolConfiguration = ({
     assets.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ?? []
   );
 
-  console.log({ oraclesMap })
-
   const changeWhitelistStatus = async (enforce: boolean) => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 

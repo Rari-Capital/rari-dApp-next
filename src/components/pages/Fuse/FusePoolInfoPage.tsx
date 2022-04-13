@@ -170,9 +170,6 @@ const OracleAndInterestRates = ({
   const data = useExtraPoolInfo(comptrollerAddress);
   const { hasCopied, onCopy } = useClipboard(data?.admin ?? "");
 
-  console.log({ tokensData })
-
-
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -377,8 +374,6 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
       ? constants.Zero
       : selectedAsset.totalBorrow.mul(100).div(selectedAsset.totalSupply)
 
-  console.log({ selectedAssetUtilization })
-
   const { data } = useQuery(selectedAsset.cToken + " curves", async () => {
     const interestRateModel = await fuse.getInterestRateModel(
       selectedAsset.cToken
@@ -397,7 +392,6 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
     poolOracle,
     selectedAsset.underlyingToken,
   );
-
   // Link to MPO if asset is ETH
   const oracleAddress =
     (selectedAsset.underlyingToken === ETH_TOKEN_DATA.address || selectedAsset.oracle === ETH_TOKEN_DATA.address)

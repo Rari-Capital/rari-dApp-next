@@ -28,8 +28,6 @@ const useCheckUniV2Oracle = (
             fuse.addresses.UNISWAP_V2_FACTORY_ADDRESS
         )
 
-        console.log({isItReady})
-
         return !!isItReady
     }, {
         // Refetch the data every second

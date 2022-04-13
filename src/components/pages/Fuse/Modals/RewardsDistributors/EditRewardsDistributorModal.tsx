@@ -160,7 +160,6 @@ const EditRewardsDistributorModal = ({
     try {
       setChangingSpeed(true);
       const supplySpeedBN = parseUnits(supplySpeed.toString(), tokenData?.decimals ?? 18)
-      console.log({ supplySpeedBN })
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
       let tx = await rewardsDistributorInstance
         ._setCompSupplySpeed(
@@ -181,7 +180,6 @@ const EditRewardsDistributorModal = ({
     try {
       setChangingBorrowSpeed(true);
       const borrowSpeedBN = parseUnits(borrowSpeed.toString(), tokenData?.decimals ?? 18)
-      console.log({ borrowSpeedBN })
       if (!isAdmin) throw new Error("User is not admin of this Distributor!");
       let tx = await rewardsDistributorInstance
         ._setCompBorrowSpeed(

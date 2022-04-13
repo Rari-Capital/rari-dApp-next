@@ -35,9 +35,6 @@ const MarketCapConfigurator = ({
 
   const tokenSymbol = tokenData.symbol;
 
-  console.log({ tokenData })
-  console.log({ newSupplyCap })
-
   const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
   const { data: supplyCap } = useQuery(

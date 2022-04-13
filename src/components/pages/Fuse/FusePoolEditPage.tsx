@@ -424,8 +424,6 @@ const PoolConfiguration = ({
     assets.map((asset: USDPricedFuseAsset) => asset.underlyingToken) ?? []
   );
 
-  console.log({ oraclesMap })
-
   const changeWhitelistStatus = async (enforce: boolean) => {
     const comptroller = useCreateComptroller(comptrollerAddress, fuse, isAuthed);
 
@@ -999,8 +997,6 @@ const RewardsDistributorRow = ({
   const underlyingsMap = useCTokensUnderlying(activeCTokens);
   // @ts-ignore
   const underlyings = Object.values(underlyingsMap).map(u => u.underlyingToken);
-
-  console.log({ underlyings })
 
   return (
     <>

@@ -1070,7 +1070,6 @@ export async function testForCTokenErrorAndSend(
 
       let msg = ComptrollerErrorCodes[comptrollerResponse];
 
-      console.log({ msg, comptrollerResponse, txObjectStaticCall, txArgs })
 
       if (msg === "BORROW_BELOW_MIN") {
         msg =
