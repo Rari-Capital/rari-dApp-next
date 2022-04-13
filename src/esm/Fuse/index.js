@@ -709,7 +709,6 @@ export default class Fuse {
             return __awaiter(this, void 0, void 0, function* () {
                 // Get price oracle contract name from runtime bytecode hash
                 const runtimeBytecodeHash = utils.keccak256(yield this.provider.getCode(oracleAddress));
-                console.log("this.getPriceOracle()", { runtimeBytecodeHash });
                 for (const model of Object.keys(this.addresses.PRICE_ORACLE_RUNTIME_BYTECODE_HASHES)) {
                     if (runtimeBytecodeHash ===
                         this.addresses.PRICE_ORACLE_RUNTIME_BYTECODE_HASHES[model])

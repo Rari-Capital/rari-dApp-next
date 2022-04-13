@@ -200,16 +200,8 @@ export function useUnclaimedFuseRewards() {
   //   });
 
   //   handle generic err
-  console.log({error, _rdError, unclaimedErr})
   const oopsie = error || _rdError || unclaimedErr;
   if (oopsie) console.log({ oopsie });
-
-  console.log({
-    rewardsDistributorsMap,
-    rewardTokensMap,
-    unclaimed,
-    rewardsDistributorsToPoolsMap,
-  })
   
   return {
     rewardsDistributorsMap,
