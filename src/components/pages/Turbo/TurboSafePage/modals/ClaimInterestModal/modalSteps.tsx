@@ -1,10 +1,22 @@
-import { VStack } from "@chakra-ui/react";
+import { HStack, VStack } from "@chakra-ui/react";
 import { BigNumber, constants } from "ethers";
-import { formatEther } from "ethers/lib/utils";
+import { commify, formatEther } from "ethers/lib/utils";
 import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
-import { USDPricedStrategy, USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import { ModalProps, Text } from "rari-components";
-import { smallUsdFormatter } from "utils/bigUtils";
+import {
+  USDPricedStrategy,
+  USDPricedTurboSafe,
+} from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import { FEI } from "lib/turbo/utils/constants";
+import {
+  Divider,
+  Heading,
+  ModalProps,
+  StatisticTable,
+  Text,
+  TokenIcon,
+  TokenSymbol,
+} from "rari-components";
+import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
 
 type ClaimInterestCtx = {
   incrementStepIndex(): void;
@@ -15,8 +27,8 @@ type ClaimInterestCtx = {
   claimableFromStrategies: BigNumber;
   safeFeiBalance: BigNumber;
   activeStrategies: USDPricedStrategy[];
-  strategyData: StrategyInfosMap,
-  safe?: USDPricedTurboSafe
+  strategyData: StrategyInfosMap;
+  safe?: USDPricedTurboSafe;
 };
 
 type ModalStep = Omit<
@@ -25,41 +37,56 @@ type ModalStep = Omit<
 >;
 
 const MODAL_STEP_1: ModalStep = {
-  title: "Claim Interest",
-  children: ({ totalClaimable, claimableFromStrategies, safeFeiBalance, activeStrategies, strategyData, safe }) => (
-    <>
-      <Text>You can claim {smallUsdFormatter(formatEther(totalClaimable))} in interest.</Text>
-      {/* <Text> - {smallUsdFormatter(formatEther(safeFeiBalance))} in the safe.</Text> */}
-      {/* <Text> - {smallUsdFormatter(formatEther(claimableFromStrategies))} from {activeStrategies.length} strategies</Text> */}
-      <Text> You will be {
-        activeStrategies.length ? `
-      slurping ${activeStrategies.length} strategies for ${smallUsdFormatter(formatEther(claimableFromStrategies))} and `
-          : null} sweeping the safe for {smallUsdFormatter(formatEther(safeFeiBalance))}</Text>
+  children: ({
+    totalClaimable,
+    claimableFromStrategies,
+    safeFeiBalance,
+    activeStrategies,
+    strategyData,
+    safe,
+  }) => (
+    <VStack>
+      <HStack py={3}>
+        <Heading fontSize={"lg"}>Claim Interest</Heading>
+      </HStack>
+      <Divider />
 
-      <VStack>
-        {activeStrategies.map(strat => {
-          return (
-            <Text>{strategyData[strat.strategy]?.symbol} - {strat.feiEarnedUSD * parseFloat(formatEther(safe?.tribeDAOFee ?? constants.Zero))}</Text>
-          )
-        })}
-      </VStack>
-    </>
+      <HStack mb={4} py={4}>
+        <TokenIcon tokenAddress={FEI} />
+        <Heading>
+          {commify(parseFloat(formatEther(totalClaimable)).toFixed(2))} FEI
+        </Heading>
+      </HStack>
+
+      <StatisticTable
+        w="100%"
+        statistics={[
+          [
+            "From strategies",
+            `${commify(
+              parseFloat(formatEther(claimableFromStrategies)).toFixed(2)
+            )} FEI`,
+          ],
+          [
+            "From the safe",
+            `${commify(
+              parseFloat(formatEther(safeFeiBalance)).toFixed(2)
+            )} FEI`,
+          ],
+        ]}
+      />
+    </VStack>
   ),
-  buttons: ({
-    claiming,
-    onClickClaimInterest,
-    incrementStepIndex,
-    onClose,
-  }) => [
-      {
-        children: claiming ? "Claiming..." : "Claim Interest",
-        variant: "neutral",
-        loading: claiming,
-        async onClick() {
-          await onClickClaimInterest();
-        },
+  buttons: ({ claiming, onClickClaimInterest }) => [
+    {
+      children: claiming ? "Claiming..." : "Claim Interest",
+      variant: "neutral",
+      loading: claiming,
+      async onClick() {
+        await onClickClaimInterest();
       },
-    ],
+    },
+  ],
 };
 
 const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1];
