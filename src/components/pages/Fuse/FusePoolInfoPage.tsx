@@ -387,17 +387,11 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
   });
 
 
-  const oracleIdentity = useIdentifyOracle(
+  const { identity: oracleIdentity, oracle: oracleAddress } = useIdentifyOracle(
     selectedAsset.oracle,
     poolOracle,
     selectedAsset.underlyingToken
   )
-
-  // Link to MPO if asset is ETH
-  const oracleAddress =
-    (selectedAsset.underlyingToken === ETH_TOKEN_DATA.address || selectedAsset.oracle === ETH_TOKEN_DATA.address)
-      ? poolOracle
-      : selectedAsset.oracle;
 
   const isMobile = useIsMobile();
 

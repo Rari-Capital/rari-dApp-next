@@ -78,7 +78,7 @@ const OracleConfig = ({
   const options = useGetOracleOptions(oracleData, tokenAddress);
 
   // Identify token oracle address
-  const oracleIdentity = useIdentifyOracle(oracleAddress, poolOracleAddress, tokenAddress);
+  const {identity: oracleIdentity} = useIdentifyOracle(oracleAddress, poolOracleAddress, tokenAddress);
 
   const [inputTouched, setInputTouched] = useState(false);
 

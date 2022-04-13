@@ -27,15 +27,18 @@ export const useIdentifyOracle = (
   oracleAddr: string,
   poolOracle?: string,
   tokenAddr?: string
-): string => {
+):{
+  identity: string;
+  oracle: string;
+} => {
   const { fuse } = useRari();
 
   const { data } = useQuery("Identifying Oracle " + tokenAddr, async () => {
     if (tokenAddr && tokenAddr === ETH_TOKEN_DATA.address)
-      return "MasterPriceOracle";
+      return {identity: "MasterPriceOracle", oracle: oracleAddr};
 
     // If no oracle address provided, return empty string
-    if (!oracleAddr) return "";
+    if (!oracleAddr) return {identity: "", oracle: oracleAddr};
 
     if (oracleAddr === EmptyAddress && !!poolOracle) {
       // If condition is true it means price feed comes from default oracle
@@ -58,22 +61,22 @@ export const useIdentifyOracle = (
         true
       );
 
-      const tokenOracle = await poolDefaultOracleContract.oracles(tokenAddr);
+      const tokenOracle: string = await poolDefaultOracleContract.oracles(tokenAddr);
 
       // Identify type of oracle used
-      const identity = await fuse.identifyPriceOracle(tokenOracle);
+      const identity: string = await fuse.identifyPriceOracle(tokenOracle);
 
-      return identity;
+      return {identity, oracle: tokenOracle};
     }
 
-    const identity = await fuse.identifyPriceOracle(oracleAddr);
+    const identity: string = await fuse.identifyPriceOracle(oracleAddr);
 
-    if (identity === "MasterPriceOracleV1") return "RariMasterPriceOracle";
+    if (identity === "MasterPriceOracleV1") return {identity: "RariMasterPriceOracle", oracle: oracleAddr};
 
-    return identity;
+    return {identity, oracle: oracleAddr};
   });
 
-  return data ?? "";
+  return data ?? {identity: " ", oracle: oracleAddr};
 };
 
 export const useOracleData = (

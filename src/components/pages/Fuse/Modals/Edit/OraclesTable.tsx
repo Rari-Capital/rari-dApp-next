@@ -58,7 +58,7 @@ const OracleRow = ({
   underlyings: string[];
   isDefault?: boolean;
 }) => {
-  const oracleIdentity = useIdentifyOracle(oracle);
+  const {identity: oracleIdentity} = useIdentifyOracle(oracle);
 
   const displayedOracle = !!oracleIdentity
     ? oracleIdentity
