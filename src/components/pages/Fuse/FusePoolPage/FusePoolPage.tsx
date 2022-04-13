@@ -108,7 +108,7 @@ const FusePoolPage = memo(() => {
           <Alert colorScheme={"red"} borderRadius={5} mt="5">
             <HStack>
               <WarningTwoIcon color="red" mr={2} />
-              <Text color="black">Funds deposited in this pool are at risk. Do not use this pool</Text>
+              <Text color="black">Funds deposited in this pool are at risk and may be unrecoverable.</Text>
             </HStack>
           </Alert>
         )}

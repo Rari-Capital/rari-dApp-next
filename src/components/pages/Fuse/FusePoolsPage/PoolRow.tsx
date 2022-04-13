@@ -10,6 +10,7 @@ import { smallUsdFormatter } from "utils/bigUtils";
 import { CTokenIcon } from "../../../shared/Icons/CTokenIcon";
 import { usePoolIncentives } from "hooks/rewards/usePoolIncentives";
 import { WhitelistedIcon } from "components/shared/Icons/WhitelistedIcon";
+import { isWarnedComptroller } from "constants/fuse";
 
 export const PoolRow = ({
   tokens,
@@ -89,7 +90,8 @@ export const PoolRow = ({
                     ? name.substring(0, 20) + "..."
                     : name}
                 </Text>
-                {rewardTokens.length > 0 ? (
+                {rewardTokens.length > 0 &&
+                !isWarnedComptroller(comptroller) ? (
                   <>
                     <Text mx={2} fontWeight={"bold"}>
                       ·
@@ -113,12 +115,12 @@ export const PoolRow = ({
               <Center height="100%" width="13%">
                 <b>{poolNumber}</b>
               </Center>
-                <Center height="100%" width="16%">
-                  <b>{smallUsdFormatter(tvl)}</b>
-                </Center>
-                <Center height="100%" width="16%">
-                  <b>{smallUsdFormatter(borrowed)}</b>
-                </Center>
+              <Center height="100%" width="16%">
+                <b>{smallUsdFormatter(tvl)}</b>
+              </Center>
+              <Center height="100%" width="16%">
+                <b>{smallUsdFormatter(borrowed)}</b>
+              </Center>
             </>
           )}
         </Row>
