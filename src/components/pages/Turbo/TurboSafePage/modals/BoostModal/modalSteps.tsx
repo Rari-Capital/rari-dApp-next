@@ -18,6 +18,7 @@ import {
 } from "utils/bigUtils";
 import { HStack, Image, VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
+import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -30,7 +31,7 @@ type BoostModalCtx = {
   onClickBoost(): Promise<void>;
   onClickLess(): Promise<void>;
   onClose(): void;
-  onClickMax(): void;
+  onClickMax(snip?: boolean): void;
   maxAmount: BigNumber;
   mode: SafeInteractionMode.BOOST | SafeInteractionMode.LESS;
   strategy: USDPricedStrategy | undefined;
@@ -70,9 +71,15 @@ const MODAL_STEP_1: ModalStep = {
             value={amount}
             onChange={(amount: string) => setAmount(amount ?? "0")}
             tokenAddress={FEI}
-            onClickMax={onClickMax}
+            onClickMax={() => onClickMax(true)}
           />
-          <Text variant="secondary" mt="4">
+          <Text
+            variant="secondary"
+            mt="4"
+            onClick={() => onClickMax()}
+            _hover={{ cursor: "pointer", opacity: 0.9 }}
+            transition="opacity 0.2s ease"
+          >
             {mode === SafeInteractionMode.BOOST
               ? `You can boost ${parseFloat(formatEther(maxAmount)).toFixed(
                   2
@@ -104,9 +111,37 @@ const MODAL_STEP_1: ModalStep = {
               titleTooltip: "The health of your safe. ",
               primaryTooltip: "",
             },
+            {
+              title: `Liquidation Price`,
+              primaryValue: abbreviateAmount(safe?.liquidationPriceUSD),
+              secondaryValue: abbreviateAmount(
+                updatedSafe?.liquidationPriceUSD
+              ),
+              titleTooltip: "The health of your safe. ",
+              primaryTooltip: "",
+            },
           ]}
           isLoading={!updatedSafe}
         />
+        {/* Boost cap for Strategy - show if amount is 50% over boost */}
+        {mode === SafeInteractionMode.BOOST &&
+          !!boostCap
+            ?.div(2)
+            ?.lt(totalBoosted?.add(parseEther(amount)) ?? constants.Zero) && (
+            <HStack px={3}>
+              <TurboEngineIcon fill="#000000" height={4} mr={4} />
+              <Text>
+                Total Boost{" "}
+                {abbreviateAmount(
+                  formatEther(
+                    totalBoosted?.add(parseEther(amount)) ?? constants.Zero
+                  )
+                )}  
+              </Text>
+              <Text>Approaching {abbreviateAmount(formatEther(boostCap))}</Text>
+            </HStack>
+          )}
+        {/* Claim Fees on Less All */}
         {mode === SafeInteractionMode.LESS &&
           strategy?.boostedAmount?.eq(parseEther(amount ? amount : "0")) && (
             <HStack px={3}>

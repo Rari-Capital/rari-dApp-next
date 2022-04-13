@@ -129,9 +129,7 @@ export const SafeStrategies: React.FC<{
                       cursor: !isAtLiquidationRisk ? "pointer" : "not-allowed",
                     }}
                     background="success"
-                    onClick={() =>
-                      !isAtLiquidationRisk ? onClickBoost(strat.strategy) : null
-                    }
+                    onClick={() => onClickBoost(strat.strategy)}
                   >
                     <Heading size="sm" color="black">
                       +

@@ -13,26 +13,29 @@ import {
 } from "rari-components";
 import { abbreviateAmount } from "utils/bigUtils";
 import { Box, Flex, HStack, Spacer, Stack } from "@chakra-ui/react";
-import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
+import {
+  StrategyInfosMap,
+  useERC4626StrategiesDataAsMap,
+} from "hooks/turbo/useStrategyInfo";
 import useSafeAvgAPY from "hooks/turbo/useSafeAvgAPY";
 import { filterUsedStrategies } from "lib/turbo/fetchers/strategies/formatStrategyInfo";
 import { useSafeInfo } from "hooks/turbo/useSafeInfo";
 import { useTokenData } from "hooks/useTokenData";
 import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
 import { getSafeColor } from "context/TurboSafeContext";
-import { motion } from 'framer-motion';
-
+import { motion } from "framer-motion";
 
 type SafeCardProps = {
   safe: SafeInfo;
-  getERC4626StrategyData: StrategyInfosMap;
+  previewMode: boolean;
 };
 
-const SafeCard: React.FC<SafeCardProps> = ({
-  safe,
-  getERC4626StrategyData,
-}) => {
+const SafeCard: React.FC<SafeCardProps> = ({ safe, previewMode = false }) => {
   const usdPricedSafeInfo = useSafeInfo(safe.safeAddress);
+
+  const getERC4626StrategyData = useERC4626StrategiesDataAsMap(
+    safe.strategies.map((s) => s.strategy)
+  );
 
   const avgAPY = useSafeAvgAPY(
     filterUsedStrategies(safe.strategies),
@@ -70,10 +73,14 @@ const SafeCard: React.FC<SafeCardProps> = ({
                 </Heading>
                 <Spacer />
 
-                {isAtLiquidationRisk && (
-                  <Badge background="warning">At Risk ❗</Badge>
-                )}
-                {boostMe && <Badge background="success">Boost Me 🔥</Badge>}
+                {!previewMode ? (
+                  <>
+                    {isAtLiquidationRisk && (
+                      <Badge background="warning">At Risk ❗</Badge>
+                    )}
+                    {boostMe && <Badge background="success">Boost Me 🔥</Badge>}
+                  </>
+                ) : null}
               </HStack>
               <Stack
                 spacing={2}
