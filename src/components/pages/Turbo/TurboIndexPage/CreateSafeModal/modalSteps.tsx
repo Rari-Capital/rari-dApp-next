@@ -210,7 +210,7 @@ const MODAL_STEP_3: ModalStep = {
                   : "$" +
                     commify(
                       parseFloat(
-                        formatEther(safeSimulation?.maxBoost ?? constants.Z)
+                        formatEther(safeSimulation?.maxBoost ?? constants.Zero)
                       ).toFixed(2)
                     ),
               titleTooltip: "The total boostable amount.",

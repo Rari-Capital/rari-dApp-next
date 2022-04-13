@@ -71,7 +71,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     address
   );
 
-  const { data: safeSimulation } = useQuery<SimulatedSafe>(
+  const { data: safeSimulation } = useQuery<SimulatedSafe | undefined>(
     "Safe creation and deposit simulation for deposit amount:" + depositAmount,
     async () => {
       if (depositAmount === "0" || !depositAmount || !chainId) return;
