@@ -90,6 +90,7 @@ export default {
         CurveLpTokenPriceOracle: "0x6742ae836b1f7df0cfd9b858c89d89da3ee814c28c5ee9709a371bcf9dfd2145",
         CurveFactoryLpTokenPriceOracleV2: "0x8f69ce5f159abf8255326f7052ace26a2a416d4d553c5bcb92fad4fd8cb8f7e6",
         CurveLiquidityGaugeV2PriceOracle: "0xfcf0d93de474152898668c4ebd963e0237bfc46c3d5f0ce51b7045b60c831734",
+        cvxFXSPriceOracle: "0x6014cac13a95ba888f7087ff476a89c511c1cd2b5b4a95d9ab323d630a269acb",
         FixedEthPriceOracle: "0xcb669c93632a1c991adced5f4d97202aa219fab3d5d86ebd28f4f62ad7aa6cb3",
         FixedEurPriceOracle: "0x678dbe9f2399a44e89edc934dc17f6d4ee7004d9cbcee83c0fa0ef43de924b84",
         WSTEthPriceOracle: "0x11daa8dfb8957304aa7d926ce6876c523c7567b4052962e65e7d6a324ddcb4cc",
