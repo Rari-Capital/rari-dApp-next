@@ -154,7 +154,7 @@ export const useUpdatedSafeInfo = ({
           feiAmountUSD: stratFeiUSD,
         };
 
-        const strategies = safe.usdPricedStrategies;
+        let strategies = [...safe.usdPricedStrategies];
         strategies[strategyIndex] = updatedStrategy;
 
         updatedSafe = {
