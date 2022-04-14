@@ -1,4 +1,4 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
 import {
@@ -7,15 +7,12 @@ import {
 } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { FEI } from "lib/turbo/utils/constants";
 import {
-  Divider,
   Heading,
   ModalProps,
-  StatisticTable,
+  StatisticsTable,
   Text,
   TokenIcon,
-  TokenSymbol,
 } from "rari-components";
-import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, HStack, Stack, VStack } from "@chakra-ui/react";
 
@@ -55,8 +52,7 @@ const MODAL_STEP_1: ModalStep = {
           {commify(parseFloat(formatEther(totalClaimable)).toFixed(2))} FEI
         </Heading>
       </HStack>
-
-      <StatisticTable
+      <StatisticsTable
         w="100%"
         statistics={[
           [
