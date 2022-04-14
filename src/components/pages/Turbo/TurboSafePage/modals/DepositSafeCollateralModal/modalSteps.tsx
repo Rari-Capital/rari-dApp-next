@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { commify, formatEther, parseEther } from "ethers/lib/utils";
+import { commify, formatEther } from "ethers/lib/utils";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import {
   Heading,
@@ -8,10 +8,9 @@ import {
   TokenAmountInput,
   TokenSymbol,
 } from "rari-components";
-import { abbreviateAmount } from "utils/bigUtils";
-import StatisticTable from "lib/components/StatisticsTable";
 import { Box, Stack, VStack } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
+import UpdatingStatisticsTable from "../../UpdatingStatisticsTable";
 
 type DepositSafeCollateralCtx = {
   incrementStepIndex(): void;
@@ -38,8 +37,27 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: "Deposit Collateral",
   subtitle: "Collateralizing is required before boosting pools.",
-  children: ({ onClickMax, setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) =>
-    !!safe && (
+  children: ({ onClickMax, setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) => {
+    if (!safe) {
+      return null;
+    }
+
+    const safeUtilizationValue =
+      depositAmount === "" ? (
+        parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
+      ) : (
+        <Text fontWeight={600}>
+          {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"}{" "}
+          →{" "}
+          <Box as="span" color="neutral">
+            {parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(
+              2
+            ) + "%"}
+          </Box>
+        </Text>
+      );
+
+    return (
       <>
         <VStack w="100%" mb={3} align="flex-end">
           <TokenAmountInput
@@ -53,37 +71,35 @@ const MODAL_STEP_1: ModalStep = {
             <TokenSymbol tokenAddress={safe.collateralAsset} />
           </Text>
         </VStack>
-        <StatisticTable
+        <UpdatingStatisticsTable
           statistics={[
             {
               title: "Collateral",
-              primaryValue: abbreviateAmount(safe?.collateralValueUSD),
-              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.collateralValueUSD),
-              titleTooltip: "How much collateral you have deposited.",
-              primaryTooltip: `$ ${commify(safe.collateralValueUSD ?? 0)}`,
-              secondaryTooltip: `$ ${commify(updatedSafe?.collateralValueUSD ?? 0)}`
+              tooltip: "How much collateral you have deposited.",
+              initialValue: safe?.collateralValueUSD,
+              newValue:
+                depositAmount === ""
+                  ? undefined
+                  : updatedSafe?.collateralValueUSD,
             },
             {
               title: "Max Boost",
-              primaryValue: abbreviateAmount(safe?.maxBoostUSD),
-              secondaryValue: depositAmount === "" ? undefined : abbreviateAmount(updatedSafe?.maxBoostUSD),
-              titleTooltip: "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
-              primaryTooltip: `$ ${commify(safe.maxBoostUSD ?? 0)}`,
-              secondaryTooltip: `$ ${commify(updatedSafe?.maxBoostUSD ?? 0)}`
+              tooltip:
+                "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
+              initialValue: safe?.maxBoostUSD,
+              newValue:
+                depositAmount === "" ? undefined : updatedSafe?.maxBoostUSD,
             },
-            {
-              title: "Safe Utilization",
-              primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
-              secondaryValue: depositAmount === "" ? undefined : parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
-              titleTooltip: "The health of your safe. ",
-              primaryTooltip: ""
-
-            },
+            [
+              "Safe Utilization",
+              safeUtilizationValue,
+              "The health of your safe.",
+            ],
           ]}
-          isLoading={!updatedSafe}
         />
       </>
-    ),
+    )
+  },
   buttons: ({
     approving,
     depositing,
