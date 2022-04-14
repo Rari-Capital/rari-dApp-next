@@ -1,4 +1,3 @@
-import { HStack, VStack } from "@chakra-ui/react";
 import { BigNumber, constants } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import { StrategyInfosMap } from "hooks/turbo/useStrategyInfo";
@@ -17,9 +16,12 @@ import {
   TokenSymbol,
 } from "rari-components";
 import { abbreviateAmount, smallUsdFormatter } from "utils/bigUtils";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { Box, HStack, Stack, VStack } from "@chakra-ui/react";
 
 type ClaimInterestCtx = {
   incrementStepIndex(): void;
+  resetStepIndex(): void;
   claiming: boolean;
   onClickClaimInterest(): void;
   onClose(): void;
@@ -46,14 +48,10 @@ const MODAL_STEP_1: ModalStep = {
     safe,
   }) => (
     <VStack>
-      <HStack py={3}>
-        <Heading fontSize={"lg"}>Claim Interest</Heading>
-      </HStack>
-      <Divider />
-
-      <HStack mb={4} py={4}>
+      <Heading size="md">Claim Interest</Heading>
+      <HStack py={8}>
         <TokenIcon tokenAddress={FEI} />
-        <Heading>
+        <Heading size="xl">
           {commify(parseFloat(formatEther(totalClaimable)).toFixed(2))} FEI
         </Heading>
       </HStack>
@@ -79,7 +77,7 @@ const MODAL_STEP_1: ModalStep = {
   ),
   buttons: ({ claiming, onClickClaimInterest }) => [
     {
-      children: claiming ? "Claiming..." : "Claim Interest",
+      children: claiming ? "Claiming..." : "Claim rewards",
       variant: "neutral",
       loading: claiming,
       async onClick() {
@@ -89,7 +87,33 @@ const MODAL_STEP_1: ModalStep = {
   ],
 };
 
-const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1];
+const MODAL_STEP_2: ModalStep = {
+  children: ({ totalClaimable }) => (
+    <Stack alignItems="center" spacing={8}>
+      <CheckCircleIcon boxSize={24} color="neutral" />
+      <Box textAlign="center">
+        <Heading>
+          {commify(parseFloat(formatEther(totalClaimable)).toFixed(2))} FEI
+        </Heading>
+        <Text fontSize="lg" my={4}>
+          Successfully claimed
+        </Text>
+      </Box>
+    </Stack>
+  ),
+  buttons: ({ resetStepIndex, onClose }) => [
+    {
+      children: "Back to Safe",
+      variant: "neutral",
+      async onClick() {
+        resetStepIndex();
+        onClose();
+      },
+    },
+  ],
+};
+
+const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1, MODAL_STEP_2];
 
 export { MODAL_STEPS };
 export type { ClaimInterestCtx };
