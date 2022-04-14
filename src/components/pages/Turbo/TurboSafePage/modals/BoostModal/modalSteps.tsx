@@ -218,8 +218,7 @@ const MODAL_STEP_1: ModalStep = {
         : isRiskyBoost
         ? "Risky Boost!"
         : "Boost",
-      variant: "neutral",
-      background: isRiskyBoost ? "danger" : "neutral",
+      variant: isRiskyBoost ? "danger" : "neutral",
       loading: transacting,
       disabled: !amount || !!inputError || transacting,
       async onClick() {
