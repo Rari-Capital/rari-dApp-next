@@ -1,12 +1,11 @@
 import { BigNumber, constants, utils } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
-import StatisticTable from "lib/components/StatisticsTable";
-import { createSafe } from "lib/turbo/transactions/safe";
 import {
   Heading,
   HoverableCard,
   ModalProps,
-  StatisticTable as RariStats,
+  StatisticsTable,
+  StatisticsTableProps,
   Text,
   TokenAmountInput,
   TokenIcon,
@@ -158,69 +157,87 @@ const MODAL_STEP_3: ModalStep = {
     collateralBalance,
     setDepositAmount,
     safeSimulation,
-  }) => (
-    <Stack>
-      <Box>
-        <VStack w="100%" mb={3} align="flex-end">
-          <TokenAmountInput
-            tokenAddress={underlyingTokenAddress}
-            value={depositAmount}
-            onChange={setDepositAmount}
-            onClickMax={onClickMax}
-          />
-          <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
-            Balance: {commify(collateralBalance)}{" "}
-            <TokenSymbol tokenAddress={underlyingTokenAddress} />
-          </Text>
-        </VStack>
-        <StatisticTable
-          statistics={[
-            {
-              title: "Collateral",
-              primaryValue: `0`,
-              secondaryValue:
-                !depositAmount || depositAmount === "0"
-                  ? undefined
-                  : `${commify(depositAmount ?? 0)}`,
-              titleTooltip: "How much collateral you have deposited.",
-            },
-            {
-              title: "Collateral value",
-              primaryValue: "0",
-              secondaryValue:
-                !depositAmount || depositAmount === "0" || !safeSimulation
-                  ? undefined
-                  : "$" +
-                    commify(
-                      parseFloat(
-                        formatEther(
-                          safeSimulation?.collateralUSD ?? constants.Zero
-                        )
-                      ).toFixed(2)
-                    ),
-              titleTooltip:
-                "The total collateral value denominated in dollars.",
-            },
-            {
-              title: "Max boost",
-              primaryValue: "0",
-              secondaryValue:
-                !depositAmount || depositAmount === "0" || !safeSimulation
-                  ? undefined
-                  : "$" +
-                    commify(
-                      parseFloat(
-                        formatEther(safeSimulation?.maxBoost ?? constants.Zero)
-                      ).toFixed(2)
-                    ),
-              titleTooltip: "The total boostable amount.",
-            },
-          ]}
-          mt={4}
-        />
-      </Box>
-    </Stack>
-  ),
+  }) => {
+    const collateralStatistic =
+      !depositAmount || depositAmount === "0" ? (
+        "0"
+      ) : (
+        <Text fontWeight={600}>
+          0 →{" "}
+          <Box as="span" color="neutral">
+            {commify(depositAmount ?? 0)}
+          </Box>
+        </Text>
+      );
+
+    const collateralValueStatistic =
+      !depositAmount || depositAmount === "0" || !safeSimulation ? (
+        "0"
+      ) : (
+        <Text fontWeight={600}>
+          0 →{" "}
+          <Box as="span" color="neutral">
+            $
+            {commify(
+              parseFloat(
+                formatEther(safeSimulation?.collateralUSD ?? constants.Zero)
+              ).toFixed(2)
+            )}
+          </Box>
+        </Text>
+      );
+
+    const maxBoostStatistic =
+      !depositAmount || depositAmount === "0" || !safeSimulation ? (
+        "0"
+      ) : (
+        <Text fontWeight={600}>
+          0 →{" "}
+          <Box as="span" color="neutral">
+            $
+            {commify(
+              parseFloat(
+                formatEther(safeSimulation?.maxBoost ?? constants.Zero)
+              ).toFixed(2)
+            )}
+          </Box>
+        </Text>
+      );
+
+    const statistics: StatisticsTableProps["statistics"] = [
+      [
+        "Collateral",
+        collateralStatistic,
+        "How much collateral you have deposited.",
+      ],
+      [
+        "Collateral value",
+        collateralValueStatistic,
+        "The total collateral value denominated in dollars.",
+      ],
+      ["Max boost", maxBoostStatistic, "The total boostable amount."],
+    ];
+
+    return (
+      <Stack>
+        <Box>
+          <VStack w="100%" mb={3} align="flex-end">
+            <TokenAmountInput
+              tokenAddress={underlyingTokenAddress}
+              value={depositAmount}
+              onChange={setDepositAmount}
+              onClickMax={onClickMax}
+            />
+            <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
+              Balance: {commify(collateralBalance)}{" "}
+              <TokenSymbol tokenAddress={underlyingTokenAddress} />
+            </Text>
+          </VStack>
+          <StatisticsTable statistics={statistics} />
+        </Box>
+      </Stack>
+    );
+  },
   buttons: ({
     incrementStepIndex,
     setDepositAmount,
@@ -261,7 +278,7 @@ const MODAL_STEP_4: ModalStep = {
         </Heading>
       </Box>
       {!depositAmount || depositAmount === "0" ? null : (
-        <RariStats
+        <StatisticsTable
           mt={8}
           statistics={[
             ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
