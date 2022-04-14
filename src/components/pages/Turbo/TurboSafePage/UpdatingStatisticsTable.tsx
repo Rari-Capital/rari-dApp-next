@@ -1,12 +1,11 @@
+import { commify } from "ethers/lib/utils";
 import {
   StatisticsTable,
   StatisticsTableProps,
   Tooltip,
 } from "rari-components";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { Box, HStack, Spinner, Text } from "@chakra-ui/react";
-import { commify } from "ethers/lib/utils";
 import { abbreviateAmount } from "utils/bigUtils";
+import { Box, Text } from "@chakra-ui/react";
 
 /**
  * An `UpdatingStatistic` can either be a statistic with an initial value and
@@ -22,7 +21,7 @@ type UpdatingStatistic =
     }
   | StatisticsTableProps["statistics"][number];
 
-type UpdatingStatisticTableProps = Omit<StatisticsTableProps, "statistics"> & {
+type UpdatingStatisticsTableProps = Omit<StatisticsTableProps, "statistics"> & {
   statistics: UpdatingStatistic[];
 };
 
@@ -36,11 +35,11 @@ type UpdatingStatisticTableProps = Omit<StatisticsTableProps, "statistics"> & {
  *
  * Based on https://reactjs.org/docs/composition-vs-inheritance.html
  */
-const UpdatingStatisticsTable: React.FC<UpdatingStatisticTableProps> = ({
+const UpdatingStatisticsTable: React.FC<UpdatingStatisticsTableProps> = ({
   statistics,
   ...restProps
 }) => {
-  const UpdatingStatistics = statistics.map((it) => {
+  const updatingStatistics = statistics.map((it) => {
     // If this item is a regular statistic, skip processing.
     if (Array.isArray(it)) {
       return it;
@@ -78,41 +77,7 @@ const UpdatingStatisticsTable: React.FC<UpdatingStatisticTableProps> = ({
     return statistic;
   });
 
-  return <StatisticsTable statistics={UpdatingStatistics} {...restProps} />;
-};
-
-const UpdatingStatistic: React.FC<{
-  isLoading: boolean;
-  statistic: UpdatingStatistic;
-}> = ({ isLoading, statistic }) => {
-  const { primaryValue, secondaryValue, primaryTooltip, secondaryTooltip } =
-    statistic;
-
-  if (isLoading) return <Spinner boxSize={"15px"} />;
-  return (
-    <HStack justify={"flex-end"}>
-      <TextWithToolTip text={primaryValue} tooltip={primaryTooltip} />
-      {!!secondaryValue && (
-        <>
-          <ArrowForwardIcon boxSize="15px" />
-          <TextWithToolTip text={secondaryValue} tooltip={secondaryTooltip} />
-        </>
-      )}
-    </HStack>
-  );
-};
-
-const TextWithToolTip: React.FC<{ text: string; tooltip?: string }> = ({
-  text,
-  tooltip,
-}) => {
-  if (!!tooltip)
-    return (
-      <SimpleTooltip label={tooltip}>
-        <Text>{text}</Text>
-      </SimpleTooltip>
-    );
-  return <Text>{text}</Text>;
+  return <StatisticsTable statistics={updatingStatistics} {...restProps} />;
 };
 
 export default UpdatingStatisticsTable;
