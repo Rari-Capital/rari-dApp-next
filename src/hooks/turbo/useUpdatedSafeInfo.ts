@@ -2,6 +2,7 @@ import { useQuery } from "react-query";
 import { useRari } from "context/RariContext";
 import { BigNumber, constants } from "ethers";
 import {
+  calculateLiquidationPriceUSD,
   USDPricedStrategy,
   USDPricedTurboSafe,
 } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
@@ -11,6 +12,7 @@ import {
 } from "lib/turbo/utils/usdUtils";
 import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
 import {
+  calcuateLiquidationPrice,
   calculateMaxBoost,
   calculateSafeUtilization,
 } from "lib/turbo/fetchers/safes/getSafeInfo";
@@ -69,6 +71,18 @@ export const useUpdatedSafeInfo = ({
         );
         const maxBoostUSD = calculateETHValueUSD(maxBoost, ethUSDBN);
 
+        const liquidationPrice = calcuateLiquidationPrice(
+          safe.debtValue,
+          collateralValue,
+          safe.collateralFactor,
+          safe.collateralPrice
+        );
+
+        const liquidationPriceUSD = calculateLiquidationPriceUSD(
+          liquidationPrice,
+          ethUSDBN
+        );
+
         updatedSafe = {
           ...safe,
           collateralAmount,
@@ -77,6 +91,8 @@ export const useUpdatedSafeInfo = ({
           safeUtilization,
           maxBoost,
           maxBoostUSD,
+          liquidationPrice,
+          liquidationPriceUSD,
         };
 
         return updatedSafe;
@@ -98,12 +114,26 @@ export const useUpdatedSafeInfo = ({
           safe.collateralFactor
         );
 
+        const liquidationPrice = calcuateLiquidationPrice(
+          safe.debtValue,
+          collateralValue,
+          safe.collateralFactor,
+          safe.collateralPrice
+        );
+
+        const liquidationPriceUSD = calculateLiquidationPriceUSD(
+          liquidationPrice,
+          ethUSDBN
+        );
+
         updatedSafe = {
           ...safe,
           collateralAmount,
           collateralValue,
           collateralValueUSD,
           safeUtilization,
+          liquidationPrice,
+          liquidationPriceUSD,
         };
 
         return updatedSafe;
@@ -147,15 +177,26 @@ export const useUpdatedSafeInfo = ({
         );
 
         const updatedStrategy: USDPricedStrategy = {
-          ...strategyToUpdate,  
+          ...strategyToUpdate,
           boostedAmount: stratBoostedAmount,
           boostAmountUSD: stratBoostedUSD,
           feiAmount: stratFeiAmount,
           feiAmountUSD: stratFeiUSD,
         };
 
-        let strategies = [...safe.usdPricedStrategies];
+        const strategies = safe.usdPricedStrategies;
         strategies[strategyIndex] = updatedStrategy;
+
+        const liquidationPrice = calcuateLiquidationPrice(
+          debtValue,
+          safe.collateralValue,
+          safe.collateralFactor,
+          safe.collateralPrice
+        );
+        const liquidationPriceUSD = calculateLiquidationPriceUSD(
+          liquidationPrice,
+          ethUSDBN
+        );
 
         updatedSafe = {
           ...safe,
@@ -165,6 +206,8 @@ export const useUpdatedSafeInfo = ({
           debtValue,
           safeUtilization,
           strategies,
+          liquidationPrice,
+          liquidationPriceUSD,
         };
 
         return updatedSafe;
@@ -219,6 +262,17 @@ export const useUpdatedSafeInfo = ({
         const strategies = safe.usdPricedStrategies;
         strategies[strategyIndex] = updatedStrategy;
 
+        const liquidationPrice = calcuateLiquidationPrice(
+            debtValue,
+            safe.collateralValue,
+            safe.collateralFactor,
+            safe.collateralPrice
+          );
+          const liquidationPriceUSD = calculateLiquidationPriceUSD(
+            liquidationPrice,
+            ethUSDBN
+          );
+
         updatedSafe = {
           ...safe,
           boostedAmount,
@@ -227,6 +281,8 @@ export const useUpdatedSafeInfo = ({
           debtValue,
           safeUtilization,
           strategies,
+          liquidationPrice,
+          liquidationPriceUSD,
         };
 
         return updatedSafe;

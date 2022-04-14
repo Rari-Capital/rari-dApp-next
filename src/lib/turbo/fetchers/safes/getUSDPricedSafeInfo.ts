@@ -61,10 +61,10 @@ export const getUSDPricedSafeInfo = async (
     const feiPriceUSD = calculateETHValueUSD(safeInfo.feiPrice, ethUSDBN);
     const maxBoostUSD = calculateETHValueUSD(safeInfo.maxBoost, ethUSDBN);
 
-    const liquidationPriceUSD = (calculateETHValueUSD(
-      BigNumber.from((safeInfo.liquidationPrice * 1e20).toFixed()), // 1e18 * 100
+    const liquidationPriceUSD = calculateLiquidationPriceUSD(
+      safeInfo.liquidationPrice,
       ethUSDBN
-    ) / 100) ;
+    );
 
     // Add USD values to each strategyInfo
     const usdPricedStrategies = getUSDPricedStrategies(
@@ -151,3 +151,12 @@ export const getUSDPricedStrategies = (
         }, [])
         */
 };
+
+export const calculateLiquidationPriceUSD = (
+  liquidationPriceETH: number,
+  ethUSDBN: BigNumber
+) =>
+  calculateETHValueUSD(
+    BigNumber.from((liquidationPriceETH * 1e20).toFixed()), // 1e18 * 100
+    ethUSDBN
+  ) / 100;
