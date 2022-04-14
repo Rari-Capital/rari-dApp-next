@@ -63,7 +63,7 @@ const MODAL_STEP_1: ModalStep = {
         <UpdatingStatisticsTable
           statistics={[
             {
-              title: "Collateral",
+              title: "Collateral deposited",
               tooltip: "How much collateral you have deposited.",
               initialValue: safe?.collateralValueUSD,
               newValue:
