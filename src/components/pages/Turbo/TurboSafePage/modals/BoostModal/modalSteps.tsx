@@ -3,9 +3,6 @@ import { BigNumber, constants } from "ethers";
 import { commify, formatEther, parseEther } from "ethers/lib/utils";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
-import StatisticTable, {
-  StatisticTableProps,
-} from "lib/components/StatisticsTable";
 import {
   USDPricedStrategy,
   USDPricedTurboSafe,
@@ -14,18 +11,14 @@ import { FEI } from "lib/turbo/utils/constants";
 import {
   Heading,
   ModalProps,
+  StatisticsTable,
+  StatisticsTableProps,
   Text,
   TokenAmountInput,
-  TokenSymbol,
 } from "rari-components";
-import { useMemo } from "react";
-import {
-  abbreviateAmount,
-  shortUsdFormatter,
-  smallUsdFormatter,
-} from "utils/bigUtils";
+import { abbreviateAmount } from "utils/bigUtils";
 import { CheckCircleIcon } from "@chakra-ui/icons";
-import { Box, HStack, Image, Stack, VStack } from "@chakra-ui/react";
+import { Box, HStack, Image, Spinner, Stack, VStack } from "@chakra-ui/react";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -70,10 +63,69 @@ const MODAL_STEP_1: ModalStep = {
     boostCap,
     totalBoosted,
   }) => {
-    if (!safe) return;
+    if (!safe) {
+      return null;
+    }
+
+    const statisticsLoading = !updatedSafe;
+
+    const totalBoostBalanceStatistic = statisticsLoading ? (
+      <Spinner boxSize={4} />
+    ) : (
+      <Text fontWeight={600}>
+        {abbreviateAmount(safe?.boostedUSD)} →{" "}
+        <Box as="span" color="neutral">
+          {abbreviateAmount(updatedSafe?.boostedUSD)}
+        </Box>
+      </Text>
+    );
+
+    const safeUtilizationStatistic = statisticsLoading ? (
+      <Spinner boxSize={4} />
+    ) : (
+      <Text fontWeight={600}>
+        {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2)}% →{" "}
+        <Box as="span" color="neutral">
+          {parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(
+            2
+          )}
+          %
+        </Box>
+      </Text>
+    );
+
+    const liquidationPriceStatistic = statisticsLoading ? (
+      <Spinner boxSize={4} />
+    ) : (
+      <Text fontWeight={600}>
+        {abbreviateAmount(safe?.liquidationPriceUSD)} →{" "}
+        <Box as="span" color="neutral">
+          {abbreviateAmount(updatedSafe?.liquidationPriceUSD)}
+        </Box>
+      </Text>
+    );
+
+    const statistics: StatisticsTableProps["statistics"] = [
+      [
+        "Total Boost Balance",
+        totalBoostBalanceStatistic,
+        "The maximum amount you can boost.",
+      ],
+      [
+        "Safe Utilization",
+        safeUtilizationStatistic,
+        "The maximum amount you can boost.",
+      ],
+      [
+        "Liquidation Price",
+        liquidationPriceStatistic,
+        "The health of your safe.",
+      ],
+    ];
+
     return (
       <>
-        <VStack w="100%" mb={3} align="flex-end">
+        <VStack w="100%" mb={4} align="flex-end">
           <TokenAmountInput
             value={amount}
             onChange={(amount: string) => setAmount(amount ?? "0")}
@@ -82,7 +134,7 @@ const MODAL_STEP_1: ModalStep = {
           />
           <Text
             variant="secondary"
-            mt="4"
+            mt={4}
             onClick={() => onClickMax()}
             _hover={{ cursor: "pointer", opacity: 0.9 }}
             transition="opacity 0.2s ease"
@@ -96,40 +148,7 @@ const MODAL_STEP_1: ModalStep = {
                 ).toFixed(2)} FEI`}
           </Text>
         </VStack>
-        <StatisticTable
-          mb={3}
-          statistics={[
-            {
-              title: "Total Boost Balance",
-              primaryValue: abbreviateAmount(safe?.boostedUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.boostedUSD),
-              titleTooltip: "The maximum amount you can boost.",
-              primaryTooltip: "",
-            },
-            {
-              title: "Safe Utilization",
-              primaryValue:
-                parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) +
-                  "%" ?? "?",
-              secondaryValue:
-                parseFloat(
-                  updatedSafe?.safeUtilization.toString() ?? "0"
-                ).toFixed(2) + "%" ?? "?",
-              titleTooltip: "The health of your safe. ",
-              primaryTooltip: "",
-            },
-            {
-              title: `Liquidation Price`,
-              primaryValue: abbreviateAmount(safe?.liquidationPriceUSD),
-              secondaryValue: abbreviateAmount(
-                updatedSafe?.liquidationPriceUSD
-              ),
-              titleTooltip: "The health of your safe. ",
-              primaryTooltip: "",
-            },
-          ]}
-          isLoading={!updatedSafe}
-        />
+        <StatisticsTable mb={4} statistics={statistics} />
         {/* Boost cap for Strategy - show if amount is 50% over boost */}
         {mode === SafeInteractionMode.BOOST &&
           !!boostCap
@@ -137,7 +156,7 @@ const MODAL_STEP_1: ModalStep = {
             ?.lt(
               totalBoosted?.add(parseEther(amount || "0")) ?? constants.Zero
             ) && (
-            <HStack px={3}>
+            <HStack justifyContent="center" spacing={4} mt={4}>
               <TurboEngineIcon fill="#000000" height={4} mr={4} />
               <Text>
                 Total Boost{" "}
@@ -148,6 +167,7 @@ const MODAL_STEP_1: ModalStep = {
                   )
                 )}
               </Text>
+              <Text>&middot;</Text>
               <Text>Approaching {abbreviateAmount(formatEther(boostCap))}</Text>
             </HStack>
           )}
