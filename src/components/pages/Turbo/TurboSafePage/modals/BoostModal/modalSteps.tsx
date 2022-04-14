@@ -1,3 +1,4 @@
+import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 import { BigNumber, constants } from "ethers";
 import { commify, formatEther, parseEther } from "ethers/lib/utils";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
@@ -10,15 +11,21 @@ import {
   USDPricedTurboSafe,
 } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { FEI } from "lib/turbo/utils/constants";
-import { Heading, ModalProps, Text, TokenAmountInput } from "rari-components";
+import {
+  Heading,
+  ModalProps,
+  Text,
+  TokenAmountInput,
+  TokenSymbol,
+} from "rari-components";
+import { useMemo } from "react";
 import {
   abbreviateAmount,
   shortUsdFormatter,
   smallUsdFormatter,
 } from "utils/bigUtils";
-import { HStack, Image, VStack } from "@chakra-ui/react";
-import { useMemo } from "react";
-import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { Box, HStack, Image, Stack, VStack } from "@chakra-ui/react";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -127,16 +134,19 @@ const MODAL_STEP_1: ModalStep = {
         {mode === SafeInteractionMode.BOOST &&
           !!boostCap
             ?.div(2)
-            ?.lt(totalBoosted?.add(parseEther(amount)) ?? constants.Zero) && (
+            ?.lt(
+              totalBoosted?.add(parseEther(amount || "0")) ?? constants.Zero
+            ) && (
             <HStack px={3}>
               <TurboEngineIcon fill="#000000" height={4} mr={4} />
               <Text>
                 Total Boost{" "}
                 {abbreviateAmount(
                   formatEther(
-                    totalBoosted?.add(parseEther(amount)) ?? constants.Zero
+                    totalBoosted?.add(parseEther(amount || "0")) ??
+                      constants.Zero
                   )
-                )}  
+                )}
               </Text>
               <Text>Approaching {abbreviateAmount(formatEther(boostCap))}</Text>
             </HStack>
@@ -189,9 +199,9 @@ const MODAL_STEP_1: ModalStep = {
         ? "Risky Boost!"
         : "Boost",
       variant: "neutral",
-      background: isRiskyBoost ? "red" : "#6C69E9",
+      background: isRiskyBoost ? "danger" : "neutral",
       loading: transacting,
-      disabled: !amount || !!inputError,
+      disabled: !amount || !!inputError || transacting,
       async onClick() {
         try {
           if (mode === "Boost") {
@@ -209,12 +219,15 @@ const MODAL_STEP_1: ModalStep = {
 
 const MODAL_STEP_2: ModalStep = {
   children: ({ amount, mode }) => (
-    <>
-      <VStack>
+    <Stack alignItems="center" spacing={8}>
+      <CheckCircleIcon boxSize={24} color="neutral" />
+      <Box textAlign="center">
         <Heading>{commify(parseFloat(amount).toFixed(2))} FEI</Heading>
-        <Text>Succesfully {mode}ed</Text>
-      </VStack>
-    </>
+        <Text fontSize="lg" my={4}>
+          Successfully {mode}ed
+        </Text>
+      </Box>
+    </Stack>
   ),
   buttons: ({ onClose, resetStepIndex }) => [
     {
