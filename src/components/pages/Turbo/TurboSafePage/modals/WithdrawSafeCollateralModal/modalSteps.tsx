@@ -1,10 +1,9 @@
-import { VStack } from "@chakra-ui/react";
+import { Box, VStack } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
-import StatisticTable from "lib/components/StatisticsTable";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { ModalProps, Text, TokenAmountInput } from "rari-components";
-import { abbreviateAmount } from "utils/bigUtils";
+import UpdatingStatisticsTable from "../../UpdatingStatisticsTable";
 
 type WithdrawSafeCollateralCtx = {
   incrementStepIndex(): void;
@@ -28,8 +27,27 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: "Withdraw Collateral",
   subtitle: "Withdraw collateral from this safe.",
-  children: ({ setWithdrawalAmount, withdrawalAmount, onClickMax, safe, updatedSafe, maxAmount }) =>
-    !!safe && (
+  children: ({ setWithdrawalAmount, withdrawalAmount, onClickMax, safe, updatedSafe, maxAmount }) => {
+    if (!safe) {
+      return null;
+    }
+
+    const safeUtilizationValue =
+      withdrawalAmount === "" ? (
+        parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
+      ) : (
+        <Text fontWeight={600}>
+          {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"}{" "}
+          →{" "}
+          <Box as="span" color="neutral">
+            {parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(
+              2
+            ) + "%"}
+          </Box>
+        </Text>
+      );
+    
+    return (
       <>
         <VStack w="100%" mb={3} align="flex-end">
           <TokenAmountInput
@@ -42,37 +60,35 @@ const MODAL_STEP_1: ModalStep = {
             You can withdraw {formatEther(maxAmount)}
           </Text>
         </VStack>
-        <StatisticTable
+        <UpdatingStatisticsTable
           statistics={[
             {
-              title: "Collateral deposited",
-              primaryValue: abbreviateAmount(safe?.collateralValueUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.collateralValueUSD),
-              titleTooltip: "How much collateral you have deposited.",
-              primaryTooltip: `$ ${safe.collateralValueUSD}`,
-              secondaryTooltip: `$ ${updatedSafe?.collateralValueUSD}`
+              title: "Collateral",
+              tooltip: "How much collateral you have deposited.",
+              initialValue: safe?.collateralValueUSD,
+              newValue:
+                withdrawalAmount === ""
+                  ? undefined
+                  : updatedSafe?.collateralValueUSD,
             },
             {
               title: "Max Boost",
-              primaryValue: abbreviateAmount(safe?.collateralValueUSD),
-              secondaryValue: abbreviateAmount(updatedSafe?.collateralValueUSD),
-              titleTooltip: "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
-              primaryTooltip: `$ ${safe.collateralValueUSD}`,
-              secondaryTooltip: `$ ${updatedSafe?.collateralValueUSD}`
+              tooltip:
+                "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
+              initialValue: safe?.maxBoostUSD,
+              newValue:
+                withdrawalAmount === "" ? undefined : updatedSafe?.maxBoostUSD,
             },
-            {
-              title: "Safe Utilization",
-              primaryValue: parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
-              secondaryValue: parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(2) + "%" ?? "?",
-              titleTooltip: "The health of your safe. ",
-              primaryTooltip: ""
-
-            },
+            [
+              "Safe Utilization",
+              safeUtilizationValue,
+              "The health of your safe.",
+            ],
           ]}
-          isLoading={!updatedSafe}
         />
       </>
-    ),
+    );
+  },
   buttons: ({ withdrawing, onClickWithdraw, incrementStepIndex, onClose, inputError }) => [
     {
       children: inputError ? inputError : withdrawing ? "Withdrawing..." : "Withdraw",
