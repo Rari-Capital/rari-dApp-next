@@ -38,7 +38,7 @@ const useUpdatedStrategyRate = (
         .mul(safe.feiPrice)
         .div(constants.WeiPerEther);
 
-      console.log({ amountBN, collateralValue, debtAmount, debtValue });
+    //   console.log({ amountBN, collateralValue, debtAmount, debtValue });
 
       //   let newSupplyRatePerBlock = await irm.getSupplyRate(
       //     totalSupply.gt(0)

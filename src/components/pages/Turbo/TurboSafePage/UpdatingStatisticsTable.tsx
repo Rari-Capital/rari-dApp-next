@@ -19,8 +19,7 @@ type UpdatingStatistic =
       initialValue: number;
       newValue?: number | undefined;
     }
-  | StatisticsTableProps["statistics"][number]
-  | null;
+  | StatisticsTableProps["statistics"][number];
 
 type UpdatingStatisticsTableProps = Omit<StatisticsTableProps, "statistics"> & {
   statistics: UpdatingStatistic[];
@@ -64,9 +63,7 @@ const UpdatingStatisticsTable: React.FC<UpdatingStatisticsTableProps> = ({
             <Box color={colorScheme} as="span">
               →{" "}
               <Tooltip label={commify(newValue)}>
-                <Box as="span">
-                  {abbreviateAmount(newValue)}
-                </Box>
+                <Box as="span">{abbreviateAmount(newValue)}</Box>
               </Tooltip>
             </Box>
           </>

@@ -28,6 +28,7 @@ type DepositSafeCollateralCtx = {
   onClickDeposit(): Promise<void>;
   onClickMax(): Promise<void>;
   onClose(): void;
+  inputError: string | undefined;
 };
 
 type ModalStep = Omit<
@@ -51,7 +52,7 @@ const MODAL_STEP_1: ModalStep = {
     }
 
     const safeUtilizationValue = (colorScheme: string) =>
-      depositAmount === "" || depositAmount == 0 ? (
+      depositAmount === "" || parseInt(depositAmount) == 0 ? (
         parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
       ) : (
         <Text fontWeight={600}>
@@ -89,7 +90,7 @@ const MODAL_STEP_1: ModalStep = {
               tooltip: "How much collateral you have deposited.",
               initialValue: safe?.collateralValueUSD,
               newValue:
-                depositAmount === "" || depositAmount == 0
+                depositAmount === "" || parseInt(depositAmount) == 0
                   ? undefined
                   : updatedSafe?.collateralValueUSD,
             },
@@ -99,7 +100,7 @@ const MODAL_STEP_1: ModalStep = {
                 "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
               initialValue: safe?.maxBoostUSD,
               newValue:
-                depositAmount === "" || depositAmount == 0
+                depositAmount === "" || parseInt(depositAmount) == 0
                   ? undefined
                   : updatedSafe?.maxBoostUSD,
             },
@@ -120,9 +121,12 @@ const MODAL_STEP_1: ModalStep = {
     onClickApprove,
     onClickDeposit,
     depositAmount,
+    inputError,
   }) => [
     {
-      children: approving
+      children: !!inputError
+        ? inputError
+        : approving
         ? "Approving..."
         : depositing
         ? "Depositing..."
@@ -132,7 +136,11 @@ const MODAL_STEP_1: ModalStep = {
       variant: "neutral",
       loading: approving || depositing,
       disabled:
-        approving || depositing || !depositAmount || depositAmount == 0,
+        approving ||
+        depositing ||
+        !depositAmount ||
+        parseInt(depositAmount) == 0 ||
+        !!inputError,
       async onClick() {
         try {
           if (!hasApproval) {

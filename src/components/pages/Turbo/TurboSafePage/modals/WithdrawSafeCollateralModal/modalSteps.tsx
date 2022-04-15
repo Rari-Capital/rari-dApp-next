@@ -41,7 +41,7 @@ const MODAL_STEP_1: ModalStep = {
     }
 
     const safeUtilizationValue = (colorScheme: string) =>
-      withdrawalAmount === "" || withdrawalAmount == 0 ? (
+      withdrawalAmount === "" || parseInt(withdrawalAmount) == 0  ? (
         parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
       ) : (
         <Text fontWeight={600}>
@@ -78,7 +78,7 @@ const MODAL_STEP_1: ModalStep = {
               tooltip: "How much collateral you have deposited.",
               initialValue: safe?.collateralValueUSD,
               newValue:
-                withdrawalAmount === "" || withdrawalAmount == 0
+                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0 
                   ? undefined
                   : updatedSafe?.collateralValueUSD,
             },
@@ -88,7 +88,7 @@ const MODAL_STEP_1: ModalStep = {
                 "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
               initialValue: safe?.maxBoostUSD,
               newValue:
-                withdrawalAmount === "" || withdrawalAmount == 0
+                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0 
                   ? undefined
                   : updatedSafe?.maxBoostUSD,
             },
