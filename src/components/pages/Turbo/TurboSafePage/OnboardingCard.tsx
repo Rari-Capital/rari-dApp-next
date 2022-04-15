@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Badge, Card, Heading, Text } from "rari-components";
-import { Box, HStack, Stack } from "@chakra-ui/react";
+import { Box, HStack, ScaleFade, SlideFade, Stack } from "@chakra-ui/react";
 import { useTurboSafe } from "context/TurboSafeContext";
 import { ArrowLeftIcon, CheckIcon } from "@chakra-ui/icons";
 
@@ -28,11 +28,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -40 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 40 }}
-    >
+    <SlideFade in={true} offsetY="-20px">
       <Card>
         <Heading size="lg">Getting Started</Heading>
         <Stack mt={12} spacing={8} direction={["column", "column", "row"]}>
@@ -82,7 +78,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
               {hasBoosted ? <CheckIcon /> : <Heading size="lg">2</Heading>}
             </Badge>
             <Box>
-              <Heading size="md">Boost a pool</Heading>
+              <Heading size="md">Boost a pool {hasCollateral ? "  →" : ""}</Heading>
               <Text variant="secondary">
                 Click to boost your first pool, or scroll below for options
               </Text>
@@ -90,6 +86,6 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
           </HStack>
         </Stack>
       </Card>
-    </motion.div>
+    </SlideFade>
   );
 };

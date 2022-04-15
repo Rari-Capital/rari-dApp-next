@@ -6,6 +6,7 @@ import {
   BoxProps,
   Center,
   Flex,
+  HStack,
   Image,
   SimpleGrid,
   Stack,
@@ -19,6 +20,7 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
   return (
     <Box {...props}>
       <Stack spacing={24}>
+        {/* Section 1 */}
         <Box>
           <Heading size="lg">How does Turbo work?</Heading>
           {/* `Stack` adds a little bit of space between each child, even if
@@ -48,6 +50,7 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
                 // Add a little extra space between the right edge of
                 // this text and the next text.
                 pr={6}
+                fontSize="lg"
               >
                 Collateralizing, boosting, depositing, withdrawing, slurping,
                 and sweeping are all isolated features per safe.
@@ -77,9 +80,10 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
                 // Add a little extra space between the right edge of
                 // this text and the next text.
                 pr={6}
+                fontSize="lg"
               >
-                Once the DeFi token is collateralized in a Fuse pool, the owner
-                of this safe can then mint FEI at 0% APR (boosting).
+                Once your asset is collateralized, the owner of this safe can
+                then mint FEI at 0% interest.
               </Text>
             </Stack>
             <Stack flex={1} spacing={4} mt={[12, 12, 0]}>
@@ -124,6 +128,7 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
                 // Add a little extra space between the right edge of
                 // this text and the next text.
                 pr={6}
+                fontSize="lg"
               >
                 FEI is minted at no cost so long as that FEI is supplied into a
                 yield generating strategy that is compliant with ERC-4626, such
@@ -132,13 +137,20 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
             </Stack>
           </Flex>
         </Box>
+
+        {/* Section 2 */}
         <Stack
           direction={["column", "column", "column", "row"]}
           spacing={[12, 12, 12, 24]}
         >
+          <Image
+            width="md"
+            src="/static/turbo/turbo-engine-3d.png"
+            alignSelf="center"
+          />
           <Box>
             <Heading size="lg">Turbo is for everyone</Heading>
-            <Text variant="secondary" mt={4}>
+            <Text variant="secondary" mt={4} opacity={0.6} fontSize="lg">
               Turbo can be used by individuals, treasuries, DAOs, protocols, or
               any on-chain entity.
             </Text>
@@ -175,19 +187,16 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
               </Flex>
             </SimpleGrid>
           </Box>
-          <Image
-            width="md"
-            src="/static/turbo/turbo-engine-3d.png"
-            alignSelf="center"
-          />
         </Stack>
+
+        {/* Section 3 */}
         <Stack
           direction={["column", "column", "column", "row"]}
           spacing={[12, 12, 12, 24]}
         >
           <Box>
             <Heading size="lg">Utilize your treasury assets</Heading>
-            <Text variant="secondary" mt={4}>
+            <Text variant="secondary" mt={4} opacity={0.6}>
               Deposit BAL, TRIBE, and gOHM today. Support for more protocol
               tokens coming soon.
             </Text>
@@ -198,19 +207,39 @@ const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
             alignSelf="center"
           />
         </Stack>
+
+        {/* Section 4*/}
         <Stack spacing={12} alignItems="center" py={12}>
           <Center flexDirection="column">
             <Heading size="xl">A completely new financial mechanism </Heading>
-            <Text variant="secondary" fontSize="xl" mt={4}>
+            <Text
+              variant="secondary"
+              fontSize="xl"
+              mt={4}
+              textAlign="center"
+              opacity={0.6}
+            >
               Turbo changes the relationship between users in an ecosystem and
               the stablecoin issuer. It’s a powerful transformation in the
               thinking of stablecoins and their provision throughout the
               ecosystem.
             </Text>
           </Center>
-          <Button size="lg" variant="success">
-            Create a safe
-          </Button>
+          <HStack spacing={4} mb={4}>
+            <Button variant="success" size="lg">
+              Create a safe
+            </Button>
+            <Button
+              variant="neutral"
+              as="a"
+              // @ts-ignore
+              href="https://medium.com/fei-protocol/the-tribe-dao-strongly-believes-that-a-healthy-and-thriving-defi-ecosystem-needs-a-robust-platform-b1faea700dfa"
+              target="_blank"
+              size="lg"
+            >
+              Learn more
+            </Button>
+          </HStack>
         </Stack>
       </Stack>
     </Box>

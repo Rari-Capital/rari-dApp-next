@@ -29,23 +29,26 @@ const UserSafes: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
 
   return (
     <Box>
+        <HStack>
+            <Heading mb={7}>Your Safes</Heading>
+        </HStack>
       <HStack spacing={8}>
         <Statistic
           title="Total boosted"
           // TODO(sharad-s) What should these tooltips say?
-          tooltip="Tooltip"
+          tooltip="FEI Boosted across all your safes"
           value={
             commify(parseFloat(formatEther(totalBoosted)).toFixed(2)) + " FEI"
           }
         />
         <Statistic
           title="Total claimable interest"
-          tooltip="Tooltip"
+          tooltip="Claimable FEI across all your safes"
           value={smallUsdFormatter(totalClaimableUSD)}
         />
         <Statistic
-          title="Net APY"
-          tooltip="Tooltip"
+          title="Avg. APY"
+          tooltip="Avg APY Across all your safes"
           value={
             // TODO(sharad-s) click here to toggle between states -- delete when
             // real implementation is done
@@ -56,11 +59,11 @@ const UserSafes: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
               <Heading size="lg" mr={4}>
                 {netAPY.toFixed(2)}%
               </Heading>
-              {apyIncreasing ? (
+              {/* {apyIncreasing ? (
                 <TriangleUpIcon color="success" />
               ) : (
                 <TriangleDownIcon color="danger" />
-              )}
+              )} */}
             </Flex>
           }
         />

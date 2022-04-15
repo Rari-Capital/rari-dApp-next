@@ -69,7 +69,7 @@ const SafeCard: React.FC<SafeCardProps> = ({ safe, previewMode = false }) => {
                   mr={2}
                 />
                 <Heading size="lg">
-                  <TokenSymbol tokenAddress={safe.collateralAsset} />
+                  <TokenSymbol tokenAddress={safe.collateralAsset} /> Safe
                 </Heading>
                 <Spacer />
 

@@ -51,7 +51,7 @@ export const createTurboMaster = (
 };
 
 export const createTurboComptroller = (
-  provider: providers.JsonRpcProvider,
+  provider: providers.Provider,
   id: number
 ) => {
   const turboRouterContract = new Contract(
@@ -112,23 +112,18 @@ export const createTurboAuthority = async (
 
 /* Token Contracts */
 
-export const createERC20 = async (
-  token: string,
-  provider: providers.JsonRpcProvider
-) => {
-  const erc20Contract = new Contract(token, ERC20.abi, provider);
+export const createERC20 = (token: string, provider: providers.Provider) =>
+  new Contract(token, ERC20.abi, provider);
 
-  return erc20Contract;
-};
-
-export const createCERC20 = async (
-  provider: providers.JsonRpcProvider,
+export const createCERC20 = (
+  provider: providers.Provider,
   tokenAddress: string
-) => {
-  const CERC20Contract = new Contract(tokenAddress, CERC20.abi, provider);
+) => new Contract(tokenAddress, CERC20.abi, provider);
 
-  return CERC20Contract;
-};
+export const createCERC20Delegate = (
+  provider: providers.Provider,
+  tokenAddress: string
+) => new Contract(tokenAddress, CERC20Delegate, provider);
 
 export const createFuseERC4626 = (
   provider: providers.JsonRpcProvider,

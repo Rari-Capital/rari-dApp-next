@@ -1,18 +1,26 @@
 import { BigNumber, constants, utils } from "ethers";
 import { commify, formatEther } from "ethers/lib/utils";
 import {
+  Card,
   Heading,
   HoverableCard,
   ModalProps,
   StatisticsTable,
-  StatisticsTableProps,
   Text,
   TokenAmountInput,
   TokenIcon,
   TokenSymbol,
 } from "rari-components";
 import { CheckCircleIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Flex, Image, Spacer, Stack, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  HStack,
+  Image,
+  Spacer,
+  Stack,
+  VStack,
+} from "@chakra-ui/react";
 import { SimulatedSafe } from "./CreateSafeModal";
 
 type CreateSafeCtx = {
@@ -64,44 +72,8 @@ type CreateSafeCtx = {
 type ModalStep = Omit<ModalProps<CreateSafeCtx>, "ctx" | "isOpen" | "onClose">;
 
 const MODAL_STEP_1: ModalStep = {
-  title: "Creating a safe",
-  subtitle:
-    "The first step towards using Turbo is creating a safe, which allows you to boost pools by depositing a collateral type that has been approved by the Tribe DAO governance.",
-  children: (
-    <Stack spacing={4}>
-      <Flex align="center">
-        <Image src="/static/turbo/one-collateral-type.png" height={16} mr={4} />
-        <Box>
-          <Heading size="md">One collateral type</Heading>
-          <Text>Each Turbo safe uses one singular collateral type.</Text>
-        </Box>
-      </Flex>
-      <Flex align="center">
-        <Image src="/static/turbo/isolated-actions.png" height={16} mr={4} />
-        <Box>
-          <Heading size="md">Isolated actions</Heading>
-          <Text>
-            Collateralizing, boosting, depositing, withdrawing, slurping, and
-            sweeping are all isolated features per safe.
-          </Text>
-        </Box>
-      </Flex>
-    </Stack>
-  ),
-  buttons: ({ incrementStepIndex }) => [
-    {
-      children: "I understand",
-      variant: "neutral",
-      onClick() {
-        incrementStepIndex();
-      },
-    },
-  ],
-};
-
-const MODAL_STEP_2: ModalStep = {
-  title: "Select collateral type",
-  subtitle: "Pick a collateral type supported by top lending markets.",
+  title: "Create a Safe",
+  subtitle: "Safes isolate manage and your collateral.",
   children: ({
     underlyingTokenAddresses,
     setUnderlyingTokenAddress,
@@ -121,16 +93,32 @@ const MODAL_STEP_2: ModalStep = {
           {(hovered) => (
             <Flex
               alignItems="center"
-              opacity={hovered ? 0.5 : 1}
+              opacity={hovered ? 1 : 0.75}
               transition="0.2s opacity"
             >
-              <TokenIcon tokenAddress={tokenAddress} mr={4} />
-              <Heading size="lg">
-                <TokenSymbol
+              <VStack>
+                <TokenIcon
                   tokenAddress={tokenAddress}
-                  fallback="Loading..."
+                  mr={4}
+                  boxSize={"40px"}
                 />
-              </Heading>
+              </VStack>
+              <VStack align={"flex-start"} py={1}>
+                <HStack>
+                  <Heading size="md">
+                    <TokenSymbol
+                      tokenAddress={tokenAddress}
+                      fallback="Loading..."
+                    />
+                  </Heading>
+                </HStack>
+                <HStack>
+                  <Text variant="secondary">
+                    Boost FEI against{" "}
+                    <TokenSymbol tokenAddress={tokenAddress} fallback="?" />
+                  </Text>
+                </HStack>
+              </VStack>
               <Spacer />
               <ChevronRightIcon
                 ml={"auto"}
@@ -146,169 +134,57 @@ const MODAL_STEP_2: ModalStep = {
   ),
 };
 
-const MODAL_STEP_3: ModalStep = {
-  title: "Deposit collateral",
-  subtitle:
-    "Collateralizing is required before boosting pools. This step is optional.",
-  children: ({
-    underlyingTokenAddress,
-    onClickMax,
-    depositAmount,
-    collateralBalance,
-    setDepositAmount,
-    safeSimulation,
-  }) => {
-    const collateralStatistic =
-      !depositAmount || depositAmount === "0" ? (
-        "0"
-      ) : (
-        <Text fontWeight={600}>
-          0 →{" "}
-          <Box as="span" color="neutral">
-            {commify(depositAmount ?? 0)}
-          </Box>
+const MODAL_STEP_2: ModalStep = {
+  children: ({ underlyingTokenAddress }) => (
+    <VStack>
+      <Box mb={4} alignItems="center">
+        <Text textAlign={"center"} mb={2}>
+          {" "}
+          You are creating a
         </Text>
-      );
-
-    const collateralValueStatistic =
-      !depositAmount || depositAmount === "0" || !safeSimulation ? (
-        "0"
-      ) : (
-        <Text fontWeight={600}>
-          0 →{" "}
-          <Box as="span" color="neutral">
-            $
-            {commify(
-              parseFloat(
-                formatEther(safeSimulation?.collateralUSD ?? constants.Zero)
-              ).toFixed(2)
-            )}
-          </Box>
-        </Text>
-      );
-
-    const maxBoostStatistic =
-      !depositAmount || depositAmount === "0" || !safeSimulation ? (
-        "0"
-      ) : (
-        <Text fontWeight={600}>
-          0 →{" "}
-          <Box as="span" color="neutral">
-            $
-            {commify(
-              parseFloat(
-                formatEther(safeSimulation?.maxBoost ?? constants.Zero)
-              ).toFixed(2)
-            )}
-          </Box>
-        </Text>
-      );
-
-    const statistics: StatisticsTableProps["statistics"] = [
-      [
-        "Collateral",
-        collateralStatistic,
-        "How much collateral you have deposited.",
-      ],
-      [
-        "Collateral value",
-        collateralValueStatistic,
-        "The total collateral value denominated in dollars.",
-      ],
-      ["Max boost", maxBoostStatistic, "The total boostable amount."],
-    ];
-
-    return (
-      <Stack>
-        <Box>
-          <VStack w="100%" mb={3} align="flex-end">
-            <TokenAmountInput
-              tokenAddress={underlyingTokenAddress}
-              value={depositAmount}
-              onChange={setDepositAmount}
-              onClickMax={onClickMax}
-            />
-            <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
-              Balance: {commify(collateralBalance)}{" "}
-              <TokenSymbol tokenAddress={underlyingTokenAddress} />
-            </Text>
-          </VStack>
-          <StatisticsTable statistics={statistics} />
-        </Box>
-      </Stack>
-    );
-  },
-  buttons: ({
-    incrementStepIndex,
-    setDepositAmount,
-    depositAmount,
-    collateralBalance,
-  }) => [
-    {
-      children: "Skip",
-      variant: "cardmatte",
-      onClick() {
-        setDepositAmount("0");
-        incrementStepIndex();
-      },
-    },
-    {
-      disabled:
-        parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
-      children:
-        parseInt(depositAmount) > parseInt(collateralBalance)
-          ? "Invalid amount"
-          : "Review",
-      variant: "neutral",
-      onClick() {
-        incrementStepIndex();
-      },
-    },
-  ],
-};
-
-const MODAL_STEP_4: ModalStep = {
-  children: ({ underlyingTokenAddress, depositAmount, safeSimulation }) => (
-    <Box>
-      <Box textAlign="center">
-        <Text fontSize="lg">You are creating</Text>
-        <Heading mt={4}>
-          <TokenIcon tokenAddress={underlyingTokenAddress} />{" "}
-          <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
-        </Heading>
+        <HStack>
+          <TokenIcon tokenAddress={underlyingTokenAddress} boxSize={"30px"}/>
+          <Heading size="lg">
+            <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
+          </Heading>
+        </HStack>
       </Box>
-      {!depositAmount || depositAmount === "0" ? null : (
-        <StatisticsTable
-          mt={8}
-          statistics={[
-            ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
-            [
-              "USD Value",
-              `$${utils.commify(
-                parseFloat(
-                  formatEther(safeSimulation?.collateralUSD ?? 0)
-                ).toFixed(2)
-              )}`,
-            ],
-            [
-              "Max Boost",
-              `$${utils.commify(
-                parseFloat(
-                  formatEther(safeSimulation?.maxBoost ?? constants.Zero)
-                ).toFixed(2)
-              )}`,
-            ],
-          ]}
-        />
-      )}
-    </Box>
+      <Card>
+        <VStack spacing={3}>
+          <Flex align="center">
+            <Image
+              src="/static/turbo/one-collateral-type.png"
+              height={16}
+              mr={4}
+            />
+            <Box>
+              <Heading size="md">
+                <TokenSymbol tokenAddress={underlyingTokenAddress} /> Collateral
+              </Heading>
+              <Text variant="secondary">
+                Boost FEI against{" "}
+                <TokenSymbol tokenAddress={underlyingTokenAddress} />{" "}
+                Collateral.
+              </Text>
+            </Box>
+          </Flex>
+          <Flex align="center">
+            <Image
+              src="/static/turbo/isolated-actions.png"
+              height={16}
+              mr={4}
+            />
+            <Box>
+              <Heading size="md">Isolated</Heading>
+              <Text variant="secondary">
+                Safes isolate collateral, FEI boosting, and liquidations.
+              </Text>
+            </Box>
+          </Flex>
+        </VStack>
+      </Card>
+    </VStack>
   ),
-  stepBubbles: ({ approving, creatingSafe, hasApproval }) => ({
-    steps: hasApproval ? 1 : 2,
-    loading: approving || creatingSafe,
-    activeIndex: creatingSafe ? 1 : 0,
-    background: "neutral",
-  }),
   buttons: ({
     hasApproval,
     approving,
@@ -329,7 +205,7 @@ const MODAL_STEP_4: ModalStep = {
         : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
         ? "Create Safe & Deposit"
         : "Create Safe",
-      variant: "neutral",
+      variant: "success",
       loading: approving || creatingSafe,
       async onClick() {
         try {
@@ -337,7 +213,6 @@ const MODAL_STEP_4: ModalStep = {
             await onClickApprove();
           }
           await onClickCreateSafe();
-          incrementStepIndex();
         } catch (err) {
           throw err;
         }
@@ -345,6 +220,188 @@ const MODAL_STEP_4: ModalStep = {
     },
   ],
 };
+
+// const MODAL_STEP_3: ModalStep = {
+//   title: "Deposit collateral",
+//   subtitle:
+//     "Collateralizing is required before boosting pools. This step is optional.",
+//   children: ({
+//     underlyingTokenAddress,
+//     onClickMax,
+//     depositAmount,
+//     collateralBalance,
+//     setDepositAmount,
+//     safeSimulation,
+//   }) => (
+//     <Stack>
+//       <Box>
+//         <VStack w="100%" mb={3} align="flex-end">
+//           <TokenAmountInput
+//             tokenAddress={underlyingTokenAddress}
+//             value={depositAmount}
+//             onChange={setDepositAmount}
+//             onClickMax={onClickMax}
+//           />
+//           <Text variant="secondary" mt="4" _hover={{ cursor: "default" }}>
+//             Balance: {commify(collateralBalance)}{" "}
+//             <TokenSymbol tokenAddress={underlyingTokenAddress} />
+//           </Text>
+//         </VStack>
+//         <StatisticsTable
+//           statistics={[
+//             {
+//               title: "Collateral",
+//               primaryValue: `0`,
+//               secondaryValue:
+//                 !depositAmount || depositAmount === "0"
+//                   ? undefined
+//                   : `${commify(depositAmount ?? 0)}`,
+//               titleTooltip: "How much collateral you have deposited.",
+//             },
+//             {
+//               title: "Collateral value",
+//               primaryValue: "0",
+//               secondaryValue:
+//                 !depositAmount || depositAmount === "0" || !safeSimulation
+//                   ? undefined
+//                   : "$" +
+//                     commify(
+//                       parseFloat(
+//                         formatEther(
+//                           safeSimulation?.collateralUSD ?? constants.Zero
+//                         )
+//                       ).toFixed(2)
+//                     ),
+//               titleTooltip:
+//                 "The total collateral value denominated in dollars.",
+//             },
+//             {
+//               title: "Max boost",
+//               primaryValue: "0",
+//               secondaryValue:
+//                 !depositAmount || depositAmount === "0" || !safeSimulation
+//                   ? undefined
+//                   : "$" +
+//                     commify(
+//                       parseFloat(
+//                         formatEther(safeSimulation?.maxBoost ?? constants.Zero)
+//                       ).toFixed(2)
+//                     ),
+//               titleTooltip: "The total boostable amount.",
+//             },
+//           ]}
+//           mt={4}
+//         />
+//       </Box>
+//     </Stack>
+//   ),
+//   buttons: ({
+//     incrementStepIndex,
+//     setDepositAmount,
+//     depositAmount,
+//     collateralBalance,
+//   }) => [
+//     {
+//       children: "Skip",
+//       variant: "cardmatte",
+//       onClick() {
+//         setDepositAmount("0");
+//         incrementStepIndex();
+//       },
+//     },
+//     {
+//       disabled:
+//         parseInt(depositAmount) > parseInt(collateralBalance) ? true : false,
+//       children:
+//         parseInt(depositAmount) > parseInt(collateralBalance)
+//           ? "Invalid amount"
+//           : "Review",
+//       variant: "neutral",
+//       onClick() {
+//         incrementStepIndex();
+//       },
+//     },
+//   ],
+// };
+
+// const MODAL_STEP_4: ModalStep = {
+//   children: ({ underlyingTokenAddress, depositAmount, safeSimulation }) => (
+//     <Box>
+//       <Box textAlign="center">
+//         <Text fontSize="lg">You are creating</Text>
+//         <Heading mt={4}>
+//           <TokenIcon tokenAddress={underlyingTokenAddress} />{" "}
+//           <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
+//         </Heading>
+//       </Box>
+//       {!depositAmount || depositAmount === "0" ? null : (
+//         <RariStats
+//           mt={8}
+//           statistics={[
+//             ["Collateral deposited", `${utils.commify(depositAmount ?? "0")}`],
+//             [
+//               "USD Value",
+//               `$${utils.commify(
+//                 parseFloat(
+//                   formatEther(safeSimulation?.collateralUSD ?? 0)
+//                 ).toFixed(2)
+//               )}`,
+//             ],
+//             [
+//               "Max Boost",
+//               `$${utils.commify(
+//                 parseFloat(
+//                   formatEther(safeSimulation?.maxBoost ?? constants.Zero)
+//                 ).toFixed(2)
+//               )}`,
+//             ],
+//           ]}
+//         />
+//       )}
+//     </Box>
+//   ),
+//   stepBubbles: ({ approving, creatingSafe, hasApproval }) => ({
+//     steps: hasApproval ? 1 : 2,
+//     loading: approving || creatingSafe,
+//     activeIndex: creatingSafe ? 1 : 0,
+//     background: "neutral",
+//   }),
+//   buttons: ({
+//     hasApproval,
+//     approving,
+//     depositAmount,
+//     creatingSafe,
+//     onClickCreateSafe,
+//     onClickApprove,
+//     incrementStepIndex,
+//   }) => [
+//     {
+//       children: approving
+//         ? "Approving..."
+//         : creatingSafe
+//         ? "Creating Safe..."
+//         : !hasApproval &&
+//           BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+//         ? "Approve Router"
+//         : BigNumber.from(!!depositAmount ? depositAmount : "0").gt(0)
+//         ? "Create Safe & Deposit"
+//         : "Create Safe",
+//       variant: "neutral",
+//       loading: approving || creatingSafe,
+//       async onClick() {
+//         try {
+//           if (!hasApproval) {
+//             await onClickApprove();
+//           }
+//           await onClickCreateSafe();
+//           incrementStepIndex();
+//         } catch (err) {
+//           throw err;
+//         }
+//       },
+//     },
+//   ],
+// };
 
 const MODAL_STEP_5: ModalStep = {
   children: ({ underlyingTokenAddress }) => (
@@ -378,8 +435,8 @@ const MODAL_STEP_5: ModalStep = {
 const MODAL_STEPS: ModalStep[] = [
   MODAL_STEP_1,
   MODAL_STEP_2,
-  MODAL_STEP_3,
-  MODAL_STEP_4,
+  // MODAL_STEP_3,
+  // MODAL_STEP_4,
   MODAL_STEP_5,
 ];
 

@@ -140,8 +140,8 @@ const MODAL_STEP_1: ModalStep = {
             transition="opacity 0.2s ease"
           >
             {mode === SafeInteractionMode.BOOST
-              ? `You can boost ${parseFloat(formatEther(maxAmount)).toFixed(
-                  2
+              ? `You can boost ${commify(
+                  parseFloat(formatEther(maxAmount)).toFixed(2)
                 )} FEI`
               : `You can less ${parseFloat(
                   formatEther(strategy!.boostedAmount)

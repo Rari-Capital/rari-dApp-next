@@ -34,7 +34,7 @@ const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
                   </Flex>
                 </Heading>
                 <Text variant="secondary" mt={4} fontSize="lg">
-                  You may create one safe per approved collateral type.
+                  Every safe isolates and manages your collateral.
                 </Text>
               </Box>
             )}

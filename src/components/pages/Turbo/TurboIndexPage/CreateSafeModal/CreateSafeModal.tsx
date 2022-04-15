@@ -22,6 +22,7 @@ import { BigNumber, constants } from "ethers";
 import { calculateMaxBoost } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { getMarketCf } from "lib/turbo/utils/getMarketCF";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
+import useApprovedCollateral from "hooks/turbo/useApprovedCollateral";
 
 type CreateSafeModalProps = Pick<
   React.ComponentProps<typeof Modal>,
@@ -29,9 +30,9 @@ type CreateSafeModalProps = Pick<
 >;
 
 export type SimulatedSafe = {
-  collateralUSD: BigNumber,
-  maxBoost: BigNumber
-}
+  collateralUSD: BigNumber;
+  maxBoost: BigNumber;
+};
 
 export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
   isOpen,
@@ -56,7 +57,8 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
 
   // Safe's chosen underlying asset
   const [createdSafe, setCreatedSafe] = useState<undefined | string>(undefined);
-  const underlyingTokenAddresses = [TRIBE];
+
+  const underlyingTokenAddresses = useApprovedCollateral();
   const [underlyingTokenAddress, setUnderlyingTokenAddress] = useState(TRIBE);
   const collateralBalance = useBalanceOf(address, underlyingTokenAddress);
 
@@ -77,7 +79,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       if (depositAmount === "0" || !depositAmount || !chainId) return;
 
       // 1. Get eth price and collateral price.
-      // @note - collaterael price is denominated in ether. collateralPrice * ethPrice = collateralPriceToUSD
+      // @note - collateral price is denominated in ether. collateralPrice * ethPrice = collateralPriceToUSD
       const ethUSDBN = (await getEthUsdPriceBN()).div(constants.WeiPerEther);
       const collateralPriceBN = await getPriceFromOracles(
         TRIBE,
@@ -124,13 +126,14 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
           underlyingTokenAddress
         );
 
-        receipt = await tx.wait(1);
+        receipt = await tx.wait(2);
         const turboMasterContract = createTurboMaster(provider, chainId);
         const event = await getRecentEventDecoded(
           turboMasterContract,
           turboMasterContract.filters.TurboSafeCreated
         );
         setCreatedSafe(event.safe);
+        incrementStepIndex();
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });
@@ -141,8 +144,14 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     } else {
       try {
         const tx = await createSafe(underlyingTokenAddress, provider, chainId);
-        const receipt = await tx.wait(1);
-        console.log({ receipt });
+        const receipt = await tx.wait(2);
+        const turboMasterContract = createTurboMaster(provider, chainId);
+        const event = await getRecentEventDecoded(
+          turboMasterContract,
+          turboMasterContract.filters.TurboSafeCreated
+        );
+        setCreatedSafe(event.safe);
+        incrementStepIndex();
       } catch (err) {
         handleGenericError(err, toast);
         console.log({ err });

@@ -1,5 +1,11 @@
 // Components
-import { Heading, Progress, Text, TokenIcon } from "rari-components";
+import {
+  Heading,
+  Progress,
+  Text,
+  TokenIcon,
+  TokenSymbol,
+} from "rari-components";
 import { Avatar, Box, Flex, HStack, Image } from "@chakra-ui/react";
 import { useTurboSafe } from "context/TurboSafeContext";
 import { shortUsdFormatter } from "utils/bigUtils";
@@ -43,7 +49,7 @@ export const BoostBar: React.FC = () => {
           <Heading
             variant="success"
             size="xl"
-            mx={2}
+            mx={4}
             color={colorScheme}
             fontWeight="light"
           >
@@ -61,7 +67,11 @@ export const BoostBar: React.FC = () => {
              $${liquidationPriceUSD?.toFixed(6)}`}
           >
             <HStack>
-              <Avatar src={tokenData?.logoURL ?? ""} boxSize={6} mx={1} />
+              <TokenIcon
+                tokenAddress={usdPricedSafe?.collateralAsset ?? ""}
+                boxSize={6}
+                mx={1}
+              />
               <Text variant="secondary">
                 = ${liquidationPriceUSD?.toFixed(2)}
               </Text>
