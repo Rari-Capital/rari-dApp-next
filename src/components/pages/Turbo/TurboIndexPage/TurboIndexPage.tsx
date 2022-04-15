@@ -41,6 +41,7 @@ const TurboIndexPage: React.FC = () => {
   // const tokenData = useTokensDataAsMap(approvedCollateral);
 
   const handleClick = () => {
+    // @ts-ignore
     hasSafes ? scrollRef.current.scrollIntoView() : onOpen();
   };
 

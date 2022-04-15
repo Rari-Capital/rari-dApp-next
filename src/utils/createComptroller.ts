@@ -94,3 +94,15 @@ export const createMasterPriceOracle = (fuse: Fuse, special?: boolean) => {
   );
   return masterPriceOracle;
 };
+
+
+export const createFusePoolDirectory = (fuse: Fuse, special?: boolean) => {
+  const provider = special ? fuse.provider : fuse.provider.getSigner()
+  const masterPriceOracle = new Contract(
+    fuse.addresses.PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES.MasterPriceOracle,
+    fuse.oracleContracts["MasterPriceOracle"].abi,
+    provider
+  );
+  return masterPriceOracle;
+};
+
