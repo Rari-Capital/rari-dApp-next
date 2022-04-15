@@ -32,7 +32,6 @@ const TurboIndexPage: React.FC = () => {
   const isAuthorized = useIsUserAuthorizedToCreateSafes();
 
   const approvedCollateral = useApprovedCollateral();
-  console.log({ approvedCollateral });
 
   // // Prefetch Tribe data so it's in the `TokenIcon`/`TokenSymbol` cache.
   // // This allows collateral types to load instantly when the "Create Safe"
@@ -69,7 +68,7 @@ const TurboIndexPage: React.FC = () => {
                 <HStack pt={8} spacing={4} mb={4}>
                   {!!isAuthorized && (
                     <Button
-                      variant={hasSafes ? "" : "View safes"}
+                      variant={hasSafes ? "" : "success"}
                       onClick={handleClick}
                       disabled={!isAuthorized}
                       size="lg"

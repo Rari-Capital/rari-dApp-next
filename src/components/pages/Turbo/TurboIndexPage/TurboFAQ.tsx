@@ -18,7 +18,8 @@ import { motion, useAnimation, Variants } from "framer-motion";
 type TurboFAQProps = BoxProps;
 
 const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
-//   const safes = usePreviewSafes();
+  const safes = usePreviewSafes();
+  console.log({ safes });
   return (
     <Box {...props}>
       <Stack spacing={24}>
@@ -258,9 +259,7 @@ const Section4 = () => (
         </Text>
       </Center>
       <HStack spacing={4} mb={4}>
-        <Button size="lg">
-          Get Involved
-        </Button>
+        <Button size="lg">Get Involved</Button>
         <Button
           variant="neutral"
           as="a"
