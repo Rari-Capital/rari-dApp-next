@@ -1,6 +1,9 @@
 import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
 import { useAllUserSafes } from "hooks/turbo/useUserSafes";
+import { TRIBE } from "lib/turbo/utils/constants";
 import { Button, Divider, Heading, Text } from "rari-components";
+import { useRariTokenData } from "rari-components/hooks";
+import { WarningIcon } from "@chakra-ui/icons";
 import {
   Box,
   HStack,
@@ -8,6 +11,8 @@ import {
   Stack,
   VStack,
   useDisclosure,
+  SlideFade,
+  Slide,
 } from "@chakra-ui/react";
 import TurboLayout from "../TurboLayout";
 import CreateSafeModal from "./CreateSafeModal/";
@@ -53,6 +58,7 @@ const TurboIndexPage: React.FC = () => {
         >
           {/* Copy */}
           <Box minWidth={["100%", "100%", "50%"]} pr={[0, 0, 32]}>
+            <SlideFade in={true} offsetY="20px">
               <Heading size="2xl">Introducing Turbo</Heading>
               <Text pt={4} fontSize="2xl">
                 Boost FEI liquidity and earn interest against any protocol
@@ -91,16 +97,19 @@ const TurboIndexPage: React.FC = () => {
                   )}
                 </HStack>
               </VStack>
+            </SlideFade>
           </Box>
 
           {/* Image */}
           <Box flex={1}>
             <Box position="relative" top={0} left={0}>
+              <SlideFade in={true}>
                 <Image
                   src="/static/turbo/turbo2.png"
                   width={["100%", "100%", "55vw"]}
                   maxWidth={["100%", "100%", "55vw"]}
                 />
+              </SlideFade>
             </Box>
           </Box>
         </Stack>
