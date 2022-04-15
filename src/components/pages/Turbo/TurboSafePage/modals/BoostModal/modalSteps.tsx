@@ -19,6 +19,7 @@ import {
 import { abbreviateAmount } from "utils/bigUtils";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, HStack, Image, Spinner, Stack, VStack } from "@chakra-ui/react";
+import { getSafeColor } from "context/TurboSafeContext";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -73,9 +74,9 @@ const MODAL_STEP_1: ModalStep = {
       <Spinner boxSize={4} />
     ) : (
       <Text fontWeight={600}>
-        {abbreviateAmount(safe?.boostedUSD)} →{" "}
-        <Box as="span" color="neutral">
-          {abbreviateAmount(updatedSafe?.boostedUSD)}
+        {abbreviateAmount(safe?.boostedUSD)}{" "}
+        <Box as="span" color={getSafeColor(updatedSafe?.safeUtilization)}>
+          → {abbreviateAmount(updatedSafe?.boostedUSD)}
         </Box>
       </Text>
     );
@@ -84,8 +85,9 @@ const MODAL_STEP_1: ModalStep = {
       <Spinner boxSize={4} />
     ) : (
       <Text fontWeight={600}>
-        {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2)}% →{" "}
-        <Box as="span" color="neutral">
+        {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2)}%{" "}
+        <Box as="span" color={getSafeColor(updatedSafe?.safeUtilization)}>
+          →{" "}
           {parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(
             2
           )}
@@ -98,9 +100,9 @@ const MODAL_STEP_1: ModalStep = {
       <Spinner boxSize={4} />
     ) : (
       <Text fontWeight={600}>
-        {abbreviateAmount(safe?.liquidationPriceUSD)} →{" "}
-        <Box as="span" color="neutral">
-          {abbreviateAmount(updatedSafe?.liquidationPriceUSD)}
+        {abbreviateAmount(safe?.liquidationPriceUSD)}{" "}
+        <Box as="span" color={getSafeColor(updatedSafe?.safeUtilization)}>
+          → {abbreviateAmount(updatedSafe?.liquidationPriceUSD)}
         </Box>
       </Text>
     );
@@ -135,17 +137,17 @@ const MODAL_STEP_1: ModalStep = {
           <Text
             variant="secondary"
             mt={4}
-            onClick={() => onClickMax()}
-            _hover={{ cursor: "pointer", opacity: 0.9 }}
-            transition="opacity 0.2s ease"
+            // onClick={() => onClickMax()}
+            // _hover={{ cursor: "pointer", opacity: 0.9 }}
+            // transition="opacity 0.2s ease"
           >
             {mode === SafeInteractionMode.BOOST
               ? `You can boost ${commify(
                   parseFloat(formatEther(maxAmount)).toFixed(2)
                 )} FEI`
-              : `You can less ${parseFloat(
-                  formatEther(strategy!.boostedAmount)
-                ).toFixed(2)} FEI`}
+              : `You can less ${commify(
+                  parseFloat(formatEther(strategy!.boostedAmount)).toFixed(2)
+                )} FEI`}
           </Text>
         </VStack>
         <StatisticsTable mb={4} statistics={statistics} />
@@ -157,8 +159,8 @@ const MODAL_STEP_1: ModalStep = {
               totalBoosted?.add(parseEther(amount || "0")) ?? constants.Zero
             ) && (
             <HStack justifyContent="center" spacing={4} mt={4}>
-              <TurboEngineIcon fill="#000000" height={4} mr={4} />
-              <Text>
+              {/* <TurboEngineIcon fill="#000000" height={4} mr={4} /> */}
+              {/* <Text>
                 Total Boost{" "}
                 {abbreviateAmount(
                   formatEther(
@@ -168,7 +170,7 @@ const MODAL_STEP_1: ModalStep = {
                 )}
               </Text>
               <Text>&middot;</Text>
-              <Text>Approaching {abbreviateAmount(formatEther(boostCap))}</Text>
+              <Text>Approaching {abbreviateAmount(formatEther(boostCap))}</Text> */}
             </HStack>
           )}
         {/* Claim Fees on Less All */}

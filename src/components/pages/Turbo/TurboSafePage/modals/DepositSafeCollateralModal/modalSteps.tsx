@@ -11,6 +11,7 @@ import {
 import { Box, Stack, VStack } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import UpdatingStatisticsTable from "../../UpdatingStatisticsTable";
+import { getSafeColor } from "context/TurboSafeContext";
 
 type DepositSafeCollateralCtx = {
   incrementStepIndex(): void;
@@ -37,22 +38,31 @@ type ModalStep = Omit<
 const MODAL_STEP_1: ModalStep = {
   title: "Deposit Collateral",
   subtitle: "Collateralizing is required before boosting pools.",
-  children: ({ onClickMax, setDepositAmount, safe, updatedSafe, collateralBalance, depositAmount }) => {
+  children: ({
+    onClickMax,
+    setDepositAmount,
+    safe,
+    updatedSafe,
+    collateralBalance,
+    depositAmount,
+  }) => {
     if (!safe) {
       return null;
     }
 
-    const safeUtilizationValue =
-      depositAmount === "" ? (
+    const safeUtilizationValue = (colorScheme: string) =>
+      depositAmount === "" || depositAmount == 0 ? (
         parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
       ) : (
         <Text fontWeight={600}>
           {parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"}{" "}
-          →{" "}
-          <Box as="span" color="neutral">
-            {parseFloat(updatedSafe?.safeUtilization.toString() ?? "0").toFixed(
-              2
-            ) + "%"}
+          <Box as="span" color={colorScheme}>
+            →{" "}
+            <Box as="span">
+              {parseFloat(
+                updatedSafe?.safeUtilization.toString() ?? "0"
+              ).toFixed(2) + "%"}
+            </Box>
           </Box>
         </Text>
       );
@@ -62,7 +72,7 @@ const MODAL_STEP_1: ModalStep = {
         <VStack w="100%" mb={3} align="flex-end">
           <TokenAmountInput
             value={depositAmount}
-            onChange={(amount: string) => setDepositAmount(amount ?? '0')}
+            onChange={(amount: string) => setDepositAmount(amount ?? "0")}
             tokenAddress={safe.collateralAsset}
             onClickMax={onClickMax}
           />
@@ -72,13 +82,14 @@ const MODAL_STEP_1: ModalStep = {
           </Text>
         </VStack>
         <UpdatingStatisticsTable
+          colorScheme={getSafeColor(updatedSafe?.safeUtilization)}
           statistics={[
             {
               title: "Collateral",
               tooltip: "How much collateral you have deposited.",
               initialValue: safe?.collateralValueUSD,
               newValue:
-                depositAmount === ""
+                depositAmount === "" || depositAmount == 0
                   ? undefined
                   : updatedSafe?.collateralValueUSD,
             },
@@ -88,17 +99,19 @@ const MODAL_STEP_1: ModalStep = {
                 "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
               initialValue: safe?.maxBoostUSD,
               newValue:
-                depositAmount === "" ? undefined : updatedSafe?.maxBoostUSD,
+                depositAmount === "" || depositAmount == 0
+                  ? undefined
+                  : updatedSafe?.maxBoostUSD,
             },
             [
               "Safe Utilization",
-              safeUtilizationValue,
+              safeUtilizationValue(getSafeColor(updatedSafe?.safeUtilization)),
               "The health of your safe.",
             ],
           ]}
         />
       </>
-    )
+    );
   },
   buttons: ({
     approving,
@@ -108,62 +121,60 @@ const MODAL_STEP_1: ModalStep = {
     onClickDeposit,
     depositAmount,
   }) => [
-      {
-        children: approving
-          ? "Approving..."
-          : depositing
-            ? "Depositing..."
-            : !hasApproval
-              ? "Approve Safe"
-              : "Deposit",
-        variant: "neutral",
-        loading: approving || depositing,
-        disabled: approving || depositing || !depositAmount || depositAmount === "0",
-        async onClick() {
-          try {
-            if (!hasApproval) {
-              await onClickApprove();
-            }
+    {
+      children: approving
+        ? "Approving..."
+        : depositing
+        ? "Depositing..."
+        : !hasApproval
+        ? "Approve Safe"
+        : "Deposit",
+      variant: "neutral",
+      loading: approving || depositing,
+      disabled:
+        approving || depositing || !depositAmount || depositAmount == 0,
+      async onClick() {
+        try {
+          if (!hasApproval) {
+            await onClickApprove();
+          }
 
-            await onClickDeposit();
-          }
-          catch (err) {
-            throw err
-          }
-        },
+          await onClickDeposit();
+        } catch (err) {
+          throw err;
+        }
       },
-    ],
+    },
+  ],
 };
 
 const MODAL_STEP_2: ModalStep = {
-  children: ({ depositAmount, updatedSafe }) =>
-    (
-      <Stack alignItems="center" spacing={8}>
-        <CheckCircleIcon boxSize={24} color="neutral" />
-        <Box textAlign="center">
-          <Heading>
-            {commify(depositAmount)}{" "}
-           {updatedSafe ? <TokenSymbol tokenAddress={updatedSafe.collateralAsset} /> : null}
-          </Heading>
-          <Text fontSize="lg" my={4}>
-            Successfully deposited
-          </Text>
-        </Box>
-      </Stack>
-    ),
-  buttons: ({
-    onClose,
-    resetStepIndex
-  }) => [
-      {
-        children: "Back to Safe",
-        variant: "neutral",
-        async onClick() {
-          resetStepIndex()
-          onClose()
-        },
+  children: ({ depositAmount, updatedSafe }) => (
+    <Stack alignItems="center" spacing={8}>
+      <CheckCircleIcon boxSize={24} color="neutral" />
+      <Box textAlign="center">
+        <Heading>
+          {commify(depositAmount)}{" "}
+          {updatedSafe ? (
+            <TokenSymbol tokenAddress={updatedSafe.collateralAsset} />
+          ) : null}
+        </Heading>
+        <Text fontSize="lg" my={4}>
+          Successfully deposited
+        </Text>
+      </Box>
+    </Stack>
+  ),
+  buttons: ({ onClose, resetStepIndex }) => [
+    {
+      children: "Back to Safe",
+      variant: "neutral",
+      async onClick() {
+        resetStepIndex();
+        onClose();
       },
-    ],
+    },
+  ],
 };
 
 const MODAL_STEPS: ModalStep[] = [MODAL_STEP_1, MODAL_STEP_2];

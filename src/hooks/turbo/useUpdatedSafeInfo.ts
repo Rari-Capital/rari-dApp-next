@@ -126,6 +126,12 @@ export const useUpdatedSafeInfo = ({
           ethUSDBN
         );
 
+        const maxBoost = calculateMaxBoost(
+          collateralValue,
+          safe.collateralFactor
+        );
+        const maxBoostUSD = calculateETHValueUSD(maxBoost, ethUSDBN);
+
         updatedSafe = {
           ...safe,
           collateralAmount,
@@ -134,6 +140,8 @@ export const useUpdatedSafeInfo = ({
           safeUtilization,
           liquidationPrice,
           liquidationPriceUSD,
+          maxBoost,
+          maxBoostUSD,
         };
 
         return updatedSafe;
@@ -263,15 +271,15 @@ export const useUpdatedSafeInfo = ({
         strategies[strategyIndex] = updatedStrategy;
 
         const liquidationPrice = calcuateLiquidationPrice(
-            debtValue,
-            safe.collateralValue,
-            safe.collateralFactor,
-            safe.collateralPrice
-          );
-          const liquidationPriceUSD = calculateLiquidationPriceUSD(
-            liquidationPrice,
-            ethUSDBN
-          );
+          debtValue,
+          safe.collateralValue,
+          safe.collateralFactor,
+          safe.collateralPrice
+        );
+        const liquidationPriceUSD = calculateLiquidationPriceUSD(
+          liquidationPrice,
+          ethUSDBN
+        );
 
         updatedSafe = {
           ...safe,

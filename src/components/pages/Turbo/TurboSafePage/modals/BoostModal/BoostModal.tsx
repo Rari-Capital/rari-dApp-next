@@ -19,13 +19,15 @@ import { useMemo, useState } from "react";
 import { handleGenericError } from "utils/errorHandling";
 import { useToast } from "@chakra-ui/react";
 import { MODAL_STEPS } from "./modalSteps";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useBoostCapForStrategy } from "hooks/turbo/useBoostCapsForStrategies";
 import { useTurboSafe } from "context/TurboSafeContext";
 
 // Utils
 import { keyBy } from "lodash";
 import useUpdatedStrategyRate from "hooks/turbo/useUpdatedStrategyRate";
+import { getEthUsdPriceBN } from "esm/utils/getUSDPriceBN";
+import { constants } from "ethers";
 
 type BoostStrategyModalProps = {
   isOpen: boolean;
@@ -48,6 +50,10 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
   const { usdPricedSafe, getERC4626StrategyData } = useTurboSafe();
   const safeStrategies: USDPricedStrategy[] =
     usdPricedSafe?.usdPricedStrategies ?? [];
+
+  const { data: ethUSDPriceBN } = useQuery("ETH USD", async () =>
+    getEthUsdPriceBN()
+  );
 
   // Construct a new object where safe strategies are indexed by address
   // for O(1) access by address (order in the table is not necessarily
@@ -136,6 +142,13 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
             return "Boost amount exceeds Cap for Vault";
           }
         }
+        if (
+          amount !== "0" &&
+          ethUSDPriceBN?.div(constants.WeiPerEther).gt(_amount)
+        ) {
+          return "Minimum Boost must be >1ETH";
+        }
+
         break;
       case SafeInteractionMode.LESS:
         if (parseEther(_amount).gt(maxAmount)) {
@@ -145,7 +158,7 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
       default:
         return undefined;
     }
-  }, [amount, maxAmount, strategy, mode, updatedSafe]);
+  }, [amount, maxAmount, strategy, mode, updatedSafe, ethUSDPriceBN]);
 
   // Boost a strategy
   const onClickBoost = async () => {

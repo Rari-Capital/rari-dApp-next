@@ -19,10 +19,12 @@ type UpdatingStatistic =
       initialValue: number;
       newValue?: number | undefined;
     }
-  | StatisticsTableProps["statistics"][number];
+  | StatisticsTableProps["statistics"][number]
+  | null;
 
 type UpdatingStatisticsTableProps = Omit<StatisticsTableProps, "statistics"> & {
   statistics: UpdatingStatistic[];
+  colorScheme: string;
 };
 
 /**
@@ -37,11 +39,12 @@ type UpdatingStatisticsTableProps = Omit<StatisticsTableProps, "statistics"> & {
  */
 const UpdatingStatisticsTable: React.FC<UpdatingStatisticsTableProps> = ({
   statistics,
+  colorScheme,
   ...restProps
 }) => {
   const updatingStatistics = statistics.map((it) => {
     // If this item is a regular statistic, skip processing.
-    if (Array.isArray(it)) {
+    if (Array.isArray(it) || it === null) {
       return it;
     }
 
@@ -58,12 +61,14 @@ const UpdatingStatisticsTable: React.FC<UpdatingStatisticsTableProps> = ({
             <Tooltip label={commify(initialValue)}>
               {abbreviateAmount(initialValue)}
             </Tooltip>{" "}
-            →{" "}
-            <Tooltip label={commify(newValue)}>
-              <Box as="span" color="neutral">
-                {abbreviateAmount(newValue)}
-              </Box>
-            </Tooltip>
+            <Box color={colorScheme} as="span">
+              →{" "}
+              <Tooltip label={commify(newValue)}>
+                <Box as="span">
+                  {abbreviateAmount(newValue)}
+                </Box>
+              </Tooltip>
+            </Box>
           </>
         )}
       </Text>

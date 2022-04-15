@@ -1,7 +1,7 @@
 import usePreviewSafes from "hooks/turbo/usePreviewSafes";
 import { Button, Heading, Text } from "rari-components";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Box,
   BoxProps,
@@ -18,8 +18,7 @@ import { motion, useAnimation, Variants } from "framer-motion";
 type TurboFAQProps = BoxProps;
 
 const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
-  const safes = usePreviewSafes();
-
+//   const safes = usePreviewSafes();
   return (
     <Box {...props}>
       <Stack spacing={24}>
@@ -184,7 +183,7 @@ const Section2 = () => (
                 width={16}
                 src="/static/turbo/user-icons/individuals.png"
               />
-              <Text fontSize="lg" ml={6}>
+              <Text fontSize="lg" ml={6} fontWeight="semibold">
                 Individuals
               </Text>
             </Flex>
@@ -192,7 +191,7 @@ const Section2 = () => (
           <motion.div variants={variants["right"]}>
             <Flex alignItems="center" my={4}>
               <Image width={16} src="/static/turbo/user-icons/daos.png" />
-              <Text fontSize="lg" ml={6}>
+              <Text fontSize="lg" ml={6} fontWeight="semibold">
                 DAOs
               </Text>
             </Flex>
@@ -200,7 +199,7 @@ const Section2 = () => (
           <motion.div variants={variants["right"]}>
             <Flex alignItems="center" my={4}>
               <Image width={16} src="/static/turbo/user-icons/protocols.png" />
-              <Text fontSize="lg" ml={6}>
+              <Text fontSize="lg" ml={6} fontWeight="semibold">
                 Protocols
               </Text>
             </Flex>
@@ -208,7 +207,7 @@ const Section2 = () => (
           <motion.div variants={variants["right"]}>
             <Flex alignItems="center" my={4}>
               <Image width={16} src="/static/turbo/user-icons/more.png" />
-              <Text fontSize="lg" ml={6}>
+              <Text fontSize="lg" ml={6} fontWeight="semibold">
                 And more...
               </Text>
             </Flex>
@@ -259,8 +258,8 @@ const Section4 = () => (
         </Text>
       </Center>
       <HStack spacing={4} mb={4}>
-        <Button variant="success" size="lg">
-          Create a safe
+        <Button size="lg">
+          Get Involved
         </Button>
         <Button
           variant="neutral"
@@ -270,7 +269,7 @@ const Section4 = () => (
           target="_blank"
           size="lg"
         >
-          Learn more
+          View Blog Post
         </Button>
       </HStack>
     </Stack>
@@ -287,7 +286,7 @@ type AnimateInViewProps = {
 // TODO (@sharad-s) Move into Component Library and fix the map key type
 const VARIANT_DEFAULTS = {
   transition: {
-    duration: .6,
+    duration: 0.6,
     staggerChildren: 0.3,
     delayChildren: 0.3,
   },
