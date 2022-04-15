@@ -144,9 +144,9 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
         }
         if (
           amount !== "0" &&
-          ethUSDPriceBN?.div(constants.WeiPerEther).gt(_amount)
+          ethUSDPriceBN?.div(constants.WeiPerEther).gt(parseInt(_amount))
         ) {
-          return "Minimum Boost must be >1ETH";
+          return "Minimum Boost must be > 1 ETH";
         }
 
         break;
