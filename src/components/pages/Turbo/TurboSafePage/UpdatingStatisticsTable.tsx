@@ -43,7 +43,7 @@ const UpdatingStatisticsTable: React.FC<UpdatingStatisticsTableProps> = ({
 }) => {
   const updatingStatistics = statistics.map((it) => {
     // If this item is a regular statistic, skip processing.
-    if (Array.isArray(it) || it === null) {
+    if (Array.isArray(it) || it === StatisticsTable.DIVIDER) {
       return it;
     }
 
