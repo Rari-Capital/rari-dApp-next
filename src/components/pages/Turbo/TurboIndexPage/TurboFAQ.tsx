@@ -1,7 +1,8 @@
+import { Variants, motion, useAnimation } from "framer-motion";
 import usePreviewSafes from "hooks/turbo/usePreviewSafes";
 import { Button, Heading, Text } from "rari-components";
-
 import React, { useEffect, useRef } from "react";
+import { useInView } from "react-intersection-observer";
 import {
   Box,
   BoxProps,
@@ -12,8 +13,6 @@ import {
   SimpleGrid,
   Stack,
 } from "@chakra-ui/react";
-import { useInView } from "react-intersection-observer";
-import { motion, useAnimation, Variants } from "framer-motion";
 
 type TurboFAQProps = BoxProps;
 
@@ -44,7 +43,10 @@ const Section1 = () => (
     <Box>
       <Heading size="lg">How does Turbo work?</Heading>
       {/* `Stack` adds a little bit of space between each child, even if
-        `spacing` is set to 0, which we don't want. `Flex` does not. */}
+       * `spacing` is set to 0, which we don't want because we want the bottom
+       * borders of each child to flow together, giving the impression of a
+       * single, connected arrow. `Flex` does not add this space, so we use
+       * `Flex` instead. */}
       <Flex flexDirection={["column", "column", "row"]} mt={12}>
         <Stack flex={1} spacing={4}>
           <Heading
@@ -164,13 +166,18 @@ const Section2 = () => (
   <AnimateInView from="right">
     <Stack
       direction={["column", "column", "column", "row"]}
-      spacing={[12, 12, 12, 24]}
+      spacing={[12, 12, 12, 32]}
     >
-      <Image
-        width="md"
-        src="/static/turbo/turbo-engine-3d.png"
-        alignSelf="center"
+      <Box
+        flex={1}
+        sx={{
+          backgroundSize: "contain",
+          backgroundImage: "url(/static/turbo/turbo-engine-3d-trimmed.png)",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+        }}
       />
+
       <Box>
         <Heading size="lg">Turbo is for everyone</Heading>
         <Text variant="secondary" mt={4} opacity={0.6} fontSize="lg">
