@@ -90,7 +90,7 @@ export async function fetchMaxSafeAmount(
     // Prevent rekt
     let amount: BigNumber;
     if (!!limitBorrow) {
-      amount = maxBorrow.mul(3).div(4);
+      amount = maxBorrow
     } else {
       amount = maxBorrow;
     }
