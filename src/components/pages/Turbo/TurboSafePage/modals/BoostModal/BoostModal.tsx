@@ -181,6 +181,12 @@ export const BoostStrategyModal: React.FC<BoostStrategyModalProps> = ({
       handleGenericError(err, toast);
     } finally {
       setTransacting(false);
+      
+
+      setTimeout(() => {
+        onClose();
+        resetStepIndex();
+      }, 1500);
       await queryClient.refetchQueries();
     }
   };
