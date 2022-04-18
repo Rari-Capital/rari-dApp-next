@@ -6,11 +6,11 @@ import { createSafeAndDeposit } from "lib/turbo/transactions/createSafeAndDeposi
 import { createSafe } from "lib/turbo/transactions/safe";
 import { TRIBE, TurboAddresses } from "lib/turbo/utils/constants";
 import { useRouter } from "next/router";
-import { Modal } from "rari-components";
+import { Heading, Modal, Text } from "rari-components";
 import { useState } from "react";
 import { approve } from "utils/erc20Utils";
 import { handleGenericError } from "utils/errorHandling";
-import { useToast } from "@chakra-ui/react";
+import { Flex, useToast } from "@chakra-ui/react";
 import { CreateSafeCtx, MODAL_STEPS } from "./modalSteps";
 import { MAX_APPROVAL_AMOUNT } from "utils/tokenUtils";
 import { createTurboMaster } from "lib/turbo/utils/turboContracts";
@@ -240,6 +240,22 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       }}
       progressValue={((stepIndex + 1) / MODAL_STEPS.length) * 100}
       {...MODAL_STEPS[stepIndex]}
+      footerChildren={
+        <>
+      <Heading size="xs">Common questions:</Heading>
+      <Flex justifyContent="space-between">
+        <Text mt={2} fontSize="xs">
+          What are safes?
+        </Text>
+        <Text mt={2} fontSize="xs">
+          What is boosting?
+        </Text>
+        <Text mt={2} fontSize="xs">
+          How do liquidations work?
+        </Text>
+      </Flex>
+    </>
+      }
     />
   );
 };
