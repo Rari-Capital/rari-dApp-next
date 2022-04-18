@@ -230,10 +230,14 @@ export const TokenDataOverrides: {
     },
 
     "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8": {
-      symbol: "cvxCRV",
+      symbol: "cvxCRV-CRV",
       logoURL:
         "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7.png",
     },
+    // VOLT
+    "0x559eBC30b0E58a45Cc9fF573f77EF1e5eb1b3E18" : {
+      logoURL: "https://cdn.discordapp.com/attachments/854131414316220449/965716390717833316/volt_primary_logo.png",
+    }
   },
   [ChainID.ARBITRUM]: {
     "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": {
