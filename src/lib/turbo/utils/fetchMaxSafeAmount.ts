@@ -95,10 +95,10 @@ export async function fetchMaxSafeAmount(
       amount = maxBorrow;
     }
 
-    // Max Amount can't be higher than Boost Cap
-    if (amount.gt(boostRemaining)) {
-      amount = boostRemaining;
-    }
+    // // Max Amount can't be higher than Boost Cap
+    // if (amount.gt(boostRemaining)) {
+    //   amount = boostRemaining;
+    // }
 
     console.log({ boostCap, totalBoosted, boostRemaining });
     return amount;

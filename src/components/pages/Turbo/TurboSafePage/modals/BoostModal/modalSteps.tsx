@@ -20,6 +20,7 @@ import { abbreviateAmount } from "utils/bigUtils";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, HStack, Image, Spinner, Stack, VStack } from "@chakra-ui/react";
 import { getSafeColor } from "context/TurboSafeContext";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
 
 type BoostModalCtx = {
   incrementStepIndex(): void;
@@ -50,8 +51,6 @@ type ModalStep = Omit<ModalProps<BoostModalCtx>, "ctx" | "isOpen" | "onClose">;
 
 const MODAL_STEP_1: ModalStep = {
   title: ({ mode, erc4626Strategy }) => `${mode} strategy`,
-  subtitle: ({ mode, erc4626Strategy }) =>
-    `${mode}ing strategy ${erc4626Strategy?.name}`,
   children: ({
     onClickMax,
     setAmount,
@@ -63,6 +62,7 @@ const MODAL_STEP_1: ModalStep = {
     strategy,
     boostCap,
     totalBoosted,
+    erc4626Strategy,
   }) => {
     if (!safe) {
       return null;
@@ -107,6 +107,30 @@ const MODAL_STEP_1: ModalStep = {
       </Text>
     );
 
+    const newTotalBoost =
+      totalBoosted?.add(parseEther(!!amount ? amount : "0")) ?? constants.Zero;
+
+    const boostCapStatistic = statisticsLoading ? (
+      <Spinner boxSize={4} />
+    ) : (
+      <Text fontWeight={600}>
+        <SimpleTooltip label={formatEther(newTotalBoost) + " FEI"}>
+          <Box
+            as="span"
+            color={
+              newTotalBoost.gt(boostCap ?? constants.Zero) ? "red" : "white"
+            }
+          >
+            {abbreviateAmount(formatEther(newTotalBoost), false)}
+          </Box>
+        </SimpleTooltip>
+        /
+        <SimpleTooltip label={formatEther(boostCap ?? constants.Zero) + " FEI"}>
+          {abbreviateAmount(formatEther(boostCap ?? constants.Zero), false)}
+        </SimpleTooltip>
+      </Text>
+    );
+
     const statistics: StatisticsTableProps["statistics"] = [
       [
         "Total Boost Balance",
@@ -121,7 +145,18 @@ const MODAL_STEP_1: ModalStep = {
       [
         "Liquidation Price",
         liquidationPriceStatistic,
-        "The health of your safe.",
+        "The liquidation price of your collateral",
+      ],
+      "DIVIDER",
+      [
+        "Strategy",
+        <Text>{erc4626Strategy?.name}</Text>,
+        "The strategy you are boosting",
+      ],
+      [
+        "Boost Cap",
+        boostCapStatistic,
+        "Every strategy has its boost cap to as a safety measure. This the amount of FEI in total that the strategy can be boosted with.",
       ],
     ];
 

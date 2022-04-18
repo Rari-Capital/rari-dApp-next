@@ -48,11 +48,11 @@ export function shortUsdFormatter(_num: number | string | undefined, dollars: bo
   return str + shortFormatter.format(num as number);
 }
 
-export const abbreviateAmount = (_amount: number | string | undefined) => {
+export const abbreviateAmount = (_amount: number | string | undefined, dollars: boolean = true) => {
   const amount = _amount ? Number(_amount) : 0
   return Math.abs(amount) > 100000
-    ? shortUsdFormatter(amount)
-    : smallUsdFormatter(amount);
+    ? shortUsdFormatter(amount, dollars)
+    : smallUsdFormatter(amount, dollars);
 };
 
 export const bnToString = (bn: BigNumber): string => bn.toString();

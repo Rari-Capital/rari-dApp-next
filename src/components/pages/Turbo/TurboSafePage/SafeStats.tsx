@@ -50,7 +50,7 @@ export const SafeStats: React.FC = () => {
         loading={loading}
         title={"Avg. APY"}
         value={netAPY.toFixed(2) + "%"}
-        tooltip="Average APY earned across all active strategies."
+        tooltip="Weighted Average of APY earned across all active strategies."
         mr={10}
         h="100%"
       />

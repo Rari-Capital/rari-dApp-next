@@ -110,6 +110,7 @@ const MODAL_STEP_1: ModalStep = {
                       tokenAddress={tokenAddress}
                       fallback="Loading..."
                     />
+                    {' '} Safe
                   </Heading>
                 </HStack>
                 <HStack>
@@ -143,14 +144,14 @@ const MODAL_STEP_2: ModalStep = {
           You are creating a
         </Text>
         <HStack>
-          <TokenIcon tokenAddress={underlyingTokenAddress} boxSize={"30px"}/>
-          <Heading size="lg">
+          <TokenIcon tokenAddress={underlyingTokenAddress} boxSize={"35px"} />
+          <Heading size="xl">
             <TokenSymbol tokenAddress={underlyingTokenAddress} /> Safe
           </Heading>
         </HStack>
       </Box>
       <Card>
-        <VStack spacing={3}>
+        <VStack spacing={6} align="flex-start">
           <Flex align="center">
             <Image
               src="/static/turbo/one-collateral-type.png"

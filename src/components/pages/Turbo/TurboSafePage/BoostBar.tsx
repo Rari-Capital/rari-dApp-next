@@ -12,6 +12,7 @@ import { shortUsdFormatter } from "utils/bigUtils";
 import { toInt } from "utils/ethersUtils";
 import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import AppLink from "components/shared/AppLink";
 
 export const BoostBar: React.FC = () => {
   const {
@@ -67,11 +68,29 @@ export const BoostBar: React.FC = () => {
              $${liquidationPriceUSD?.toFixed(6)}`}
           >
             <HStack>
-              <TokenIcon
-                tokenAddress={usdPricedSafe?.collateralAsset ?? ""}
-                boxSize={6}
-                mx={1}
-              />
+              <AppLink
+                href={
+                  !!tokenData?.address
+                    ? `/token/${tokenData?.address.toLowerCase()}`
+                    : "#"
+                }
+                _hover={{
+                  transform: "scale(1.2)",
+                  zIndex: 10,
+                  cursor: "pointer",
+                }}
+                onClick={(e: Event) => e.stopPropagation()}
+                isExternal
+              >
+                <TokenIcon
+                  tokenAddress={usdPricedSafe?.collateralAsset ?? ""}
+                  boxSize={6}
+                  mx={1}
+                  _hover={{
+                    transform: `scale `,
+                  }}
+                />
+              </AppLink>
               <Text variant="secondary">
                 = ${liquidationPriceUSD?.toFixed(2)}
               </Text>
