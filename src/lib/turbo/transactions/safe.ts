@@ -11,7 +11,7 @@ export const createSafe = async (
   provider: providers.JsonRpcProvider | providers.Web3Provider,
   chainID: number
 ) => {
-  const turboMaster = createTurboMaster(provider, 1);
+  const turboMaster = createTurboMaster(await provider.getSigner(), 1);
   const tx = await turboMaster.createSafe(underlyingToken);
   return tx;
 };

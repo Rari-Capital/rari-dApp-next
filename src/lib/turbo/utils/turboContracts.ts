@@ -38,7 +38,7 @@ export const createTurboRouter = async (
 };
 
 export const createTurboMaster = (
-  provider: providers.Provider,
+  provider: any,
   id: number = 1
 ) => {
   const turboMasterContract = new Contract(
