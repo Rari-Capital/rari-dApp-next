@@ -424,7 +424,7 @@ const MODAL_STEP_5: ModalStep = {
       children: navigating ? "Loading..." : "View Safe",
       loading: navigating,
       disabled: !createdSafe,
-      variant: "neutral",
+      variant: "success",
       async onClick() {
         await navigateToCreatedSafe();
         onClose();

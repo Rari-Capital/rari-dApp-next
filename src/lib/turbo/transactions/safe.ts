@@ -1,6 +1,9 @@
 import { BigNumber, providers } from "ethers";
 import encodeCall from "lib/turbo/transactions/encodedCalls";
-import { createTurboSafe } from "lib/turbo/utils/turboContracts";
+import {
+  createTurboMaster,
+  createTurboSafe,
+} from "lib/turbo/utils/turboContracts";
 import { sendRouterWithMultiCall } from "lib/turbo/utils/turboMulticall";
 
 export const createSafe = async (
@@ -8,12 +11,8 @@ export const createSafe = async (
   provider: providers.JsonRpcProvider | providers.Web3Provider,
   chainID: number
 ) => {
-  const encodedSafe = encodeCall.createSafe(underlyingToken);
-  const tx = await sendRouterWithMultiCall(
-    provider.getSigner(),
-    [encodedSafe],
-    chainID
-  );
+  const turboMaster = createTurboMaster(provider, 1);
+  const tx = await turboMaster.createSafe(underlyingToken);
   return tx;
 };
 

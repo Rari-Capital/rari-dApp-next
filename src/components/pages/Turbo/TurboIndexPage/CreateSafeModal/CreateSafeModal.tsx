@@ -119,12 +119,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     let receipt;
     if (!amountBN.isZero()) {
       try {
-        const tx = await createSafeAndDeposit(
-          provider.getSigner(),
-          amountBN,
-          chainId,
-          underlyingTokenAddress
-        );
+        const tx = await createSafe(underlyingTokenAddress, provider, 1);
 
         receipt = await tx.wait(2);
         const turboMasterContract = createTurboMaster(provider, chainId);
@@ -242,19 +237,19 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
       {...MODAL_STEPS[stepIndex]}
       footerChildren={
         <>
-      <Heading size="xs">Common questions:</Heading>
-      <Flex justifyContent="space-between">
-        <Text mt={2} fontSize="xs">
-          What are safes?
-        </Text>
-        <Text mt={2} fontSize="xs">
-          What is boosting?
-        </Text>
-        <Text mt={2} fontSize="xs">
-          How do liquidations work?
-        </Text>
-      </Flex>
-    </>
+          <Heading size="xs">Common questions:</Heading>
+          <Flex justifyContent="space-between">
+            <Text mt={2} fontSize="xs">
+              What are safes?
+            </Text>
+            <Text mt={2} fontSize="xs">
+              What is boosting?
+            </Text>
+            <Text mt={2} fontSize="xs">
+              How do liquidations work?
+            </Text>
+          </Flex>
+        </>
       }
     />
   );
