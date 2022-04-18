@@ -1,7 +1,10 @@
 import { BigNumber, constants } from "ethers";
+import { formatEther, parseEther } from "ethers/lib/utils";
 import { SafeInteractionMode } from "hooks/turbo/useUpdatedSafeInfo";
+import { format } from "path";
 import { balanceOf } from "utils/erc20Utils";
 import { SafeInfo } from "../fetchers/safes/getSafeInfo";
+import { USDPricedTurboSafe } from "../fetchers/safes/getUSDPricedSafeInfo";
 import { getBoostCapForStrategy } from "../fetchers/strategies/getBoostCapsForStrategies";
 import { FEI } from "./constants";
 import {
@@ -14,7 +17,7 @@ export async function fetchMaxSafeAmount(
   provider: any,
   mode: SafeInteractionMode,
   userAddress: string,
-  safe: SafeInfo | undefined,
+  safe: USDPricedTurboSafe | undefined,
   chainId: number,
   strategyIndex?: number,
   limitBorrow?: boolean // Whether we should limit to 75%
@@ -32,35 +35,35 @@ export async function fetchMaxSafeAmount(
 
   // TODO(@sharad-s) implement after Lens func is in-place: https://github.com/fei-protocol/tribe-turbo/issues/86
   if (mode === SafeInteractionMode.WITHDRAW) {
-    const turboSafe = createTurboSafe(provider, safe.safeAddress);
-    const maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress);
+    let maxWithdraw
 
     // If Safe Utilization is above 75%, they can't withdraw anything
     if (safe.safeUtilization.gt(75)) return constants.Zero;
 
-    // If safe has debt, calculate the amount you can withdraw to get utilization to 75%\
-    // collateralAmount = debtValue(100)/(utilization * collateralPrice * collateralCF)
+    // If safe has debt, calculate the amount you can withdraw to get utilization to 75%.
     if (safe.debtAmount.gt(0)) {
-      const numerator = safe.debtValue;
-      const denominator = BigNumber.from(74)
-        .div(100)
-        .mul(safe.collateralPrice)
-        .mul(safe.collateralFactor)
-        .div(constants.WeiPerEther)
-        .div(constants.WeiPerEther);
+      // Utillization  = maxBoost / activeBoost
+      // 1. Calculate maxBoost. Denominated in dollars.
+        // 74 - activeBoost
+        // 100 - x 
+        // so...
+        // 100 * activeDebt / 74 = x
+          // where x is minimum maxBoost targeted.
+      const debt = safe.debtAmount
+      const percentage = parseEther("100")
+      const utilization = parseEther("74")
+      const targetMaxBoostInUSD = debt.mul(percentage).div(utilization)
 
-        let withdrawableCollateral = safe.debtValue
-      //     .mul(100)
-      //     .div(
-      //       BigNumber.from(74)
-      //         .mul(safe.collateralPrice)
-      //         .mul(safe.collateralFactor)
-      //         .div(constants.WeiPerEther)
-      //         .div(constants.WeiPerEther)
-      //     );
-      console.log({ withdrawableCollateral, safe, BigNumber, numerator, denominator });
-      return withdrawableCollateral;
+      // 2. Get minimum collateral necessary to get the targetMaxBoost, in USD.
+      const minimumCollateralValueInUSD = parseEther(targetMaxBoostInUSD.div(safe.collateralFactor).toString())
+
+      // 3. Calculate minimum collateral denominated in TRIBE
+      const minimumCollateralInTRIBE = minimumCollateralValueInUSD.div(parseEther(safe.collateralPriceUSD.toString()))
+
+      // 4. From current deposited collateral, substract minimum collateral to get max withdrawable amount
+      maxWithdraw = safe.collateralAmount.sub(parseEther(minimumCollateralInTRIBE.toString()))
     }
+
     return maxWithdraw;
   }
 

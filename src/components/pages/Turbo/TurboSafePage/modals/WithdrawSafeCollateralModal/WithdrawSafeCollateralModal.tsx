@@ -69,7 +69,7 @@ export const WithdrawSafeCollateralModal: React.FC<
         safe,
         chainId ?? 1
       )
-      setWithdrawalAmount(formatEther(maxAmount))
+      setWithdrawalAmount(formatEther(maxAmount ?? 0))
     } catch (err) {
       handleGenericError(err, toast)
     }

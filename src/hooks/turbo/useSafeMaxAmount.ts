@@ -1,18 +1,18 @@
 import { useRari } from "context/RariContext";
 import { BigNumber, constants } from "ethers";
-import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 import { fetchMaxSafeAmount } from "lib/turbo/utils/fetchMaxSafeAmount";
 import { useQuery } from "react-query";
 import { SafeInteractionMode } from "./useUpdatedSafeInfo";
 
 const useSafeMaxAmount = (
-  safe: SafeInfo | undefined,
+  safe: USDPricedTurboSafe | undefined,
   mode: SafeInteractionMode,
   strategyIndex?: number //only used for LESS
 ) => {
   const { provider, address, chainId } = useRari();
 
-  const { data: maxAmount } = useQuery<BigNumber>(
+  const { data: maxAmount } = useQuery<BigNumber | undefined>(
     `Safe ${safe?.safeAddress} Max ${mode} amount ${
       !!strategyIndex ? "Strategy " + strategyIndex : null
     }`,
