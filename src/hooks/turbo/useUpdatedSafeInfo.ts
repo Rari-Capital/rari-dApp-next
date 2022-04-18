@@ -192,7 +192,7 @@ export const useUpdatedSafeInfo = ({
           feiAmountUSD: stratFeiUSD,
         };
 
-        const strategies = safe.usdPricedStrategies;
+        const strategies = [...safe.usdPricedStrategies];
         strategies[strategyIndex] = updatedStrategy;
 
         const liquidationPrice = calcuateLiquidationPrice(
