@@ -21,6 +21,7 @@ import UserSafes from "./UserSafes";
 import useApprovedCollateral from "hooks/turbo/useApprovedCollateral";
 import { useTokensDataAsMap } from "hooks/useTokenData";
 import { useRef } from "react";
+import TurboEngineIcon from "components/shared/Icons/TurboEngineIcon";
 
 const TurboIndexPage: React.FC = () => {
   const scrollRef = useRef(null);
@@ -39,7 +40,6 @@ const TurboIndexPage: React.FC = () => {
   // const _ = useRariTokenData(TRIBE);
   // const tokenData = useTokensDataAsMap(approvedCollateral);
 
-  
   const handleClick = () => {
     // @ts-ignore
     isAuthorized && !hasSafes ? onOpen() : scrollRef.current.scrollIntoView();
@@ -58,7 +58,11 @@ const TurboIndexPage: React.FC = () => {
           {/* Copy */}
           <Box minWidth={["100%", "100%", "50%"]} pr={[0, 0, 32]}>
             <SlideFade in={true} offsetY="20px">
-              <Heading size="2xl">Introducing Turbo</Heading>
+              <HStack align="center">
+                <TurboEngineIcon fill="#64DBA0" animate={true} boxSize={"40px"}/>
+                <Heading size="2xl">Introducing Turbo</Heading>
+              </HStack>
+
               <Text pt={4} fontSize="2xl">
                 Boost FEI liquidity and earn interest against any protocol
                 token.
