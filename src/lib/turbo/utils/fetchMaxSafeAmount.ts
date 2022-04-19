@@ -49,7 +49,7 @@ export async function fetchMaxSafeAmount(
         // so...
         // 100 * activeDebt / 74 = x
           // where x is minimum maxBoost targeted.
-      const debt = safe.debtAmount
+      const debt = parseEther(safe.debtUSD.toString())
       const percentage = parseEther("100")
       const utilization = parseEther("74")
       const targetMaxBoostInUSD = debt.mul(percentage).div(utilization)
