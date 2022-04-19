@@ -69,21 +69,29 @@ export const DepositSafeCollateralModal: React.FC<
     amount: parseUnits(!!depositAmount ? depositAmount : "0", 18),
   });
 
+  const handleApproveAndDeposit = async () => {
+    if (!hasApproval) {
+      await approve();
+    }
+    await onClickDeposit();
+  };
+
   const approve = async () => {
     setApproving(true);
     const safeAddress = safe?.safeAddress;
     if (!safeAddress) return;
     try {
       setApproving(true);
-      await checkAllowanceAndApprove(
+      const tx = await checkAllowanceAndApprove(
         provider.getSigner(),
         address,
         safeAddress,
         safe.collateralAsset,
         MAX_APPROVAL_AMOUNT
       );
+      await tx.wait(1);
     } catch (err) {
-      handleGenericError(err, toast);
+      throw err;
     } finally {
       setApproving(false);
     }
@@ -102,17 +110,12 @@ export const DepositSafeCollateralModal: React.FC<
         depositAmountBN,
         provider.getSigner()
       );
-      incrementStepIndex();
       await tx.wait(1);
+      incrementStepIndex();
     } catch (err) {
-      handleGenericError(err, toast);
+      throw err;
     } finally {
       setDepositing(false);
-
-      setTimeout(() => {
-        onClose();
-        resetStepIndex();
-      }, 1500);
       await queryClient.refetchQueries();
     }
   };
@@ -136,12 +139,11 @@ export const DepositSafeCollateralModal: React.FC<
   //     .lt(
   //       parseUnits(_amount, collateralTokenData?.decimals ?? 18 )
   //     )
-  //     )) 
+  //     ))
   //     {
   //     return "Can't deposit this much!";
   //   }
   // }, [depositAmount, maxAmount]);
-
 
   const inputError = undefined;
   return (
@@ -153,15 +155,14 @@ export const DepositSafeCollateralModal: React.FC<
         updatedSafe,
         depositAmount,
         setDepositAmount,
-        onClickDeposit,
         depositing,
         collateralBalance,
         hasApproval,
         approving,
-        onClickApprove: approve,
         onClickMax,
         onClose,
         inputError,
+        handleApproveAndDeposit,
       }}
       isOpen={isOpen}
       onClose={onClose}

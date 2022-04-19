@@ -20,15 +20,14 @@ type DepositSafeCollateralCtx = {
   updatedSafe?: USDPricedTurboSafe;
   hasApproval: boolean;
   approving: boolean;
-  onClickApprove(): Promise<void>;
   depositAmount: string;
   setDepositAmount(newDepositAmount: string): void;
   depositing: boolean;
   collateralBalance: BigNumber;
-  onClickDeposit(): Promise<void>;
   onClickMax(): Promise<void>;
   onClose(): void;
   inputError: string | undefined;
+  handleApproveAndDeposit(): Promise<void>;
 };
 
 type ModalStep = Omit<
@@ -118,10 +117,9 @@ const MODAL_STEP_1: ModalStep = {
     approving,
     depositing,
     hasApproval,
-    onClickApprove,
-    onClickDeposit,
     depositAmount,
     inputError,
+    handleApproveAndDeposit,
   }) => [
     {
       children: !!inputError
@@ -142,15 +140,7 @@ const MODAL_STEP_1: ModalStep = {
         parseInt(depositAmount) == 0 ||
         !!inputError,
       async onClick() {
-        try {
-          if (!hasApproval) {
-            await onClickApprove();
-          }
-
-          await onClickDeposit();
-        } catch (err) {
-          throw err;
-        }
+        await handleApproveAndDeposit();
       },
     },
   ],

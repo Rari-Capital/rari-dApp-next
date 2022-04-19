@@ -102,7 +102,7 @@ export async function checkAllowanceAndApprove(
     amount
   );
 
-  alert("HAS APPROVED ENOUGH: " + String(hasApprovedEnough))
+  // alert("HAS APPROVED ENOUGH: " + String(hasApprovedEnough))
 
   if (!hasApprovedEnough) {
     console.log({ signer, spender, underlyingAddress, amount })
