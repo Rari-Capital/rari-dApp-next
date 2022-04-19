@@ -20,19 +20,19 @@ export function chooseBestWeb3Provider(
 ): JsonRpcProvider | Web3Provider {
 
   let providerURL = getChainMetadata(chainId).rpcUrl ?? "";
-  console.log({ chainId, providerURL });
-  // return new JsonRpcProvider(providerURL);
 
   const isClient = typeof window === "object";
   if (!isClient || vaults) {
     return new JsonRpcProvider(providerURL);
   }
 
-  if (window.web3) {
-    return new Web3Provider(window.web3.currentProvider);
+  if (window.ethereum) {
+    // @ts-ignore
+    return new Web3Provider(window.ethereum)
   } else {
     return new JsonRpcProvider(providerURL);
   }
+
 }
 
 export const initFuseWithProviders = (

@@ -138,23 +138,6 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [requestedAddress])
   
-
-  useEffect(() => {
-    //toast on brave users
-    if(typeof navigator !== 'object') return
-    const isBrave = (navigator as any).brave
-    if(isBrave){
-      toast({
-        title: "Warning",
-        description: "Brave Users may experience issues connecting. Please use Chrome/FF for now for optimal experience.",
-        status: "warning",
-        position: "bottom-right",
-        duration: 300000,
-        isClosable: true,
-      });
-    }
-  }, [])
-  
   // Check the user's network:
   // First render only
   useEffect(() => {
