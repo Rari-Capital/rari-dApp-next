@@ -94,6 +94,9 @@ export const fetchStrategyData = async (
   );
 
   const poolId = getStrategyFusePoolId(symbol);
+
+  console.log({ poolId , symbol});
+
   const dir = createFusePoolDirectory(provider);
   const { name } = await dir.callStatic.pools(poolId);
 

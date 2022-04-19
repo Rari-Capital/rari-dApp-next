@@ -19,12 +19,15 @@ import {
 import { createContext, useContext, ReactNode, useMemo } from "react";
 
 export const getSafeColor = (safeHealth: BigNumber | undefined) => {
+  console.log({safeHealth})
   return safeHealth?.lte(40)
     ? "#4DD691"
     : safeHealth?.lte(60)
     ? "#4DD691"
     : safeHealth?.lte(80)
     ? "orange"
+    : safeHealth?.isZero()
+    ? "grey"
     : "#DB6464";
 };
 

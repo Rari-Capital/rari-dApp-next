@@ -37,7 +37,7 @@ export const BoostBar: React.FC = () => {
             boxSize={10}
             pb={2}
             alignSelf="flex-end"
-            animate={!!boostedUSD}
+            animate={(boostedUSD ?? 0) > 0}
           />
           {/* <Image
                         src={isAtLiquidationRisk
@@ -49,6 +49,7 @@ export const BoostBar: React.FC = () => {
                         pb={2}
                     /> */}
           <Heading
+            variant="success"
             size="xl"
             mx={4}
             color={colorScheme}

@@ -49,5 +49,6 @@ export const filterUsedStrategies = (strats: StrategyInfo[] = []) =>
 
 //IE wfFEI-8
 export const getStrategyFusePoolId = (fuseStrategyName: string | undefined) => {
-  return fuseStrategyName?.split("-")[1];
+  const arr = fuseStrategyName?.split("-") ?? []
+  return arr[arr.length -1];
 };
