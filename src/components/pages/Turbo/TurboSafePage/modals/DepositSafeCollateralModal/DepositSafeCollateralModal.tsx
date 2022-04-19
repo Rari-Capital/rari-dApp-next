@@ -143,7 +143,7 @@ export const DepositSafeCollateralModal: React.FC<
   // }, [depositAmount, maxAmount]);
 
 
-  const inputErr = undefined;
+  const inputError = undefined;
   return (
     <Modal
       ctx={{
