@@ -58,10 +58,10 @@ const TurboIndexPage: React.FC = () => {
           {/* Copy */}
           <Box minWidth={["100%", "100%", "50%"]} pr={[0, 0, 32]}>
             <SlideFade in={true} offsetY="20px">
-              <HStack align="center">
-                <TurboEngineIcon fill="#64DBA0" animate={true} animateSpeed="fast" boxSize={"50px"} mr={1}/>
+              <Stack align="center" direction={{base: "column", md: "row"}}>
+                <TurboEngineIcon fill="#64DBA0" animate={true} animateSpeed="fast" boxSize={"45px"} mr={1}/>
                 <Heading size="2xl">Introducing Turbo</Heading>
-              </HStack>
+              </Stack>
 
               <Text pt={4} fontSize="2xl">
                 Boost FEI liquidity and earn interest against any protocol

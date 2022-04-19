@@ -2,6 +2,7 @@ import { SafeInfo } from "lib/turbo/fetchers/safes/getSafeInfo";
 import { Heading, HoverableCard, Text } from "rari-components";
 import { Box, Flex, SimpleGrid } from "@chakra-ui/react";
 import SafeCard from "./SafeCard";
+import { useIsUserAuthorizedToCreateSafes } from "hooks/turbo/useIsUserAuthorizedToCreateSafes";
 
 type SafeGridProps = {
   safes: SafeInfo[];
@@ -9,7 +10,8 @@ type SafeGridProps = {
 };
 
 const SafeGrid: React.FC<SafeGridProps> = ({ safes, onClickCreateSafe }) => {
-  const previewMode = !onClickCreateSafe;
+  let isAuthed = useIsUserAuthorizedToCreateSafes();
+  const previewMode = !onClickCreateSafe || !isAuthed;
   console.log({ previewMode });
   return (
     <Box>

@@ -13,7 +13,10 @@ export const getTurboApprovedCollateral = async (
   const multicallProvider = new providers.MulticallProvider(provider);
 
   const TurboPool = createTurboComptroller(multicallProvider, 1);
+  console.log({ TurboPool });
   const markets: string[] = await TurboPool.callStatic.getAllMarkets();
+
+  console.log({ markets });
 
   const underlyings: string[] = (
     await Promise.all(

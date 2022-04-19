@@ -18,6 +18,7 @@ import {
   HStack,
   Image,
   Spacer,
+  Spinner,
   Stack,
   VStack,
 } from "@chakra-ui/react";
@@ -80,6 +81,7 @@ const MODAL_STEP_1: ModalStep = {
     incrementStepIndex,
   }) => (
     <Stack spacing={4}>
+      {!underlyingTokenAddresses.length && <Spinner />}
       {underlyingTokenAddresses.map((tokenAddress) => (
         <HoverableCard
           variant="ghost"
@@ -109,15 +111,14 @@ const MODAL_STEP_1: ModalStep = {
                     <TokenSymbol
                       tokenAddress={tokenAddress}
                       fallback="Loading..."
-                    />
-                    {' '} Safe
+                    />{" "}
+                    Safe
                   </Heading>
                 </HStack>
                 <HStack>
                   <Text variant="secondary">
                     Boost FEI against{" "}
-                    <TokenSymbol tokenAddress={tokenAddress} fallback="?" />
-                    {" "}
+                    <TokenSymbol tokenAddress={tokenAddress} fallback="?" />{" "}
                     collateral
                   </Text>
                 </HStack>

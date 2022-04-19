@@ -139,7 +139,7 @@ export const CreateSafeModal: React.FC<CreateSafeModalProps> = ({
     } else {
       try {
         const tx = await createSafe(underlyingTokenAddress, provider, chainId);
-        const receipt = await tx.wait(2);
+        const receipt = await tx.wait(1);
         const turboMasterContract = createTurboMaster(provider, chainId);
         const event = await getRecentEventDecoded(
           turboMasterContract,
