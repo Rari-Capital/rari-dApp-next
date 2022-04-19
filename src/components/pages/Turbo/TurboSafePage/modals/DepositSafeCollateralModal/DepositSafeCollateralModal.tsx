@@ -24,6 +24,7 @@ import useHasApproval from "hooks/useHasApproval";
 import { useQueryClient } from "react-query";
 import useSafeMaxAmount from "hooks/turbo/useSafeMaxAmount";
 import { constants } from "ethers";
+import { useTurboSafe } from "context/TurboSafeContext";
 
 // Todo - reuse Modal Prop Types
 type DepositSafeCollateralModalProps = {
@@ -36,6 +37,7 @@ export const DepositSafeCollateralModal: React.FC<
   DepositSafeCollateralModalProps
 > = ({ isOpen, onClose, safe }) => {
   const { address, provider, chainId } = useRari();
+  const { collateralTokenData } = useTurboSafe();
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -127,13 +129,21 @@ export const DepositSafeCollateralModal: React.FC<
   };
 
   // Form validation
-  const inputError: string | undefined = useMemo(() => {
-    const _amount = !!depositAmount ? depositAmount : "0";
-    if (maxAmount.div(constants.WeiPerEther).lt(parseInt(_amount))) {
-      return "Can't deposit this much!";
-    }
-  }, [depositAmount, maxAmount]);
+  // const inputError: string | undefined = useMemo(() => {
+  //   const _amount = !!depositAmount ? depositAmount : "0";
+  //   if (maxAmount
+  //     .div(constants.WeiPerEther)
+  //     .lt(
+  //       parseUnits(_amount, collateralTokenData?.decimals ?? 18 )
+  //     )
+  //     )) 
+  //     {
+  //     return "Can't deposit this much!";
+  //   }
+  // }, [depositAmount, maxAmount]);
 
+
+  const inputErr = undefined;
   return (
     <Modal
       ctx={{
