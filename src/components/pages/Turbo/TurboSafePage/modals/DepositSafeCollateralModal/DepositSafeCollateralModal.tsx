@@ -123,7 +123,6 @@ export const DepositSafeCollateralModal: React.FC<
   const maxAmount = useSafeMaxAmount(safe, SafeInteractionMode.DEPOSIT);
 
   const onClickMax = async () => {
-    if (!chainId) return;
     try {
       setDepositAmount(formatEther(maxAmount));
     } catch (err) {
@@ -132,20 +131,15 @@ export const DepositSafeCollateralModal: React.FC<
   };
 
   // Form validation
-  // const inputError: string | undefined = useMemo(() => {
-  //   const _amount = !!depositAmount ? depositAmount : "0";
-  //   if (maxAmount
-  //     .div(constants.WeiPerEther)
-  //     .lt(
-  //       parseUnits(_amount, collateralTokenData?.decimals ?? 18 )
-  //     )
-  //     ))
-  //     {
-  //     return "Can't deposit this much!";
-  //   }
-  // }, [depositAmount, maxAmount]);
+  const inputError: string | undefined = useMemo(() => {
+    const _amount = !!depositAmount ? depositAmount : "0";
+    const _amountBN = parseUnits(_amount, collateralTokenData?.decimals ?? 18);
+    //
+    if (_amountBN.gt(maxAmount)) {
+      return "Can't deposit this much!";
+    }
+  }, [depositAmount, maxAmount]);
 
-  const inputError = undefined;
   return (
     <Modal
       ctx={{

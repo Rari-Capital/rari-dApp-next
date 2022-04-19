@@ -103,7 +103,7 @@ export const calcuateLiquidationPrice = (
     collateralFactor
   ).toNumber();
   const liqPriceETH = parseFloat(formatUnits(collateralPrice.mul(util), 20));
-  console.log({liqPriceETH})
+  console.log({ liqPriceETH });
   return liqPriceETH;
 };
 
@@ -121,7 +121,7 @@ export const getSafeInfo = async (
 
     return result;
   } catch (err) {
-    console.log(err);
+    console.log("LENS ERR", { err, lens });
     throw err;
   }
 };

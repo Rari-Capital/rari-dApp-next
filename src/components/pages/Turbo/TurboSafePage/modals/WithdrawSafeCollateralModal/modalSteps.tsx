@@ -3,7 +3,12 @@ import { getSafeColor } from "context/TurboSafeContext";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
-import { ModalProps, Text, TokenAmountInput } from "rari-components";
+import {
+  ModalProps,
+  Text,
+  TokenAmountInput,
+  TokenSymbol,
+} from "rari-components";
 import UpdatingStatisticsTable from "../../UpdatingStatisticsTable";
 
 type WithdrawSafeCollateralCtx = {
@@ -41,7 +46,7 @@ const MODAL_STEP_1: ModalStep = {
     }
 
     const safeUtilizationValue = (colorScheme: string) =>
-      withdrawalAmount === "" || parseInt(withdrawalAmount) == 0  ? (
+      withdrawalAmount === "" || parseInt(withdrawalAmount) == 0 ? (
         parseFloat(safe?.safeUtilization.toString() ?? "0").toFixed(2) + "%"
       ) : (
         <Text fontWeight={600}>
@@ -67,7 +72,8 @@ const MODAL_STEP_1: ModalStep = {
             onClickMax={onClickMax}
           />
           <Text variant="secondary" mt="4">
-            You can withdraw {formatEther(maxAmount)}
+            You can withdraw {formatEther(maxAmount)} {" "}
+            <TokenSymbol tokenAddress={safe.collateralAsset} />
           </Text>
         </VStack>
         <UpdatingStatisticsTable
@@ -78,7 +84,7 @@ const MODAL_STEP_1: ModalStep = {
               tooltip: "How much collateral you have deposited.",
               initialValue: safe?.collateralValueUSD,
               newValue:
-                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0 
+                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0
                   ? undefined
                   : updatedSafe?.collateralValueUSD,
             },
@@ -88,7 +94,7 @@ const MODAL_STEP_1: ModalStep = {
                 "The maximum amount you can boost. This is collateralValueUSD * collateralFactor ",
               initialValue: safe?.maxBoostUSD,
               newValue:
-                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0 
+                withdrawalAmount === "" || parseInt(withdrawalAmount) == 0
                   ? undefined
                   : updatedSafe?.maxBoostUSD,
             },

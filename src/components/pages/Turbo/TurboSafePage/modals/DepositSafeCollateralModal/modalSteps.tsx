@@ -137,7 +137,7 @@ const MODAL_STEP_1: ModalStep = {
         approving ||
         depositing ||
         !depositAmount ||
-        parseInt(depositAmount) == 0 ||
+        parseFloat(depositAmount) == 0 ||
         !!inputError,
       async onClick() {
         await handleApproveAndDeposit();

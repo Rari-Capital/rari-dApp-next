@@ -46,5 +46,10 @@ export const TRIBE = "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B";
 export const FEI = "0x956F47F50A910163D8BF957Cf5846D573E7f87CA";
 export const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+export const DELISTED_STRATEGIES: { [strat: string]: boolean } = {
+  "0xb734cc08a38f0b81e7d3ddd38dfbd66a66f1a6ba": true,
+  "0xac4c093c777581dc9c4dc935394ff11e6c58cd45": true,
+};
+
 const isTurboSupportedNetwork = (chainId: number) =>
   Object.keys(TurboAddresses).includes(chainId.toString());

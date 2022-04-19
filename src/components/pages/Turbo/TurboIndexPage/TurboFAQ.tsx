@@ -17,8 +17,7 @@ import {
 type TurboFAQProps = BoxProps;
 
 const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
-  const safes = usePreviewSafes();
-  console.log({ safes });
+  // const safes = usePreviewSafes();
   return (
     <Box {...props}>
       <Stack spacing={24}>

@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 import { FuseERC4626Strategy } from "hooks/turbo/useStrategyInfo";
-import { EMPTY_ADDRESS } from "lib/turbo/utils/constants";
+import { DELISTED_STRATEGIES, EMPTY_ADDRESS } from "lib/turbo/utils/constants";
 
 // Data directly from the TurboLens
 export type LensStrategyInfo = [
@@ -26,18 +26,20 @@ export const formatStrategiesInfo = (
   tribeDAOFeeShare: BigNumber,
   shouldFilterStrategies: boolean = false
 ): StrategyInfo[] | [] => {
-  const formattedStrategies = strategies.map((strategy) => {
-    return {
-      strategy: strategy[0],
-      boostedAmount: strategy[1],
-      feiAmount: strategy[2],
-      feiEarned: strategy[2].sub(strategy[1]),
-      feiClaimable: strategy[2]
-        .sub(strategy[1])
-        .mul(constants.WeiPerEther.sub(tribeDAOFeeShare))
-        .div(constants.WeiPerEther),
-    };
-  });
+  const formattedStrategies = strategies
+    .map((strategy) => {
+      return {
+        strategy: strategy[0],
+        boostedAmount: strategy[1],
+        feiAmount: strategy[2],
+        feiEarned: strategy[2].sub(strategy[1]),
+        feiClaimable: strategy[2]
+          .sub(strategy[1])
+          .mul(constants.WeiPerEther.sub(tribeDAOFeeShare))
+          .div(constants.WeiPerEther),
+      } as StrategyInfo;
+    })
+    .filter((s) => !DELISTED_STRATEGIES[s.strategy.toLowerCase()]);
 
   return shouldFilterStrategies
     ? filterUsedStrategies(formattedStrategies)
@@ -49,6 +51,6 @@ export const filterUsedStrategies = (strats: StrategyInfo[] = []) =>
 
 //IE wfFEI-8
 export const getStrategyFusePoolId = (fuseStrategyName: string | undefined) => {
-  const arr = fuseStrategyName?.split("-") ?? []
-  return arr[arr.length -1];
+  const arr = fuseStrategyName?.split("-") ?? [];
+  return arr[arr.length - 1];
 };

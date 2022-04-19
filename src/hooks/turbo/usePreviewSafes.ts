@@ -28,6 +28,8 @@ const usePreviewSafes = () => {
     }
   );
   const safes = useSafesInfo(safeAddresses ?? []);
+
+  console.log({ safes });
   return safes ?? [];
 };
 
