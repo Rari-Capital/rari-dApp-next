@@ -1,13 +1,20 @@
 import { Box, usePrefersReducedMotion } from "@chakra-ui/react";
-import { boolean } from "mathjs";
+
+const speeds = {
+    "slow": "2000ms",
+    "medium": "1250ms",
+    "fast": "500ms"
+}
 
 const TurboEngineIcon = ({
   fill = "grey",
   animate = false,
+  animateSpeed = "medium",
   ...boxProps
 }: {
   fill: string;
   animate?: boolean;
+  animateSpeed?: "slow"| "medium" | "fast"
   [x: string]: any;
 }) => {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -40,7 +47,7 @@ const TurboEngineIcon = ({
       <style jsx>{`
         #Spinner {
           animation-name: ${animate && !prefersReducedMotion ? "spin" : "none"};
-          animation-duration: 1500ms;
+          animation-duration: ${speeds[animateSpeed]};
           animation-iteration-count: infinite;
           animation-timing-function: linear;
           transform-origin: center;

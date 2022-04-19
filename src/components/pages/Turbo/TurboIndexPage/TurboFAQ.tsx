@@ -74,8 +74,9 @@ const Section1 = () => (
             pr={6}
             fontSize="lg"
           >
-            Collateralizing, boosting, depositing, withdrawing, slurping, and
-            sweeping are all isolated features per safe.
+            Take your first step by creating a Turbo Safe. Manage your safe to
+            boost against a collateral type, earn yield, bootstrap Fuse Pools,
+            and more.
           </Text>
         </Stack>
         <Stack flex={1} spacing={4} mt={[12, 12, 0]}>
@@ -104,8 +105,8 @@ const Section1 = () => (
             pr={6}
             fontSize="lg"
           >
-            Once your asset is collateralized, the owner of this safe can then
-            mint FEI at 0% interest.
+            Deposit whitelisted collateral (gOHM, TRIBE, BAL) into your safe to
+            enable boosting FEI.
           </Text>
         </Stack>
         <Stack flex={1} spacing={4} mt={[12, 12, 0]}>
@@ -152,9 +153,8 @@ const Section1 = () => (
             pr={6}
             fontSize="lg"
           >
-            FEI is minted at no cost so long as that FEI is supplied into a
-            yield generating strategy that is compliant with ERC-4626, such as:
-            Fuse plug-ins, tokenized vaults, etc.
+            Take a 0% interest FEI loan, and boost it into the yield bearing
+            strategy of your choice. Claim interest whenever you like.
           </Text>
         </Stack>
       </Flex>

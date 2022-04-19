@@ -13,7 +13,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
   openDepositModal,
   onClickBoost,
 }) => {
-  const { safe } = useTurboSafe();
+  const { safe, collateralTokenData } = useTurboSafe();
   const { collateralAmount, boostedAmount } = safe ?? {};
 
   const hasCollateral = collateralAmount?.isZero() ? false : true;
@@ -50,10 +50,10 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
             </Badge>
             <Box>
               <Heading size="md">
-                Deposit collateral{hasCollateral ? "" : "  →"}
+                Deposit {collateralTokenData?.symbol} collateral{hasCollateral ? "" : "  →"}
               </Heading>
               <Text variant="secondary">
-                Collateralizing is required step before boosting pools.
+              Deposit collateral into your safe to enable boosting FEI
               </Text>
             </Box>
           </HStack>
@@ -78,7 +78,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
               {hasBoosted ? <CheckIcon /> : <Heading size="lg">2</Heading>}
             </Badge>
             <Box>
-              <Heading size="md">Boost a pool {hasCollateral ? "  →" : ""}</Heading>
+              <Heading size="md">Boost a pool {hasCollateral ? "    →" : ""}</Heading>
               <Text variant="secondary">
                 Click to boost your first pool, or scroll below for options
               </Text>

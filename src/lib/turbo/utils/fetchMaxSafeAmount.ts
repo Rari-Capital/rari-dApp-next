@@ -68,8 +68,10 @@ export async function fetchMaxSafeAmount(
       maxWithdraw = safe.collateralAmount.sub(
         parseEther(minimumCollateralInTRIBE.toString())
       );
-
-     
+    } else {
+      // If 0 safeUtilization then withdraw full balance of safe
+      const turboSafe = createTurboSafe(provider, safe.safeAddress);
+      maxWithdraw = await turboSafe.callStatic.maxWithdraw(userAddress);
     }
 
     return maxWithdraw;

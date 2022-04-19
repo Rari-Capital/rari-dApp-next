@@ -117,6 +117,8 @@ const MODAL_STEP_1: ModalStep = {
                   <Text variant="secondary">
                     Boost FEI against{" "}
                     <TokenSymbol tokenAddress={tokenAddress} fallback="?" />
+                    {" "}
+                    collateral
                   </Text>
                 </HStack>
               </VStack>
