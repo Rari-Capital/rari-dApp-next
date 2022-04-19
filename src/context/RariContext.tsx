@@ -35,7 +35,8 @@ import WalletLink from "walletlink";
 
 async function launchModalLazy(
   t: (text: string, extra?: any) => string,
-  cacheProvider: boolean = true
+  cacheProvider: boolean = true,
+  brave: boolean
 ) {
   const [WalletConnectProvider, Web3Modal] = await Promise.all([
     import("@walletconnect/web3-provider"),
@@ -45,6 +46,8 @@ async function launchModalLazy(
   const providerOptions = {
     injected: {
       display: {
+        logo: brave ? "/static/brave.png" : "/static/metamask.png",
+        name: brave ? "Brave Wallet" : "Metamask",
         description: t("Connect with a browser extension"),
       },
       package: null,
@@ -222,7 +225,9 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     async (cacheProvider: boolean = true) => {
       try {
         setIsAttemptingLogin(true);
-        const providerWeb3Modal = await launchModalLazy(t, cacheProvider);
+        const clientVersion = await provider.send('web3_clientVersion',[])
+        const isBrave = clientVersion.split('/')[0] !== 'MetaMask'
+        const providerWeb3Modal = await launchModalLazy(t, cacheProvider, isBrave);
         setWeb3ModalProvider(providerWeb3Modal);
         setRariAndAddressFromModal(providerWeb3Modal, "login");
         setIsAttemptingLogin(false);
