@@ -153,12 +153,15 @@ const MODAL_STEP_1: ModalStep = {
         <Text>{erc4626Strategy?.name}</Text>,
         "The strategy you are boosting",
       ],
-      [
+    ];
+
+    if (mode === SafeInteractionMode.BOOST) {
+      statistics.push([
         "Boost Cap",
         boostCapStatistic,
         "Every strategy has its boost cap to as a safety measure. This the amount of FEI in total that the strategy can be boosted with.",
-      ],
-    ];
+      ]);
+    }
 
     return (
       <>

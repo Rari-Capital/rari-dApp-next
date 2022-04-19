@@ -68,9 +68,12 @@ export const SafeStrategies: React.FC<{
           return {
             key: strat.strategy,
             items: [
-              <Link href={poolId ? `/fuse/pool/${poolId}` : "#"} isExternal={true}>
+              <Link
+                href={poolId ? `/fuse/pool/${poolId}` : "#"}
+                isExternal={true}
+              >
                 <HStack>
-                  <Image src="/static/icons/fuseGreen.png" boxSize={"25px"}/>
+                  <Image src="/static/icons/fuseGreen.png" boxSize={"25px"} />
                   {/* <TokenIcon
                     tokenAddress={strategyData?.underlying ?? FEI}
                     size="sm"
