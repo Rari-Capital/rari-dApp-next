@@ -13,11 +13,12 @@ import {
   SimpleGrid,
   Stack,
 } from "@chakra-ui/react";
+import AppLink from "components/shared/AppLink";
 
 type TurboFAQProps = BoxProps;
 
 const TurboFAQ: React.FC<TurboFAQProps> = (props) => {
-  // const safes = usePreviewSafes();
+  const safes = usePreviewSafes();
   return (
     <Box {...props}>
       <Stack spacing={24}>
@@ -251,7 +252,7 @@ const Section4 = () => (
   <AnimateInView from="bottom">
     <Stack spacing={12} alignItems="center" py={12}>
       <Center flexDirection="column">
-        <Heading size="xl">A completely new financial mechanism </Heading>
+        <Heading size="lg">A completely new financial mechanism </Heading>
         <Text
           variant="secondary"
           fontSize="xl"
@@ -265,7 +266,15 @@ const Section4 = () => (
         </Text>
       </Center>
       <HStack spacing={4} mb={4}>
-        <Button size="lg">Get Involved</Button>
+        <Button
+          as="a"
+          // @ts-ignore
+          href="https://tribe.fei.money/t/turbo-whitelist-template/4101"
+          target="_blank"
+          size="lg"
+        >
+          Get Involved
+        </Button>
         <Button
           variant="neutral"
           as="a"
