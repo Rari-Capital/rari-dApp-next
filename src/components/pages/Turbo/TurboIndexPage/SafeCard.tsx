@@ -24,9 +24,10 @@ import { useTokenData } from "hooks/useTokenData";
 import useShouldBoostSafe from "hooks/turbo/useShouldBoostSafe";
 import { getSafeColor } from "context/TurboSafeContext";
 import { motion } from "framer-motion";
+import { USDPricedTurboSafe } from "lib/turbo/fetchers/safes/getUSDPricedSafeInfo";
 
 type SafeCardProps = {
-  safe: SafeInfo;
+  safe: USDPricedTurboSafe | SafeInfo;
   previewMode: boolean;
 };
 
