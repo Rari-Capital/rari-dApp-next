@@ -110,9 +110,6 @@ const TurboSafePage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{collateralTokenData?.symbol} Safe | Tribe Turbo</title>
-      </Head>
 
       {/* Modals */}
       <DepositSafeCollateralModal
@@ -178,7 +175,7 @@ const TurboSafePage: React.FC = () => {
       >
         <Skeleton isLoaded={!loading}>
           <VStack>
-            <HStack>
+            <HStack justify={"flex-start"}>
               <TokenIcon tokenAddress={safe?.collateralAsset ?? ""} mr={2} />
               <Heading>
                 <TokenSymbol tokenAddress={safe?.collateralAsset ?? ""} /> Safe
@@ -241,7 +238,11 @@ export const Buttons: React.FC<ButtonsProps> = ({
 
   return (
     <Stack direction={["column", "column", "row"]} {...restProps}>
-      <Button variant="cardmatte" onClick={openDepositModal} disabled={loading || !isUserAdmin}>
+      <Button
+        variant="cardmatte"
+        onClick={openDepositModal}
+        disabled={loading || !isUserAdmin}
+      >
         <Image
           src="/static/turbo/action-icons/deposit-collateral.png"
           height={4}

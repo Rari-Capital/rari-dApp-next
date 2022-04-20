@@ -3,7 +3,8 @@ import { Box, usePrefersReducedMotion } from "@chakra-ui/react";
 const speeds = {
     "slow": "2000ms",
     "medium": "1250ms",
-    "fast": "500ms"
+    "fast": "500ms",
+    "superfast": "300ms"
 }
 
 const TurboEngineIcon = ({
@@ -14,7 +15,7 @@ const TurboEngineIcon = ({
 }: {
   fill: string;
   animate?: boolean;
-  animateSpeed?: "slow"| "medium" | "fast"
+  animateSpeed?: "slow"| "medium" | "fast" | "superfast"
   [x: string]: any;
 }) => {
   const prefersReducedMotion = usePrefersReducedMotion();

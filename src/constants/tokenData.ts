@@ -226,7 +226,8 @@ export const TokenDataOverrides: {
     },
     "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08": {
       symbol: "CRVrETHwstETH",
-      logoURL: "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xae78736cd615f374d3085123a210448e74fc6393.png"
+      logoURL:
+        "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xae78736cd615f374d3085123a210448e74fc6393.png",
     },
 
     "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8": {
@@ -235,9 +236,14 @@ export const TokenDataOverrides: {
         "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7.png",
     },
     // VOLT
-    "0x559eBC30b0E58a45Cc9fF573f77EF1e5eb1b3E18" : {
-      logoURL: "https://cdn.discordapp.com/attachments/854131414316220449/965716390717833316/volt_primary_logo.png",
-    }
+    "0x559eBC30b0E58a45Cc9fF573f77EF1e5eb1b3E18": {
+      logoURL:
+        "https://cdn.discordapp.com/attachments/854131414316220449/965716390717833316/volt_primary_logo.png",
+    },
+    // gOHM
+    "0x0ab87046fbb341d058f17cbc4c1133f25a20a52f": {
+      symbol: "gOHM",
+    },
   },
   [ChainID.ARBITRUM]: {
     "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": {

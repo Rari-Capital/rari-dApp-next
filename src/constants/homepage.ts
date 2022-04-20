@@ -130,7 +130,7 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
   {
     type: HomepageOpportunityType.Turbo,
     title: "Tribe Turbo",
-    subtitle: "Earn costless yield on unutilized assets.",
+    subtitle: "Earn costless yield and boost FEI liquidity into Fuse.",
     bgColor: "#EFEFEF",
     icon: "/static/turbo/turbo-engine-green.svg",
     vaultType: Pool.USDC,

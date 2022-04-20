@@ -59,7 +59,7 @@ const TurboIndexPage: React.FC = () => {
           <Box minWidth={["100%", "100%", "50%"]} pr={[0, 0, 32]}>
             <SlideFade in={true} offsetY="20px">
               <Stack align="center" direction={{base: "column", md: "row"}}>
-                <TurboEngineIcon fill="#64DBA0" animate={true} animateSpeed="fast" boxSize={"45px"} minW="45px" mr={1}/>
+                <TurboEngineIcon fill="#64DBA0" animate={true} animateSpeed="superfast" boxSize={"45px"} minW="45px" mr={1}/>
                 <Heading size="2xl">Introducing Turbo</Heading>
               </Stack>
 
