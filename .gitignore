@@ -12,7 +12,6 @@
 /.nyc_output
 /reports
 
-
 /src/static/contracts/compiled/*.ts
 /src/static/compiled/*.json
 
@@ -35,10 +34,13 @@ cypress/screenshots
 cypress/videos
 cypress.env.json
 
+tsconfig.tsbuildinfo
+
 # vercel
 .now
 .vercel
 .env
+.env.local
 
 .eslintcache
 

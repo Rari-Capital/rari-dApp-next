@@ -95,6 +95,7 @@ export enum HomepageOpportunityType {
   Arbitrum,
   Connext,
   PegExchanger,
+  Turbo,
 }
 
 export interface HomepageOpportunity {
@@ -127,12 +128,13 @@ export const HOMEPAGE_OPPORTUNIES: HomepageOpportunity[] = [
     icon: "/static/icons/arbitrum_icon_glow.png",
   },
   {
-    type: HomepageOpportunityType.PegExchanger,
-    title: "Swap RGT for TRIBE",
-    subtitle: "Swap your RGT for TRIBE post-merge.",
-    bgColor: "#DD6829",
-    icon: "/static/icons/tribe_swap.svg",
+    type: HomepageOpportunityType.Turbo,
+    title: "Tribe Turbo",
+    subtitle: "Earn costless yield on unutilized assets.",
+    bgColor: "#EFEFEF",
+    icon: "/static/turbo/turbo-engine-green.svg",
     vaultType: Pool.USDC,
+    textColor: "black"
   },
   {
     type: HomepageOpportunityType.FusePool,

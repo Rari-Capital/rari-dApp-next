@@ -27,7 +27,8 @@ export function stringUsdFormatter(num: string) {
   return formatter.format(parseFloat(num));
 }
 
-export function smallUsdFormatter(num: number | string) {
+export function smallUsdFormatter(_num: number | string | undefined, dollars: boolean = true) {
+  let num = _num ?? 0
   if (typeof num === typeof "") {
     return smallFormatter.format(parseFloat(num as string));
   }
@@ -38,17 +39,20 @@ export function usdFormatter(num: number) {
   return formatter.format(num);
 }
 
-export function shortUsdFormatter(num: number | string) {
+export function shortUsdFormatter(_num: number | string | undefined, dollars: boolean = true) {
+  let num = _num ?? 0
+  let str = dollars ? "$" : ""
   if (typeof num === typeof "") {
-    return "$" + shortFormatter.format(parseFloat(num as string));
+    return str + shortFormatter.format(parseFloat(num as string));
   }
-  return "$" + shortFormatter.format(num as number);
+  return str + shortFormatter.format(num as number);
 }
 
-export const abbreviateAmount = (amount: number) => {
+export const abbreviateAmount = (_amount: number | string | undefined, dollars: boolean = true) => {
+  const amount = _amount ? Number(_amount) : 0
   return Math.abs(amount) > 100000
-    ? shortUsdFormatter(amount)
-    : smallUsdFormatter(amount);
+    ? shortUsdFormatter(amount, dollars)
+    : smallUsdFormatter(amount, dollars);
 };
 
 export const bnToString = (bn: BigNumber): string => bn.toString();

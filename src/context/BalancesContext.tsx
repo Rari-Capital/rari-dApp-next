@@ -28,19 +28,22 @@ export const BalancesContextProvider = ({
     revalidateOnReconnect: false,
   });
 
-  const tokenAddresses = useMemo(
-    () =>
-      underlyingAssets?.length ? underlyingAssets.map((asset) => asset.id) : [],
-    [underlyingAssets]
-  );
+  const tokenAddresses = !!underlyingAssets
+    ? underlyingAssets.map((asset) => asset.id)
+    : [];
 
   const tokenBalances = useTokenBalances(tokenAddresses);
 
-  const balances: {
+  type BalancesMap = {
     [address: string]: number;
-  } = useMemo(() => {
-    let ret: { [address: string]: number } = {};
-    if (!isAuthed) return ret;
+  };
+
+  const balances: BalancesMap = useMemo(() => {
+    let ret: BalancesMap = {};
+
+    if (!isAuthed) {
+      return ret;
+    }
 
     for (let i = 0; i < tokenBalances.length; i++) {
       const asset = underlyingAssets![i];

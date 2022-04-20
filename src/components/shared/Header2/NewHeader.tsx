@@ -1,5 +1,6 @@
 import { PixelSize, Row } from "lib/chakraUtils";
 import { Box, Flex, Icon, Spacer, useDisclosure } from "@chakra-ui/react";
+import { Link } from "rari-components/standalone";
 
 //  Components
 import DashboardBox, { DASHBOARD_BOX_SPACING } from "../DashboardBox";
@@ -54,9 +55,9 @@ export const NewHeader = () => {
         mb={5}
         // bg="pink"
       >
-        <AppLink href="/">
+        <Link href="/">
           <SmallLogo />
-        </AppLink>
+        </Link>
 
         {isMobile ? null : (
           <Row

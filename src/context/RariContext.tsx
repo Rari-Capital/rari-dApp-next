@@ -25,7 +25,7 @@ import {
   initFuseWithProviders,
 } from "../utils/web3Providers";
 
-import { Web3Provider } from "@ethersproject/providers";
+import { Web3Provider, JsonRpcProvider } from "@ethersproject/providers";
 import {
   ChainID,
   isSupportedChainId,
@@ -96,6 +96,7 @@ export interface RariContextData {
   login: (cacheProvider?: boolean) => Promise<any>;
   logout: () => any;
   address: string;
+  provider: JsonRpcProvider | Web3Provider
   isAttemptingLogin: boolean;
   chainId: number | undefined;
   switchNetwork: (newChainId: number, router: any) => void;
@@ -251,11 +252,32 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
     [setWeb3ModalProvider, setRariAndAddressFromModal, setIsAttemptingLogin, t]
   );
 
-  const refetchAccountData = useCallback(() => {
+  const refetchAccountData = useCallback(async () => {
+    setSwitchingNetwork(true);
     console.log("New account, clearing the queryClient! ChainId: ", chainId);
+
+    // Get Web3 Provider
     const provider = chooseBestWeb3Provider();
-    setProvider(provider);
+
+    // Initiate fuse and set global account/address form provider
     const fuseInstance = initFuseWithProviders(provider, chainId);
+    fuseInstance.provider.listAccounts().then((addresses: string[]) => {
+      if (addresses.length === 0) {
+        console.log("Address array was empty. Reloading!");
+        router.reload();
+      }
+
+      const address = addresses[0];
+      const requestedAddress = router.query.address as string;
+
+      console.log("Setting Logrocket user to new address: " + address);
+      LogRocket.identify(address);
+
+      console.log("Requested address: ", requestedAddress);
+      setAddress(requestedAddress ?? address);
+    });
+
+    // Set Fuse
     setFuse(fuseInstance);
     setSwitchingNetwork(false);
   }, [setRariAndAddressFromModal, web3ModalProvider, queryClient, chainId]);
@@ -359,6 +381,7 @@ export const RariProvider = ({ children }: { children: ReactNode }) => {
       isAuthed: address !== EmptyAddress,
       login,
       logout,
+      provider,
       address,
       isAttemptingLogin,
       chainId,

@@ -61,7 +61,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               <AuthMiddleware />
               <Component {...pageProps} />
             </Layout>
-          </BalancesContextProvider>
+            </BalancesContextProvider>
         </RariProvider>
       </QueryClientProvider>
     </ChakraProvider>

@@ -276,7 +276,7 @@ const Home = () => {
                   </chakra.span>
                 </Text>
               </VStack>
-              <Text fontSize={isMobile ? "sm" : "lg"} fontWeight="bold">
+              <Text fontSize={isMobile ? "sm" : "lg"} mt={3}>
                 Discover infinite possibilities across the Rari Capital
                 Ecosystem
               </Text>

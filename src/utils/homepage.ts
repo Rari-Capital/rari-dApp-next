@@ -23,6 +23,8 @@ export const getOpportunityLink = (
       return "https://xpollinate.io/";
     case HomepageOpportunityType.PegExchanger:
       return "https://jointhetribe.xyz/";
+    case HomepageOpportunityType.Turbo:
+      return "/turbo";
   }
   return "/";
 };

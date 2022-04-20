@@ -1,22 +1,20 @@
 // Next
 import { useRouter } from "next/router";
-
+import { useMemo } from "react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 // Components
 import {
   Box,
-  Link,
-  Text,
+  Button,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
-  MenuGroup,
   MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  Text,
 } from "@chakra-ui/react";
 import AppLink from "../AppLink";
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import { useMemo } from "react";
 
 // Types
 
@@ -38,14 +36,18 @@ export interface DropDownLinkInterface {
 
 function getHeaderLinkStyleProps(isOnThisRoute: boolean) {
   return {
-    p: 2,
-    px: 3,
-    mx: 3,
+    py: 2,
+    px: 4,
+    mx: 4,
     fontWeight: 600,
+    borderRadius: "lg",
     color: isOnThisRoute ? "white" : "#818181",
     bg: isOnThisRoute ? "#1F1F1F" : "transparent",
-    _hover: { bg: isOnThisRoute ? "#1F1F1F" : "#272727" },
-    _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent", },
+    _hover: {
+      bg: isOnThisRoute ? "#1F1F1F" : "#272727",
+      textDecoration: "none",
+    },
+    _active: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
     _focus: { bg: isOnThisRoute ? "#1F1F1F" : "transparent" },
   };
 }
@@ -74,7 +76,6 @@ export const HeaderLink = ({
       isExternal
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
-      borderRadius="sm"
       {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
       <Text {...props}>{name}</Text>
@@ -84,7 +85,6 @@ export const HeaderLink = ({
       href={route}
       whiteSpace="nowrap"
       className={noUnderline ? "no-underline" : ""}
-      borderRadius="sm"
       {...getHeaderLinkStyleProps(isOnThisRoute)}
     >
       <Text {...props}>{name}</Text>
@@ -95,7 +95,8 @@ export const HeaderLink = ({
 const splitHairs = (path: string) =>
   path
     .replace(/\/+$/, "")
-    .split("/")
+    // Split on `/` or `?`
+    .split(/\/|\?/)
     .filter((str) => !!str);
 
 // Dropdown Header Link
@@ -134,7 +135,6 @@ export const DropDownLink = ({
           as={Button}
           rightIcon={<ChevronDownIcon />}
           {...getHeaderLinkStyleProps(isOnThisRoute)}
-          borderRadius="sm"
         >
           {name}
         </MenuButton>
@@ -159,7 +159,7 @@ const DropdownItem = ({ link }: { link: DropDownLinkInterface }) => {
   return (
     <AppLink href={route} isExternal={isExternal}>
       <MenuItem _focus={{ bg: "grey" }} _hover={{ bg: "grey" }}>
-        {name}
+        <Text fontWeight={600}>{name}</Text>
       </MenuItem>
     </AppLink>
   );
@@ -169,7 +169,13 @@ const DropdownMenuGroup = ({ menuItem }: { menuItem: MenuItemInterface }) => {
   return (
     <>
       <MenuDivider />
-      <MenuGroup title={menuItem.title}>
+      <MenuGroup
+        title={menuItem.title}
+        opacity={0.5}
+        fontSize="xs"
+        textTransform="uppercase"
+        pt={2}
+      >
         {menuItem.links?.map((link, i) => (
           <DropdownItem link={link} key={i} />
         ))}
