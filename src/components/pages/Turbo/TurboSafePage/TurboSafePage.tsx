@@ -235,13 +235,13 @@ export const Buttons: React.FC<ButtonsProps> = ({
   openClaimInterestModal,
   ...restProps
 }) => {
-  const { loading, safe, totalFeiOwed } = useTurboSafe();
+  const { loading, safe, totalFeiOwed, isUserAdmin } = useTurboSafe();
   const hasDeposits = !!safe?.collateralAmount.gt(0);
   const hasClaimable = totalFeiOwed.gt(0);
 
   return (
     <Stack direction={["column", "column", "row"]} {...restProps}>
-      <Button variant="cardmatte" onClick={openDepositModal} disabled={loading}>
+      <Button variant="cardmatte" onClick={openDepositModal} disabled={loading || !isUserAdmin}>
         <Image
           src="/static/turbo/action-icons/deposit-collateral.png"
           height={4}
@@ -252,7 +252,7 @@ export const Buttons: React.FC<ButtonsProps> = ({
       <Button
         variant="cardmatte"
         onClick={openWithdrawModal}
-        disabled={loading || !hasDeposits}
+        disabled={loading || !hasDeposits || !isUserAdmin}
       >
         <Image
           src="/static/turbo/action-icons/withdraw-collateral.png"
@@ -264,7 +264,7 @@ export const Buttons: React.FC<ButtonsProps> = ({
       <Button
         variant="cardmatte"
         onClick={openClaimInterestModal}
-        disabled={loading || !hasClaimable}
+        disabled={loading || !hasClaimable || !isUserAdmin}
       >
         <Image
           src="/static/turbo/action-icons/claim-interest.png"

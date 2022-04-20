@@ -29,6 +29,7 @@ export const SafeStrategies: React.FC<{
     getERC4626StrategyData,
     isAtLiquidationRisk,
     colorScheme,
+    isUserAdmin
   } = useTurboSafe();
 
   const safeStrategies: USDPricedStrategy[] =
@@ -127,10 +128,10 @@ export const SafeStrategies: React.FC<{
                     boxSize={8}
                     borderRadius="50%"
                     transition="0.2s opacity"
-                    opacity={!isAtLiquidationRisk ? 1 : 0.5}
+                    opacity={!isAtLiquidationRisk && !!isUserAdmin ? 1 : 0.5}
                     _hover={{
                       opacity: 0.5,
-                      cursor: !isAtLiquidationRisk ? "pointer" : "not-allowed",
+                      cursor: !isAtLiquidationRisk && !!isUserAdmin ? "pointer" : "not-allowed",
                     }}
                     background="success"
                     onClick={() => onClickBoost(strat.strategy)}
