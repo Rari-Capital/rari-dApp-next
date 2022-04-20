@@ -22,7 +22,7 @@ export function useUnclaimedFuseRewards() {
   const { data: _rewardsDistributorsByFusePool, error } = useQuery(
     "unclaimedRewards for " + "" + address + chainId,
     async () => {
-      if (!isAuthed) return null
+      if (!isAuthed) return null;
 
       const rewardsDistributorsByFusePool =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getRewardsDistributorsBySupplier(
@@ -61,7 +61,6 @@ export function useUnclaimedFuseRewards() {
     }
   });
 
-
   // 2. Reduce this 2D array into a single deduped array of RewardsDistributors
   // New: Filter out Flywheels (hardcoded for now)
   const uniqueRDs: string[] = [
@@ -70,17 +69,19 @@ export function useUnclaimedFuseRewards() {
         return prev.concat(curr);
       }, []) ?? []
     ),
-  ].filter(rd => !Object.keys(flywheelsFilter).includes(rd.toLowerCase()));
+  ].filter((rd) => !Object.keys(flywheelsFilter).includes(rd.toLowerCase()));
   // 3. Create map of {[rewardToken: string] : RewardDistributor[] }
 
   // 3a. Query all individual RewardsDistributors for their rewardTokens
   const { data: _rewardsDistributors, error: _rdError } = useQuery(
-    "rewardsDistributor data for " + address + " " + chainId + ` ${uniqueRDs.join(',')}`,
+    "rewardsDistributor data for " +
+      address +
+      " " +
+      chainId +
+      ` ${uniqueRDs.join(",")}`,
     async () => {
-
       const _rewardDistributorsData = await Promise.allSettled(
         uniqueRDs.map(async (rewardsDistributorAddress) => {
-
           const rdInstance = createRewardsDistributor(
             rewardsDistributorAddress,
             fuse
@@ -96,27 +97,26 @@ export function useUnclaimedFuseRewards() {
             comptrollers: Object.keys(
               rewardsDistributorsToPoolsMap[rewardsDistributorAddress]
             ),
-          }
+          };
 
-          _rewardDistributorsData
+          _rewardDistributorsData;
 
-
-          return obj
+          return obj;
         })
       );
 
-      let _results = _rewardDistributorsData
-        .filter(({ status }) => status === "fulfilled") as PromiseFulfilledResult<RewardsDistributorData>[]
-      let results = _results.map(({ value }) => value)
+      let _results = _rewardDistributorsData.filter(
+        ({ status }) => status === "fulfilled"
+      ) as PromiseFulfilledResult<RewardsDistributorData>[];
+      let results = _results.map(({ value }) => value);
       return results;
     }
   );
 
   // This is an array of RewardsDistributors we care about for this user
-  const rewardsDistributors =
-    _rewardsDistributors as RewardsDistributorData[];
+  const rewardsDistributors = _rewardsDistributors as RewardsDistributorData[];
 
-    // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
+  // This is a one-to-one map of RewardsDistributors by rD address {rDaddress: RewardsDistributor}
   const rewardsDistributorsMap: RewardsDistributorMap = {};
 
   rewardsDistributors?.length &&
@@ -138,22 +138,23 @@ export function useUnclaimedFuseRewards() {
       }
     });
 
-
-
-
-
   //  4.  getUnclaimedRewardsByDistributors
   const { data: _unclaimed, error: unclaimedErr } = useQuery(
-    "unclaimed for " + address + ' ' + chainId,
+    "unclaimed for " +
+      address +
+      " " +
+      chainId +
+      " and Rds " +
+      Object.keys(rewardsDistributorsMap)
+      .join(","),
     async () => {
-      if (!isAuthed) return undefined
+      if (!isAuthed) return undefined;
 
       const unclaimedResults =
         await fuse.contracts.FusePoolLensSecondary.callStatic.getUnclaimedRewardsByDistributors(
           address,
-          uniqueRDs
+          Object.keys(rewardsDistributorsMap)
         );
-
 
       // console.log({ address, uniqueRDs, unclaimedResults });
 
@@ -188,8 +189,6 @@ export function useUnclaimedFuseRewards() {
       }
     }) ?? [];
 
-  // console.log({ _unclaimed, unclaimed });
-
   //   console.log("rewards2", {
   //     rewardsDistributorsByFusePool,
   //     uniqueRDs,
@@ -202,7 +201,7 @@ export function useUnclaimedFuseRewards() {
   //   handle generic err
   const oopsie = error || _rdError || unclaimedErr;
   if (oopsie) console.log({ oopsie });
-  
+
   return {
     rewardsDistributorsMap,
     rewardTokensMap,
@@ -216,7 +215,7 @@ export type RewardsTokenMap = {
   [rewardToken: string]: RewardsDistributorData[];
 };
 
-export interface RewardsDistributorData{
+export interface RewardsDistributorData {
   rewardToken: string;
   rewardsDistributorAddress: string;
   markets: string[];
