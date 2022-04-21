@@ -80,16 +80,16 @@ export const chainMetadata = {
         rpcUrl: "https://mainnet.optimism.io/",
         blockExplorerURL: "https://optimistic.etherscan.io",
         color: "#FE0521",
-    },
-    [ChainID.HARDHAT]: {
-      chainId: ChainID.HARDHAT,
-      name: "Hardhat",
-      imageUrl: "/static/networks/optimism.svg", // no logo
-      supported: true,
-      rpcUrl: "http://localhost:8545",
-      blockExplorerURL: "",
-      color: "#BC6C6C"
     }
+    // [ChainID.HARDHAT]: {
+    //   chainId: ChainID.HARDHAT,
+    //   name: "Hardhat",
+    //   imageUrl: "/static/networks/optimism.svg", // no logo
+    //   supported: true,
+    //   rpcUrl: "http://localhost:8545",
+    //   blockExplorerURL: "",
+    //   color: "#BC6C6C"
+    // }
 };
 export const isSupportedChainId = (chainId) => Object.values(ChainID).includes(chainId);
 export function getSupportedChains() {
