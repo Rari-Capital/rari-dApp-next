@@ -278,9 +278,12 @@ export const useConvexPoolIncentives = (
     async () => {
       if (
         comptroller?.toLowerCase() !==
-        "0x07cd53380fe9b2a5e64099591b498c73f0efaa66"
+        "0x07cd53380fe9b2a5e64099591b498c73f0efaa66" &&
+        comptroller?.toLowerCase() !== 
+        "0x814b02c1ebc9164972d888495927fe1697f0fb4c"
       )
         return undefined;
+
       const lens = createFlywheelLens(provider);
       let result: MarketRewardInfo[] =
         await lens.callStatic.getMarketRewardsInfo(comptroller);
