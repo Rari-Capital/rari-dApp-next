@@ -280,7 +280,9 @@ export const useConvexPoolIncentives = (
         comptroller?.toLowerCase() !==
         "0x07cd53380fe9b2a5e64099591b498c73f0efaa66" &&
         comptroller?.toLowerCase() !== 
-        "0x814b02c1ebc9164972d888495927fe1697f0fb4c"
+        "0x814b02c1ebc9164972d888495927fe1697f0fb4c" &&
+        comptroller?.toLocaleLowerCase() !==
+        "0x4Ba827A642F99773dB5CD39689B410f4646f56E3"
       )
         return undefined;
 
