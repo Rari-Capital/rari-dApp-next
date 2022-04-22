@@ -13,6 +13,8 @@ import { filterPoolName } from "utils/fetchFusePoolData";
 import { useState } from "react";
 
 export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
+
+  console.log({pools})
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
@@ -66,6 +68,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
         h="100%"
       >
         {!!pools ? !!pools.length ? pools.map((pool, index) => {
+          console.log({pool, index, tokens: pool.rewardTokens})
           return (
             <PoolRow
               key={pool.id}
