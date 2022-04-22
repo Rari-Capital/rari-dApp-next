@@ -10,7 +10,7 @@ import { useIsSmallScreen } from "hooks/useIsSmallScreen"
 import { Fuse } from "../../../../esm/index";
 
 // Utils
-import { Column } from "lib/chakraUtils";
+import { Center, Column, Row } from "lib/chakraUtils";
 import { PoolList } from "./PoolList";
 import { useFilter } from "hooks/useFilter";
 import { createMergedPools, MergedPool, fetchPoolsManual, LensFusePool, LensFusePoolData, useFusePools, useFusePoolsList, useInifinitePools } from "hooks/fuse/useFusePools";
@@ -21,6 +21,8 @@ import { providers } from "@0xsequence/multicall";
 import { fetchCurrentETHPrice } from "utils/coingecko";
 import { ChainID } from "constants/networks";
 import { Spinner } from "@chakra-ui/react";
+import { ModalDivider } from "components/shared/Modal";
+import { Text } from "rari-components";
 
 const FusePoolsPage = memo(() => {
   const isMobile = useIsSmallScreen();
@@ -77,13 +79,12 @@ const UnverifiedPools = ({filter}: {filter: string}) => {
 
     const fetchPoolsManual = async ({pageParam = poolSlice}: any) => {
       if (pageParam.length === 1) return
-      console.log({pageParam})
       // Extract data from Directory call
-      let ids: string[] = (poolSlice[0] ?? []).map((bn: BigNumber) =>
+      let ids: string[] = (pageParam[0] ?? []).map((bn: BigNumber) =>
         bn.toString()
       );
-      let fusePools: LensFusePool[] = poolSlice[1];
-      let comptrollers = fusePools.map(({ comptroller }) => comptroller);
+      let fusePools: LensFusePool[] = pageParam[1];
+      let comptrollers = fusePools.map((pool: any) => pool[2]);
     
       // Query lens.getPoolSummary
       let fusePoolsData: LensFusePoolData[] = await Promise.all(
@@ -118,7 +119,6 @@ const UnverifiedPools = ({filter}: {filter: string}) => {
 
       const fetchETHPrice = fetchCurrentETHPrice();
       const merged: MergedPool[] = await createMergedPools(ids, fusePools, fusePoolsData, poolRewardTokens, fetchETHPrice);
-      console.log({merged})
       return merged
     };
   
@@ -133,16 +133,55 @@ const UnverifiedPools = ({filter}: {filter: string}) => {
         //@ts-ignore
     } = useInfiniteQuery(['colors'], fetchPoolsManual, {
         enabled: poolList && poolSlice.length > 1, 
+        refetchOnWindowFocus: false,
         getNextPageParam: (lastPage, pages) => {
           return poolSlice
       }
     })
 
-    console.log({data})
-  if (!data?.pages[0] || data?.pages[0].length < 1) return <Spinner/>
-  
+
+    const handleInifiniteScrollClick = () => {
+      setPoolBatch([poolBatch[0] + 20, poolBatch[1] + 20])
+      setPoolSlice([
+        poolList[0].slice(poolBatch[0] + 20, poolBatch[1] + 20),
+        poolList[1].slice(poolBatch[0] + 20, poolBatch[1] + 20)
+      ])
+      fetchNextPage({
+        pageParam: [
+          poolList[0].slice(poolBatch[0] + 20, poolBatch[1] + 20), 
+          poolList[1].slice(poolBatch[0] + 20, poolBatch[1] + 20)
+        ]
+      })
+    }
+
   return (
-    <PoolList pools={data?.pages[0]} />
+    <>
+    { data?.pages.map((page, index) => <PoolList pools={page} infiniteScroll={index > 0}/>)}
+    
+    {  poolBatch[1] < poolListLength ?
+      <>
+          <ModalDivider/>
+          <Row
+            onClick={handleInifiniteScrollClick}
+            _hover={{cursor: "pointer", opacity: 1}}
+            mainAxisAlignment="center"
+            crossAxisAlignment="center"
+            height="45px"
+            width="100%"
+            flexShrink={0}
+            opacity={0.5}
+            pl={4}
+            pr={1}
+          >
+            <Text textAlign="center" fontWeight="bold" width={"100%"}>
+              Load more...
+            </Text>
+
+        </Row> 
+        </>
+      : null
+      }
+    </>
   )
 }
 
