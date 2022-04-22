@@ -29,7 +29,7 @@ export interface FusePool {
   isPrivate: boolean;
 }
 
-interface LensFusePool {
+export interface LensFusePool {
   blockPosted: string;
   name: string;
   creator: string;
@@ -37,7 +37,7 @@ interface LensFusePool {
   timestampPosted: string;
 }
 
-interface LensFusePoolData {
+export interface LensFusePoolData {
   totalBorrow: string;
   totalSupply: string;
   underlyingSymbols: string[];
@@ -80,20 +80,15 @@ export const fetchPoolsManual = async ({
   verification = false,
   chainId = 1,
   blockNum,
+  fusePoolsDirectoryResult
 }: {
+  fusePoolsDirectoryResult: any
   fuse: Fuse;
   address: string;
   verification?: boolean;
   chainId?: number;
   blockNum?: number;
 }) => {
-  // Query Directory
-  let fusePoolsDirectoryResult =
-    await fuse.contracts.FusePoolDirectory.callStatic.getPublicPoolsByVerification(
-      verification,
-      { from: address }
-    );
-
   // Extract data from Directory call
   let ids: string[] = (fusePoolsDirectoryResult[0] ?? []).map((bn: BigNumber) =>
     bn.toString()
@@ -135,6 +130,17 @@ export const fetchPoolsManual = async ({
   const fetchETHPrice = fetchCurrentETHPrice();
   return await createMergedPools(ids, fusePools, fusePoolsData, poolRewardTokens, fetchETHPrice);
 };
+
+export const fetchPoolsList = async (
+  fuse: Fuse,
+  address: string,
+) => {
+    const answer = await fuse.contracts.FusePoolDirectory.connect(fuse.contracts.FusePoolLens.provider).callStatic.getPublicPoolsByVerification(
+      false,
+      { from: address }
+    )
+    return answer
+}
 
 export const fetchPools = async ({
   fuse,
@@ -209,7 +215,7 @@ export const fetchPools = async ({
   return await createMergedPools(ids, fusePools, fusePoolsData, poolRewardTokens, fetchETHPrice);
 };
 
-const createMergedPools = async (
+export const createMergedPools = async (
   ids: string[],
   fusePools: LensFusePool[],
   fusePoolsData: LensFusePoolData[],
@@ -252,14 +258,6 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
   const { data: pools } = useQuery(
     `${address} fusePoolList ${filter ?? ""} chainId: ${chainId}`,
     async () => {
-      if (chainId === ChainID.ARBITRUM && filter === "unverified-pools") {
-        return await fetchPoolsManual({
-          fuse,
-          address,
-          verification: false,
-          chainId,
-        });
-      }
       return await fetchPools({ fuse, address, filter, chainId });
     }
   );
@@ -299,3 +297,77 @@ export const useFusePools = (filter: string | null): MergedPool[] | null => {
 
   return filteredPools;
 };
+
+export const useFusePoolsList = (
+  fuse: Fuse,
+  address: string,
+) => {
+  const { data: pools } = useQuery('Fuse unverified pools list', async () => await fetchPoolsList(fuse, address))
+
+  return pools
+}
+
+export const useInifinitePools = (fuse: Fuse, chainId: number, address: string) => {
+
+  const fetchPoolsManual = async ({
+    fusePoolsDirectoryResult
+  }: {
+    fusePoolsDirectoryResult: any
+  }) => {
+    // Extract data from Directory call
+    let ids: string[] = (fusePoolsDirectoryResult[0] ?? []).map((bn: BigNumber) =>
+      bn.toString()
+    );
+    let fusePools: LensFusePool[] = fusePoolsDirectoryResult[1];
+    let comptrollers = fusePools.map(({ comptroller }) => comptroller);
+  
+    // Query lens.getPoolSummary
+    let fusePoolsData: LensFusePoolData[] = await Promise.all(
+      comptrollers.map(async (comptroller) => {
+        const _data = await fuse.contracts.FusePoolLens.callStatic.getPoolSummary(
+          comptroller
+        );
+        const data: LensFusePoolData = {
+          totalSupply: _data[0],
+          totalBorrow: _data[1],
+          underlyingTokens: _data[2],
+          underlyingSymbols: _data[3],
+          whitelistedAdmin: _data[4],
+        };
+        return data;
+      })
+    ).catch((err) => {
+      console.error("Error querying poolSummaries", err);
+      return [];
+    });
+  
+    const multicallProvider = new providers.MulticallProvider(fuse.provider)
+    const multicallFuse = new Fuse(multicallProvider, chainId)
+    const poolRewardTokens = await Promise.all(fusePools.map((pool) => {
+      return multicallFuse.contracts.FusePoolLensSecondary.callStatic.getRewardSpeedsByPool(
+        pool.comptroller
+      ).then((rewards) => {
+        //reward token list
+        return rewards[2]
+      })
+    }))
+  
+    const fetchETHPrice = fetchCurrentETHPrice();
+    return await createMergedPools(ids, fusePools, fusePoolsData, poolRewardTokens, fetchETHPrice);
+  };
+
+  const {
+      isLoading,
+      isError,
+      error,
+      data,
+      fetchNextPage,
+      isFetching,
+      isFetchingNextPage
+      //@ts-ignore
+  } = useInfiniteQuery(['colors'], fetchPoolsManual, {
+      getNextPageParam: (lastPage: any, pages: any) => {
+          return {}
+      }
+  })
+}

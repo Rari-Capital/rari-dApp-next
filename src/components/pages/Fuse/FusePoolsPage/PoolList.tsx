@@ -12,7 +12,7 @@ import { Column, Row, useIsMobile } from "lib/chakraUtils";
 import { filterPoolName } from "utils/fetchFusePoolData";
 import { useState } from "react";
 
-export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
+export const PoolList = ({ pools, infiniteScroll }: { pools: MergedPool[] | null | undefined, infiniteScroll?: boolean }) => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
@@ -23,6 +23,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
       crossAxisAlignment="flex-start"
       expand
     >
+      {infiniteScroll ? null :
       <Row
         mainAxisAlignment="flex-start"
         crossAxisAlignment="center"
@@ -56,6 +57,7 @@ export const PoolList = ({ pools }: { pools: MergedPool[] | null }) => {
           </>
         )}
       </Row>
+      }
 
       <ModalDivider />
 
