@@ -45,5 +45,8 @@ export const initFuseWithProviders = (
   fuse.contracts.FusePoolLens = fuse.contracts.FusePoolLens.connect(
     new JsonRpcProvider(lensProvider)
   );
+  fuse.contracts.FusePoolLensSecondary = fuse.contracts.FusePoolLensSecondary.connect(
+    new JsonRpcProvider(lensProvider)
+  );
   return fuse;
 };

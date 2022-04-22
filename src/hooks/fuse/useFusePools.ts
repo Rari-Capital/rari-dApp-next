@@ -154,23 +154,9 @@ export const fetchPools = async ({
   const isNonWhitelistedPools = filter === "unverified-pools";
   const isRewardedPools = filter === "rewarded-pools";
 
-  // We need the latest blockNumber
-  const latestBlockNumber = await fuse.provider.getBlockNumber();
-  const _blockNum = blockNum ? blockNum : latestBlockNumber;
+  const fetchETHPrice = fetchCurrentETHPrice();
 
-  // Get the unix timestamp of the blockNumber
-  const startBlockTimestamp = await blockNumberToTimeStamp(
-    fuse.provider,
-    _blockNum
-  );
-
-  const ddMMYYYY = formatDateToDDMMYY(new Date(startBlockTimestamp * 1000));
-
-  const fetchETHPrice = blockNum
-    ? fetchETHPriceAtDate(ddMMYYYY)
-    : fetchCurrentETHPrice();
-
-  const multicallProvider = new providers.MulticallProvider(fuse.provider)
+  const multicallProvider = new providers.MulticallProvider(fuse.contracts.FusePoolLens.provider)
   const multicallFuse = new Fuse(multicallProvider, chainId)
 
   const req = isMyPools
