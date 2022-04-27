@@ -77,11 +77,10 @@ export const TokenDataOverrides: {
         "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/tokens/fxAUDDarkLogo.png",
     },
     // fxEUD
-    "0x116172b2482c5dc3e6f445c16ac13367ac3fcd35": {
+    "0x116172B2482c5dC3E6f445C16Ac13367aC3FCd35": {
       logoURL:
         "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/tokens/fxEURDarkLogo.png",
     },
-
     // fxPHP
     "0x3d147cd9ac957b2a5f968de9d1c6b9d0872286a0": {
       logoURL:
@@ -253,6 +252,16 @@ export const TokenDataOverrides: {
     "0x4A717522566C7A09FD2774cceDC5A8c43C5F9FD2": {
       logoURL:
         "https://raw.githubusercontent.com/sushiswap/assets/master/blockchains/ethereum/assets/0x956F47F50A910163D8BF957Cf5846D573E7f87CA/logo.png",
+    },
+    // Handle
+    // fxUSD
+    "0x8616E8EA83f048ab9A5eC513c9412Dd2993bcE3F": {
+      logoURL: "https://app.handle.fi/assets/images/handle/fxUSDLogo.png"
+    },
+    // fxEUR
+    "0x7E141940932E3D13bfa54B224cb4a16510519308": {
+      logoURL:
+        "https://raw.githubusercontent.com/Rari-Capital/rari-dApp/master/src/static/tokens/fxEURDarkLogo.png",
     },
   },
   [ChainID.KOVAN]: {
