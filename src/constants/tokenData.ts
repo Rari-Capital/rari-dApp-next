@@ -238,10 +238,15 @@ export const TokenDataOverrides: {
     "0x559eBC30b0E58a45Cc9fF573f77EF1e5eb1b3E18": {
       logoURL:
         "https://cdn.discordapp.com/attachments/854131414316220449/965716390717833316/volt_primary_logo.png",
+        symbol: "VOLT"
     },
     // gOHM
     "0x0ab87046fbb341d058f17cbc4c1133f25a20a52f": {
       symbol: "gOHM",
+    },
+    // gFLOOR
+    "0xb1Cc59Fc717b8D4783D41F952725177298B5619d": {
+      logoURL: "https://cdn.discordapp.com/attachments/958123778724986950/969227862819340348/unknown.png"
     },
   },
   [ChainID.ARBITRUM]: {
