@@ -105,7 +105,7 @@ export const BorrowList = ({
   
             {isMobile ? null : (
               <Text width="27%" fontWeight="bold" textAlign="right">
-                {t("APY/TVL")}
+                {t("APR/TVL")}
               </Text>
             )}
   
