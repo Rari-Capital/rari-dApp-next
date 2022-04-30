@@ -104,25 +104,25 @@ const FusePoolPage = memo(() => {
           />
         )}
 
-        {!!data && isWarnedComptroller(data.comptroller) && (
-          <Alert colorScheme={"red"} borderRadius={5} mt="5">
-            <HStack>
-              <WarningTwoIcon color="red" mr={2} />
-              <Text color="black">Funds deposited in this pool are at risk and may be unrecoverable.</Text>
-            </HStack>
-          </Alert>
-        )}
+        <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
+          <HStack>
+            <WarningTwoIcon color="yellow" mr={2} />
+            <Text color="black">Borrowing is paused on all pools.</Text>
+          </HStack>
+        </Alert>
 
         {!!data && isAuthed && (
           <PendingAdminAlert comptroller={data?.comptroller} />
         )}
 
+        {/* 
         {!!data && !isWarnedComptroller(data.comptroller) && (
           <FuseRewardsBanner
             rewardTokensData={rewardTokensData}
             hasPluginIncentives={hasPluginIncentives}
           />
         )}
+        */}
 
         <FuseUniV3Alert assets={data?.assets ?? []} />
 
