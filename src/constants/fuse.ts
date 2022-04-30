@@ -1,10 +1,16 @@
 export const WARNED_COMPTROLLERS = [
-  "0xa58056e9dcc7bf3006dbb695a4cd70a11553b9bf",
-  "0xf53c73332459b0dbd14d8e073319e585f7a46434",
-  "0xAbDFCdb1503d89D9a6fFE052a526d7A41f5b76D6",
-  "0xa58056E9DcC7Bf3006DBb695a4cD70A11553b9bF"
+  "0x07cd53380fe9b2a5e64099591b498c73f0efaa66",
+  "0x35de88f04ad31a396aedb33f19aebe7787c02560",
+  "0x3f2d1bc6d02522dbcdb216b2e75edddafe04b16f",
+  "0x621579dd26774022f33147d3852ef4e00024b763",
+  "0x88f7c23ea6c4c404da463bc9ae03b012b32def9e",
+  "0xc54172e34046c1653d1920d40333dd358c7a1af4",
+  "0xc7125e3a2925877c7371d579d29dae4729ac9033",
 ];
 
-export const isWarnedComptroller = (addr: string) => {
-  return WARNED_COMPTROLLERS.includes(addr);
+export const isWarnedComptroller = (addr: string | undefined): boolean => {
+  if (!addr) return false;
+  return WARNED_COMPTROLLERS.map((c) => c.toLowerCase()).includes(
+    addr.toLowerCase()
+  );
 };
