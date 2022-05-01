@@ -18,7 +18,7 @@ export const chainMetadata = {
         name: "Ethereum",
         imageUrl: "/static/networks/ethereum.png",
         supported: true,
-        rpcUrl: "https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN",
+        rpcUrl: "https://rpc.tenderly.co/fork/e37e91aa-0185-46a9-b141-b04bd5180b91",
         blockExplorerURL: "https://etherscan.io",
         color: "#627EEA",
     },
