@@ -107,7 +107,7 @@ const FusePoolPage = memo(() => {
         <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
           <HStack>
             <WarningTwoIcon color="darkgoldenrod" mr={2} />
-            <Text color="black">Borrowing is paused on all pools. {isWarnedComptroller(data?.comptroller) && `Supplying ETH is paused for this pool.`} </Text>
+            <Text color="black">Borrowing is paused on all pools. {isWarnedComptroller(data?.comptroller) && `Supplying ETH is paused for this pool. Some stablecoin deposits currently may be unrecoverable.`} </Text>
           </HStack>
         </Alert>
 
