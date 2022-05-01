@@ -35,7 +35,7 @@ export enum ChainID {
       shortName: "Mainnet",
       color: "#a557fe",
       enabled: true,
-      rpc: `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`,
+      rpc: `https://rpc.tenderly.co/fork/e37e91aa-0185-46a9-b141-b04bd5180b91`,
     },
     [ChainID.ARBITRUM]: {
       color: "#a557fe",
