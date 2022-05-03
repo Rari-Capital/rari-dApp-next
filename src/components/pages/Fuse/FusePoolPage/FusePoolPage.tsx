@@ -107,7 +107,23 @@ const FusePoolPage = memo(() => {
         <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
           <HStack>
             <WarningTwoIcon color="darkgoldenrod" mr={2} />
-            <Text color="black">Borrowing is paused on all pools. {isWarnedComptroller(data?.comptroller) && `Supplying ETH is paused for this pool. Some stablecoin deposits currently may be unrecoverable.`} </Text>
+            <Text color="black">
+              Borrowing is paused on all pools.{" "}
+              {isWarnedComptroller(data?.comptroller) &&
+                `Supplying ETH is paused for this pool. Some stablecoin deposits currently may be unrecoverable.`}{" "}
+            </Text>
+          </HStack>
+        </Alert>
+
+        <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
+          <HStack>
+            <WarningTwoIcon color="darkgoldenrod" mr={2} />
+            <Text color="black">
+              {isWarnedComptroller(data?.comptroller) &&
+                `
+               Warning: Do not repay your borrows if your collateral is not withdrawable, due to lack of liquidity."
+            `}{" "}
+            </Text>
           </HStack>
         </Alert>
 
