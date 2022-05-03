@@ -41,7 +41,7 @@ import { useQuery } from "react-query";
 // Hooks
 import { useIsSemiSmallScreen } from "hooks/useIsSemiSmallScreen";
 import { useFusePoolData } from "hooks/useFusePoolData";
-import { ETH_TOKEN_DATA, useTokenData, useTokensDataAsMap } from "hooks/useTokenData";
+import { useTokensDataAsMap } from "hooks/useTokenData";
 import { useTranslation } from "next-i18next";
 import { useRari } from "context/RariContext";
 import { memo, useState } from "react";
@@ -188,7 +188,7 @@ const OracleAndInterestRates = ({
 
         <HStack align="center" py={3}>
           <Heading size="sm">
-            {t("Pool {{num}} Info", { num: poolId, name })}
+            Pool {poolId} info
           </Heading>
           <AppLink isExternal href={`https://etherscan.io/address/${comptrollerAddress}`}>
             <SimpleTooltip label="View Pool on Etherscan">
@@ -412,10 +412,7 @@ const AssetAndOtherInfo = ({ assets, poolOracle, tokensData }: { assets: USDPric
       >
         <HStack align="center" py={3}>
           <Heading size="sm" >
-            {t("Pool {{num}}'s {{token}} Stats", {
-              num: poolId,
-              token: tokensData[selectedAsset.underlyingToken]?.symbol
-            })}
+            Pool {poolId}'s {tokensData[selectedAsset.underlyingToken]?.symbol} stats.
           </Heading>
           <AppLink isExternal href={`https://etherscan.io/address/${selectedAsset.cToken}`}>
             <SimpleTooltip label="View Market on Etherscan">

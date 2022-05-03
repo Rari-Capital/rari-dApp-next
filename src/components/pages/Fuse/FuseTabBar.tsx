@@ -73,8 +73,8 @@ const FuseTabBar = () => {
             >
               <AppLink href={`/fuse/pool/${poolId}`} className="no-underline">
                 <Center expand px={2} fontWeight="bold">
-                  {t("Pool #{{poolId}}", { poolId })}
-                </Center>
+                  Pool {poolId}
+               </Center>
               </AppLink>
             </DashboardBox>
 
@@ -89,7 +89,7 @@ const FuseTabBar = () => {
                 className="no-underline"
               >
                 <Center expand px={2} fontWeight="bold">
-                  {t("Pool #{{poolId}} Info", { poolId })}
+                  Pool {poolId} Info
                 </Center>
               </AppLink>
             </DashboardBox>
