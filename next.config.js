@@ -1,14 +1,14 @@
-const { i18n } = require("./next-i18next.config");
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
 
 module.exports = withBundleAnalyzer({
   /* config options here */
   images: {
     domains: ["raw.githubusercontent.com", "icons.iconarchive.com", "i.ibb.co"],
+    loader: 'akamai',
+    path: '',
   },
-  i18n,
   eslint: {
     // Warning: Dangerously allow production builds to successfully complete even if
     // your project has ESLint errors.

@@ -3,15 +3,6 @@ import AppLink from "components/shared/AppLink";
 import { Column } from "lib/chakraUtils";
 import { NextPage } from "next";
 
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-export async function getStaticProps({ locale }: { locale: string }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale)),
-    },
-  };
-}
-
 const IndexPage: NextPage = () => {
   return (
     <>

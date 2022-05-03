@@ -73,7 +73,6 @@ const FusePoolPage = memo(() => {
         px={isMobile ? 4 : 0}
       >
         <FuseStatsBar data={data} />
-
         {
           /* If they have some asset enabled as collateral, show the collateral ratio bar */
           data && data.assets.some((asset) => asset.membership) ? (
@@ -83,7 +82,6 @@ const FusePoolPage = memo(() => {
             />
           ) : null
         }
-
         {!!data && isAdmin && (
           <AdminAlert
             isAdmin={isAdmin}
@@ -103,7 +101,6 @@ const FusePoolPage = memo(() => {
             }
           />
         )}
-
         <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
           <HStack>
             <WarningTwoIcon color="darkgoldenrod" mr={2} />
@@ -114,23 +111,20 @@ const FusePoolPage = memo(() => {
             </Text>
           </HStack>
         </Alert>
-
-        <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
-          <HStack>
-            <WarningTwoIcon color="darkgoldenrod" mr={2} />
-            <Text color="black">
-              {isWarnedComptroller(data?.comptroller) &&
-                `
-               Warning: Do not repay your borrows if your collateral is not withdrawable, due to lack of liquidity."
-            `}{" "}
-            </Text>
-          </HStack>
-        </Alert>
-
+        {isWarnedComptroller(data?.comptroller) && (
+          <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
+            <HStack>
+              <WarningTwoIcon color="darkgoldenrod" mr={2} />
+              <Text color="black">
+                `Warning: Do not repay your borrows if your collateral is not
+                withdrawable, due to lack of liquidity. `
+              </Text>
+            </HStack>
+          </Alert>
+        )}
         {!!data && isAuthed && (
           <PendingAdminAlert comptroller={data?.comptroller} />
         )}
-
         {/* 
         {!!data && !isWarnedComptroller(data.comptroller) && (
           <FuseRewardsBanner
@@ -139,11 +133,8 @@ const FusePoolPage = memo(() => {
           />
         )}
         */}
-
         <FuseUniV3Alert assets={data?.assets ?? []} />
-
         <FuseTabBar />
-
         <RowOrColumn
           width="100%"
           mainAxisAlignment="flex-start"

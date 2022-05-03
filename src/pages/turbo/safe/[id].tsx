@@ -1,6 +1,5 @@
 import { NextPage } from "next";
 import TurboSafePage from "components/pages/Turbo/TurboSafePage/TurboSafePage";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { chooseBestWeb3Provider } from "utils/web3Providers";
@@ -23,7 +22,6 @@ export async function getStaticProps({
 
   return {
     props: {
-      ...(await serverSideTranslations(locale)),
       safeId: id,
       symbol,
     },
