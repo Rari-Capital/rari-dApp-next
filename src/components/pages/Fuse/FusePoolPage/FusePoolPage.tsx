@@ -116,8 +116,7 @@ const FusePoolPage = memo(() => {
             <HStack>
               <WarningTwoIcon color="darkgoldenrod" mr={2} />
               <Text color="black">
-                `Warning: Do not repay your borrows if your collateral is not
-                withdrawable, due to lack of liquidity. `
+                `Please be aware of available collateral asset liquidity when repaying borrows if you intend to withdraw.`
               </Text>
             </HStack>
           </Alert>
