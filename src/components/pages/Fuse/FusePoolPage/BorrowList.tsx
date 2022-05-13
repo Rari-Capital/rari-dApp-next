@@ -136,7 +136,7 @@ export const BorrowList = ({
           {assets.length > 0 ? (
             <>
               {assets.map((asset, index) => {
-                if (!asset.borrowBalanceUSD.gt(1)) return null
+                if (!asset.borrowBalance.gt(0)) return null
   
                 const incentivesForAsset = (
                   incentivesData?.incentives?.[asset.cToken] ?? []
