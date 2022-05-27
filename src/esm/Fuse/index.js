@@ -94,7 +94,7 @@ export default class Fuse {
                         priceOracleAddress,
                         options,
                     });
-                    let tx = yield contract.deployPool(poolName, comptrollerImplementationAddress, enforceWhitelist, closeFactor, liquidationIncentive, priceOracleAddress);
+                    let tx = yield contract.deployPool(poolName, comptrollerImplementationAddress, enforceWhitelist, closeFactor, liquidationIncentive, priceOracleAddress, options);
                     receipt = yield tx.wait(1);
                     // receipt = await contract.deployPool(
                     //   poolName,
@@ -255,11 +255,11 @@ export default class Fuse {
                             conf.uniswapV2Factory = this.addresses.UNISWAP_V2_FACTORY_ADDRESS;
                         // Check for existing oracle
                         oracleFactoryContract = new Contract(this.addresses.UNISWAP_TWAP_PRICE_ORACLE_V2_FACTORY_CONTRACT_ADDRESS, this.oracleContracts.UniswapTwapPriceOracleV2Factory.abi, this.provider.getSigner());
-                        deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                        deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         // Deploy if oracle does not exist
                         if (deployedPriceOracle === "0x0000000000000000000000000000000000000000") {
-                            yield oracleFactoryContract.deploy(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
-                            deployedPriceOracle = yield oracleFactoryContract.oracles(this.addresses.UNISWAP_V2_FACTORY_ADDRESS, conf.baseToken);
+                            yield oracleFactoryContract.deploy(conf.uniswapV2Factory, conf.baseToken);
+                            deployedPriceOracle = yield oracleFactoryContract.oracles(conf.uniswapV2Factory, conf.baseToken);
                         }
                         break;
                     case "ChainlinkPriceOracleV2":
@@ -709,6 +709,7 @@ export default class Fuse {
             return __awaiter(this, void 0, void 0, function* () {
                 // Get price oracle contract name from runtime bytecode hash
                 const runtimeBytecodeHash = utils.keccak256(yield this.provider.getCode(oracleAddress));
+                console.log("this.getPriceOracle()", { runtimeBytecodeHash });
                 for (const model of Object.keys(this.addresses.PRICE_ORACLE_RUNTIME_BYTECODE_HASHES)) {
                     if (runtimeBytecodeHash ===
                         this.addresses.PRICE_ORACLE_RUNTIME_BYTECODE_HASHES[model])
@@ -720,11 +721,7 @@ export default class Fuse {
         this.deployRewardsDistributor = function (rewardToken, options) {
             return __awaiter(this, void 0, void 0, function* () {
                 const distributor = new ContractFactory(JSON.parse(this.compoundContracts["contracts/RewardsDistributorDelegator.sol:RewardsDistributorDelegator"].abi), this.compoundContracts["contracts/RewardsDistributorDelegator.sol:RewardsDistributorDelegator"].bin, this.provider.getSigner());
-                const deployedDistributor = yield distributor.deploy(
-                        options.from,
-                        rewardToken,
-                        this.addresses.REWARDS_DISTRIBUTOR_DELEGATE_CONTRACT_ADDRESS,
-                );
+                const deployedDistributor = yield distributor.deploy(options.from, rewardToken, this.addresses.REWARDS_DISTRIBUTOR_DELEGATE_CONTRACT_ADDRESS);
                 // const rdAddress = distributor.options.address;
                 return deployedDistributor;
             });

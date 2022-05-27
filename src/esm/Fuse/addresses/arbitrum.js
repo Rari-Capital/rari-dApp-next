@@ -7,7 +7,7 @@ export default {
     FUSE_POOL_LENS_SECONDARY_CONTRACT_ADDRESS: "0x32ca4E5D75ECb06f33846055652C831f6E7a6924",
     // CEther and CERC20
     COMPTROLLER_IMPLEMENTATION_CONTRACT_ADDRESS: "0x53cc546053a09431c9d1a2b288471680d15000a4",
-    CETHER_DELEGATE_CONTRACT_ADDRESS: "0x440253a301b4fc749a24e653fdb11b742e621892",
+    CETHER_DELEGATE_CONTRACT_ADDRESS: "0xa399432fb9d53a56d60b3732e79afebe6484312c",
     CERC20_DELEGATE_CONTRACT_ADDRESS: "0x89971b89e346fc372641a1ae427add6a738df50d",
     // Oracles
     MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS: "0x59FA438cD0731EBF5F4cDCaf72D4960EFd13FCe6",
@@ -16,7 +16,7 @@ export default {
         MasterPriceOracle: "0x137a6Bf7D4C866fFd430cDd0107dE6C4828Ce54d",
         ChainlinkPriceOracleV2: "0xd1a758149896530a114c7f5e4c4daf093fc184a6",
         FixedETHPriceOracle: "0xf826E4fE62c206Ec51B5744b29C71A2245DD540e",
-        GOhmPriceOracleArbitrum: "0xE18eC050838175eFdc4e878B087D986638a1FFa7",
+        GOhmPriceOracleArbitrum: "0xA7aC11110F13097a022A6A975BdDc4a3ed6a23bD",
         UniswapTwapPriceOracleV2_SushiSwap_ETH: "0x41fa6c04b8a2d1a30200f39b4714c78c81e0e227",
         UniswapTwapPriceOracleV2_SushiSwap_GOHM: "0x71bc92b8b848c287f82a56efe1f30a439b1976b2",
     },
@@ -24,7 +24,7 @@ export default {
         MasterPriceOracle: "0x841c8cee670b29a8e8d2d56b6b1706b0a17beffc57ceeaa730d33821a7193eb8",
         ChainlinkPriceOracleV2: "0xe6c58b50e22444dda782858120184cbc86207e51be06e0f747561a8c9eb4c968",
         FixedETHPriceOracle: "0x009b75414e3135a12bb0d9ee0a420f96a41b198df7ee9c4a5667a05187860a1d",
-        GOhmPriceOracleArbitrum: "0xce075a561806260b1d4472b68c07b3784c1f5b2065500f2f217085fcf78e4470",
+        GOhmPriceOracleArbitrum: "0x1103989d8bf5ce18084976a1bc279c029bc5b5c6c82aa127b57e943e9b3f9670",
         UniswapTwapPriceOracleV2_SushiSwap: "0x9fd6d9f10e83d15240e17ade5fbacf6ad30dbffa3b3596ebc985cce96f4aaef2",
     },
     ORACLES: ["MasterPriceOracle", "ChainlinkPriceOracleV2"],

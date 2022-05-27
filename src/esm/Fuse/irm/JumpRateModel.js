@@ -12,7 +12,7 @@ import { contracts } from "../contracts/compound-protocol.min.json";
 export default class JumpRateModel {
     init(interestRateModelAddress, assetAddress, provider) {
         return __awaiter(this, void 0, void 0, function* () {
-            const jumpRateModelContract = createContract(interestRateModelAddress, contracts["contracts/JumpRateModel.sol:JumpRateModel"].abi, provider);
+            const jumpRateModelContract = createContract(interestRateModelAddress, contracts["contracts/JumpRateModel.sol:JumpRateModel"].abi, provider.getSigner());
             this.baseRatePerBlock = toBN(yield jumpRateModelContract.callStatic.baseRatePerBlock());
             this.multiplierPerBlock = toBN(yield jumpRateModelContract.callStatic.multiplierPerBlock());
             this.jumpMultiplierPerBlock = toBN(yield jumpRateModelContract.callStatic.jumpMultiplierPerBlock());
