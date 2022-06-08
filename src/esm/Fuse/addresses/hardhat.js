@@ -1,14 +1,16 @@
-export default {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
     // Fundamentals
-    FUSE_POOL_DIRECTORY_CONTRACT_ADDRESS: "0x835482FE0532f169024d5E9410199369aAD5C77E",
-    FUSE_SAFE_LIQUIDATOR_CONTRACT_ADDRESS: "0xf0f3a1494ae00b5350535b7777abb2f499fc13d4",
-    FUSE_FEE_DISTRIBUTOR_CONTRACT_ADDRESS: "0xa731585ab05fC9f83555cf9Bff8F58ee94e18F85",
-    FUSE_POOL_LENS_CONTRACT_ADDRESS: "0x6Dc585Ad66A10214Ef0502492B0CC02F0e836eec",
-    FUSE_POOL_LENS_SECONDARY_CONTRACT_ADDRESS: "0xc76190E04012f26A364228Cfc41690429C44165d",
+    FUSE_POOL_DIRECTORY_CONTRACT_ADDRESS: "0xdFdE6B33f13de2CA1A75A6F7169f50541B14f75b",
+    FUSE_SAFE_LIQUIDATOR_CONTRACT_ADDRESS: "0xaC9fCBA56E42d5960f813B9D0387F3D3bC003338",
+    FUSE_FEE_DISTRIBUTOR_CONTRACT_ADDRESS: "0x38A70c040CA5F5439ad52d0e821063b0EC0B52b6",
+    FUSE_POOL_LENS_CONTRACT_ADDRESS: "0x54B8d8E2455946f2A5B8982283f2359812e815ce",
+    FUSE_POOL_LENS_SECONDARY_CONTRACT_ADDRESS: "0xf090f16dEc8b6D24082Edd25B1C8D26f2bC86128",
     // CEther and CERC20
-    COMPTROLLER_IMPLEMENTATION_CONTRACT_ADDRESS: "0xE5c78fBe9F5bB3Ee2a41a6b0B0885aA3699D31cB",
+    COMPTROLLER_IMPLEMENTATION_CONTRACT_ADDRESS: "0xe16db319d9da7ce40b666dd2e365a4b8b3c18217",
     CERC20_DELEGATE_CONTRACT_ADDRESS: "0x67db14e73c2dce786b5bbbfa4d010deab4bbfcf9",
-    CETHER_DELEGATE_CONTRACT_ADDRESS: "0xbDADDC6a1321Ed458b53aB9e51DC0De8dba78D43",
+    CETHER_DELEGATE_CONTRACT_ADDRESS: "0xd77e28a1b9a9cfe1fc2eee70e391c05d25853cbf",
     // Oracles
     // Implementation for V3
     MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS: "0xb3c8ee7309be658c186f986388c2377da436d8fb",
@@ -44,8 +46,7 @@ export default {
         CurveLiquidityGaugeV2PriceOracle: "0xd9eefdb09d75ca848433079ea72ef609a1c1ea21",
         FixedEthPriceOracle: "0xffc9ec4adbf75a537e4d233720f06f0df01fb7f5",
         FixedEurPriceOracle: "0x817158553F4391B0d53d242fC332f2eF82463e2a",
-        FixedUSDPriceOracle: "0xa7ac11110f13097a022a6a975bddc4a3ed6a23bd",
-        WSTEthPriceOracle: "0xD007067A6c1877457D179206B628C326600ca36b",
+        WSTEthPriceOracle: "0xb11de4c003c80dc36a810254b433d727ac71c517",
         FixedTokenPriceOracle_OHM: "0x71FE48562B816D03Ce9e2bbD5aB28674A8807CC5",
         UniswapTwapPriceOracleV2_SushiSwap_DAI: "0x72fd4c801f5845ab672a12bce1b05bdba1fd851a",
         UniswapTwapPriceOracleV2_SushiSwap_CRV: "0x552163f2a63f82bb47b686ffc665ddb3ceaca0ea",
@@ -61,17 +62,8 @@ export default {
         GelatoGUniPriceOracle: "0xEa3633b38C747ceA231aDB74b511DC2eD3992B43",
         StakedSpellPriceOracle: "0xb544f62045b96a60b398abb5a5c23bf04cb4ed9c",
         CurveTriCryptoLpTokenPriceOracle: "0xb2d16916d520d585ee49f08db1436b961b48fe60",
-        CurveFactoryLpTokenPriceOracle: "0x4f84a621158CdecBB5e71061127ec7f61418b2F2",
-        CvxFXSPriceOracle: "0x6104d45971D7E1b0A61Aa5332fC153dcF110D26d",
+        CurveFactoryLpTokenPriceOracle: "0xa9f3faac3b8eDF7b3DCcFDBBf25033D6F5fc02F3",
         TribeMasterPriceOracle: "0x4d10BC156FBaD2474a94f792fe0D6c3261469cdd",
-        BalancerV2TwapPriceOracle: "0x5B643292e3733f5691ac7fd7ce14D2FD3c2dF868",
-        BalancerStableLpTokenPriceOracle: "0xe058d9dBA5076627639c045d45Cb5d8d24D9A9B4",
-        XVaultPriceOracle: "0x6503cae60b13b9a563fcd0d7fbe81d9cc5db7e00",
-        ETHMAXYPriceOracle: "0x745B95bE182A01408bccb1c35ab2927866A5CAd3",
-        SaddleLpTokenPriceOracle: "0x7cFa667E9c6019683c1210b12647a1370Ee483E2",
-        GAlcxPriceOracle: "0x819Ef3C70aE87377746af4c83Edd68B396D43d0D",
-        VoltPriceOracle: "0x316b2a8a2EDD2201238e72FD3fB0df2529C51721",
-        ZeroPriceOracle: "0xF2c0CFdBA9aF786f94A683BA3b6e21c122A647C1"
     },
     PRICE_ORACLE_RUNTIME_BYTECODE_HASHES: {
         ChainlinkPriceOracle: "0x7a2a5633a99e8abb759f0b52e87875181704b8e29f6567d4a92f12c3f956d313",
@@ -101,8 +93,7 @@ export default {
         CurveLiquidityGaugeV2PriceOracle: "0xfcf0d93de474152898668c4ebd963e0237bfc46c3d5f0ce51b7045b60c831734",
         FixedEthPriceOracle: "0xcb669c93632a1c991adced5f4d97202aa219fab3d5d86ebd28f4f62ad7aa6cb3",
         FixedEurPriceOracle: "0x678dbe9f2399a44e89edc934dc17f6d4ee7004d9cbcee83c0fa0ef43de924b84",
-        FixedUSDPriceOracle: "0x948ac042dcfd530a7918de3d5ade84919c206d076e7cd9caff5e7e2301f9be16",
-        WSTEthPriceOracle: "0x0cb3d4c32c02641dd8e857355baaa87f6e0b1dad40373f3c139ea9a13b0c1590",
+        WSTEthPriceOracle: "0x11daa8dfb8957304aa7d926ce6876c523c7567b4052962e65e7d6a324ddcb4cc",
         FixedTokenPriceOracle_OHM: "0x136d369f53594c2f10e3ff3f14eaaf0bada4a63964f3cfeda3923e3531e407dc",
         UniswapTwapPriceOracleV2_SushiSwap_DAI: "0xb4d279232ab52a2fcaee6dc47db486a733c24a499ade9d7de1b0d417d4730817",
         UniswapTwapPriceOracleV2_SushiSwap_CRV: "0x9df749314d6494a785bb5ff7a5fab25adadb772e10d58b7f692028cc23e2cbb3",
@@ -120,21 +111,12 @@ export default {
         MStablePriceOracle: "0x39fc7b2cdac3d401ea91becf897346b2156dbe261162de14082e856103456eb4",
         StakedSpellPriceOracle: "0x9fcea6d23c7e2e330e35e303a49f39e0c2c783e6b770ccc2de41fbbfbfc539e7",
         CurveTriCryptoLpTokenPriceOracle: "0x92014d914370d8c59082044786d9b056ea188a95891778c555209c210850d5ae",
-        CurveFactoryLpTokenPriceOracle: "0x8f69ce5f159abf8255326f7052ace26a2a416d4d553c5bcb92fad4fd8cb8f7e6",
-        CurveFactoryLpTokenPriceOracleV2: "0x8f69ce5f159abf8255326f7052ace26a2a416d4d553c5bcb92fad4fd8cb8f7e6",
+        CurveFactoryLpTokenPriceOracle: "0x90cb470d00fd449254eda43856b1e32b5c9a9bf25a8070c10ed1ff92ca656616",
         GUniLpTokenPriceOracle: "0xbed0eddba7009021dd774a530b53a784fc80217c7bf27c15c9b2487b13fb2863",
         TribeMasterPriceOracle: "0xf79f348bef443bef108c446753829e55eb5e4e3028d2064d9edefab2f95fd876",
-        CvxFXSPriceOracle: "0x6014cac13a95ba888f7087ff476a89c511c1cd2b5b4a95d9ab323d630a269acb",
-        BalancerV2TwapPriceOracle: "0x0fcca2c7996f4a0e768107f953f6c5fc82d074199a8d3c638ad902772efacd66",
-        BalancerStableLpTokenPriceOracle: "0x7297a1a7b5cb6dbb1ed2a497bd7ef44cbd3fde7f1cb2be5b843dd7a8383eaaf5",
-        XVaultPriceOracle: "0x2dda99e1104ca02d17ce20bc9e353046418ca592122ec7c12960c016dcf1d2fe",
-        ETHMAXYPriceOracle: "0x985ce8d05302c5d4b34c66d64779052011b44d39d50a9f5b1b61383befe3e31c",
-        SaddleLpTokenPriceOracle: "0x0db5283096540f07fd080cc9b481ed2b808e663243e84ec07a8b3778a1cdf950",
-        GAlcxPriceOracle: "0x9949f96685e869c90760799819d17bf030b8af377ea1c12746b714993df03fa9",
-        VoltPriceOracle: "0x1cb6c4e8005963e7fa3e840a6d61c81cb17b00d81770564eaa045b8372b2ad4e",
-        ZeroPriceOracle: "0x9c59102d4463210f65007140937bd3389c39e0785a091ba0b61629d8137a32e1"
     },
 
+    // Comptroller versions
     COMPTROLLER_VERSION: {
         "0xE16DB319d9dA7Ce40b666DD2E365a4b8B3C18217": "Version 1",
         "0xE5c78fBe9F5bB3Ee2a41a6b0B0885aA3699D31cB": "Version 2"
@@ -315,8 +297,8 @@ export default {
             oldVersions: {},
         },
         WSTEthPriceOracle: {
-            address: "0xD007067A6c1877457D179206B628C326600ca36b",
-            bytecodeHash: "0x0cb3d4c32c02641dd8e857355baaa87f6e0b1dad40373f3c139ea9a13b0c1590",
+            address: "0xb11de4c003c80dc36a810254b433d727ac71c517",
+            bytecodeHash: "0x11daa8dfb8957304aa7d926ce6876c523c7567b4052962e65e7d6a324ddcb4cc",
             deployable: false,
             oldVersions: {},
         },
@@ -448,7 +430,6 @@ export default {
         JumpRateModel_Olympus_Majors: "0xe1d35fae219e4d74fe11cb4246990784a4fe6680",
         JumpRateModel_Olympus_Majors_New: "0x4EF29407a8dbcA2F37B7107eAb54d6f2a3f2ad60",
         JumpRateModel_Flat_3_Percent_Borrow_APY: "0xc8acad405ff67eaee2aca374764883cecbd490ad",
-        JumpRateModel_Flat_Half_Percent_Borrow_APY: "0x09472B8cdCae7c777d4fBf67e0dA9b58CCfA8870",
         Custom_JumpRateModel: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
         // Custom_JumpRateModel: "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
     },

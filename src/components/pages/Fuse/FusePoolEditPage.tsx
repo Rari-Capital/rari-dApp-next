@@ -1,6 +1,5 @@
 // Chakra and UI
 import {
-  AvatarGroup,
   Box,
   Heading,
   Text,
@@ -8,7 +7,6 @@ import {
   useDisclosure,
   Spinner,
   useToast,
-  // Table
   Image,
   HStack,
   Th,
@@ -18,6 +16,9 @@ import {
   Tr,
   Td,
   Badge,
+  Link,
+  Button,
+  Flex,
 } from "@chakra-ui/react";
 import { ModalDivider } from "components/shared/Modal";
 import DashboardBox from "components/shared/DashboardBox";
@@ -26,7 +27,6 @@ import { SliderWithLabel } from "components/shared/SliderWithLabel";
 
 // Components
 import AddAssetModal from "./Modals/AddAssetModal/AddAssetModal";
-// import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 
 // React
 import { useQueryClient, useQuery } from "react-query";
@@ -35,7 +35,6 @@ import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 // Components
 import {
   CTokenAvatarGroup,
-  CTokenIcon,
 } from "components/shared/Icons/CTokenIcon";
 import { WhitelistInfo } from "./FusePoolCreatePage";
 import FuseStatsBar from "./FuseStatsBar";
@@ -77,8 +76,11 @@ import { useExtraPoolInfo } from "hooks/fuse/info/useExtraPoolInfo";
 import AssetSettings from "./Modals/AddAssetModal/AssetSettings";
 import useOraclesForPool from "hooks/fuse/useOraclesForPool";
 import { OracleDataType, useOracleData } from "hooks/fuse/useOracleData";
-import { formatUnits, parseUnits } from "ethers/lib/utils";
+import { formatUnits, Interface } from "ethers/lib/utils";
 import OraclesTable from "./Modals/Edit/OraclesTable";
+import { useComptrollerData } from "hooks/fuse/useComptrollerData";
+import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => { };
@@ -176,10 +178,6 @@ const FusePoolEditPage = memo(() => {
   const poolId = router.query.poolId as string;
 
   const data = useFusePoolData(poolId);
-
-  const { fuse, isAuthed } = useRari();
-  const comptroller = useCreateComptroller(data?.comptroller ?? "", fuse, isAuthed);
-
 
   // RewardsDistributor stuff
   const poolIncentives = usePoolIncentives(data?.comptroller);
@@ -409,9 +407,12 @@ const PoolConfiguration = ({
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const [showUpdate, setShowUpdate] = useState(false)
   const poolId = router.query.poolId as string;
 
-  const { fuse, address, isAuthed } = useRari();
+  const comptrollerData = useComptrollerData(comptrollerAddress);
+
+  const { fuse, address, isAuthed, login } = useRari();
 
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -591,6 +592,54 @@ const PoolConfiguration = ({
     }
   };
 
+  const updateComptroller = async () => {
+    const comptrollerInterface = new Interface([
+      "function _setPendingImplementation(address) external returns (uint256)",
+    ])
+    const comptroller = new Contract(
+      comptrollerAddress,
+      comptrollerInterface,
+      fuse.provider.getSigner()
+    )
+    // 1. Set implementation  
+    try {
+      await comptroller._setPendingImplementation("0xE5c78fBe9F5bB3Ee2a41a6b0B0885aA3699D31cB");
+    } catch (e) { 
+      console.log(e)
+    }
+    // 2. Become implementation 
+    const newComptrollerImplementation = useCreateComptroller("0xE5c78fBe9F5bB3Ee2a41a6b0B0885aA3699D31cB", fuse, true)
+    await newComptrollerImplementation._become(comptrollerAddress);
+}
+
+  const handleUpdateComptroller = async () => {
+    if (!isAuthed) {
+      await login()
+      return
+    }
+
+    await updateComptroller()
+  }
+
+  const handleOverrideGlobalPause = async () => {
+    const comptrollerInterface = new Interface([
+      "function _setGlobalPauseBorrowOverride(bool) external",
+    ])
+
+    const comptrollerContract = new Contract(
+      comptrollerAddress,
+      comptrollerInterface,
+      fuse.provider.getSigner()
+    )
+
+    try {
+
+      await comptrollerContract._setGlobalPauseBorrowOverride(!comptrollerData?.isGlobalPauseBorrowOverriden);
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <Column
       mainAxisAlignment="flex-start"
@@ -598,7 +647,7 @@ const PoolConfiguration = ({
       height="100%"
     >
       <Heading size="sm" px={4} py={4}>
-        {t("Pool {{num}} Configuration", { num: poolId })}
+      Pool {poolId} Configuration
       </Heading>
 
       <ModalDivider />
@@ -611,34 +660,83 @@ const PoolConfiguration = ({
           width="100%"
           overflowY="auto"
         >
-          <ConfigRow>
-            <Text fontWeight="bold" mr={2}>
-              {t("Assets:")}
-            </Text>
+          <>
+                <ConfigRow>
+                    <Text fontWeight="bold">{t("Comptroller Version")}:</Text>
 
-            {assets.length > 0 ? (
-              <>
-                <AvatarGroup size="xs" max={30}>
-                  {assets.map(({ underlyingToken, cToken }) => {
-                    return (
-                      <CTokenIcon key={cToken} address={underlyingToken} />
-                    );
-                  })}
-                </AvatarGroup>
+                      <SimpleTooltip
+                        label={comptrollerData?.shouldUpdate 
+                          ? "Not using the latest version of the Comptroller contract, if you want the option to reenable borrowing on your pool individually we recommend you update." 
+                          : "You're using the latest version of the Comptroller contract."
+                        }
+                      >
+                        <Link 
+                          ml="auto" 
+                          color="green" 
+                          fontWeight="bold" 
+                          href={`https://etherscan.io/address/${comptrollerData?.implementation}`} 
+                          isExternal
+                        >
+                          {comptrollerData?.version}
+                        </Link>
+                      </SimpleTooltip>
+                      {comptrollerData?.shouldUpdate && <ChevronDownIcon onClick={() => {setShowUpdate(!showUpdate)}}/>}
+                      
+                </ConfigRow>
 
-                <Text ml={2} flexShrink={0}>
-                  {assets.map(({ underlyingSymbol }, index, array) => {
-                    return (
-                      underlyingSymbol +
-                      (index !== array.length - 1 ? " / " : "")
-                    );
-                  })}
-                </Text>
+                {!comptrollerData?.shouldUpdate && (<ModalDivider />)}
+
+                 
+                <>
+                  {comptrollerData?.shouldUpdate && showUpdate && (
+                    <ConfigRow>
+                      <>
+                        
+                        <Button
+                          colorScheme='green'
+                          ml="auto"
+                          onClick={() => handleUpdateComptroller()}
+                        >
+                          Update
+                        </Button>
+                      </>
+                    </ConfigRow>
+                      ) 
+                  }
+                </>
+                <>
+                  {!comptrollerData?.shouldUpdate && (
+                    <ConfigRow>
+                        <>
+                          <Text fontWeight="bold">
+                            Global borrow guardian:
+                          </Text>
+
+                          <Flex ml="auto">
+                            <Text opacity="0.5" fontWeight="bold" mr="2">
+                            { comptrollerData?.isGlobalPauseBorrowOverriden ? "Off": "On" }
+                            </Text>
+
+                            <Switch
+                              ml="auto"
+                              h="20px"
+                              isChecked={!comptrollerData?.isGlobalPauseBorrowOverriden}
+                              onChange={() => {
+                                handleOverrideGlobalPause();
+                              }}
+                              className="black-switch"
+                              colorScheme="#121212"
+                            />
+                          </Flex>
+                        </>
+                    </ConfigRow>
+                    )
+                  }
+                  </>
+
+                <ModalDivider />
               </>
-            ) : (
-              <Text>{t("None")}</Text>
-            )}
-          </ConfigRow>
+          
 
           <ModalDivider />
 
