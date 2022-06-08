@@ -44,6 +44,9 @@ export interface FuseAddresses {
     CETHER_DELEGATE_CONTRACT_ADDRESS: string;
     MASTER_PRICE_ORACLE_IMPLEMENTATION_CONTRACT_ADDRESS: string;
     INITIALIZABLE_CLONES_CONTRACT_ADDRESS: string;
+    COMPTROLLER_VERSION: {
+        [versionAddress: string]: string
+    };
     PUBLIC_PRICE_ORACLE_CONTRACT_ADDRESSES: {
         [oracleName: string]: string;
     };
