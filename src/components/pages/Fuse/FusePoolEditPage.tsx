@@ -80,6 +80,7 @@ import { formatUnits, Interface } from "ethers/lib/utils";
 import OraclesTable from "./Modals/Edit/OraclesTable";
 import { useComptrollerData } from "hooks/fuse/useComptrollerData";
 import { SimpleTooltip } from "components/shared/SimpleTooltip";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const activeStyle = { bg: "#FFF", color: "#000" };
 const noop = () => { };
@@ -406,6 +407,7 @@ const PoolConfiguration = ({
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const [showUpdate, setShowUpdate] = useState(false)
   const poolId = router.query.poolId as string;
 
   const comptrollerData = useComptrollerData(comptrollerAddress);
@@ -660,67 +662,77 @@ const PoolConfiguration = ({
         >
           <>
                 <ConfigRow>
-                  <Text fontWeight="bold">{t("Comptroller Version")}:</Text>
+                    <Text fontWeight="bold">{t("Comptroller Version")}:</Text>
 
-                  <SimpleTooltip
-                    label={comptrollerData?.shouldUpdate 
-                      ? "Not using the latest version of the Comptroller contract, we recommend you update as soon as possible." 
-                      : "You're using the latest version of the Comptroller contract."
-                    }
-                  >
-                    <Link 
-                      ml="auto" 
-                      color={comptrollerData?.shouldUpdate ? "red" : "green"} 
-                      fontWeight="bold" 
-                      href={`https://etherscan.io/address/${comptrollerData?.implementation}`} 
-                      isExternal
-                    >
-                      {comptrollerData?.version}
-                    </Link>
-                  </SimpleTooltip>
-                </ConfigRow>
-
-                <ModalDivider />
-                
-                <ConfigRow>
-                  {comptrollerData?.shouldUpdate
-                  ? (
-                    <>
-                      
-                      <Button
-                        colorScheme='red'
-                        ml="auto"
-                        onClick={() => handleUpdateComptroller()}
+                      <SimpleTooltip
+                        label={comptrollerData?.shouldUpdate 
+                          ? "Not using the latest version of the Comptroller contract, if you want the option to reenable borrowing on your pool individually we recommend you update." 
+                          : "You're using the latest version of the Comptroller contract."
+                        }
                       >
-                        Update
-                      </Button>
-                    </>
-                    ) 
-                  : (
-                    <>
-                      <Text fontWeight="bold">
-                      Global borrow guardian:
-                      </Text>
-
-                    <Flex ml="auto">
-                      <Text opacity="0.5" fontWeight="bold" mr="2">
-                       { comptrollerData?.isGlobalPauseBorrowOverriden ? "Off": "On" }
-                      </Text>
-
-                      <Switch
-                        ml="auto"
-                        h="20px"
-                        isChecked={!comptrollerData?.isGlobalPauseBorrowOverriden}
-                        onChange={() => {
-                          handleOverrideGlobalPause();
-                        }}
-                        className="black-switch"
-                        colorScheme="#121212"
-                      />
-                    </Flex>
-                    </>
-                    )}
+                        <Link 
+                          ml="auto" 
+                          color="green" 
+                          fontWeight="bold" 
+                          href={`https://etherscan.io/address/${comptrollerData?.implementation}`} 
+                          isExternal
+                        >
+                          {comptrollerData?.version}
+                        </Link>
+                      </SimpleTooltip>
+                      {comptrollerData?.shouldUpdate && <ChevronDownIcon onClick={() => {setShowUpdate(!showUpdate)}}/>}
+                      
                 </ConfigRow>
+
+                {!comptrollerData?.shouldUpdate && (<ModalDivider />)}
+
+                 
+                <>
+                  {comptrollerData?.shouldUpdate && showUpdate && (
+                    <ConfigRow>
+                      <>
+                        
+                        <Button
+                          colorScheme='green'
+                          ml="auto"
+                          onClick={() => handleUpdateComptroller()}
+                        >
+                          Update
+                        </Button>
+                      </>
+                    </ConfigRow>
+                      ) 
+                  }
+                </>
+                <>
+                  {!comptrollerData?.shouldUpdate && (
+                    <ConfigRow>
+                        <>
+                          <Text fontWeight="bold">
+                            Global borrow guardian:
+                          </Text>
+
+                          <Flex ml="auto">
+                            <Text opacity="0.5" fontWeight="bold" mr="2">
+                            { comptrollerData?.isGlobalPauseBorrowOverriden ? "Off": "On" }
+                            </Text>
+
+                            <Switch
+                              ml="auto"
+                              h="20px"
+                              isChecked={!comptrollerData?.isGlobalPauseBorrowOverriden}
+                              onChange={() => {
+                                handleOverrideGlobalPause();
+                              }}
+                              className="black-switch"
+                              colorScheme="#121212"
+                            />
+                          </Flex>
+                        </>
+                    </ConfigRow>
+                    )
+                  }
+                  </>
 
                 <ModalDivider />
               </>
