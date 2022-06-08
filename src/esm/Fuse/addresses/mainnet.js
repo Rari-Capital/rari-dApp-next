@@ -136,7 +136,7 @@ export default {
     },
 
     COMPTROLLER_VERSION: {
-        "0xe16db319d9da7ce40b666dd2e365a4b8b3c18217": "Version 1",
+        "0xE16DB319d9dA7Ce40b666DD2E365a4b8B3C18217": "Version 1",
         "0xE5c78fBe9F5bB3Ee2a41a6b0B0885aA3699D31cB": "Version 2"
     },
     // Deployable Oracles
