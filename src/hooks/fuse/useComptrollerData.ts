@@ -11,7 +11,7 @@ export const useComptrollerData = (comptrollerAddress: string) => {
         const comptrollerContract = useCreateComptroller(comptrollerAddress, fuse, false)
         const implementation = await comptrollerContract.comptrollerImplementation()
 
-        const isLatestVersion = implementation === Object.keys(fuse.addresses.COMPTROLLER_VERSION).at(-1)
+        const isLatestVersion = implementation === Object.keys(fuse.addresses.COMPTROLLER_VERSION)[Object.keys(fuse.addresses.COMPTROLLER_VERSION).length - 1]
 
         let isGlobalPauseBorrowOverriden = null
         if (isLatestVersion) {
