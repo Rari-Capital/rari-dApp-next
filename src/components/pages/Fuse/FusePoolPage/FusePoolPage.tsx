@@ -111,18 +111,18 @@ const FusePoolPage = memo(() => {
             </Text>
           </HStack>
         </Alert>
-        {isWarnedComptroller(data?.comptroller) && (
+        {!!data && isAuthed && (
+          <PendingAdminAlert comptroller={data?.comptroller} />
+        )}
+        {poolId === "8" && (
           <Alert colorScheme={"yellow"} borderRadius={5} mt="5">
             <HStack>
               <WarningTwoIcon color="darkgoldenrod" mr={2} />
               <Text color="black">
-                `Please be aware of available collateral asset liquidity when repaying borrows if you intend to withdraw.`
+                Pool 8 incentives are now 0.
               </Text>
             </HStack>
           </Alert>
-        )}
-        {!!data && isAuthed && (
-          <PendingAdminAlert comptroller={data?.comptroller} />
         )}
         {/* 
         {!!data && !isWarnedComptroller(data.comptroller) && (
