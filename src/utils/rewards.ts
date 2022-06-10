@@ -9,19 +9,22 @@ export const claimRewardsFromRewardsDistributors = async (
   address: string,
   rewardsDistributors: string[]
 ) => {
+  let iface = new utils.Interface(
+    fuse.compoundContracts[
+      "contracts/RewardsDistributorDelegate.sol:RewardsDistributorDelegate"
+    ].abi
+  );
+
+  console.log({ fuse, address, rewardsDistributors, iface });
+
   const encodedCalls = rewardsDistributors.map((rDAddress: string) => {
     // const rd = createRewardsDistributor(rDAddress, fuse);
-    let iface = new utils.Interface(
-      fuse.compoundContracts[
-        "contracts/RewardsDistributorDelegate.sol:RewardsDistributorDelegate"
-      ].abi
-    );
+
     const callData = iface.encodeFunctionData("claimRewards", [address]);
     return [rDAddress, callData];
 
     // return rd.interface.function claimRewards(address);
   });
-
 
   const returnDatas = await sendWithMultiCall(fuse, encodedCalls, address);
 

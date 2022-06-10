@@ -25,10 +25,7 @@ import {
   useUnclaimedFuseRewards,
 } from "hooks/rewards/useUnclaimedFuseRewards";
 import DashboardBox from "../DashboardBox";
-import {
-  TokenData,
-  useTokensDataAsMap,
-} from "hooks/useTokenData";
+import { TokenData, useTokensDataAsMap } from "hooks/useTokenData";
 import { useClaimable } from "hooks/rewards/useClaimable";
 import { claimRewardsFromRewardsDistributors } from "utils/rewards";
 import { SimpleTooltip } from "../SimpleTooltip";
@@ -55,7 +52,6 @@ export const ClaimRGTModal = ({
   const [amount, setAmount] = useState(0);
 
   const { fuse } = useRari();
-
 
   // pool2
   // private
@@ -120,12 +116,10 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
 
   const { allClaimable, allRewardsTokens } = useClaimable(showPrivate);
 
-
   const [claimingAll, setClaimingAll] = useState(false);
   const [claimingToken, setClaimingToken] = useState<string | undefined>();
 
   const rewardTokensData = useTokensDataAsMap(allRewardsTokens);
-
 
   // Claims all Fuse LM rewards at once
   const handleClaimAll = useCallback(() => {
@@ -167,6 +161,7 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
     (rewardToken: string) => {
       const rDs = rewardTokensMap[rewardToken];
       const rDAddresses = rDs.map((rD) => rD.rewardsDistributorAddress); // all rewardsdistributors for this token
+
 
       if (!!rDs.length) {
         setClaimingToken(rewardToken);
@@ -248,8 +243,6 @@ const ClaimRewards = ({ showPrivate }: { showPrivate: boolean }) => {
   );
 };
 
-
-
 const ClaimableRow = ({
   unclaimed,
   handleClaimFuseRewardsForToken,
@@ -305,8 +298,10 @@ const ClaimableRow = ({
   };
 
   const unclaimedAmount = useMemo(() => {
-    return parseFloat(unclaimed.unclaimed.toString()) /
-      (1 * 10 ** (rewardTokenData?.decimals ?? 18));
+    return (
+      parseFloat(unclaimed.unclaimed.toString()) /
+      (1 * 10 ** (rewardTokenData?.decimals ?? 18))
+    );
   }, [unclaimed.unclaimed, rewardTokenData]);
 
   return (
@@ -343,7 +338,7 @@ const ClaimableRow = ({
                 crossAxisAlignment="center"
                 px={6}
                 py={4}
-              // bg="aqua"
+                // bg="aqua"
               >
                 <ul>
                   {pools.map((p) => (
@@ -367,7 +362,7 @@ const ClaimableRow = ({
                 crossAxisAlignment="center"
                 px={6}
                 py={2}
-              // bg="aqua"
+                // bg="aqua"
               >
                 <ul>
                   <motion.li
@@ -395,8 +390,9 @@ const ClaimableRow = ({
               h="100%"
             >
               <SimpleTooltip
-                label={`${unclaimedAmount.toString()} ${rewardTokenData?.symbol
-                  }`}
+                label={`${unclaimedAmount.toString()} ${
+                  rewardTokenData?.symbol
+                }`}
               >
                 <Text fontWeight="bold" ml={3}>
                   {unclaimedAmount.toFixed(3)} {rewardTokenData?.symbol}
